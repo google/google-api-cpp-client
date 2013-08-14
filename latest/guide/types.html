@@ -1,0 +1,530 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Foundation Types</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="../start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="../start/get_started.html">Jumping In</a>
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="../guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="../guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="../guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li class="here">Understanding Foundation Types
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Foundation Types</div>
+<section>
+  <p>
+    This document discusses the basic types upon which the SDK is built.
+    Some of these are introduced by the SDK itself, but are considered part
+    of the foundation. They don't have much to do with interacting with
+    cloud services as much as providing a programming environment.
+  </p>
+  <p>
+    Many of these types will appear throughout this Developer's Guide
+    with the assumption that they are already understood. This is the
+    only place many or all of these are documented.
+  </p>
+</section>
+<section>
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#Primitive">Primitive Values</a>
+    <li><a href="#Strings">Strings and Byte Sequences</a>
+    <li><a href="#Memory">Memory Management</a>
+    <li><a href="#Status">Error Status</a>
+    <li><a href="#Mutex">Synchronization</a>
+    <li><a href="#Closure">Callbacks</a>
+    <li><a href="#Executor">Executors</a>
+  </ol>
+</section>
+<section id='Primitive'>
+  <h2>Primitive Values</h2>
+  <p>
+    <table>
+      <tr><th>Type
+           <th>Description
+      <tr><td><code>bool</code>
+          <td>boolean values
+      <tr><td><code>int</code>
+          <td>Native integer values assumed to be 32-bits but shouldn't matter.
+      <tr><td><code>int64</code>
+          <td><p>
+              64-bit integer values.
+             </p>
+             <p>
+               <code>int64</code> is also used where
+               <code>size_t</code> might normally be used. The SDK defines
+               this type in <code>googleapis/base/integral_types.h</code>.
+             </p>
+      <tr><td><code>double</code>
+          <td>Native double values.
+      <tr><td><code>googleapis::client::DateTime</code>
+          <td>
+            <p>
+              Date and time values.
+            </p>
+            <p>
+              The <code>DateTime</code> can convert into
+              different standard date/time representations used by standard
+              C libraries.
+            </p>
+    </table>
+  </p>
+</section>
+<section id='Strings'>
+  <h2>Strings and Byte Sequence</h2>
+  <p>
+    <table>
+      <tr><th>Type
+           <th>Description
+      <tr><td><code>char*</code>
+          <td>These usually denote byte sequences. Sometimes, especially
+              in the JSON related APIs, these are null-terminated C-strings.
+      <tr><td><code>std::string</code>
+          <td>Standard C++ string objects are usually used for text. Sometimes
+              <code>string</code> is used for the storage of
+              binary byte sequences.
+      <tr><td><code>StringPiece</code>
+          <td>
+            <p>
+              <code>StringPiece</code> is an encapsulation of a
+              <code>char*</code> and its <code>int64</code> length. The
+              data is not null-terminated so can be any byte sequence. They
+              are very light weight because they only reference the data and
+              do not have a copy. However this means that the data must remain
+              valid and unchanged over the lifetime of the instance.
+              StringPiece has implicit constructors from <code>string</code> and
+              <code>char*</code> where the <code>char*</code> assumes a
+              null-terminated string for determining the length. You can also
+              explicitly construct one and specify the length.
+            </p>
+            <p>
+              The SDK defines this type in <code>strings/stringpiece.h</code>.
+            </p>
+    </table>
+  </p>
+<pre class='prettyprint'>
+#include "googleapis/strings/stringpiece.h"
+
+// The use of asserts below is just for illustrative purposes.
+void ExampleUsage() {
+  StringPiece empty_stringpiece;
+
+  // This works because "" is promoted to a StringPiece,
+  // which has an '==' operator.
+  assert(empty_stringpiece == "");
+
+  string hello = "hello";
+  StringPiece from_string = hello;
+  StringPiece from_cstr = "hello";
+  assert(from_string == hello);
+  assert(from_str == hello);
+
+  string bigstring = "hello, world!";
+  StringPiece from_substr(bigstring.c_str(), hello.size());
+  assert(from_substr == hello);
+  assert(from_substr.data() == bigstring.c_str());
+
+  string from_stringpiece = from_substr.as_string();
+}
+</pre>
+</section>
+<section id='Memory'>
+  <h2>Memory Management</h2>
+  <p>
+    <table>
+      <tr><th>Type
+           <th>Description
+      <tr><td><code>scoped_ptr&lt;T&gt;</code>
+          <td>
+            <p>
+              Scoped pointers are containers for dynamic objects. They overload
+              <code>-&gt;</code> and <code>*</code> operators to provide access
+              the dynamic object making the container transparent.
+              <code>scoped_ptr</code> owns the object and will
+              <code>delete</code> the object when the container is destroyed.
+            </p>
+            <p>
+              <code>scoped_ptr</code> never appears in a public SDK interface
+              however they are used as local variables and object attributes
+              to indicate ownership.
+            </p>
+      <tr><td><code>malloc</code> vs <code>new</code>
+          <td>
+              Within the implementation of the <code>googleapis::client</code>
+              namespace, <code>malloc</code> is used when
+              out-of-memory errors are recoverable and <code>new</code> when
+              they are fatal. we assume <code>new</code> will never return
+              <code>NULL</code> however <code>malloc</code> may.
+      <tr><td>Pointers vs References vs Copy Constructors
+          <td>
+            <p>
+              The client APIs typically take references or <code>const</code>
+              pointers to indicate that the caller retains ownership and
+              non-<code>const</code> pointers to indicate that ownership is
+              being passed to the method or object. A non-const pointer may
+              also simply be an out parameter that is modified by the method.
+            </p>
+            <p>
+              Return results are similar where non-<code>const</code> pointers
+              often pass ownership back, though might also be returning mutable
+              state. These are documented by the APIs on a case-by-case basis.
+              APIs never take or return non-const references.
+            </p>
+            <p>
+              Some parameters and results are objects passed by value. For
+              return results, this is in cases where the objects are very
+              lightweight or require copied memory but do not want to burden
+              the caller with having to manage a dynamic object. Typical
+              examples are <code>googleapis::util::Status</code> is always
+              returned by value. Methods that transform strings return
+              <code>string</code> by value whereas methods that return
+              already-managed strings return references.
+            </p>
+            <p>
+              The <code>googleapis::client::JsonCppData</code> class uses a
+              call-by-value syntax however the semantics are actually
+              call-by-reference. See
+              <a href='json_data.html'>Using the JSON Data Model</a> for more
+              information about <code>JsonCppData</code>.
+            </p>
+     </table>
+<pre class='prettyprint'>
+#include "googleapis/base/scoped_ptr.h"
+
+void ProcessReference(const string&amp; str);
+void ProcessPointer(const string* str);
+
+// The use of asserts below is just for illustrative purposes.
+void SampleScopedPtr() {
+  string local_string("hello");
+  scoped_ptr&lt;string&gt; dynamic_string(new string("hello"));
+  assert(*dynamic_string == local_string);
+  assert(dynamic_string-&gt;size() == local_string.size());
+
+  ProcessReference(local_string);
+  ProcessReference(*dynamic_string);
+  ProcessPointer(&amp;local_string);
+  ProcessPointer(dynamic_string.get());
+}
+</pre>
+  </p>
+</section>
+<section id='Status'>
+  <h2>Error Status</h2>
+  <p>
+    <table>
+      <tr><th>Type
+           <th>Description
+      <tr><td><code>googleapis::util::Status</code>
+          <td>
+            <p>
+              A <code>googleapis::util::Status</code> is used to return errors
+              (or success) as a return result or out-parameter. The status
+              contains an error code and a message string explaining more
+              details. In general a status should be used as a binary
+              condition. It is either <code>.ok()</code> or it is not.
+              If it is not <code>.ok()</code> then <code>.error_message</code>
+              will provide more human-consumable details.
+            </p>
+            <p class='note'>
+              The types of errors returned by a given API currently undefined.
+              Where there are specific values, they are only suggestive.
+              Assume they will change in future versions of the API until
+              further notice or explicitly documented.
+            </p>
+            <p>
+              The API always uses the full name
+              <code>googleapis::util::Status</code>
+              to avoid potential namespace collisions with external libraries
+              since the name is so generic.
+            </p>
+            <p>
+              For more information on error handling, see the document
+              <a href='error_handling.html'>Error Handling and Reporting</a>.
+            </p>
+      <tr><td><code>bool</code>
+            <td>Methods returning a <code>bool</code> usually use
+                <code>true</code> for success and <code>false</code> otherwise.
+    </table>
+<pre class='prettyprint'>
+#include "googleapis/client/util/status.h"
+#include "googleapis/util/status.h"
+using googleapis::client::StatusOk;
+using googleapis::client::StatusUnknown;
+
+googleapis::util::Status FunctionReturningStatus(int x) {
+  if (x &gt;= 0) return StatusOk();
+  else return StatusInvalidArgument("Non-negative numbers required.");
+}
+
+void Example(int x) {
+  googleapis::util::Status status = FunctionReturningStatus(x);
+  if (!status.ok()) {
+     cerr &lt;&lt; "Function failed: " &lt;&lt; status.error_message();
+  }
+}
+</pre>
+  </p>
+</section>
+<section id='Mutex'>
+  <h2>Synchronization</h2>
+  <p>
+    <table>
+      <tr><th>Type
+           <th>Description
+      <tr><td><code>Mutex</code>
+          <td>
+            <p>
+              A <code>Mutex</code> are <em>non-rentrant</em> mutexes.
+              In general the client library is thread-friendly,
+              <em>not</em> thread-safe, unless otherwise noted.
+              That means that if you provide proper mutex locking in
+              your code using this library then the result will be thread-safe.
+            </p>
+            <p>
+              <code>Mutex</code> is only used
+              internally as an implementation detail and never exposed
+              in a components public interface. However if you are writing
+              multithreaded usage patterns requiring thread-safety, you
+              may consider using <code>Mutex</code> for the mutex.
+            </p>
+            <p>
+              The SDK implements mutex in <code>googleapis/base/mutex.h</code>.
+            </p>
+      <tr><td><code>Condition</code>
+          <td>A <code>Condition</code> is a condition variable that can be
+              used for a thread to wait on. It requires another thread to
+              eventually change state and signal the condition so the first
+              may proceed. Like <code>Mutex</code>, condition variables are
+              not exposed in the public API interfaces but you are welcome
+              to use them from your code.
+      <tr><td><code>MutexLock</code>
+          <td><code>MutexLock</code> is used to grab and release a lock within
+            a C++ scope. The lock takes a mutex in its constructor. It will
+            lock the mutex when constructed and release the mutex when
+            destroyed. The constructor will block on contention so the code
+            between the lock and closing scope becomes a critical section.
+     </table>
+<pre class='prettyprint'>
+#include "googleapis/base/mutex.h"
+class MyClass {
+  void MyThreadsafeMethod() {
+    MutexLock l(&amp;mutex_);
+    // critical section
+  }
+
+  void AnotherThreadsafeMethod() {
+    // outside critical section
+    {
+      MutexLock l(&amp;mutex_);
+      // inside critical section
+    }
+    // outside critical section
+  }
+
+  void ConditionWaiter(const int64 timeout_millis) {
+    MutexLock l(&amp;mutex_);
+    if (mutex_.AwaitWithTimeout(condition_, timeout_millis)) {
+       // in critical section with condition met
+    } else {
+      // in critical section with timeout before condition met
+    }
+  }
+
+  void ConditionNotifier() {
+    MutexLock l(&amp;mutex_);
+    // Tell anyone waiting on this condition that it has now been met.
+    condition_.Notify();
+  }
+
+  private:
+    Mutex mutex_;
+    Condition condition_;
+}
+</pre>
+</p>
+</section>
+<section id='Closure'>
+  <h2>Callbacks</h2>
+  <p>
+    <table>
+      <tr><th>Type
+           <th>Description
+      <tr><td><code>Closure</code>
+          <td>
+            <p>
+              A <code>Closure</code> is an executable object that can be
+              <code>Run()</code>. It is like a function pointer but, being an
+              object, can encapsulate additional state. The components in the
+              SDK typically use closures where an API might desire a callback.
+              Closures are always dynamic instances. They are never created on
+              the stack.
+            </p>
+            <p>
+              Since <code>Closure</code> are dynamic, they must eventually be
+              freed. A closure can be constructed in one of two modes:
+              repeatable or one-time-usable. APIs expecting closures will
+              document which type they need. Unless otherwise noted, a
+              repeatable closure is owned by the caller and must be expicitly
+              destroyed when no longer needed. A non-repeatable closure will
+              manage itself and self-destruct after it is <code>Run()</code>.
+            </p>
+            <p>
+              Closures are constructed using either <code>NewCallback</code>
+              or <code>NewPermanentCallback</code> where 'permanent' means
+              a repeatable closure. The closure's <code>is_repeatable()</code>
+              method will tell you which type it is.
+            </p>
+            <p>
+              There are different variants of <code>Closure</code> that
+              expect different numbers of arguments and/ore return results.
+              These are named <code>ResultCallback</code><em>N</em> where
+              <em>N</em> is the number of arguments. For result callbacks,
+              the first template argument is the result type.
+            </p>
+            <p>
+              Finally, closures may be constructed with additional variables
+              to pass when invoking their bound function. These bonus variables
+              do not count as part of the specific
+              <code>ResultCallback</code>'s signature. See the example.
+            </p>
+     </table>
+     <pre class='prettyprint'>
+#include "googleapis/base/callback.h"
+static void MyFunction();
+class MyClass {
+ public:
+   void MyMethod();
+   void MyMethodWithArg(int foo);
+   string MyOtherMethod(const string&amp; a, int b);
+};
+
+MyClass* me = new MyClass;
+
+Closure* function_closure = NewCallback(&amp;MyFunction);
+function_closure-&gt;Run();
+
+Closure* method_closure = NewCallback(me, &amp;MyClass::MyMethod);
+method_closure-&gt;Run();
+
+Closure* curried_closure = NewCallback(me, &amp;MyClass::MyMethodWithArg, 1);
+curried_closure-&gt;Run();
+
+Callback1&lt;int&gt;* callback_expecting_parameter =
+  NewCallback(me, &amp;MyClass::MyMethodWithArg);
+callback_expecting_parameter-&gt;Run(1);
+
+ResultCallback1&lt;string, int&gt;* curried_string =
+   NewCallback(me, &amp;MyClass::MyOtherMethod, "hello");
+string x = curried_string-&gt;Run(1);
+
+ResultCallback2&lt;string, const string&amp;, int&gt;* other_closure =
+   NewCallback(me, &amp;MyClass::MyOtherMethod);
+string y = other_closure-&gt;Run("hello", 1);
+
+scoped_ptr&lt;Closure&gt; permanent(NewPermanentCallback(&amp;MyFunction));
+permanent-&gt;Run();
+permanent-&gt;Run();
+permanent-&gt;Run();
+</pre>
+  </p>
+</section>
+<section id='Executor'>
+  <h2>Executors</h2>
+  <p>
+    An <code>Executor</code> is an abstract class providing an interface that
+    can process one or more Closures. Concrete executors manage a queue and
+    processing resources to run the closures they are given.
+  </p>
+  <aside class='note'>
+    <string>NOTE:</strong>
+    Eventually there will be a <code>ThreadPool</code> executor that provides
+    a queue with multiple worker threads, however this has not been introduced
+    yet. In the meantime, you can provide your own Executor implementation and
+    inject it.
+  </aside>
+  </p>
+  <table>
+    <tr><th>Type
+      <th>Description
+        <tr><td>Inline Executor
+             <td>Executes closures immediately in the same thread making the
+               request on the executor.
+  </table>
+     <pre class='prettyprint'>
+#include "googleapis/base/callback.h"
+#include "googleapis/thread/executor.h"
+
+class MyExecutor : public googleapis::thread::Executor {
+  public:
+    virtual void Add(Closure* closure);
+    ...
+};
+
+googleapis::thread::Executor* executor = new MyExecutor;
+
+// I'm keeping ownrship so must guarantee the executor instance stays valid.
+googleapis::thread::Executor::SetDefaultExecutor(executor);
+
+</pre>
+</section>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

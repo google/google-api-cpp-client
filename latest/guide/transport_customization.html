@@ -1,0 +1,506 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Adding a Custom HTTP Transport</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="../start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="../start/get_started.html">Jumping In</a>
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="../guide/transport_configure.html">Configuring the Transport Layer</a>
+<li class="here">Adding Custom HTTP Protocol Implementations
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="../guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Adding a Custom HTTP Transport</div>
+<section>
+  <p>
+    This document describes how to write your own <code>HttpTransport</code>
+    implementation. It may be of interest if you already have an HTTP transport
+    that you use within your client application, and would like to use that
+    same implementation when talking to cloud services with the client-library.
+  </p>
+  <p class='note'>
+    Custom HTTP Transports is an advanced use-case. Typically client
+    applications use an implementation already provided with the SDK.
+    These are documented in <a href='making_http_requests.html'>Making HTTP
+    Requests</a>.
+  </p>
+</section>
+<section>
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#Motivation">When to consider a custom HTTP transport</a>
+    <li><a href="#Steps">Steps for adding a custom transport</a>
+      <ol class="toc">
+        <li><a href="#HttpRequestSubclass">
+            Implement a subclass of HttpRequest</a>
+        <li><a href="#HttpTransportSubclass">
+            Implement a subclass of HttpTransport</a>
+        <li><a href="#HttpTransportFactorySubclass">
+            Implement a subclass of HttpTransportFactory</a>
+        <li><a href="#IntegrationTest">Test for compliance</a>
+      </ol>
+    <li><a href="#Troubleshoot">Troubleshooting a custom transport</a>
+  </ol>
+</section>
+<section id='Motivation'>
+  <h2>When to consider a custom HTTP transport</h2>
+    The Google APIs Client Library for C++ comes with a functional transport
+    implementation using the open source curl transport. If your
+    application is already using another transport then you might wish to
+    have all traffic go through that mechanism rather than split across
+    different implementations. Multiple implementations add more resources
+    to your application and may be more difficult to instrument and monitor if
+    you do such things. You may also have trouble porting curl to the platform
+    that you are on. Or perhaps your have a different type of network layer
+    that curl does not support.
+  <p/>
+</section>
+<section id='Steps'>
+  <h2>Steps for adding a custom transport</h2>
+
+  <p>
+    The following steps illustrate the complete process for adding a
+    a custom HttpTransport. It assumes that you already have a library
+    that implements the HTTP protocol and you would like to integrate that
+    implementation to be used natively with the Google APIs Client Library
+    for C++.
+  </p>
+
+  <p>
+    The steps are presented bottom up to simplify the documentation.
+    In practice you might want to stub out classes and implement them
+    more top down or through several iterative passes of refinement.
+    What is easiest depends on the implementation details of your
+    transport. In the end, you need to perform all the steps to complete.
+    However, you may aim for different milestones along the way that suite
+    your development style.
+  </p>
+
+  <aside class='note'>
+    Please implement your custom classes in your own namespace.
+    Please <a href='../contribute.html'>consider contributing it back</a> for
+    others to benefit from your work if your custom transport is built on
+    an HTTP protocol implementation or  technology that is available to others.
+  </aside>
+
+  <p>
+    The code samples in the remainder of this document assume the following
+    context:
+  </p>
+<pre class='prettyprint'>
+#include "googleapis/client/data/data_reader.h"
+#include "googleapis/client/data/data_writer.h"
+#include "googleapis/client/transport/http_transport.h"
+#include "googleapis/client/transport/http_request.h"
+#include "googleapis/client/transport/http_response.h"
+#include "googleapis/client/transport/http_types.h"
+#include "googleapis/client/util/status.h"
+using googleapis_client::DataReader;
+using googleapis_client::DataWriter;
+using googleapis_client::HttpHeaderMap;
+using googleapis_client::HttpRequest;
+using googleapis_client::HttpRequestState;
+using googleapis_client::HttpResponse;
+using googleapis_client::HttpTransport;
+using googleapis_client::HttpTransportFactory;
+using googleapis_client::HttpTransportLayerConfig;
+using googleapis_client::HttpTransportOptions;
+</pre>
+</section>
+<section id='HttpRequestSubclass'>
+  <h3>Implement a subclass of HttpRequest</h3>
+  <p>
+    The <code>HttpRequest</code> class is responsible for putting the
+    actual HTTP requests on the network and reading the responses back.
+    This is going to be the bulk of your integration work. It might be
+    the only class that knows about the custom HTTP protocol library that
+    you are adapting. Often the HttpTransport class you write later will
+    not even need to know that your HTTP protocol implementation exists.
+  </p>
+  <p>
+    We recommend that your <code>HttpRequest</code> class be a private class
+    known only to the transport. You usually will not even need a header file
+    for it unless you want to write explicit unit tests against internal
+    details. Your class must minimally provide a constructor and an
+    implementation of the protected pure virtual <code>DoExecute</code> method
+    specified in the base <code>HttpRequest</code>. That is all you need.
+    In fact your specialized class can be internal -- it is only known to your
+    transport class which exposes it as an instance of the abstract base class.
+    There is not reason to add additional methods other than to decompose
+    the required ones.
+  </p>
+  <aside class='note'>
+    A future release will probably have an optional <code>DoExecuteAsync</code>
+    where you can add an implementation optimized for asynchronous calls.
+  </aside>
+  <h4>Implement your HttpRequest subclass's constructor</h4>
+  <p>
+    The constructor must explicitly call the base class constructor with
+    the <code>HttpRequest::HttpMethod</code> and <code>HttpTransport</code>
+    instance. You may add additional parameters into the constructor if you
+    need. The <code>HttpTransport*</code> parameter to your constructor can
+    be typed as your specialized <code>HttpTransport</code> class if it
+    contains additional state variables and/or helper methods that you
+    want to use with your request class. Otherwise leave it as an
+    abstract <code>HttpTransport</code>. The base class only has access
+    to the abstract base <code>HttpTransport</code> class regardless.
+  </p>
+  <p>
+    If you pass a typed instance, you can either store it as an additional
+    specialized instance variable or you can<code>static_cast</code> the
+    <code>transport()</code> attribute from the base class since you know
+    that it must be your transport class (because your constructor only
+    explicitly uses your custom class).
+  </p>
+  <p>
+    You may want to initialize other
+    private request state that you will be using later as in any other
+    constructor.
+  </p>
+  <h4>Implement your HttpRequest subclass's DoExecute</h5>
+  <p>
+    <code>DoExecute</code> is a synchronous method but it might be called from
+    a multi-threaded context. You do not normally need to worry about
+    thread-safety within the <code>googleapis</code> components since the
+    method is a protected member only called by the base class which handles
+    the synchronization for you. If you are using additional shared state
+    required by your HTTP protocol library implementation then that may
+    require precautions for multi-threading since you may have multiple
+    instances of your custom HttpRequest class executing concurrently.
+  </p>
+  <aside class='note'>
+    If your HTTP protocol library is not thread-safe then you may want to
+    consider forcing the <code>HttpTransportOptions</code> to use
+    <code>InlineExecutor</code> as the executor so that you do not need to
+    worry about synchronization within <code>DoExecute</code>.
+  </aside>
+
+  <p>
+    The general flow for <code>DoExecute</code> is:
+    <ol>
+      <li>Form the actual request.
+        <ul>
+          <li>Consider any relevant options() attributes, such timeout_ms.
+          <li>Use the URL() and method() attributes to know what you are
+              invoking.
+          <li>Use the headers() attribute for the request headers.
+            <ul>
+              <li>These already include standard headers such as:
+                  Host, User-Agent, Content-Type, Content-Length.
+            </ul>
+          <li>Use the content_reader() attribute for the request payload.
+        </ul>
+      <li>Attempt to send the request.
+        <ul>
+          <li>If you could not send the request,
+            call <code>mutable_state()->set_transport_status()</code>
+            detailing the error then return.
+        </ul>
+      <li>Wait for a response.
+        <ul>
+          <li>If your HTTP protocol implementation times-out then
+            call <code>mutable_state()->set_transport_status()</code> with a
+            <code>StatusDeadlineExceeded()</code> error and return.
+        </ul>
+      <li>Initialize the HttpResponse in the response() attribute.
+        <ul>
+          <li>Parse the HTTP code and
+          <code>mutable_state()->set_http_code()</code>.</li>
+          <li>Parse the response headers and add them into the response.</li>
+          <li>Write the response payload into the
+            <code>response()->body_writer()</code>.</li>
+        </ul>
+      <li>Let the base class interact with the
+          <code>HttpTransportErrorHandler</code>handle redirects
+          (HTTP 3xx codes) and other HTTP error responses
+          (such as 401 and 503).
+    </ol>
+
+    That's it. In practice this may be a lot of work depending on the
+    API for the HTTP protocol implementation you are trying to adapt.
+  </p>
+
+  <p>
+    The following snippet declares a minimal request class.
+  </p>
+<pre class='prettyprint'>
+class MyCustomRequest : public HttpRequest {
+ public:
+  MyCustomRequest(
+      const HttpRequest::HttpMethod&amp; method, HttpTransport* transport)
+      : HttpRequest(method, transport) {
+  }
+  virtual ~MyCustomRequest() {}
+
+  virtual void DoExecute(HttpResponse* response);
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(MyCustomRequest);
+};
+</pre>
+  <p>
+    If you wish to stub this class out to implement the transport and factory
+    first you can implement DoExecute to fail with a transport error as
+    follows:
+  </p>
+<pre class='prettyprint'>
+void DoExecute(HttpResponse* response) {
+  mutable_state()-&gt;set_transport_status(
+      googleapis_client::StatusUnimplemented("Not yet implemented"));
+}
+</pre>
+  <p>
+    Otherwise, the <code>DoExecute</code> method might look something like
+    the following:
+  </p>
+<pre class='prettyprint'>
+void MyCustomRequest::DoExecute(HttpResponse* response) {
+  string log;
+
+  // This is the data that would go in the request that we send using the
+  // external HTTP protocol implementation that we are adapting.
+  int64 timeout_ms = options().timeout_ms();
+  StrAppend(&amp;log, "DoExecute method=", http_method(), " url=", url(),
+            " timeout=", timeout_ms, "\n");
+  StrAppend(&amp;log, "Request Headers:\n");
+  for (HttpHeaderMap::const_iterator it = headers().begin();
+       it != headers().end();
+       ++it) {
+    StrAppend(&amp;log, "  ", it-&gt;first, ": ", it-&gt;second, "\n");
+  }
+  StrAppend(&amp;log, "Request Content:\n");
+  DataReader* reader = content_reader();
+  StrAppend(&amp;log, reader ? reader-&gt;RemainderToString() : "&lt;null&gt;", "\n");
+
+  // We'll hardcode a 503 here just for illustrative purposes.
+  // Normally this response code, headers, and payload body would come
+  // from your proprietary HTTP protocol implementation.
+  HttpRequestState* state = response-&gt;mutable_request_state();
+  state-&gt;set_http_code(503);
+  response-&gt;AddHeader("BogusResponseHeader", "BogusHeaderValue");
+  util::Status status = response-&gt;body_writer()-&gt;Write("Bogus Response");
+
+  if (!status.ok()) {
+    state-&gt;set_transport_status(status);
+  }
+}
+</pre>
+</section>
+<section id='HttpTransportSubclass'>
+  <h3>Implement a subclass of HttpTransport</h3>
+  <p>
+    The <code>HttpTransport</code> class is usually very simple to write
+    because the real work either happens in the base class or is delegated to
+    <code>HttpRequest</code> instances. The main responsibility of your
+    specialized <code>HttpTransport</code> class is to act as a
+    <code>HttpRequest</code> factory.
+  </p>
+  <p>
+    Transports must have a constructor that takes an explicit
+    <code>const HttpTransportOptions& options</code>. Note that the base
+    <code>HttpTransport</code> class does not have a default constructor
+    at this time. If you really do need a default constructor, you should
+    pass a default options to the base constructor.
+  </p>
+  <p>
+    The constructor should set the ID attribute with the name of the transport
+    class by default. If your HTTP protocol implementation library is not
+    thread-safe then you might want to force the
+    <code>HttpTransportOptions::executor</code> to be an
+    <code>InlineExecutor</code>, though leaving this to higher level
+    callers that pass the options gives you (or your consumers)
+    flexibility for testing.
+  </p>
+  <p>
+    Transport classes must implement the pure virtual
+    <code>NewHttpRequest</code> method from the base
+    <code>HttpTransport</code>. This method is a request factory.
+    Typically it just instantiates your custom <code>HttpRequest</code> class
+    forwarding the <code>HttpMethod</code> and adding itself
+    (<code>this</code>) as the transport instance.
+  </p>
+  <p>
+    The following snippet defines a custom transport class with a default
+    constructor, though we recommend against them. This snippet is the
+    complete implementation since the interesting work is delegated to
+    the custom request class.
+  </p>
+<pre class='prettyprint'>
+class MyCustomTransport : public HttpTransport {
+ public:
+  // Transports do not typically have a default constructor.
+  // But if you must have one, defined it as follows
+  MyCustomTransport()
+      : HttpTransport(HttpTransportOptions()) {
+    set_id(kTransportIdentifier);
+  }
+
+  explicit MyCustomTransport(const HttpTransportOptions&amp; options)
+      : HttpTransport(options) {
+    set_id(kTransportIdentifier);
+  }
+
+  virtual ~MyCustomTransport() {
+  }
+
+  // Ususally this is implemented in a private source file
+  // because the MyCustomRequest class would not be exposed anywhere.
+  virtual HttpRequest* NewHttpRequest(const HttpRequest::HttpMethod&amp; method) {
+    return new MyCustomRequest(method, this);
+  }
+
+  static const StringPiece kTransportIdentifier;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(MyCustomTransport);
+};
+
+const StringPiece MyCustomTransport::kTransportIdentifier("MyCustomTransport");
+</pre>
+  <p>
+    Your transport may have additional configurable attributes with it.
+    These can either be individual instance variables, or you can create an
+    options class. At present we recommend against subclassing the
+    <code>HttpRequestOptions</code>. Instead add a second options attribute
+    with the specialized options you expose.
+  </p>
+</section>
+<section id='HttpTransportFactorySubclass'>
+  <h3>Implement a subclass of HttpTransportFactory</h3>
+  <p>
+    We strongly recommend you add a custom <code>HttpTransportFactory</code>
+    class as well, though it is not strictly required. In fact, we believe
+    it is more important to expose a factory than to expose the custom
+    transport class.
+  </p>
+  <p>
+    Factories do not typically have a default constructor, rather they
+    have a constructor explicitly taking a
+    <code>HttpTransportLayerConfig</code> instance. The main purpose of
+    the config is to provide the <code>HttpTransportOptions</code> to use
+    for the <code>HttpTransport</code> instances it takes. The config is
+    used to own the data that the options reference so that you only need
+    to track a single instance rather than all the individual attributes
+    that you might set. Your constructor just passes this parameter
+    through to the base class.
+  </p>
+  <p>
+    Your custom transport factory subclass must implement the protected
+    pure virtual <code>DoAlloc</code> method specified by the base
+    <code>HttpTransportFactory</code>. This creates a new instance of
+    your specialized <code>HttpTransport</code> configures it with any
+    custom attributes introduced by your factory. The <code>DoAlloc</code>
+    method is called from within the base class; the base class
+    finishes configuring the new <code>HttpTransport</code> instance with
+    the standard factory attributes.
+  </p>
+  <p>
+    The following snippet shows a typical factory implementation. If your
+    transport class has additional attributes then you might want to provide
+    attributes on the factory to control the values they are created with.
+    Your DoAlloc method should use these to configure the transport it returns
+    with the custom attributes that you are adding. Leave the standard
+    attributes to the base class.
+  </p>
+<pre class='prettyprint'>
+class MyCustomTransportFactory : public HttpTransportFactory {
+ public:
+  explicit MyCustomTransportFactory(HttpTransportLayerConfig* config)
+      : HttpTransportFactory(config) {
+  }
+  virtual ~MyCustomTransportFactory() {}
+
+ protected:
+  HttpTransport* DoAlloc(const HttpTransportOptions&amp; options) {
+    return new MyCustomTransport(options);
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(MyCustomTransportFactory);
+};
+</pre>
+</section>
+<section id='Troubleshoot'>
+  <h2>Troubleshooting a custom transport</h2>
+  <p>
+    You can use the <code>HttpScribe</code> in the base
+    <code>HttpTransport</code> class to generate a transcript of messages
+    flowing through your transport.
+  </p>
+  <p>
+    Additionally you may want to add <code>VLOG</code> logging messages from
+    the <a href='https://code.google.com/p/google-glog/'>Google glog logging
+    library for C++</a> that is already utilized within the Google APIs Client
+    Library for C++. See
+    <a href='http://google-glog.googlecode.com/svn/trunk/doc/glog.html'>
+      How To Use Google Logging Library</a> for more information about logging.
+  </p>
+  <p>
+    The core Google APIs Client Library for C++ is defines using only the
+    abstract classes that you have customized here in this document. You
+    can use your transport with the samples or use one of the provided
+    transports, such as <code>CurlHttpTransport</code> with your application
+    to help isolate problems to your library or elsewhere in your application
+    or network.
+  </p>
+</section>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

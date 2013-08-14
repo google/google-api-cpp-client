@@ -1,0 +1,166 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="./static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="./static/favicon.ico"/>
+<title>Understanding the Scope</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="./index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="./start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="./start/get_started.html">Jumping In</a>
+<li class="here">Understanding the Scope
+<li><a class="nav" href="./object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="./available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="./guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="./guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="./guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="./guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="./guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="./guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="./guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="./guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="./guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="./guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="./support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="./contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="./index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="./static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Understanding the Scope</div>
+<section>
+  <p>
+    This document provides an overview of the scope of activities covered
+    by Google APIs Client Library for C++ and the part of the product where
+    the activity occurs. This may help you understand the gist of what the
+    product offers, what it can be used for, and where to learn more about
+    those capabilities. For purposes of brevity, this document refers to
+    APIs for cloud services, including
+    <a href='https://developers.google.com/apis-explorer/#p/'>Google APIs</a>,
+    and <a href='https://developers.google.com/appengine/docs/java/endpoints/overview'>
+    Cloud Endpoints</a> collectively as <defn>cloud APIs</defn>.
+  </p>
+  <p>
+    See the documents:
+    <ul>
+      <li><a href='object_model.html'>Understanding the Code Base</a><br/>
+          for a more technical overview of the components provided within
+          the libraries themselves.
+      <li><a href='start/get_started.html'>Jumping In</a><br/>
+          for a hands-on jump start to forge ahead without worrying
+          about these abstractions.
+    </ul>
+  </p>
+</section>
+<section id='ActivityModel'>
+  <table style='border-spacing:0.5em;' cellpadding='5em'>
+    <tr><th style='background-color:#336600; color:#FFFFFF'>
+        <span id='UsingCloudServices'>Using Cloud Services</span>
+        <td style='border-top:1px solid #336600'>
+          Work with cloud services at a high level of abstraction
+          using APIs customized for individual services and interaction
+          patterns.
+          <ul>
+            <li><a href='object_model.html#ClientServiceLayer'>
+                Service Layer Components</a>
+            <li><a href='TODO.html'>
+                Obtaining Specialized Service Libraries</a>
+            <li><img src='./images/core_doc.png'/><a href='guide/service_requests.html'>
+                Making Service Requests</a>
+          </ul>
+    <tr><th style='background-color:#000099; color:#FFFFFF'>
+        <span id='SendingHttpRequests'>Sending HTTP Requests</span>
+        <td style='border-top:1px solid #000099'>
+          Interact with web servers by making explicit HTTP requests.
+          These may be services or traditional web servers. You can
+          also use these lower level interface to inject new behaviors
+          and technologies, making them available to the higher level
+          abstractions.
+          <ul>
+            <li><a href='object_model.html#HttpTransportLayer'>
+                Transport Layer Components</a>
+            <li><img src='./images/core_doc.png'/><a href='guide/making_http_requests.html'>
+                Making HTTP Requests</a>
+            <li><img src='./images/core_doc.png'/><a href='guide/transport_configure.html'>
+                Configuring the Transport Layer</a>
+            <li><a href='guide/transport_customization.html'>
+                Adding Custom HTTP Protocol Implementations</a>
+            <li><a href='guide/transport_testing.html'>
+                Testing and Debugging the Transport Layer</a>
+          </ul>
+    <tr><th style='background-color:#663399; color:#FFFFFF'>
+        <span id='UsingCredentials'>Using Credentials</span>
+        <td style='border-top:1px solid #663399'>
+          Gain access to protected services and data using Credentials.
+          <ul>
+            <li><a href='object_model.html#AuthorizationModule'>
+                Auth Components</a>
+            <li><img src='./images/core_doc.png'/><a href='guide/oauth2.html'>
+                Using OAuth 2.0</a>
+            <li><a href='guide/credential_store.html'>
+                Storing Credentials</a>
+          </ul>
+    <tr><th style='background-color:#660033; color:#FFFFFF'>
+        <span id='WorkingWithData'>Working with Data</span>
+        <td style='border-top:1px solid #660033'>
+          Work with and exchange data using common patterns and components
+          throughout the SDK.
+          <ul>
+            <li><a href='object_model.html#DataLayer'>
+                Data Layer Components
+            <li><img src='./images/core_doc.png'/><a href='TODO.html'>
+                Reading and Writing Data</a>
+            <li><img src='./images/core_doc.png'/><a href='TODO.html'>
+                Using JSON Data Object</a>
+          </ul>
+
+    <tr><th style='color:#666666; background-color:#FFFFFF'>
+        <span id='WorkingWithCpp'>Working with C++</span>
+        <td style='border-top:1px solid #FFFFFF'>
+          The Google APIs Client Library for C++ has certain patterns and
+          styles that are used repeatedly throughout the SDK.
+
+  </table>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

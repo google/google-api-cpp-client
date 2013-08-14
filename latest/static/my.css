@@ -1,0 +1,72 @@
+a:link, a:visited { background-color:#FFFFFF;color:#000099 }
+a:hover, a:active { color:#FFFFFF;background-color:#000099 }
+a.nav:link, a.nav:visited { background-color:#FFFFCC;color:#000099;  }
+a.nav:hover, a.nav:active { color:#FFFFFF;background-color:#000099 }
+section { margin-bottom:2em; margin-left:0.5em; }
+p { margin-bottom:1em; margin-top:0em; font-family: "times", serif }
+defn { font-weight: bold; font-style: italic; }
+dl { margin-left:2em; padding:0em 1em; border:1px inset #eee;}
+dt { font-weight:bold; padding-top:0.5em; font-family: "times", serif }
+dd { kolor:#0033CC; }
+div.title { text-align:center; font-size:20pt; font-weight:bold }
+div.title,h1,h2,h3 {
+  color:#3333cc; background-color:#EEEEFF; font-family: "georgia",sans-serif;
+  margin-bottom:0.25em;
+}
+h1 { margin-bottom: 0.5em; }
+h2 { margin-bottom: 0.5em; }
+h3 { margin-bottom: 0.5em; }
+h4 { margin-bottom: 0.5em; }
+h5 { margin-bottom: 0.0em; }
+
+ul { margin-top:0em; padding-left:1.5em; }
+ol.toc {
+  font-family: "georgia",sans-serif
+}
+li { padding-left:0em; margin-left:0em }
+
+code { color:#339900; }
+xul { margin: 0px 20px; line-height: 1em; }
+xul li { margin: 8px 0 }
+ul.nav {
+  line-height: 1em; list-style-type:none;
+  font-size:10pt; font-family:"georgia", sans-sefif;
+  margin-left: 0.4em; padding-right:0.2em;
+  padding-left: 0.2em; xtext-indent: -1em;
+}
+li.submenu { font-weight: bold }
+ul.nav li { margin:1em 0; padding:0;  }
+ul.nav li.here {
+  margin:1em 0; padding:0.25em; font-size:10pt;
+  background-color:#000000; color:#FFFFCC
+}
+ul.nav li ul { margin:0 0.25em; padding:0; color:red }
+
+pre.prettyprint {
+  margin-left:1.5em; padding:0.5em 0.5em; border:1px inset #eee;
+  color:#FFFFCC; background:#333; width:49em
+}
+
+#navigation {
+  position:absolute; top:3em; left:0.5em; width:10em;
+  background-color:#FFFFCC;
+  border:1px inset #996600;
+}
+#content { margin-left:10.75em; margin-right:1em; width:42em }
+
+aside {
+  margin-left:3em; mergin-right:6em; padding:0.5em;
+  margin-top:1em; margin-bottom:2em;
+}
+aside.note {
+  background-color:#FFFFCC; border:1px outset #FFFF33
+}
+aside.warning {
+  background-color:#FFDDDD; border:1px outset #990000
+}
+
+table.layout { margin-left:1em; margin-bottom:1em }
+th { vertical-align:top; }
+td { vertical-align:top; text-align:left; }
+td.proj_name { font-weight:bold; font-size:14pt; }
+td.proj_desc { text-indent:1em; font-style:italic; font-size:9pt; vertical-align:middle }

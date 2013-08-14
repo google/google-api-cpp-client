@@ -1,0 +1,528 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Making HTTP Requests</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="../start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="../start/get_started.html">Jumping In</a>
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li class="here">Making HTTP Requests
+<li><a class="nav" href="../guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="../guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="../guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Making HTTP Requests</div>
+<section>
+  <p>
+    This document describes how to make low-level HTTP requests using the
+    core components of the library's transport layer. It is also possible to
+    use this API with an HTTP transport implementation provided elsewhere.
+    See <a href='transport_customization.html'>Writing a Custom HTTP
+    Transport</a> for more information.
+  </p>
+  <p>
+    The transport layer <code>Http</code>* components are used for making
+    HTTP requests. These can be used for any HTTP request to any webserver,
+    not just REST-style service interactions or the Google Cloud Platform.
+    These are generic components. See the document
+    <a href='service_requests.html'>Making Service Requests</a> for a higher
+    level abstraction when talking to cloud services.
+  </p>
+  <p>
+    For more information about the HTTP protocol in general, see
+    <a href='http://www.ietf.org/rfc/rfc2616.txt'>RFC 2616</a>
+    or <a href='http://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol'>
+    the Wikipedia page on Hypertext Transfer Protocol</a>.
+  </p>
+</section>
+<section>
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#Examples">Typical use case examples</a>
+      <ol>
+        <li><a href="#SendRequest">
+            Sending GET, POST, and other HTTP requests</a>
+        <li><a href="#ReceiveResponse">Handling responses</a>
+        <li><a href="#UseCredential">Making authorized requests</a>
+        <li><a href="#ExexecuteAsync">Making asynchronous requests</a>
+        <li><a href="#AddHeaders">Adding and removing custom headers</a>
+        <li><a href="#CreateTransport">Creating an HttpTransport instance</a>
+        <li><a href="#SetOptions">Setting request options</a>
+      </ol>
+    <li><a href="#ProvidedTransports">Provided transport implementations</a>
+      <ol>
+        <li><a href="#CurlHttpTransport">curl</a>
+        <li><a href="#MockHttpTransport">Mock transport</a>
+        <li><a href="#PlaybackTransport">Playback transport</a>
+      </ol>
+  </ol>
+</section>
+<section id='Examples'>
+  <h2>Typical use case examples</h2>
+  <p>
+    These examples show how to use the core components to issue basic HTTP
+    <code>GET</code> and <code>POST</code> requests and look at the response.
+    The examples are extremely simplistic to focus on the things you can do
+    with the API rather than on what real-world applications look like.
+  </p>
+  <p>
+    The following snippet applies to all the examples in this section.
+  </p>
+ <pre class='prettyprint'>
+#include "googleapis/client/data/data_reader.h"
+#include "googleapis/client/data/http_request.h"
+#include "googleapis/client/transport/http_response.h"
+#include "googleapis/client/transport/http_transport.h"
+#include "googleapis/util/status.h"
+
+using googleapis_client::HttpRequest;
+using googleapis_client::HttpRequestState;
+using googleapis_client::HttpResponse;
+using googleapis_client::HttpTransport;
+using googleapis_client::HttpTransportLayerConfig;
+using googleapis_client::HttpTransportOptions;
+</pre>
+</section>
+<section id='SendRequest'>
+  <h3>Sending GET, POST, and other HTTP requests</h3>
+  <p>
+    The following snippet issues an HTTP <code>GET</code> on a given URL.
+  </p>
+<pre class='prettyprint'>
+void IllustrateGet(const char* url, HttpTransport* transport) {
+  scoped_ptr&lt;HttpRequest&gt; request(transport-&gt;NewHttpRequest(HttpRequest::GET));
+  request-&gt;set_url(url);
+  util::Status status = request-&gt;Execute();
+  if (!status.ok()) cerr &lt;&lt; status.error_message();
+}
+</pre>
+  <p>
+    All HTTP requests based solely on a URL (they do not send additional data
+    in the HTTP payload) will look like the previous <code>GET</code> example.
+    For example, the following issues an HTTP <code>POST</code> to the URL
+    without sending additional data.
+  </p>
+<pre class='prettyprint'>
+void IllustratePost(const char* url, HttpTransport* transport) {
+  scoped_ptr&lt;HttpRequest&gt; request(transport-&gt;NewHttpRequest(HttpRequest::POST));
+  request-&gt;set_url(url);
+  util::Status status = request-&gt;Execute();
+  if (!status.ok()) cerr &lt;&lt; status.error_message();
+}
+</pre>
+  <p>
+    Messages that contain an HTTP message payload use the following pattern.
+    In this example we are issuing an HTTP <code>POST</code>. See
+    <a href='data_reader.html'>Using Data Reader</a> for more information
+    on using <code>DataReader</code>.
+  </p>
+<pre class='prettyprint'>
+using googleapis_client::DataReader;
+using googleapis_client::NewUnmanagedInMemoryDataReader;
+
+void IllustratePostWithData(const char* url, HttpTransport* transport) {
+  scoped_ptr&lt;HttpRequest&gt; request(transport-&gt;NewHttpRequest(HttpRequest::POST));
+  request-&gt;set_url(url);
+  DataReader* reader = NewUnmanagedInMemoryDataReader("Hello, World!");
+  request-&gt;set_content_reader(reader);
+  request-&gt;set_content_type("text/plain");
+
+  util::Status status = request-&gt;Execute();
+  if (!status.ok()) cerr &lt;&lt; status.error_message();
+}
+</pre>
+<section id='ReceiveResponse'>
+  <h3>Handling responses</h3>
+  <p>
+    There are different ways of handling responses. These are independent of
+    the type of request or how it was issued.
+  </p>
+  <p>
+    The <code>HttpRequest::Execute</code> method returns a
+    <code>googleapis::util::Status</code>. The result status is the same as the
+    <code>response.status()</code> attribute. This is the "overall" status of
+    the request from the application's perspective. Additionally there is a
+    <code>response.transport_status</code> attribute which is just the
+    transport level perspective. The difference is illustrated in the following
+    two examples.
+   </p>
+  <p>
+    In the following snippet, only HTTP <code>2xx</code> responses are
+    considered successful. It considers anything else a failure.
+    This includes HTTP
+    response codes indicating errors (such as HTTP <code>404</code>)
+    and network errors (such as <em>unknown host</em>).
+  </p>
+<pre class='prettyprint'>
+if (response-&gt;ok()) {
+  cout &lt;&lt; "Success" &lt;&lt; endl;
+} else {
+  cout &lt;&lt; "Failed with status="
+       &lt;&lt; response-&gt;status().error_message() &lt;&lt; endl;
+}
+</pre>
+  <p>
+    The following snippet only considers transport errors as failures.
+    A response such as an HTTP <code>404</code> is considered a success
+    because we were able to send the request and receive a response back.
+    Only cases in which there is no HTTP response at all are treated
+    as failures.
+  </p>
+<pre class='prettyprint'>
+if (response-&gt;transport_status().ok()) {
+  string body;
+  util::Status status = response-&gt;GetBodyString(&amp;body);
+  cout &lt;&lt; "Transport OK. Received HTTP Status Code="
+       &lt;&lt; response-&gt;http_code() &lt;&lt; endl;
+  if (status.ok()) {
+    cout &lt;&lt; "HTTP Body:" &lt;&lt; endl &lt;&lt; body &lt;&lt; endl;
+  } else {
+    cout &lt;&lt; "Could not read response body" &lt;&lt; endl;
+  }
+} else {
+  cout &lt;&lt; "Transport failed: "
+       &lt;&lt; response-&gt;transport_status().error_message() &lt;&lt; endl;
+}
+</pre>
+  <p>
+    If you are interested in the specific lifecycle state that the request is
+    in, you can check it in the response passed to the <code>Execute</code>
+    method.
+  </p>
+<pre class='prettyprint'>
+if (response-&gt;request_state_code() == HttpRequestState::TIMED_OUT) {
+  cout &lt;&lt; "Request timed out" &lt;&lt; endl;
+}
+</pre>
+</section>
+<section id='UseCredential'>
+  <h3>Making authorized requests</h3>
+  <p>
+    Services on the Google Cloud Platform often use
+    <a href='http://oauth.net/2/'>OAuth 2.0</a> to protect sensitive
+    information. These endpoints will return
+    <a href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.2'>
+    HTTP <code>401</code> Unauthorized</a> unless proper credentials are
+    provided. See the document <a href='auth_overview.html'>
+    Authentication and Authorization Overview</a> for more information about
+    obtaining credentials.
+  </p>
+  <p>
+    Credentials are bound to individual requests. This allows transports to
+    be shared among different users in a server deployment.
+  </p>
+  <pre class='prettyprint'>
+#include "googleapis/client/auth/oauth2_authorize.h"
+using googleapis::client::OAuth2Credential;
+...
+HttpRequest* request = ...;   // Any request
+OAuth2Credential* credential = ...;  // A credential
+
+request->set_credential(credential);
+
+request->Execute();
+</pre>
+</section>
+<section id='ExecuteAsync'>
+  <h3>Making asynchronous requests</h3>
+  <p>
+    The transport layer supports asynchronous requests in addition to the
+    simpler blocking requests. An asynchronous request is executed similar to
+    a blocking request except the <code>ExecuteAsync</code> method takes an
+    additional <code>HttpRequestCallback</code> parameter.
+    Rather than blocking the
+    method until the request completes, <code>ExecuteAsync</code> returns
+    immediately and will asynchronously call the callback when the request has
+    completed. <code>HttpRequestCallback</code>
+    is a callback taking a single <code>HttpRequest*</code> argument.
+    Callbacks are discussed further in the <a href='types.html#Closure'>Closures</a>
+    section of the <a href='types.html'>Foundation Types</a> document.
+  </p>
+  <p>
+    Exactly when and how the request will be processed is determined by
+    an <code>Executor</code> object. These are discussed in the
+    <a href='types.html#Executor'>Executors</a> section in the
+    <a href='types.html'>Foundation Types</a> document. Each transport has an
+    <code>Executor</code> either explicitly bound or implicitly the global
+    default. Executors are not owned by the transport so are not necessarily
+    unique &mdash; they can be shared across one or more transports.
+  </p>
+  <p>
+    Conceptually the <code>ExecuteAsync</code> method only queues
+    the request before returning. If the request cannot be queued
+    then the request will complete immediately and the callback is notified.
+    The executor may actually execute the request right away and even if
+    concurrent and in another thread, might still finish and invoke the
+    callback before the <code>ExecuteAsync</code> returns. The
+    <code>InlineExecutor</code> class executes the request in the same thread
+    as the caller making it behave as a synchronous call (the benefit is that
+    it does not require threads) but with the added callback.
+  </p>
+  <p>
+    The callback can be <code>NULL</code>. If this is the case then you will
+    not know when the request finishes or if it is successful without polling.
+    In order to poll, you can check the <code>done()</code> method on the
+    response, then inspect the response for the results.
+    The response and transport objects are thread-safe; however most other
+    SDK objects are not. Check the documentation and provide thread-safe
+    programming practices when using them from within callbacks that might
+    be accessing them in different threads.
+  </p>
+  <aside class='warning'>
+    <b>Warning.</b>
+    Asynchronous invocations have a life-cycle longer than the current stack
+    frame. You cannot use stack variables for the request unless
+    you can guarantee that you will be finished processing the object and
+    calling the callback before you exit from the stack frame in which they
+    were declared. Usually you use heap-allocated objects.
+  </aside>
+  <p>
+    By convention the caller maintains ownership of the
+    <code>HttpRequest</code> and the request keeps ownership of the
+    <code>HttpResponse</code>. The caller can pass ownership to the callback
+    To facilitate management of the <code>HttpRequest</code>, you
+    can set the <code>destroy_when_done</code> option before executing it.
+    This will pass ownership to the <code>ExecuteAsync</code>
+    (or <code>Execute</code>)
+    and cause the request object to self-destruct once it is completed and
+    the callback (if any) has been called. This has no effect on the response
+    object; its life-cycle is independent.
+  </p>
+  <p>
+    The following example shows an asynchronous invocation.
+  </p>
+<pre class='prettyprint'>
+HttpRequest* IllustrateGetAsync(
+    const char* url, HttpTransport* transport,
+    HttpRequestCallback* callback) {
+  HttpRequest* request = transport-&gt;NewHttpRequest(HttpRequest::GET);
+  request-&gt;mutable_options()-&gt;set_destroy_when_done(true);
+  request-&gt;set_url(url);
+  request-&gt;ExecuteAsync(callback);
+  return request;
+}
+</pre>
+  <p>
+    An example callback method and snippet calling the example are shown below.
+    Often real-world applications will use request-level timeouts to bound the
+    time a request can remain outstanding and not need to call
+    <code>WaitUntilDone</code> if they never need to synchronize back with
+    the main thread.
+  </p>
+<pre class='prettyprint'>
+static void HandleResponse(const char* which, HttpRequest* request) {
+  HttpResponse* response = request-&gt;response();
+  cout &lt;&lt; "GET response for " &lt;&lt; which &lt;&lt; ": "
+       &lt;&lt; (response-&gt;ok() ? "OK" : response-&gt;status().error_message());
+}
+...
+
+  HttpRequestCallback *callback =
+      NewCallback(&amp;HandleResponse, "IllustrateGetAsync");
+
+  // We set this to destroy when done.
+  HttpRequest* request(IllustrateGetAsync(url, transport, callback));
+  request-&gt;response()-&gt;WaitUntilDone();
+</pre>
+</section>
+<section id='AddHeaders'>
+  <h3>Adding and removing custom headers</h3>
+  <p>
+    The Google APIs Client Library for C++ will automatically add the basic
+    headers that you need for the APIs that it provides. However there are
+    times when you may want to add additional headers. The following snippet
+    illustrates how to do this.
+  </p>
+<pre class='prettyprint'>
+request-&gt;AddHeader("MyHeader", "MyHeaderValue");
+request-&gt;AddHeader("AnotherHeader", "AnotherHeaderValue");
+const string* check_value = request-&gt;FindHeaderValue("SomeHeaderToCheck");
+if (check_value) {
+  cout &lt;&lt; "Already have SomeHeaderToCheck with value="
+       &lt;&lt; *check_value &lt;&lt; endl;
+}
+</pre>
+</section>
+<section id='CreateTransport''>
+  <h3>Creating an HttpTransport instance</h3>
+  <p>
+    Transports are created and configured from an
+    <code>HttpTransportFactory</code> which in turn are usually
+    configured from an <code>HttpTransportLayerConfig</code> instance.
+    Usually the <code>HttpTransportLayerConfig</code> owns some object
+    instances shared among multiple transport and factory instances so
+    must remain valid over the lifetime of the factory. If you are only
+    using one factory, you can pass ownership of the factory to the config
+    with <code>ResetDefaultTransportFactory</code> and use the config
+    <code>NewDefaultTransport</code> as a factory.
+  </p>
+  <p>
+    You can explicitly create a transport from a generic factory instance
+    using its <code>New()</code> method. This is the preferred way if you are
+    not using the default.
+  </p>
+</section>
+<section id='SetOptions'>
+  <h3>Setting request options</h3>
+  <p>
+    A Request can be independently configured with various options through its
+    <code>HttpRequestOptions</code> attribute. The following example changes
+    the request's timeout.
+  </p>
+<pre class='prettyprint'>
+util::Status IllustrateGetAndPrintWithTimeout(
+     const char *url, int64 timeout_ms, HttpTransport* transport) {
+  scoped_ptr&lt;HttpRequest&gt; request(transport-&gt;NewHttpRequest(HttpRequest::GET));
+  request-&gt;set_url(url);
+  request-&gt;mutable_options()-&gt;set_timeout_ms(timeout_ms);
+
+  request-&gt;Execute().IgnoreError();
+  HttpResponse* response = request-&gt;response();
+  if (response-&gt;transport_status().ok()) {
+    string body;
+    util::Status status = response-&gt;GetBodyString(&amp;body);
+    cout &lt;&lt; "Transport OK.  Received response with HTTP code="
+         &lt;&lt; response-&gt;http_code() &lt;&lt; endl;
+    if (status.ok()) {
+      cout &lt;&lt; body &lt;&lt; endl;
+    } else {
+      cout &lt;&lt; "Could not get response body" &lt;&lt; endl;
+    }
+  } else {
+    cout &lt;&lt; "Transport FAILED: "
+         &lt;&lt; response-&gt;transport_status().error_message() &lt;&lt; endl;
+    cout &lt;&lt; "timeout="
+         &lt;&lt; (response-&gt;request_state_code()
+             == HttpRequestState::TIMED_OUT) &lt;&lt; endl;
+  }
+
+  return response-&gt;status();
+}
+</pre>
+  <p>
+    To change default options for all requests (created by a transport),
+    change the default request options on that <code>HttpTransport</code>.
+    The changes are not retroactive. They will only start applying to
+    new <code>HttpRequest</code> instances created from that point onward.
+  </p>
+<pre class='prettyprint'>
+using googleapis::client::HttpRequestOptions;
+const int64 kDefaultTimeoutMillis = 123456;
+HttpRequestOptions* default_options =
+  transport->mutable_default_request_options();
+default_options->set_timeout_ms(kDefaultTimeoutMillis);
+</pre>
+</section>
+<section id='ProvidedTransports'>
+  <h2>Provided transport implementation</h2>
+</section>
+<section id='CurlHttpTransport'>
+  <h3>curl</h3>
+  <p>
+    The SDK comes within an <code>HttpTransport</code> implementation using
+    the <a href='http://curl.haxx.se/'>cURL library</a>.
+    This <code>CurlHttpTransport</code> is implemented in the
+    header file <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/transport/curl_http_transport.h'>
+      googleapis/client/transport/curl_http_transport.h
+    </a> and the source file
+    <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/curl_http_transport.cc'>
+      googleapis/client/curl_http_transport.cc
+    </a>
+  </p>
+  <aside class='note'>
+    <b>Note.</b>
+    The <code>HttpCurlTransport</code> currently uses a synchronous interface
+    requiring one thread per invocation. You can use the asynchronous
+    interface so that the calling threads are outside your main application
+    thread; however you must still provide those threads.
+  </aside>
+</section>
+<section id='MockHttpTransport'>
+  <h3>Mock transport</h3>
+  <p>
+    The <code>MockHttpTransport</code> is provided to facilitate unit testing
+    code that uses the Transport Layer. The mock transport uses the
+    <a href='https://github.com/bref/googlemock'>
+      Google C++ Mocking Framework</a>. The transport gives you complete
+    access to inject mocks. You can use a mock transport where you inject
+    an <code>HttpTransport</code>.
+  </p>
+  <p>
+    Testing is covered more in <a href='TODO.html'>Testing and Debugging the
+      HTTP Transport Layer</a>
+  </p>
+</section>
+<section id='PlaybackTransport'>
+  <h3>Playback transport</h3>
+  <p>
+    The <code>JsoonPlaybackTransport</code> is an alternative transport for
+    testing using a fake transport. The playback transport can replay
+    pre-recorded transcripts of live interactions without talking to the
+    actual server. This provides a fast and repeatable way to unit test
+    applications and high level libraries that use cloud services and
+    web servers.
+  </p>
+  <p>
+    Testing is covered more in <a href='TODO.html'>Testing and Debugging the
+      HTTP Transport Layer</a>
+  </p>
+</section>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

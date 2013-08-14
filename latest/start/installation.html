@@ -1,0 +1,221 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Installation</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li class="here">Obtaining and Installing Libraries
+<li><a class="nav" href="../start/get_started.html">Jumping In</a>
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="../guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="../guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="../guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Installation</div>
+<section>
+  <p>
+    This page contains information about installing the
+    Google APIs Client Library for C++.
+  </p>
+</section>
+<section>
+  <h2>Contents</h2>
+  <ol class='toc'>
+    <li><a href="#requirements">System Requirements</a>
+    <li><a href="#obtai">Obtaining the C++ Client</a>
+    <li><a href="#jumpstart">Get Started</a>
+  </ol>
+</section>
+<section id='requirements'>
+  <h2>System Requirements</h2>
+  <ul>
+    <li> <strong>Operating systems</strong>:
+      <ul>
+        <li>Linux</li>
+        <li>Mac OS X</li>
+        <li>More forthcoming</li>
+      </ul>
+      <aside class="note">
+        <strong>Note</strong>: Additional platforms not yet officially
+	supported may require some porting. The library is pure C++, and
+	uses Posix system calls. For compliant OSes it might not be too
+	difficult to do a basic port. The API is designed to accommodate
+	platform-specific implementations as well. The documentation
+	covers these extensibility mechanisms.
+      </aside>
+    </li>
+    <li> <strong>Build Environment (for dependencies only)</strong>:<br/>
+      The following tools are only used for installing the codebase to
+      developer machines using the provided script.
+      <ul>
+        <li><a href="http://www.python.org/getit/">Python</a><br/>
+             Used for the automated dependency library installation script<br/>
+             Also used to run a webserver for testing HTTP integration.
+             These have been verified with Python version 2.6.4 and 2.7.3.</li>
+        <li><code>cmake</code><br/>
+             The enclosed python script will download and install
+             <code>cmake</code>.
+      </ul>
+    </li>
+  </ul>
+</section>
+<section id='obtain'>
+  <h2>Obtaining the C++ Client</h2>
+  <p>
+  The C++ client libraries require some additional open source code packages.
+  The packaging includes a script to download these from source and another
+  to build them. You should also be able to use their prebuilt versions and
+  standard installations by skipping the
+  <code>./prepare_dependencies.py</code> step.
+  </p>
+  <pre class='prettyprint'>
+tar xf googleapis-cpp_public.tar
+python ./prepare_dependencies.py
+./external_dependencies/install/bin/cmake .
+make all test
+make export</pre>
+  <p>
+  <aside class='note'>
+    If the <code>./prepare_dependencies.py</code> fails, the most likely
+    cause is attempting to download a URL that no longer available.
+    The likelihood of a URL becoming unavailable increases over time.
+    If the script can no longer download a given URL then:
+    <ul>
+      <li> Use a browser to check the site containing the URL in the error
+           and find the current location for the download.<br/>
+           You can probably use whatever current version for that
+           library is available.
+       <li> Replace the URL in the <code>./prepare_dependencies.py</code>
+            with the current one that you found.
+       <li> Re-run <code>python ./prepare_dependencies.py</code>.<br/>
+            The script will pick up where it left off and download the
+            URL you just replaced.
+    </ul>
+    You can also use the above technique to upgrade a dependent library
+    to a newer version.
+  </aside>
+  The following options can be given to <code>./prepare_dependencies.py</code>:
+    <dl>
+      <dt> --download_dir=<var>DownloadDir</var>
+      <dd> Changes the path to the directory to download and build the
+           dependency libraries.<br/>
+           This is an optional argument. The default value is
+           <code>./external_dependencies</code>.
+      <dt> --install_dir=<var>InstallDir</code>
+      <dd> Changes the target directory path of the built dependency
+           libraries and header files installation.<br/>
+           This is an optional argument. The default value is
+           <code>./external_dependencies/install</code>.
+      <dt> --force
+      <dd> Forces the dependencies to be rebuilt and installed.<br/>
+           Normally the script remembers when a dependency has been
+           successfully prepared and not attempt it next time.
+      <dt> -b
+      <dd> Just build the dependencies. Do not download or install them.<br/>
+           Use this with --force if you want to force a re-build.
+      <dt> -d
+      <dd> Just download the dependencies. Do not build them.<br/>
+           Use this with --force if you want to re-download them.
+      <dt> -i
+      <dd> Just install the dependencies. Do not re-build them.<br/>
+           Use this with --force if you want to re-download them.
+      <dt> <i>one or more package names</i>
+      <dd> You can process individual dependencies by just passing the names.
+           <br/>
+           For the current list of names, see the ./prepare_dependencies.py
+           script itself.
+    </dl>
+  </p>
+  <p>
+    <code>make export</code> creates a directory <code>./export</code>
+    that has <code>include</code> and </code>lib</code> subdirectories with
+    all the header files and libraries you need to compile and link your
+    applications against the libraries provided by
+    the Google APIs Client Library for C++.
+  </p>
+  <p>
+    If you are using your own IDE to write programs remember to:
+    <ul>
+      <li>Add <code>-I<i>build_dir</i>/export/include</code> to the C++
+          compiler flags in the libraries and programs that you create.
+      <li>Add <code>-L<i>build_dir</i>/export/lib</code> to the C++
+          linker flags for the C++ libraries and programs you link.
+    </ul>
+  </p>
+</section>
+<section id='jumpstart'>
+  <h2>Get Started</h2>
+  <p>
+    The <a href="get_started.html">Jump In</a> document provides a basic
+    tutorial for writing your first client program using
+    the Google APIs Client Library for C++.
+    Source code samples are in the
+    <a href="http://giithub.com/google/google-api-cpp-client/src/googleapis/client/samples">samples directory</a>.
+  </p>
+
+  <p>
+    You can also look at some samples in the
+    <a href="http://giithub.com/google/google-api-cpp-client/src/googleapis/client/samples/">samples directory</a>.
+    
+  </p>
+</section>
+
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

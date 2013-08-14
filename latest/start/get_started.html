@@ -1,0 +1,831 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Jumping In</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="../start/installation.html">Obtaining and Installing Libraries</a>
+<li class="here">Jumping In
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="../guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="../guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="../guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Jumping In</div>
+<section>
+  <p>
+    This document provides all the basic information you need
+    to start using the library.
+    It covers important library concepts,
+    shows examples for various use cases,
+    and gives links to more information.
+  </p>
+</section>
+<section>
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#preparation">Preparing to use the SDK</a>
+    <li><a href="#background">Background Information</a>
+    <li><a href="#installed_app">A Basic Example (Calendar)</a>
+  </ol>
+</section>
+<section id='preparation'>
+  <h2>Preparing to use the SDK</h2>
+  <p>
+    Before jumping into a basic example there are some preparations that you
+    should make.
+  </p>
+  <ol>
+    <li><a href="https://accounts.google.com/SignUp">
+        Create a Google Account</a> if you do not already have one for other
+      Google products or services (such as Gmail).
+    <li><a href="installation.html">Download, build, and install the C++ Client</a>.
+    <li>Register a project for the sample as explained below.
+  </ol>
+  <p>
+    Most interesting applications access private user data. The example
+    in this document reads and updates users' private calendars. The cloud
+    services protect that information by requiring applications to prove that
+    the user is authorizing access to this information. How this happens is
+    not important for this quick introduction. However as part of that security
+    mechanism, applications must be registered with
+    the Google Cloud Platform in order to even try to obtain the users
+    permission. Therefore in order for you to run the example presented below,
+    you need to register it as a client.
+  </p>
+  <aside class='note'>
+    <b>Note</b>.
+    Developers register their applications once, which covers all users.
+    Each user must authorize the application to access their individual data.
+    We require you to independently register the samples as your
+    own so that the applications "belong" to you and the registered client
+    secret can remain a secret since each registration is unique.
+  </aside>
+  <p>
+    Authorization is discussed further in the document
+    <a href="../guide/auth_overview.html">
+      Authentication and Authorization Overview</a>.
+    The following steps are sufficient to jump in:
+    <ol>
+      <li>Go to the <a href="https://code.google.com/apis/console">
+          Google APIs Console</a>.
+      <li>Click <b>Create Project</b>.
+        <ul>
+          <li>If you already have projects then select
+          <b>Create</b> from the bottom of the products dropdown.
+          <li>Enter a name of your choosing, such as <i>Calendar Sample</i>.
+        </ul>
+      <li>Select the <b>API Access</b> pane.
+      <li>Click the <b>Create an OAuth 2.0 client ID</b> button.
+      <li>Enter a product name, such as <i>Google APIs Calendar Sample</i>.
+        <ul>
+          <li>You can leave the other information empty.
+          <li>You will be able to edit/change this information later.
+        </ul>
+      <li>Select the <b>Installed application</b> application type.
+      <li>Click the <b>Create client ID</b> button.
+      <li>Select the <b>Download JSON</b> link on the right hand
+          side.
+        <ul>
+          <li>Rename this file to something such as
+            <i>calendar_sample_secrets.json</i> so as not to confuse it with
+            others you may download in the future.
+          <li>Change the permissions of the file so that it is only readable
+            by you. In UNIX you can set the correct permissions with the
+            command <code>chmod 400 calendar_sample_secrets.json</code>.
+            </ul>
+        </ul>
+      <li>Select the <b>Service</b> pane.
+      <li>Click the toggle for the <b>Calendar API</b> to turn it on.
+    </ol>
+    You now have a client registered with the Google Cloud Platform that is
+    allowed to access the
+    <a href="https://developers.google.com/google-apps/calendar/">
+    Calendar API</a>. The code in the remainder of this
+    tutorial will operate as that registered client.
+  </p>
+</section>
+
+<section id='background'>
+  <h2>Background Information</h2>
+  <p>
+    The Google Cloud Services available for your clients to interact with
+    typically use a
+    <a href="http://en.wikipedia.org/wiki/Representational_state_transfer">
+    REST</a> architectural style. For
+    purposes of the tutorial, think of this as interacting with a web server.
+    Each operation is an individual <code>GET</code> or <code>POST</code>
+    into the server's global state.
+    When you create, modify, ordelete something, anyone (with permissions)
+    will generally see the effect the next time they access the resource.
+    Likewise you will see the effect of other peoples interactions (if they
+    have permissions). There are not normally larger transactions or modes
+    requiring a "save" operation to finalize them.
+  </p>
+
+  <p>
+    Services written for the Google Cloud Platform publish their APIs using a
+    <i>Discovery Document</i>. While not necessary for this tutorial,
+    you may find it helpful to briefly browse the
+    <a href="https://developers.google.com/discovery/v1/getting_started">
+      Getting Started section of the Google APIs Discovery Service</a>, which
+    provides an introduction and overview to how services present themselves
+    and expect to be used.
+    The Google APIs Client Library for C++ will automatically take care of
+    many of the tedious details for interpreting and complying with the
+    discovery documents so that you can write simpler and familiar C++ code.
+    However at some point understanding the Discovery Service will help you
+    understand more specifically how your client is perceived by the servers
+    that it is talking to.
+  </p>
+</secton>
+
+<section id='installed_app'>
+  <h2>A Basic Example (Calendar)</h2>
+  <p>
+    The remainder of this document walks through a very basic
+    <a href="http://giithub.com/google/google-api-cpp-client/src/googleapis/client/samples/calendar_sample_main.cc">
+    Sample Calendar program</a>.
+    The program is not particularly useful other than supporting this
+    tutorial. It creates a calendar, makes queries and modifications to it,
+    then deletes the calendar.
+  </p>
+</section>
+
+<section>
+  <h3>Sample Overview</h3>
+  <p>
+    The sample program makes use of the custom C++ API that was
+    generated for the <a href="https://developers.google.com/google-apps/calendar/v3/reference/">Google Calendar API</a>. To generate APIs for other
+    specific services on the Google Cloud Platform, see the document
+    <a href="../guide/generating_service_libraries.html">
+      Generating Service Libraries</a>.
+  </p>
+
+  <p>
+    The sample is written as a single encapsulated class. Normal applications
+    are not necessarily written this way. The samples use this style to make
+    them eaiser to read, follow, and account for all the parts.
+    The class was specifically designed for the tutorial with each method
+    being a different part in the tutorial.
+  </p>
+
+  <p>
+    The tutorial follows the flow of the application. The most complicated
+    parts of an application are scafolding and configuring it.
+    Unfortunately this means that the first step or two of the tutorial
+    is atypical of most application code and presents a larger number of
+    different pieces, some of which will not be heard from again. If you
+    are just looking for the gist of calling services then you might
+    want to jump right into the application parts, such as <a href="#insert">
+    Add a Calendar</a>, then come back to <a href="#init">Initializing the
+    SDK Runtime</a> later.
+  </p>
+
+<pre class='prettyprint'>
+class CalendarSample {
+ public:
+  static util::Status Startup(int argc, char* argv[]);
+  void Run();
+
+ private:
+  // Gets authorization to access the user's personal calendar data.
+  util::Status Authorize();
+
+  // Prints some current calendar data to the console to show the effects
+  // from the calls that the sample has made.
+  void ShowCalendars();
+
+  // Demonstrates adding a new resource. For this example, it is a calendar.
+  // Returns a proxy to the calendar added in the Calendar Service (cloud).
+  // We only really need the ID so that's all we return.
+  string AddCalendar();
+
+  // Demonstrates adding an embedded resource.
+  // For this example it is a calendar event.
+  //
+  // This takes a calendar ID such as that returned by AddCalendar().
+  // We'll take a configured event as input and modify its ID with the
+  // ID assigned by the Calendar Service (cloud). We could have just returned
+  // the ID as in the case of Calendar but we are doing it differently for
+  // demonstration purposes.
+  void AddEvent(const string&amp; calendar_id, Event* event);
+
+  // Demonstrates using a ServiceRequestPager to list all the events on the
+  // given calendar.
+  void PageThroughAllEvents(const string&amp; calendar_id, int events_per_page);
+
+  // Demonstrates deleting a resource. For this example, it is a calendar.
+  // We are deleting the calendar in the Calendar Service (cloud) that
+  // has the given calendar_id.
+  void DeleteCalendar(const string&amp; calendar_id);
+
+  // Demonstrates getting a resource.
+  // For this example, it is a calendar event.
+  // Returns the final status for the request. If not ok() then event wasn't
+  // populated.
+  util::Status GetEvent(
+      const string&amp; calendar_id, const StringPiece&amp; event_id, Event* event);
+
+  // Demonstrates patching a resource.
+  // For this example, it is a calendar event.
+  void PatchEvent(const string&amp; calendar_id, const Event&amp; event);
+
+  // Demonstrates updating a resource.
+  // For this example, it is a calendar event.
+  void UpdateEvent(const string&amp; calendar_id, const Event&amp; event);
+
+  OAuth2Credential credential_;
+  static scoped_ptr&lt;CalendarService&gt; service_;
+  static scoped_ptr&lt;OAuth2AuthorizationFlow&gt; flow_;
+  static scoped_ptr&lt;HttpTransportLayerConfig&gt; config_;
+};
+</pre>
+</section>
+<section id='init'>
+  <h3>Initializing the SDK Runtime</h3>
+  <p>
+    The current release of the SDK libraries require a few explicit
+    configurations in each application. In addition, for illustration purposes,
+    this sample keeps an instance of the <code>CalendarService</code> object
+    and authorization flow for it. It initializes all these together.
+    Configuration is discussed in more detail in the document
+    <a href="../guide/transport_configure.html">
+      Configuring the HTTP Transport Layer</a>
+  </p>
+<pre class='prettyprint'>
+util::Status CalendarSample::Startup(int argc, char* argv[]) {
+  if ((argc &lt; 2) || (argc &gt; 3)) {
+    string error =
+        StrCat("Invalid Usage:\n",
+               argv[0], " &lt;client_secrets_file&gt; [&lt;cacerts_path&gt;]\n");
+    return StatusInvalidArgument(error);
+  }
+
+  // Set up HttpTransportLayer.
+  util::Status status;
+  config_.reset(new HttpTransportLayerConfig);
+  googleapis_client::HttpTransportFactory* factory =
+      new googleapis_client::CurlHttpTransportFactory(config_.get());
+  config_-&gt;ResetDefaultTransportFactory(factory);
+  if (argc &gt; 2) {
+    config_-&gt;mutable_default_transport_options()-&gt;set_cacerts_path(argv[2]);
+  }
+
+  // Set up OAuth 2.0 flow for getting credentials to access personal data.
+  const StringPiece client_secrets_file = argv[1];
+  flow_.reset(OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
+      client_secrets_file, config_-&gt;NewDefaultTransportOrDie(), &amp;status));
+  if (!status.ok()) return status;
+
+  flow_-&gt;set_default_scopes(CalendarService::SCOPES::CALENDAR);
+  flow_-&gt;mutable_client_spec()-&gt;set_redirect_uri(
+      OAuth2AuthorizationFlow::kOutOfBandUrl);
+  flow_-&gt;set_authorization_code_callback(
+      NewPermanentCallback(&amp;PromptShellForAuthorizationCode, flow_.get()));
+
+  string home_path;
+  status = FileCredentialStoreFactory::GetSystemHomeDirectoryStorePath(
+      &amp;home_path);
+  if (status.ok()) {
+    FileCredentialStoreFactory store_factory(home_path);
+    // Use a credential store to save the credentials between runs so that
+    // we dont need to get permission again the next time we run. We are
+    // going to encrypt the data in the store, but leave it to the OS to
+    // protect access since we do not authenticate users in this sample.
+#if HAVE_OPENSSL
+    OpenSslCodecFactory* openssl_factory = new OpenSslCodecFactory;
+    status = openssl_factory-&gt;SetPassphrase(
+        flow_-&gt;client_spec().client_secret());
+    if (!status.ok()) return status;
+    store_factory.set_codec_factory(openssl_factory);
+#endif
+
+    flow_-&gt;ResetCredentialStore(
+        store_factory.NewCredentialStore("CalendarSample", &amp;status));
+  }
+  if (!status.ok()) return status;
+
+  // Now we'll initialize the calendar service proxy that we'll use
+  // to interact with the calendar from this sample program.
+  HttpTransport* transport = config_-&gt;NewDefaultTransport(&amp;status);
+  if (!status.ok()) return status;
+
+  service_.reset(new CalendarService(transport));
+  return status;
+}
+</pre>
+  <p>
+    This method touches on a few concepts.
+    <ul>
+      <li>
+        The SDK conveys errors using the type
+        <code>googleapis::util::Status</code>.
+        The status type is discussed in the
+        <a href="../guide/types.html#Status">Error Status</a>
+        section of the
+        <a href="../guide/types.html">Foundation Types</a>
+        document. The SDK does not throw exceptions.
+      <li>
+        Use the client secrets file you previously created in the section
+        <a href="#preparation">Preparing to use the SDK</a> to configure the
+        authorization flow. Hold onto the flow in an application global so
+        it is available whenever you need to authorize a user.
+        <ul>
+          <li>Authorization is discussed in detail in the document
+            <a href="../guide/auth_overview.html">
+              Authentication and Authorization Overview</a>
+          <li>Our sample application is customizing the flow with some IO
+            to <code>std::cin</code> and <code>std::cout</code> to obtain the
+            initial access tokens.
+            Normally applications would have a fancier user interface but
+            would still use this same callback mechanism.
+<pre class='prettyprint'>
+static util::Status PromptShellForAuthorizationCode(
+    OAuth2AuthorizationFlow* flow,
+    const OAuth2RequestOptions&amp; options,
+    string* authorization_code) {
+  string url = flow-&gt;GenerateAuthorizationCodeRequestUrlWithOptions(options);
+  cout &lt;&lt; "Enter the following URL into a browser:\n" &lt;&lt; url &lt;&lt; endl;
+  cout &lt;&lt; endl;
+  cout &lt;&lt; "Enter the browser's response to confirm authorization: ";
+
+  authorization_code-&gt;clear();
+  cin &gt;&gt; *authorization_code;
+  if (authorization_code-&gt;empty()) {
+    return StatusCanceled("Canceled");
+  } else {
+    return StatusOk();
+  }
+}
+</pre>
+          <li>The snippet associates a <code>CredentialStore</code> with the
+            authorization flow. This is optional and acts as a cache so that
+            users will not have to authorize the application every time they
+            run it. They only need to authorize it the first time or after
+            they revoke access. In this case credentials are stored in
+            unencrypted OS-protected files.
+            <ul>
+              <li>
+                Recall that you registered this as (and are running it as) an
+                <i>Installed Application</i>. This means that the application
+                was installed to a device and is running on behalf of a
+                particular user. In this case you have installed it on your
+                computer and are running it for your Google Account.
+              </li>
+            </ul>
+        </ul>
+    </ul>
+  </p>
+</section>
+<section id='authorize'>
+  <h3>Getting User Authorization</h3>
+  <p>
+    User authorization is encoded in <code>OAuth2Credential</code> objects.
+    To better understand authorization and credentials, see the document
+    <a href="../guide/auth_overview.html">
+      Authentication and Authorization Overview</a>.
+    The client library simplifies this greatly, though it is
+    still not trivial.
+  </p>
+  <p>
+    The following function is how the sample application obtains authorization.
+    It is deceptively simple. Hidden beneath the covers is the callback that
+    was bound to the flow earlier when constructed in the <a href="#init">
+    Initializing the SDK Runtime</a> section
+    (<code>PromptShellForAuthorizationCode</code>).
+    <ol>
+      <li>When asking the flow to <code>RefreshCredentialWithOptions</code>
+        initially, it will call that function to get the user's permission.
+        <ul>
+          <li>
+            This is in the form of an <eiauthorization code</i> provided by
+            OAuth 2.0.
+          <li>
+            If you bound a <code>CredentialStore</code> to the flow, then the
+            store is consulted first before even asking the user. If
+            it finds previous permissions then it will automatically proceed
+            with those, refreshing the access token if it expired.
+        </ul>
+      <li>
+        The flow can then turn this authorization code into an active
+        <i>access token</i> and persistent <i>refresh token</i> and
+        pass them in the credential object.
+        <ul>
+          <li>
+            If you bound a <code>CredentialStore</code> to the flow then it
+            will write the credentials to the store for future reference,
+            such as the next time the program is run.
+        </ul>
+  </p>
+<pre class='prettyprint'>
+util::Status CalendarSample::Authorize() {
+  cout
+    &lt;&lt; endl
+    &lt;&lt; "Welcome to the Google APIs for C++ CalendarSample.\n"
+    &lt;&lt; "  You will need to authorize this program to look at your calendar.\n"
+    &lt;&lt; "  If you would like to save these credentials between runs\n"
+    &lt;&lt; "  (or restore from an earlier run) then enter a User ID.\n"
+    &lt;&lt; "  Otherwise just press return.\n"
+    &lt;&lt; endl
+    &lt;&lt; "  ID: ";
+  string id;
+  std::getline(cin, id);
+  if (!id.empty()) {
+    util::Status status = ValidateUserName(id);
+    if (!status.ok()) {
+      return status;
+    }
+  }
+
+  OAuth2RequestOptions options;
+  options.user_id = id;
+  util::Status status =
+        flow_-&gt;RefreshCredentialWithOptions(options, &amp;credential_);
+  if (!status.ok()) {
+    return status;
+  }
+
+  credential_.set_flow(flow_.get());
+  cout &lt;&lt; "Authorized " &lt;&lt; id &lt;&lt; endl;
+  return StatusOk();
+}
+</pre>
+  <p>
+    The <code>ValidateUserId</code> call is part of this sample,
+    not part of the SDK. The following is its implementation for this tutorial.
+  </p>
+<pre class='prettyprint'>
+static util::Status ValidateUserName(const string&amp; name) {
+  if (name.find("/") != string::npos) {
+    return StatusInvalidArgument("UserNames cannot contain '/'");
+  } else if (name == "." || name == "..") {
+    return StatusInvalidArgument(
+        StrCat("'", name, "' is not a valid UserName"));
+  }
+  return StatusOk();
+}
+</pre>
+</section>
+<section id='insert'>
+  <h3>Adding a Server Data</h3>
+  <p>
+    To add server data, such as a new calendar or events on an existing
+    calendar, you will issue <code>Insert</code> operations on the service
+    resource managing the type of data. The sample application's
+    <code>AddCalendar</code> method inserts a new <code>Calendar</code>.
+    This sample adds a new calendar so as not to interfere with any calendars
+    you might already be using.
+  </p>
+<pre class='prettyprint'>
+string CalendarSample::AddCalendar() {
+  scoped_ptr&lt;Calendar&gt; calendar(Calendar::New());
+  calendar-&gt;set_summary("Calendar added by CalendarSample");
+
+  scoped_ptr&lt;CalendarsResource_InsertMethod&gt; method(
+      service_-&gt;get_calendars().NewInsertMethod(&amp;credential_, *calendar));
+
+  if (!method-&gt;ExecuteAndParseResponse(calendar.get()).ok()) {
+    DisplayError(method.get());
+    return "";
+  }
+
+  string result = calendar-&gt;get_id().as_string();
+  cout &lt;&lt; "Added new calendar ID=" &lt;&lt; result &lt;&lt; ":" &lt;&lt; endl;
+  Display("  ", *calendar);
+  cout &lt;&lt; endl;
+
+  return result;
+}
+</pre>
+  <p>
+    There are a few things worth noting in the above example.
+    <ul>
+      <li>
+        To invoke a method, create a method object, then execute
+        it. The methods on the <code>CalendarService</code> object are in
+        support of creating these method objects. They do not interact with
+        the Cloud service. Only the method objects do (when their
+        <code>Execute</code> method is called).
+      <li>
+        All methods that operate on private data take an
+        <code>OAuth2Credential</code> that proves authorization to access that
+        data. The credential is always the first argument to a method.
+      <li>
+        Data objects, such as the <code>Calendar</code>, are usually dynamic
+        objects allocated on the heap rather than on the stack. For synchronous
+        methods such as the above example this is not required. However it
+        is convenient because data objects usually do not have default
+        constructors. When allocating dynamic data objects, use the static
+        <code>New</code> methods explicitly provided by the data classes.
+      <li>
+        The insert method returns a copy of the object inserted. This is
+        similar to the object passed to <code>Insert</code> but contains
+        some additional attributes, notably the <code>calendar_id</code>
+        attribute. It is this ID attribute, created by the server, that use
+        required to refer to the object that was just inserted.
+        <ul>
+          <li>
+            Note also that a calendar was passed as a <code>const</code>
+            value to insert,
+            and a separate copy was returned by the response. This example
+            uses the same instance to write the result into, but the API
+            does not make that assumption. This is true for all methods
+            created by the code generator complementing the
+            Google APIs Client Library for C++.
+        </ul>
+    </ul>
+  </p>
+  <p>
+    The following example inserts an event into a calendar, such as the
+    one created in the previous example.
+  </p>
+<pre class='prettyprint'>
+void CalendarSample::AddEvent(const string&amp; calendar_id, Event* event) {
+  scoped_ptr&lt;EventsResource_InsertMethod&gt; method(
+      service_-&gt;get_events().NewInsertMethod(
+          &amp;credential_, calendar_id, *event));
+
+  if (!method-&gt;ExecuteAndParseResponse(event).ok()) {
+    DisplayError(method.get());
+    return;
+  }
+
+  cout &lt;&lt; "Added new event ID=" &lt;&lt; event-&gt;get_id() &lt;&lt; ":" &lt;&lt; endl;
+  Display("  ", *event);
+  cout &lt;&lt; endl;
+}
+</pre>
+  <p>
+    There are a few things to note in this example as well:
+    <ul>
+      <li>
+        The general pattern for adding an event is very similar to that used
+        for adding a calendar. Type number and types of parameters differ,
+        but the methods look very similar. This is not a coincidence; it
+        will hold for other REST-oriented Google Services as well.
+      <li>
+        Both these methods were called <code>_InsertMethod</code>
+        but they came from different resources.
+      <li>
+        You do not need the <code>Calendar</code> object to insert events into
+        it. You only need the <code>calendar_id</code> attribute.
+        <ul>
+          <li>
+            The actual calendar lives in the cloud on the Calendar Service's
+            server. The <code>Calendar</code> object in the client's API is
+            just a simple data object containing a snapshot. It is not
+            necessarily current nor complete.
+        </ul>
+    </ul>
+  </p>
+  <p>
+    For purposes of illustration, the <code>AddEvent</code> method in the
+    sample might be called with an event as follows to create an event that
+    starts now and will last for the next hour.
+  </p>
+<pre class='prettyprint'>
+DateTime now;
+scoped_ptr&lt;Event&gt; event(Event::New());
+event-&gt;set_summary("Calendar event added by CalendarSample");
+event-&gt;mutable_start().set_dateTime(now);
+event-&gt;mutable_end().set_dateTime(DateTime(now.ToEpochTime() + 60 * 60));
+
+cout &lt;&lt; endl &lt;&lt; kSampleStepPrefix &lt;&lt; "Add Calendar Event" &lt;&lt; endl;
+AddEvent(calendar_id, event.get());
+</pre>
+</section>
+<section id='get'>
+  <h3>Retrieving Server Data</h3>
+  <p>
+    There are usually two types of requests for reading data out of a server.
+    The first of these is a <code>List</code> request which returns a list
+    of objects, in this case the different calendars for the user.
+  </p>
+<pre class='prettyprint'>
+void CalendarSample::ShowCalendars() {
+  scoped_ptr&lt;CalendarListResource_ListMethod&gt; method(
+      service_-&gt;get_calendarList().NewListMethod(&amp;credential_));
+
+  scoped_ptr&lt;CalendarList&gt; calendar_list(CalendarList::New());
+  if (!method-&gt;ExecuteAndParseResponse(calendar_list.get()).ok()) {
+    DisplayError(method.get());
+    return;
+  }
+  DisplayList&lt;CalendarList, CalendarListEntry&gt;(
+      "", "CalendarList", *calendar_list);
+  cout &lt;&lt; endl;
+}
+</pre>
+  <p>
+    The second common pattern for reading data out of a server is through a
+    <code>Get</code> request on a specific resource instance. In this case
+    the event instance is identified by an <code>ID</code> unique within a
+    calendar's <code>ID</code>.
+    <ul>
+      <li>
+        The custom service APIs generated for the
+        Google APIs Client Library for C++ have
+        method constructors that take the required parameters and offer
+        attribute setters on the method object for optional parameters.
+    </ul>
+  </p>
+<pre class='prettyprint'>
+util::Status CalendarSample::GetEvent(
+    const string&amp; calendar_id, const StringPiece&amp; event_id, Event* event) {
+  scoped_ptr&lt;EventsResource_GetMethod&gt; method(
+      service_-&gt;get_events().NewGetMethod(
+          &amp;credential_, calendar_id, event_id));
+
+  return method-&gt;ExecuteAndParseResponse(event);
+}
+</pre>
+</section>
+<section id='patch'>
+  <h3>Patching Server Data</h3>
+  <p>
+    The term <defn>Patching</defn> means updating only specific parts of
+    attributes of a data resource. The following example patches a calendar
+    event.
+<pre class='prettyprint'>
+void CalendarSample::PatchEvent(
+    const string&amp; calendar_id, const Event&amp; event) {
+  scoped_ptr&lt;EventsResource_PatchMethod&gt; method(
+      service_-&gt;get_events().NewPatchMethod(
+          &amp;credential_, calendar_id, event.get_id(), event));
+
+  if (!method-&gt;Execute().ok()) {
+    DisplayError(method.get());
+    return;
+  }
+
+  scoped_ptr&lt;Event&gt; cloud_event(Event::New());
+  util::Status status =
+        GetEvent(calendar_id, event.get_id(), cloud_event.get());
+  if (status.ok()) {
+    cout &lt;&lt; "Patched event:" &lt;&lt; endl;
+    Display("  ", *cloud_event);
+  } else {
+    cout &lt;&lt; "** Could not get patched event: "
+         &lt;&lt; status.error_message() &lt;&lt; endl;
+  }
+  cout &lt;&lt; endl;
+}
+</pre>
+  <p>
+    For purposes of illustration, the <code>PatchEvent</code> method in the
+    sample might be called with an event as follows to patch the event
+    you just created so that it has a different summary but leaves the rest
+    of the attributes (start and stop time) intact.
+  </p>
+<pre class='prettyprint'>
+cout &lt;&lt; endl &lt;&lt; kSampleStepPrefix &lt;&lt; "Patch Calendar Event" &lt;&lt; endl;
+event-&gt;clear_start();
+event-&gt;clear_end();
+event-&gt;set_summary("Event patched by CalendarSample");
+PatchEvent(calendar_id, *event);
+</pre>
+</section>
+<section id='update'>
+  <h3>Replacing Server Data</h3>
+  <p>
+    The term <defn>Updating</defn> means updating all the attributes of a data
+    resource. The following example updates a calendar event. Note that this
+    is syntactically virtually identical to a patch, however semantically
+    very different.
+<pre class='prettyprint'>
+void CalendarSample::UpdateEvent(
+    const string&amp; calendar_id, const Event&amp; event) {
+  scoped_ptr&lt;EventsResource_UpdateMethod&gt; method(
+      service_-&gt;get_events().NewUpdateMethod(
+          &amp;credential_, calendar_id, event.get_id(), event));
+
+  if (!method-&gt;Execute().ok()) {
+    DisplayError(method.get());
+    return;
+  }
+
+  scoped_ptr&lt;Event&gt; cloud_event(Event::New());
+  util::Status status =
+        GetEvent(calendar_id, event.get_id(), cloud_event.get());
+  if (status.ok()) {
+    cout &lt;&lt; "Updated event:" &lt;&lt; endl;
+    Display("  ", *cloud_event);
+  } else {
+    cout &lt;&lt; "** Could not get updated event: "
+         &lt;&lt; status.error_message() &lt;&lt; endl;
+  }
+  cout &lt;&lt; endl;
+}
+</pre>
+  <p>
+    For purposes of illustration, the <code>UpdateEvent</code> method in the
+    sample might be called with an event as follows to update the event
+    so that it has a different start and end time. Because the snippet
+    does not also include a summary, the summary on the existing event
+    will be erased.
+  </p>
+<pre class='prettyprint'>
+cout &lt;&lt; endl &lt;&lt; kSampleStepPrefix &lt;&lt; "Update Calendar Event" &lt;&lt; endl;
+// An update requires a time.
+// Go back a year and one day to distinguish it from the old value.
+event-&gt;mutable_start().set_dateTime(
+    DateTime(now.ToEpochTime() - 60 * 60 * 24 * 367));
+event-&gt;mutable_end().set_dateTime(
+    DateTime(now.ToEpochTime() - 60 * 60 * 24 * 366));
+event-&gt;clear_summary();
+UpdateEvent(calendar_id, *event);
+</pre>
+</section>
+<section id='delete_calendar'>
+  <h3>Deleting Server Data</h3>
+  <p>
+    To delete server data, issue a <code>Delete</code> request with the
+    identifier of the object that you wish to delete. The following example
+    deletes a calendar. Since the calendar owns its entries, this
+    will also delete the entries on the calendar. The sample will delete the
+    calendar it created earlier to clean up after itself.
+  </p>
+<pre class='prettyprint'>
+void CalendarSample::DeleteCalendar(const string&amp; id) {
+  scoped_ptr&lt;CalendarsResource_DeleteMethod&gt; method(
+      service_-&gt;get_calendars().NewDeleteMethod(&amp;credential_, id));
+
+  if (!method-&gt;Execute().ok()) {
+    DisplayError(method.get());
+    return;
+  }
+  cout &lt;&lt; "Deleted ID=" &lt;&lt; id &lt;&lt; endl;
+  cout &lt;&lt; endl;
+}
+</pre>
+  <aside class='note'>
+    <b>Note:</b> If you do not delete the calendar when running the
+    sample then it will be visible next time you run the sample or look at
+    your calendar. If for some reason the sample does not finish
+    (e.g. it crashes, you disconnect from the network, etc) then the calendars
+    will be left around permanently. You can manually delete them using the
+    calendar's web UI by using your browser to log into your Google Account
+    and then clicking the <strong>Calendar</strong> from the menubar along the
+    top of the browser's content pane.
+  </aside>
+</section>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

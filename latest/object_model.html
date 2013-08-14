@@ -1,0 +1,415 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="./static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="./static/favicon.ico"/>
+<style>
+  div.om_attr_name, div.om_subgroup_name {
+    font-weight:bold; margin-bottom:0em; margin-top:1em
+  }
+  div.om_attr_name { font-size: 12pt; }
+  div.indent { margin-left: 1em }
+</style>
+<title>Understanding the Code Base</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="./index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="./start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="./start/get_started.html">Jumping In</a>
+<li><a class="nav" href="./activity_model.html">Understanding the Scope</a>
+<li class="here">Understanding the Code Base
+<li><a class="nav" href="./available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="./guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="./guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="./guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="./guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="./guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="./guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="./guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="./guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="./guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="./guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="./support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="./contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="./index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="./static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title"></div>
+<section>
+  <p>
+    This document provides an overview of the primary components and classes
+    defined and used within the client library runtime. This may help
+    understanding how the the library is organized and where to find the
+    implementation of different concepts and activities. This Developer's
+    Guide introduces and uses many of these components to illustrate how
+    to perform key activities. Complete technical reference
+    documentation for all the APIs is available in the
+    <a href='http://google.github.io/google-api-cpp-client/latest/doxygen'>Doxygen-generated API documentation</a>.
+  </P>
+  <p>
+    See <a href='activity_model.html'>Understanding the Scope</a> for an abstract
+    overview of the scope and types of activities typically covered by the
+    libraries.
+  </p>
+</section>
+<section id='ObjectModel'>
+  <table style='border-spacing:0.5em;' cellpadding='5em'>
+    <tr><th style='background-color:#336600; color:#FFFFFF'>
+        <span id='ClientServiceLayer'>Client Service Layer</span>
+      <td style='border-top:1px solid #336600'>
+        <div class='om_attr_name'>Role</div>
+        <a href='activity_model.html#UsingCloudServices'>
+          Using Cloud Services</a>.
+        <div class='om_attr_name'>C++ Location</div>
+        <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/service'>
+          <code>googleapis/client/service</code></a>
+        <div class='om_attr_name'>C++ Module</div>
+        <a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__ClientServiceLayer.html'>
+          Client Service Layer</a>
+        <div class='om_attr_name'>Components and Libraries</div>
+        <p>
+          <code>googleapis_http</code><br/>
+          The current runtime packaging is coarser than the
+          implementation architecture. These components are
+          grouped together with the Transport Layer.
+        </p>
+        <p>
+          The components in the Client Service Layer generally
+          fall into two sub-categories:
+          <div class='indent'>
+          <div class='om_subgroup_name'>Core Components</div>
+          <ul>
+            <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1ClientService.html'>
+                <code>ClientService</code></a>
+            <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1ClientServiceRequest.html'>
+                <code>ClientServiceRequest</code></a>
+          </ul>
+          <div class='om_subgroup_name'>Interaction Components</div>
+          <ul>
+            <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1MediaUploader.html'>
+                <code>MediaUploader</code></a>
+            <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1ServiceRequestPager.html'>
+                <code>ServiceRequestPager</code></a>
+          </ul>
+          </div>
+        </p>
+    <tr><th style='background-color:#000099; color:#FFFFFF'>
+        <span id='HttpTransportLayer'>HTTP Transport Layer</span>
+      <td style='border-top:1px solid #000099'>
+        <div class='om_attr_name'>Role</div>
+          <a href='activity_model.html#SendingHttpRequests'>
+            Sending HTTP Requests</a>.
+        <div class='om_attr_name'>C++ Location</div>
+        <ul>
+          <li>
+            <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/transport'>
+              <code>googleapis/client/transport</code></a><br/>
+            Production runtime components.
+          <li>
+            <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/transport/test'>
+              <code>googleapis/client/transport/test</code></a><br/>
+            Testing and diagnostic components.
+        </ul>
+        <div class='om_attr_name'>C++ SubModules</div>
+        <ul>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__TransportLayerCore.html'>
+              Core Components</a>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__TransportLayerTransport.html'>
+              Concrete Transports</a>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__TransportLayerTesting.html'>
+              Testing Support</a>
+        </ul>
+        <div class='om_attr_name'>Components and Libraries</div>
+        <ul>
+          <li><code>googleapis_http</code><br/>
+          The core Http Transport Layer runtime components are lumped in here.
+          <li><code>googleapis_http_curl_http</code><br/>
+          Contains <a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1CurlHttpTransportFactory.html'>
+              <code>CurlHttpTransportFactory</code></a>.
+          <li><code>googleapis_http_scribes</code><br/>
+          Contains various concrete
+            <a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpScribe.html'>
+              <code>HttpScribe</code></a>
+          implementations.
+          <li><code>googleapis_http_jsonplayback</code><br/>
+          Contains <a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1JsonPlaybackHttpTransport.html'>
+            <code>JsonPlaybackHttpTransport</code></a>
+            for testing and debugging.
+          <li><code>googleapis_http_transport_test</code><br/>
+          Contains the
+          <a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpTransportTestFixture.html'>
+            <code>HttpTransportTestFixture</code></a>.
+        </ul>
+        <p>
+          The C++ module breakdown of this layer is for dependency
+          management. For an introductory overview, components in this
+          layer usually fall into one of these functional groups:
+          <div class='indent'>
+            <div class='om_subgroup_name'>(Abstract) Core Components</div>
+            <ul>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpAuthorization.html'>
+                  <code>HttpAuthorization</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpRequest.html'>
+                  <code>HttpRequest</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpResponse.html'>
+                  <code>HttpResponse</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpTransport.html'>
+                  <code>HttpTransport</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpTransportFactory.html'>
+                  <code>HttpTransportFactory</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpScribe.html'>
+                  <code>HttpScribe</code></a>
+            </ul>
+            <div class='om_subgroup_name'>Supporting Components</div>
+            <ul>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpRequestStats.html'>
+                  <code>HttpRequestState</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpTransportErrorHandler'>
+                  <code>HttpTransportErrorHandler</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpTransportOptions.html'>
+                  <code>HttpTransportOptions</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HttpTransportLayerConfig.html'>
+                  <code>HttpTransportLayerConfig</code></a>
+            </ul>
+            <div class='om_subgroup_name'>Concrete Extensions</div>
+            <ul>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1CurlHttpTransportFactory.html'>
+                  <code>CurlHttpTransportFactory</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1MockHttpTransportFactory.html'>
+                  <code>MockHttpTransportFactory</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1HtmlScribe.html'>
+                  <code>HtmlScribe</code></a>
+            </ul>
+          </div>
+    <tr><th style='background-color:#663399; color:#FFFFFF'>
+        <span id='AuthorizationModule'>Authorization Module</span>
+      <td style='border-top:1px solid #663399'>
+        <div class='om_attr_name'>Role</div>
+          <a href='activity_model.html#UsingCredentials'>Using Credentials</a>.
+        <div class='om_attr_name'>C++ Location</div>
+        <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/auth'>
+              <code>googleapis/client/auth</code></a>
+        <div class='om_attr_name'>C++ SubModules</div>
+        <ul>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__AuthSupport.html'>
+              Generic Components</a>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__AuthSupportOAuth2.html'>
+              OAuth 2.0 Module</a>
+        </ul>
+        <div class='om_attr_name'>Components and Libraries</div>
+        <ul>
+          <li><code>googleapis_http</code><br/>
+          The Generic Components added by the Authorization Module are lumped
+          together in the same library as the HTTP Transport Layer.
+          <li><code>googleapis_oauth2</code><br/>
+          Contains the components supporting OAuth 2.0.
+        </ul>
+        <p>
+          The Authorization Module components fall into two groups:
+          <div class='indent'>
+            <div class='om_subgroup_name'>OAuth 2.0 Support</div>
+            <ul>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1OAuth2AuthorizationFlow.html'>
+                  <code>OAuth2AuthorizationFlow</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1OAuth2Credential.html'>
+                  <code>OAuth2Credential</code></a>
+              <li><a hrenf='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1OAuth2ClientSpec.html'>
+                  <code>OAuth2ClientSpec</code></a>
+            </ul>
+            <div class='om_subgroup_name'>Generic Credential Management</div>
+            <ul>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1CredentialStore.html'>
+                  <code>CredentialStore</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1FileCredentialStore.html'>
+                  <code>FileCredentialStore</code></a>
+            </ul>
+          </div>
+    <tr><th style='background-color:#660033; color:#FFFFFF'>
+        <span id='DataLayer'>Data Layer</span>
+      <td style='border-top:1px solid #660033'>
+        <div class='om_attr_name'>Role</div>
+          <a href='activity_model.html#WorkingWithData'>Working with Data</a>.
+        <div class='om_attr_name'>C++ Location</div>
+            <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/data'>
+              <code>googleapis/client/data</code></a>
+        <div class='om_attr_name'>C++ SubModules</div>
+        <ul>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__DataLayerRaw.html'>
+              Raw Data Management</a><br/>
+            Manages reading and writing binary data streams.
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__DataLayerCodec.html'>
+              Data Encoder/Decoders</a><br/>
+            Transforms the data within binary data streams (e.g. encryption).
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__DataLayerCodec.html'>
+              Data Encoder/Decoders</a><br/>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__DataLayerJson.html'>
+              (Abstract) JSON Support</a><br/>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__DataLayerJsonCpp.html'>
+              JSON Support using JsonCpp</a><br/>
+        </ul>
+        <div class='om_attr_name'>Components and Libraries</div>
+        <ul>
+          <li><code>googleapis_utils</code><br/>
+            Raw data management and simple codecs are lumped in here.
+          <li><code>googleapis_openssl_codec</code><br/>
+            An encryption/decryption codec implemented using OpenSSL ciphers.
+          <li><code>googleapis_json</code><br/>
+            Abstract JSON support
+          <li><code>googleapis_jsoncpp</code><br/>
+            Concrete JSON support using JsonCpp
+        </ul>
+        <p>
+          The C++ module breakdown of this layer is for dependency management.
+          For an introductory overview, components of this layer fall into one
+          of these functional groups:
+          <div class='indent'>
+            <div class='om_subgroup_name'>Data Access and Management</div>
+            <ul>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1DataReader.html'>
+                  <code>DataReader</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1DataWriter.html'>
+                  <code>DataWriter</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__RawData.html'>
+                  Various specializations</a> of reader/writer.
+                <ul>
+                  <li>In-memory
+                  <li>File
+                  <li>Composite
+                  <li>IStream
+                </ul>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1Codec.html'>
+                  <code>Codec</code></a>
+            </ul>
+
+            <div class='om_subgroup_name'>JSON Support</div>
+            <ul>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1SerializableJson.html'>
+                  <code>SerializableJson</code></a>
+              <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1JsonCppData.html'>
+                  <code>JsonCppData</code></a>
+            </ul>
+          </div>
+
+    <tr><th style='background-color:#DDDDDD; color:#000000'>
+        <span id='PlatformLayer'>Platform Layer</span>
+      <td style='border-top:1px solid #DDDDDD'>
+        <div class='om_attr_name'>Role</div>
+        <a href='activity_model.html#WorkingWithCpp'>Working with C++</a>.
+        <div class='om_attr_name'>C++ Location</div>
+        <ul>
+          <li><a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/util'>
+              <code>googleapis/client/util</code></a><br/>
+            Components specific to the Google APIs Client Library for C++
+          <li><a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/base'>
+              <code>googleapis/base</code><br/>
+            <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/util'>
+              <code>googleapis/util</code></a><br/>
+            This is not currently well defined. They are typically components
+            that are in other Google open source projects but do not have
+            an authoritative project of their own. Note that
+            <code>googleapis/util</code> is not the same as
+            <code>googleapis/client/utils</code> which is a well-defined
+            module introduced by Google APIs Client for C++.
+        </ul>
+
+        <div class='om_attr_name'>C++ SubModules</div>
+        <ul>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__PlatformLayerFiles.html'>
+              File Support</a>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__PlatformLayerUri.html'>
+              URI Support</a>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__PlatformLayerWebServer.html'>
+              Embedded Web Server</a>
+          <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/group__PlatformLayer.html'>
+              General Programming Support</a>
+        </ul>
+
+        <div class='om_attr_name'>Components and Libraries</div>
+        <ul>
+          <li><code>googleapis_utils</code><br/>
+            Provides most of the Platform Layer in addition to the basic
+            data and codec implementations for the Data Layer.
+
+          <li><code>googleapis_mongoose</code><br/>
+            Contains the implementation of
+            <a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1MongooseWebServer.html'>
+              MongooseWebServer</a>.
+
+          <li><code>googleapis_gtest_main</code><br/>
+            Implements main() for gtest but adds a temporary directory
+            which is cleared out after running the tests.
+
+          <li><code>googleapis_internal</code><br/>
+            Contains implementation details not yet officially exported.
+            This includes a few classes that are part of the public API
+            that do not yet been moved elsewhere.
+        </ul>
+        <p>
+          The Platform Layer contains a lot of miscellaneous components. They
+          can be roughly categorized as follows:
+          <div class='om_attr_name'>Foundation Types</div>
+          See <a href='guide/types.html'>Foundation Types</a>.
+          <div class='indent'>
+          <ul>
+            <li><a href='http://google.github.io/google-api-cpp-client/latest/doxygen/classgoogleapis_1_1client_1_1DateTime.html'>
+                <code>DateTime</code></a>
+            <li><a href='guide/types.html#Closure'><code>Closure</code></a>
+            <li><a href='guide/types.html#Executor'><code>Executor</code></a>
+            <li><a href='guide/types.html#Mutex'><code>Mutex</code></a>
+            <li><a href='guide/types.html#Status'><code>Status</a></code>
+            <li><a href='guide/types.html#Strings'><code>Strings</a></code>
+          </ul>
+
+          <div class='om_attr_name'>Other Modules</div>
+          <ul>
+            <li><code>File</code>
+            <li><code>StrCat()</code> and other string operations
+          </ul>
+          </div>
+        </p>
+  </table>
+</section>
+
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

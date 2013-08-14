@@ -1,0 +1,363 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Reading and Writing Data</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="../start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="../start/get_started.html">Jumping In</a>
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="../guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="../guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li class="here">Reading and Writing Data
+<li><a class="nav" href="../guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Reading and Writing Data</div>
+<section>
+  <p>
+    This document discusses the common abstractions used throughout the
+    Google APIs Client Library for C++ when reading and writing data.
+    It describes the concepts, abstract interface, and concrete component
+    implementations provided. It also explains how to write your own
+    custom readers to obtain data from other sources.
+  </p>
+</section>
+<section>
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#Introduction">Basic concepts</a>
+    <li><a href="#Examples">Typical use case examples</a>
+      <ol>
+        <li><a href="#Simple">Providing an in-memory string or byte sequence</a>
+        <li><a href="#Stream">Providing a disk-based string or byte sequence</a>
+        <li><a href="#Composite">Aggregating non-contiguous content</a>
+      </ol>
+    <li><a href="#ProvidedReaders">Available DataReader classes</a>
+    <li><a href="#CustomReaders">Adding new types of data readers</a>
+    <li><a href="#ProvidedWriters">Available DataWriter classes</a>
+    <li><a href="#CustomWriters">Adding new types of data writers</a>
+  </ol>
+</section>
+<section id='Introduction'>
+  <h2>Basic concepts</h2>
+  <h3>Reading data and DataReader</h3>
+  <p>
+    A <code>DataReader</code> reads a sequence of bytes in whole or part.
+    The Google APIs Client Library for C++ uses <code>DataReader</code> to
+    pass non-trivial data into methods, particularly where the data might not
+    naturally reside in a chunk of memory. There are different
+    implementations of <code>DataReader</code> that store the data
+    differently, such as in a continuous memory buffer or on disk.
+  </p>
+  <p>
+    Reading data from a <code>DataReader</code> incrementally advances
+    through the sequence. Ideally a <code>DataReader</code> is seekable
+    to any offset, forward or backward, in the byte stream by calling
+    SetOffset method. However <code>SetOffset</code> is not required or
+    guaranteed to work on all <code>DataReader</code> classes. Most readers,
+    including all the ones provided with the SDK are normally seekable.
+    Some readers store their data externally, such as on disk, so might
+    become unseekable if the external device becomes unavailable. If the
+    reader cannot seek its offset back to the beginning, you will only be
+    able to read it once.
+    If the reader was for a request payload then the request
+    will fail if it attempts to resend. If the reader was for a response
+    payload then you will not be able to read the result multiple times.
+  </p>
+  <h3>Writing data and DataWriter</h3>
+  <p>
+    A <code>DataWriter</code> is analogous to a <code>DataReader</code>
+    but writes a serialized stream. It is used by <code>HttpRequest</code>
+    to capture the response data. The <code>DataWriter</code> acts as a
+    <code>DataReader</code> factory, creating a reader that can read back
+    the response. For example the <code>FileDataWriter</code> will stream
+    the results directly to disk and create a <code>FileDataReader</code>
+    that can stream the data back into the application should it want to
+    access the data.
+  </p>
+  <p>
+    Readers should be of a constant size. They do not necessarily need to
+    know what that size is, but it should not change as they are being used.
+    Readers do need to identify when they have reached the end of their
+    content.
+  </p>
+
+  <h3>Managed vs unmanaged</h3>
+  <p>
+    Readers and writers come in two flavors: managed and unmanaged.
+    A <em>managed reader</em> (or writer) has a <a href='types.html#Closure'>
+    callback</a> that it will call when it is destroyed. Normally these
+    closures are used to delete the storage of the data being read, but
+    the callback may do anything. An <em>unmanaged reader</em> (or writer)
+    has a <code>NULL</code> <code>Closure</code>. Unmanaged readers/writers
+    rely one someone else to manage their storage, and they assume it is
+    available over the lifetime of their instance.
+  </p>
+</section>
+
+<section id='Examples'>
+  <h2>Typical use case examples</h2>
+  <p>
+    The following snippet is applicable to the examples listed below.
+  </p>
+ <pre class='prettyprint'>
+#include "googleapis/client/data/data_reader.h"
+#include "googleapis/client/data/data_writer.h"
+#include "googleapis/client/transport/http_request.h"
+#include "googleapis/client/transport/http_response.h"
+#include "googleapis/util/util/status.h"
+
+using googleapis_client::HttpRequest;
+using googleapis_client::HttpResponse;
+using googleapis_client::DataReader;
+using googleapis_client::DataWriter;
+</pre>
+</section>
+<section id='Simple'>
+  <h3>Providing an in-memory string or byte sequence</h3>
+  <p>
+    The simplest reader copies the data to private memory that it will manage.
+    This function hides the <code>Closure</code> that you would normally need
+    to provide to a managed reader. It is still considered managed because
+    the reader owns its data.
+  </p>
+ <pre class='prettyprint'>
+string* dynamic_string = new string("Hello World");
+scoped_ptr&lt;DataReader&gt; reader(
+    googleapis_client::NewManagedInMemoryDataReader(dynamic_string));
+</pre>
+ <p>
+   If the data you want to read is already in memory, and will remain so over
+   the lifetime of the reader, then you can use an unmanaged reader on it
+   and avoid the data copy.
+ </p>
+ <pre class='prettyprint'>
+scoped_ptr&lt;DataReader&gt; reader(
+    googleapis_client::NewUnmanagedInMemoryDataReader("Hello World"));
+</pre>
+ <p>
+   If the data you want read is in a <code>std::string*</code> that you own,
+   you can pass ownership to the reader and have it manage that string.
+ </p>
+ <pre class='prettyprint'>
+string local_string = "Hello World";
+scoped_ptr&lt;DataReader&gt; reader(
+    googleapis_client::NewManagedInMemoryDataReader(local_string));
+</pre>
+</section>
+<section id='Stream'>
+  <h3>Providing a disk-based string or byte sequence</h3>
+  <p>
+    The following example creates a <code>DataReader</code> that references
+    the data in a file.
+  </p>
+ <pre class='prettyprint'>
+// Will delete the path when we delete the reader by calling
+// bool File::Delete(string&amp;). Note that we don't care about the
+// result. This existing function just happens to have one.
+extern void DeleteFile(const string&amp; path);
+Closure* closure = NewCallback(&amp;DeleteFile, path);
+scoped_ptr&lt;DataReader&gt; reader(
+    googleapis_client::NewManagedFileDataReader(path, closure));
+</pre>
+</section>
+<section id='Composite'>
+  <h3>Aggregating non-contiguous content</h3>
+  <p>
+    The following example demonstrates a reader that presents a sequence of
+    bytes across different sources. In this particular example, it is coming
+    from fragmented memory. It could just as easily be joining different
+    types of readers together. The consumer will not distinguish the boundaries
+    among the different fragments.
+  </p>
+ <pre class='prettyprint'>
+vector&lt;DataReader*&gt;* parts = new vector&lt;DataReader*&gt;;
+parts-&gt;push_back(
+    googleapis_client::NewUnmanagedInMemoryDataReader("Hello"));
+parts-&gt;push_back(googleapis_client::NewUnmanagedInMemoryDataReader(" "));
+parts-&gt;push_back(
+    googleapis_client::NewUnmanagedInMemoryDataReader("World"));
+
+Closure* closure = NewCompositeReaderListAndContainerDeleter(parts);
+scoped_ptr&lt;DataReader&gt; reader(
+    googleapis_client::NewManagedCompositeDataReader(*parts, closure));
+</pre>
+</section>
+<section id='ProvidedReaders'>
+  <h2>Available DataReader and DataWriter classes </h2>
+  <p>
+    Data readers are created using free functions defined in
+    <code>data_reader.h</code>. This section introduces the
+    different types of available readers. Each comes in both
+    flavors of managed and unmanaged.
+  </p>
+  <p>
+    All the DataReaders listed below, other than the InvalidDataReader,
+    are seekable.
+  </p>
+  <dl>
+    <dt>InvalidDataReader
+      <dd>An <em>InvalidDataReader</em> always fails. It is used in
+        places where a <code>DataReader</code> may be needed but there is
+        no valid data to provide. For example, scenarios in which there
+        was an error obtaining the data. The factory functions may in fact
+        return an <em>InvalidDataReader</em> if they would otherwise fail.
+        If you need to distinguish, check the error() status.
+    <dt>InMemoryDataReader
+      <dd>An <em>InMemoryDataReader</em> is a <code>DataReader</code> with
+        an in-memory buffer, including strings. Note that strings can be
+        used even for binary data. InMemoryDataReader can always SetOffset.
+    <dt>FileDataReader
+      <dd>A <em>FileDataReader</em> is a <code>DataReader</code> that reads
+        from files. This is probably a better choice than the generic
+        <em>StreamDataReader</em> if the source is in fact a file. FileDataReader
+        can be expected to SetOffset unless there is some kind of external
+        failure such as the file being corrupted or a new OS-level failure.
+    <dt>CompositeDataReader
+      <dd> A <em>CompositeDataReader</em> is a <code>DataReader</code> that
+        aggregates other data readers into a single byte sequence. It is useful
+        for joining fragments together into a single stream.
+        CompositeDataReaders will SetOffset as long as the readers they
+        reference can SetOffset as well.
+    <dt>IStreamDataReader
+      <dd> A <em>IStreamDataReader</em> is a <code>DataReader</code> that
+        wraps a <code>std::istream</code> C++ stream. IStreams can only
+        SetOffset as reliably as the underlying std::istream can seek to the
+        desired offset.
+  </dl>
+</section>
+<section id='CustomReaders'>
+  <h2>Adding new types of data readers</h2>
+  <p>
+    To write your own specialized reader you must minimally subclass
+    <code>DataReader</code> and add the following:
+    <ul>
+      <li>Provide an implementation of <code>DoReadToBuffer</code> that
+        reads from your data source. The starting position will be
+        the <code>offset()</code> attribute, which is automatically managed
+        by the base class. Your method implementation can read fewer than the
+        requested number of bytes per invocation if you wish or run out of
+        data. Be sure to call <code>set_done</code> when it finishes or
+        <code>set_status</code> if an error is encountered.
+        Returning <code>0</code> does not imply being done or having an error.
+      <li>Optionally (but recommended) provide an implementation of
+        <code>DoSetOffset</code> which permits the reader to start reading from
+        your source at the specified offset. You should not seek past the end
+        however. When you hit the end, return the ending position even if less
+        than the position asked for. If you make your class reliably seekable,
+        also override the seekable() method to indicate that.
+        If you leave the base class method then
+        attempts to <code>SetOffset</code> will fail making your reader only
+        single-use.
+      <li>Optionally call <code>set_total_length</code> in the constructor.
+        This will be the result of <code>TotalLengthIfKnown</code>, which can
+        be helpful. It is not strictly required.
+      <li>Provide Managed and Unmanaged free functions to create your reader.
+        Having these free functions is not required, but is the convention
+        we recommend for consistency. If your factory method cannot create
+        your reader as requested, you can return an
+        <code>New*InvalidDataReader</code>
+        using either the managed or unmanaged as appropriate.
+    </ul>
+  </p>
+</section>
+<section id='ProvidedWriters'>
+  <h2>Available DataReader and DataWriter classes </h2>
+  <p>
+    Data writers are created using free functions
+    defined in <code>data_writer.h</code>. This section introduces the
+    different types of available writers. Each comes in both
+    flavors of managed and unmanaged.
+  </p>
+
+  <dl>
+    <dt>FileDataWriter
+      <dd>A <em>FileDataWriter</em> is a <code>DataWriter</code> that stores
+        the byte sequence in a file. These writers create
+        <em>FileDataReader</em> to provide access to read back the data.
+    <dt>StringDataWriter
+      <dd>
+        A <em>StringDataWriter</em> is a <code>DataWriter</code> that stores
+        the byte sequence in an in-memory <code>std::string</code>. If you
+        supply the string to write into, use <code>string.data()</code>
+        rather than <code>string.c_str()</code> when accessing the data written
+        because the writer may be producing binary data rather than text.
+        These writers create an <em>InMemoryDataReader</em> to provide
+        access to read back the data.
+  </dl>
+</section>
+
+<section id='CustomWriters'>
+  <h2>Adding new types of data writer</h2>
+  <p>
+    To write your own specialized reader you must minimally subclass
+    <code>DataWriter</code> and add the following:
+    <ul>
+      <li>Implement <code>DoWrite</code> to append bytes incrementally to
+        your storage.
+      <li>Implement <code>DoNewDataReader</code> to create a
+        <code>DataReader</code> that can read the bytes back from your storage.
+        If the method is passed a non-<code>NULL</code> <code>Closure</code>
+        then return a managed reader using the provided closure.
+    </ul>
+  </p>
+</section>
+
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Configuring the Transport Layer</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="../start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="../start/get_started.html">Jumping In</a>
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/making_http_requests.html">Making HTTP Requests</a>
+<li class="here">Configuring the Transport Layer
+<li><a class="nav" href="../guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="../guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Configuring the Transport Layer</div>
+<section>
+  <p>
+    There are a few critical parameters that must be set within the transport
+    layer in order to set it up for use. There are a number of additional
+    parameters that can be used to configure various aspects of it.
+    This document describes how to configure the Transport Layer and
+    its key components.
+  </p>
+</section>
+<section>
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#Examples">Typical use case examples</a>
+      <ol>
+        <li><a href="#SetFactory">Injecting an HTTP protocol implementation</a>
+        <li><a href="#SetCaCerts">Verifying SSL certificates</a>
+        <li><a href="#SetUserAgent">Setting the HTTP User Agent</a>
+        <li><a href="#SetExecutor">Controlling concurrency</a>
+        <li><a href="#SetErrorHandling">Handling transient HTTP errors</a>
+      </ol>
+    <li><a href="#OptionsVsConfig">
+        HttpTransportLayerConfig vs HttpTransportOptions</a>
+  </ol>
+</section>
+<section id = "Examples">
+  <h2>Typical use case examples</h2>
+  <p>
+    These examples show how to configure aspects of the Transport Layer
+    that come into play when making HTTP requests either explicitly
+    with the transport layer components or indirectly such as making
+    calls to cloud services.
+  </p>
+</section>
+<section id = "SetFactory">
+  <h3>Injecting an HTTP protocol implementation</h3>
+  <p>
+    Components that perform HTTP messaging use dependency injection to bind
+    to an HTTP protocol implementation. This is achieved either by giving
+    them the <code>HttpTransport</code> instance to use, a
+    <code>HttpTransportFactory</code> for instantiating instances as they
+    are needed, or <code>HttpTransportLayerConfig</code> with a default
+    <code>HttpTransportFactory</code> bound to it.
+  </p>
+</section>
+<section id = "SetCaCerts">
+  <h3>Verifying SSL certificates</h3>
+  <p>
+    The <code>HttpTransportOptions</code> can specify a path to a data file
+    for validating SSL certificates. The SDK comes with a data file suitable
+    for validating all the certificates used by services hosted in the Google
+    Platform and other common Internet web servers. You must tell the runtime
+    where this path is if it is not in the default location. The default
+    location is a file called <code>roots.pem</code> in the directory that
+    the program executable is located in. The <code>CMake</code> build files
+    in the SDK will copy this into the <code>bin</code> and
+    <code>export/bin</code> directories of your build. It is up to you
+    to include these when you install your applications, or explicitly
+    set some other path.
+  </p>
+  <p>
+    The location is an attribute in the <code>HttpTransportOptions</code>.
+    This means that you can have some paths with different data files if you
+    so desire. You may also disable this feature, at the risk of your users,
+    by setting the path to HttpTransportOptions::kDisableSslVerification.
+  </p>
+</section>
+
+<section id = "SetUserAgent">
+  <h3>Setting the HTTP User Agent</h3>
+  <p>
+    HTTP users a special header called <code>User-Agent</code> for applications
+    and transport implementations to identify themselves. This is typically
+    used for monitoring, diagnostics, and various types of server-side
+    analysis. We would prefer that you leave the default value or change it
+    with SetApplicationName when talking to Google servers. You may also
+    change this to a literal value with the set_nonstandard_user_agent
+    attribute on HttpTransportOptions.
+  </p>
+</section>
+
+<section id = "SetExecutor">
+  <h3>Controlling concurrency</h3>
+  <p>
+    Individual <code>HttpRequest</code> instances execute synchronously,
+    however you can execute multiple requests concurrently. There are two
+    ways to do this:
+
+    <ul>
+      <li>Yourself by calling HttpRequest::Execute from separate threads.
+      <li>Implicitly by calling HttpRequest::ExecuteAsync and setting a
+        multi-threaded <a href="types.html#Executor"><code>Executor</code></a>.
+    </ul>
+
+    The <code>ExecuteAsync</code> method uses the <code>executor</code>
+    bound to the <code>HttpTransportOptions</code> to manage the invocation.
+    The options object does not own the executor -- the caller does so that
+    it can be shared across different options instances on different transport
+    instances.
+  </p>
+
+  <p>
+    If you do not want to execute requests concurrently, such as if you
+    are using a <a href="transport_customization.html">custom HTTP protocol
+    implementation</a> that is not thread-safe, you also have two ways
+    to restrict concurrency:
+    <ul>
+      <li>Use synchronization, such as a <a href="types.html#Mutex">
+          <code>Mutex</code></a> within your transport implementation.
+          <ul>
+            <li>You must do this if concurrent requests from different
+              <code>HttpTransport</code> instances is a concern.
+          </ull>
+      <li>Use a single-threaded
+        <a href="types.html#Executor"><code>Executor</code></a>
+          such as <code>NewInlineExecutor</code>.
+          <ul>
+            <li>This should be sufficient if you only use one transport
+              instance or only concurrent requests from the same instance
+              are of concern.
+          </ull>
+    </ul>
+  </p>
+</section>
+
+<section id = "SetErrorHandling">
+  <h3>Handling transient HTTP errors</h3>
+  <p>
+    The <code>HttpTransportOptions</code> contains an
+    <code>error_handler</code> attribute with a reference to an
+    <code>HttpTransportErrorHandler</code>. The options does not own the
+    error handler instance, so the instance can be shared across multiple
+    option instances used by multiple transport instance.
+  </p>
+
+  <p>
+    The error handler is called as needed by the base <code>HttpRequest</code>
+    class while executing requests. This includes receiving HTTP redirect
+    responses and HTTP error responses. The intention is that the error handler
+    is used to decide when and how to retry the request as part of the
+    processing flow. It is not intended to be used for handling the final
+    response status. That would be left to the caller or, in the case of
+    asynchronous execution, the callback.
+  </p>
+</section>
+
+<section id = "OptionsVsConfig">
+  <h2>HttpTransportLayerConfig vs HttpTransportOptions</h2>
+  <p>
+    The <code>HttpTransportLayerConfig</code> contains a default
+    <code>HttpTransportOptions</code> attribute. The intent is that when
+    using a config, you use the transport options from that config (or
+    copy construct a new one from it) rather than the default constructor
+    for HttpTransportOptions.
+  </p>
+  <p>
+    Some of the attributes of <code>HttpTransportOptions</code> are object
+    pointers. The options instance does not own these pointers, rather the
+    caller is responsible for them. The <code>HttpTransportLayerConfig</code>
+    provides memory management for these options so that the objects referenced
+    by its <code>default_transport_options</code> are managed by the config
+    instance making it encapsulated.
+  </p>
+</section>
+
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

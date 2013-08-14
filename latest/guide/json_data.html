@@ -1,0 +1,489 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Using the JSON Data Model</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="../start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="../start/get_started.html">Jumping In</a>
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="../guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="../guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/data_reader.html">Reading and Writing Data</a>
+<li class="here">Using JSON Data Objects
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Using the JSON Data Model</div>
+<section>
+  <p>
+    This document discusses the JSON abstractions and implementations used
+    by the client library for Data Objects in generated Service APIs.
+  </p>
+</section>
+<section>
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#Introduction">Basic Concepts</a>
+    <li><a href="#Examples">Typical Use Case Examples</a>
+      <ol>
+	<li><a href="#Simple">Simple Structures</a>
+	<li><a href="#Date">Dates and Times</a>
+	<li><a href="#Arrays">Arrays</a>
+	<li><a href="#Maps">Associative Arrays</a>
+      </ol>
+    <li><a href="#Reference">JsonCppData Reference</a>
+      <ol>
+	<li><a href="#JsonCppData">The JsonCppData base class</a>
+	<li><a href="#JsonCppDataArray">JsonCppDataArray</a>
+	<li><a href="#JsonCppDataAssociativeArray">JsonCppDataAssociativeArray</a>
+      </ol>
+  </ol>
+</section>
+<section id='Introduction'>
+  <h2>Basic Concepts</h2>
+<p>
+  The core client library interfaces refer to application data objects using
+  the abstract class <code>googleapis::client::SerializableJson</code>.
+  This class is so abstract that it only knows how to serialize and
+  deserialize the instance in and out of
+  <a href='http://tools.ietf.org/html/rfc4627'>JSON</a>. In theory this
+  makes the core client library independent of the JSON implementation.
+</p>
+<p>
+  The library provides a concrete implementation of this class with a
+  ready-to-use interface in <code>googleapis::client::JsonCppData</code>.
+  The data objects emitted by the code generator are derived from this
+  class and provide a specialized interface for the class as defined by
+  the specification in the service's Discovery Document. Because the abstract
+  class is so generic, there isn't much to say about it so this document
+  focuses on the <code>JsonCppData</code> implementation provided with the SDK.
+</p>
+<p>
+  See the section <a href='#JsonCppData'>The JsonCppData base class</a>
+  later in this document for more information about <code>JsonCppData</code>.
+</p>
+<h3>Overview of Data Types used in the Data Models</h3>
+<p>
+  JSON data objects are only used in the service-specific APIs. These
+  data objects use the <a href='types.html#Primitive'>Primitive Types</a>
+  and <a href='types.html#Strings'>String Types</a> discussed among the
+  <a href='types.html'>Foundation Types</a>. In addition, the code generator
+  will use:
+
+  <table>
+      <tr><th>Type
+           <th>Description
+      <tr><td><code>[u]int(16|32|64)</code>
+          <td>For JSON integer values. The JSON format determines the
+              specific integer variant. The SDK defines all these in
+              <code>googleapis/base/integral_types.h</code>.
+              Note that JSON actually represents 64-bit integers as strings
+              with the format '[u]int64' however the APIs will use native
+              <code>int64</code> for their public interface.
+      <tr><td><code>bool</code>
+          <td>For JSON boolean values.
+      <tr><td><code>float | double</code>
+          <td>For JSON number values.
+      <tr><td><code>string</code>
+          <td>For JSON string values with 'byte' or no format.
+      <tr><td><code>googleapis::client::DateTime</code>
+          <d>For JSON strings with 'date-time' format.
+      <tr><td><code>googleapis::client::JsonCppData</code>
+          <td>For JSON 'object' or 'any' values.
+            It is also the base class for custom typed Data Objects.
+      <tr><td><code>googleapis::client::JsonCppDataArray</code>
+          <td>For JSON 'array' objects. A <code>JsonCppDataArray</code>
+              is a subclass of <code>JsonCppData</code>. That is, it is itself
+              a <code>JsonCppData</code> object.
+              These arrays also provide a C++ <code>iterator</code>.
+      <tr><td><code>googleapis::client::JsonCppAssociativeArray</code>
+          <td>For JSON 'map' objects.
+              A <code>JsonCppDataAssociativeArray</code>
+              is a subclass of <code>JsonCppData</code>. That is, it is itself
+              a <code>JsonCppData</code> object.
+              These maps also provide a C++ <code>iterator</code>.
+      <tr><td><code>template&lt;typename T&gt;
+              googleapis::client::JsonCppDataCapsule;</code>
+          <td>
+            <p>
+              <code>JsonCppData</code> objects require external
+              <code>Json::Value</code> storage for their state, so they
+              do not have default constructors. If you want to create a new
+              instance, you need to provide the storage for it. This is awkward
+              and inconvenient. Instead, you can create a capsule.
+            </p>
+            <p>
+              A capsule is a <code>JsonCppData</code> object that encapsulates
+              its own storage so the it can be constructed with the default
+              constructor. A capsule for type <code>T</code> can be used as
+              a <code>T</code>, whether T is <code>JsonCppData</code> or
+              any specialized derivation of it (i.e. array,s maps, and even
+              service-specific data objects).
+            <p/>
+    </table>
+</p>
+</section>
+
+<section id='Examples'>
+  <h2>Typical Use Case Examples</h2>
+</section>
+
+<section id='Simple'>
+  <h3>Simple Structures</h3>
+<pre class='prettyprint'>
+#include "googleapis/base/integral_types.h"
+#include "googleapis/client/util/date_time.h"
+#include "googleapis/client/data/jsoncpp_data.h"
+#include "google/drive_api/drive_api.h"
+
+using google_drive_api::File;
+using googleapis::client::JsonCppData;
+using googleapis::client::JsonCppDataCapsule;
+using googleapis::client::DateTime;
+
+void ProcessData(const JsonCppData&amp; data);
+
+void InitFileData(File* file) {
+  DateTime now;
+  int64 size = 123;  // just to illustrate using int64
+  const StringPiece kText = "some sample tokens";  // for illustrative purposes.
+
+  file-&gt;set_createdDate(now);            // Date-Time
+  file-&gt;set_description("Sample File");  // string
+  file-&gt;set_editable(true);              // boolean
+  file-&gt;set_fileSize(size);              // int64 (string with int64 format)
+
+  File::FileIndexableText&amp; indexable_text = file-&gt;mutable_indexableText();
+  indexable_text.set_text(kText);
+
+  // This is just showing that changing the attribute obtained from a container
+  // takes effect on the container itself.
+  assert(indexable_test == file-&gt;indexableText().get_text());
+}
+
+void UseLocalData() {
+  JsonCppDataCapsule&lt;File&gt; file;
+  InitFileData(&amp;file);
+  ProcessData(file);
+}
+
+void UseDataFactory() {
+  scoped_ptr&lt;File&gt; file(File::New());
+  InitFileData(file.get());
+  ProcessData(*file);
+}
+</pre>
+</section>
+<section id='Date'>
+  <h3>Dates and Times</h3>
+<pre class='prettyprint'>
+#include "googleapis/client/util/date_time.h"
+using googleapis::client::DateTime;
+
+void Example() {
+  DateTime now;   // Default constructor is current time
+
+  // The following are all equivalent
+  time_t epoch = now.ToEpochTime();
+  DateTime from_epoch(epoch);
+
+  struct tm utc;
+  now.GetUniversalTime(&amp;utc);
+  DateTime from_utc(DateTime::DateTimeFromLocal(utc));
+
+  struct tm local;
+  now.GetLocalTime(&amp;local);
+  DateTime from_local(DateTime::DateTimeFromLocal(local));
+
+  struct timeval tv;
+  now.GetTimeval(&amp;tv);
+  DateTime from_timeval(tv);
+
+  string str = now.ToString();
+  DateTime from_str(str);
+}
+</pre>
+</section>
+<section id='Arrays'>
+  <h3>Arrays</h3>
+<aside class='note'>
+  <b>Note.</b> Arrays are currently variable length and grow
+  automatically. This may change by the time the API is finalized.
+</aside>
+<pre class='prettyprint'>
+#include "googleapis/client/data/jsoncpp_data.h"
+using googleapis::client::JsonCppArray;
+using googleapis::client::JsonCppData;
+
+class MyData : public JsonCppData {
+ public:
+   int get_number() const;
+   void set_number(int n);
+};
+
+void ExampleArray() {
+  JsonCppCapsule&lt;JsonCppArray&lt;int&gt; &gt; primitive_array;
+  JsonCppCapsule&lt;JsonCppArray&lt;MyData&gt; &gt; obj_array;
+
+  for (int i = 0; i &lt; 10; ++i) {
+     primitive_array.set(i, 10 * i);   // cannot set with [] operator
+     obj_array[i].set_number(10 * i);  // can use either [] or set_
+  }
+
+  for (int i = 0; i &lt; 10; ++i) {
+     // reading primitives can use [] operator
+     assert(primitive_array[i] == obj_array[i].get_number());
+  }
+
+  // C++11 style iteration
+  for (int i: primitive_array) {
+  }
+
+  // Tranditional iterator
+  for (auto it = obj_array.begin(); it != obj_array.end(); +it) {
+     int index = it.index();
+     const MyData&amp; data = *it;
+  }
+
+  // Can import/export to stl vectors.
+  vector&lt;int&gt; v;
+  primitive_array.Export(&amp;v);
+  primtive_array.Import(v);
+}
+</pre>
+<p>
+  Observe that non-object array types do not have a mutable <code>[]</code>
+  operator. They only have an immutable accessor. You must use the array's
+  <code>set_</code> method. To read values from the array you can always use
+  either the <code>[]</code> operator or <code>get</code> method.
+</p>
+</section>
+<section id='Maps'>
+  <h3>Associative Arrays</h3>
+<pre class='prettyprint'>
+#include "googleapis/client/data/jsoncpp_data.h"
+using googleapis::client::JsonCppAssociativeArray;
+
+void ExampleAssociativeArray() {
+  JsonCppCapsule&lt;JsonCppAssociativeArray&lt;int&gt; &gt; aa;
+  aa_put("one", 1);
+  aa_put("two", 2);
+
+  int value;
+  if (aa_get("three", &amp;value)) {
+  }
+
+  for (auto it = aa.begin(); it != aa.end(); ++it) {
+      cout &lt;&lt; it.key() &lt;&lt; " = " &lt;&lt; it.value();
+  }
+  for (const auto&amp; elem : aa) {
+      cout &lt;&lt; elem.key() &lt;&lt; " = " &lt;&lt; elem.value();
+  }
+}
+</pre>
+</section>
+<section id='Reference'>
+  <h2>JsonCppData Reference</h2>
+  <p>
+    This section provides some additional reference documentation for using
+    the <code>JsonCppData</code> class. All data objects generated by the
+    code generator are derived from this class. At some point you may need
+    to become more familiar with the details.
+  </p>
+  <aside class='note'>
+    <b>Note.</b>
+    The reference provided here is supplemental to the comments in the
+    modules header file. See <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/jsoncpp_data.h'>
+      googleapis/client/data/jsoncpp_data.h</a> for the complete interface.
+  </aside>
+</section>
+<section id = 'JsonCppData'>
+  <h3>The JsonCppData base class</h3>
+<p>
+  <code>JsonCppData</code> is defined in
+  <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/jsoncpp_data.h'>
+    <code>googleapis/client/data/jsoncpp_data.h</code></a>
+</p>
+<p>
+  <code>JsonCppData</code> is implemented using the external
+  <a href='http://jsoncpp.sourceforge.net/'>
+    open source JsonCpp</a> library
+  for convienence, with a more standard C++ API on top of it
+  so that the specialized data objects generated for service-specific APIs
+  look and feel more like C++. The resulting class has some quirks due to
+  limitations in the underlying JsonCpp library interface for this usage
+  pattern but client code using it can be written using a normal style.
+</p>
+<aside class='note'>
+  In this document "JsonCpp library" and "<code>Json::Value</code>" refer
+  to the external
+  <a href='http://jsoncpp.sourceforge.net/'>JsonCpp library</a>.
+  "<code>JsonCppData</code>" refers to
+  <code>googleapis::client::JsonCppData</code> in this SDK.
+</aside>
+<p>
+  <code>JsonCppData</code> is always a wrapper around an exernal
+  <code>Json::Value</code> instance implemented by the JsonCpp library.
+  Under normal circumstances, this is completely hidden from you. However
+  if you are already using the JsonCpp library, or need direct access for
+  some reason, the <code>JsonCppData</code> can provide direct access to the
+  <code>Json::Value</code> instance.
+</p>
+<p>
+  The base <code>JsonCppData</code> stores all its state in the
+  <code>Json::Value</code> it was constructed with. It merely delegates
+  to that storage to manage its attributes. Specialized subclasses, such
+  as data objects for service-specific APIs, provide wrapper functions
+  to facilitate this and provide a more C++-like API.
+</p>
+<p><pre class='prettyprint'>
+#include "base/scoped_ptr.h"
+#include "googleapis/client/data/jsoncpp_data.h"
+using googleapis::client::JsonCppData;
+using googleapis::client::JsonCppDataCapsule;
+
+class MyData : public JsonCppData {
+ public:
+   explicit MyData(const Json::Value&amp; storage) : JsonCppData(storage) {}
+   explicit MyData(Json::Value* storage) : JsonCppData(storage) {}
+
+   int get_number() const { return Storage("number").asInt(); }
+   void set_number(int n) { *MutableStorage("number") = n; }
+
+   const MyData next() const { return MyData(Storage("next")); }
+   MyData next_mutable() { return MyData(MutableStorage("next")); }
+
+   static MyData* New() { return new JsonCppDataCapsule&lt;MyData&gt;; }
+};
+
+void SampleUsage() {
+   scoped_ptr&lt;MyData&gt; data(MyData::New());
+   data-&gt;set_number(1);
+   data-&gt;next_mutable().set_number(2);
+   data-&gt;next_mutable().next_mutable().set_number(3);
+
+   for (MyData elem = *data; !elem.IsNull(); elem = elem.next()) {
+      cout &lt;&lt; elem.get_number();
+   }
+}
+</pre></p>
+<p>
+  <code>JsonCppData</code> instances are inherently const or mutable
+  independent of language <code>const</code> decorators. This is determined
+  at construction time. If the instance is constructed with a <code>
+  const Json::Value&</code> reference then it will be immutable. If it is
+  constructed with a <code>Json::Value*</code> pointer it will be mutable.
+  The API uses <code>const</code> decorators as any other class would to
+  use normal C++ compiler protection. However the objects are self-enforcing
+  at runtime. This means even if you cast away the language <code>const</code>
+  at compile time, the runtime will know and not let you perform the action.
+  This behavior is an anomaly specific to <code>JsonCppData</code> as a
+  solution to some limitations in the underlying JsonCpp library
+  which does not directly lend itself to the client libraries usage pattern.
+</p>
+<pre class='prettyprint'>
+Json::Value  storage;
+
+MyData immutable_data(storage);
+MyData mutable_data(&amp;storage);
+
+assert(mutable_data.IsMutable() == true);
+assert(immutable_data.IsMutable() == false);
+
+Json::Value* ptr = mutable_data.MutableStorage();  // ok
+
+// The following will CHECK fail as an illegal operation.
+ptr = immutable_data.MutableStorage();
+</pre>
+<p>
+  The API is designed such that as long as you preserve constness then
+  everything will work properly. But you <code>const_cast</code> away
+  constness then the library will catch you.
+</p>
+<p>
+  The proper way to have constructed <code>immutable_data</code> in the
+  previous example would be:<br/>
+  <strong><code>const</strong> MyData immutable_data(storage);</code><br/>
+  That way the compiler would have caught the invalid call to
+  <code>immutable_data.MutableStorage()</code> because of the call
+  from a <code>const</code> instance to a non-<code>const</code> method.
+</p>
+<aside class='note'>
+  <b>Note.</b>
+  It is recommended that you pretend the '_mutable' accessors return a
+  <code>JsonCppData&</code> reference and the non-mutable ones return a
+  <code>const JsonCppData&</code> reference. This way you will not be
+  creating unnecessary copies if the generated APIs change in the future
+  to use true references rather than copies.
+</aside>
+<aside class='warning'>
+  <b>Warning.<?b>
+  If you are explicitly passing <code>Json::Value</code> storage to a
+  constructor, whether mutable or immutable, then you own the storage
+  and must guarantee it over the lifetime of the instance you are constructing.
+  The <code>JsonCppDataCapsule</code> will take care of this for you.
+</p>
+</section>
+<section id = 'JsonCppDataArray'>
+  <h3>JsonCppDataArray</h3>
+</section>
+<section id = 'JsonCppDataAssociativeArray'>
+  <h3>JsonCppDataAssociativeArray</h3>
+</section>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

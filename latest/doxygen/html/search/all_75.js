@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['unauthorized',['UNAUTHORIZED',['../classgoogleapis_1_1client_1_1HttpStatusCode.html#a70d2d802a61ea92a685c471e0ccc63daaca808e0004f9d8808506cf69bd4a224c',1,'googleapis::client::HttpStatusCode']]],
+  ['unavailable',['UNAVAILABLE',['../namespacegoogleapis_1_1util_1_1error.html#af31477bc48f67856bedb0fa8e5b5281da3fde93396dcd04d746a8cd3b6b5914bb',1,'googleapis::util::error']]],
+  ['unescapefromurl',['UnescapeFromUrl',['../namespacegoogleapis_1_1client.html#a72269981a4cf07e588d5e9b3a7521db8',1,'googleapis::client']]],
+  ['unimplemented',['UNIMPLEMENTED',['../namespacegoogleapis_1_1util_1_1error.html#af31477bc48f67856bedb0fa8e5b5281daf2645dc3e76aada2b584fbc8a088fd76',1,'googleapis::util::error']]],
+  ['unknown',['UNKNOWN',['../namespacegoogleapis_1_1util_1_1error.html#af31477bc48f67856bedb0fa8e5b5281da6ce26a62afab55d7606ad4e92428b30c',1,'googleapis::util::error']]],
+  ['unsent',['UNSENT',['../classgoogleapis_1_1client_1_1HttpRequestState.html#a6692c395268c9b0fd93ee33a3e99f457ad5b80fb15b1477d03cfad8fcb1bb7bc3',1,'googleapis::client::HttpRequestState']]],
+  ['update',['Update',['../classgoogleapis_1_1client_1_1OAuth2Credential.html#aaf37cde297059719190d684be8b22548',1,'googleapis::client::OAuth2Credential']]],
+  ['updatefromstring',['UpdateFromString',['../classgoogleapis_1_1client_1_1OAuth2Credential.html#a325ffc1533bc9ba06e31338a6327ff84',1,'googleapis::client::OAuth2Credential']]],
+  ['upload',['Upload',['../classgoogleapis_1_1client_1_1MediaUploader.html#a3bc5a6f56b3314103ddc0a16cd5c464b',1,'googleapis::client::MediaUploader']]],
+  ['uri_5ftemplate_2eh',['uri_template.h',['../uri__template_8h.html',1,'']]],
+  ['uri_5futils_2eh',['uri_utils.h',['../uri__utils_8h.html',1,'']]],
+  ['uritemplate',['UriTemplate',['../classgoogleapis_1_1client_1_1UriTemplate.html',1,'googleapis::client']]],
+  ['url',['url',['../classgoogleapis_1_1client_1_1HttpRequest.html#aadd497eddb65aa2a02335e8faf745d2c',1,'googleapis::client::HttpRequest::url()'],['../classgoogleapis_1_1client_1_1ParsedUrl.html#aadd497eddb65aa2a02335e8faf745d2c',1,'googleapis::client::ParsedUrl::url()']]],
+  ['url_5fpath',['url_path',['../classgoogleapis_1_1client_1_1ClientService.html#ab40fd8e7a216905e945ace69a4117e9f',1,'googleapis::client::ClientService']]],
+  ['url_5fprotocol',['url_protocol',['../classgoogleapis_1_1client_1_1AbstractWebServer.html#a478b8e8990cebb6c29003555696c193f',1,'googleapis::client::AbstractWebServer::url_protocol()'],['../classgoogleapis_1_1client_1_1MongooseWebServer.html#a478b8e8990cebb6c29003555696c193f',1,'googleapis::client::MongooseWebServer::url_protocol()']]],
+  ['url_5froot',['url_root',['../classgoogleapis_1_1client_1_1ClientService.html#ada83200a19e3477f0f4145f93d563ec3',1,'googleapis::client::ClientService']]],
+  ['urlpreparer',['UrlPreparer',['../classgoogleapis_1_1client_1_1MediaUploader.html#a8e0d5b901fb93accf032b7beddaf5448',1,'googleapis::client::MediaUploader']]],
+  ['use_5fssl',['use_ssl',['../classgoogleapis_1_1client_1_1MongooseWebServer.html#a670240c28686c5799ef13b328484a93a',1,'googleapis::client::MongooseWebServer']]],
+  ['user_5fagent',['user_agent',['../classgoogleapis_1_1client_1_1HttpTransportOptions.html#a31708b8100186869ba718d62074e9756',1,'googleapis::client::HttpTransportOptions::user_agent()'],['../classgoogleapis_1_1client_1_1HttpTransport.html#a31708b8100186869ba718d62074e9756',1,'googleapis::client::HttpTransport::user_agent()']]],
+  ['user_5fid',['user_id',['../structgoogleapis_1_1client_1_1OAuth2RequestOptions.html#a28cda6532ca41bacbadb57a0a18df214',1,'googleapis::client::OAuth2RequestOptions::user_id()'],['../classgoogleapis_1_1client_1_1OAuth2Credential.html#a655c30ab5dd3e7cb7907ea575f38a5c9',1,'googleapis::client::OAuth2Credential::user_id()']]],
+  ['user_5fid_5fverified',['user_id_verified',['../classgoogleapis_1_1client_1_1OAuth2Credential.html#a5a365f842dc9531bbc4cb344b6239639',1,'googleapis::client::OAuth2Credential']]]
+];

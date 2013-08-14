@@ -1,0 +1,378 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Making Service Requests</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="../start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="../start/get_started.html">Jumping In</a>
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li class="here">Making Service Requests
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="../guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="../guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="../guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Making Service Requests</div>
+<section>
+  <p>
+    This document describes how to make high level requests to cloud services
+    using the core components of the library's service layer. It also discusses
+    the key components related to service-level interaction.
+    Requests and responses use the same <code>HttpTransport</code> and
+    <code>HttpResponse</code> objects described in
+    <a href="making_http_requests.html">Making HTTP Requests</a>.
+  </p>
+  <p>
+    Google Service APIs and other cloud service APIs are often designed using
+    a <em>Representational State Transfer</em> (REST) architectural style. The
+    <a href="https://en.wikipedia.org/wiki/Representational_state_transfer">
+      Wikipedia page on REST</a> offers some introduction to the style. For
+    purposes of understanding the Google APIs Client Library for C++, the
+    important takeaways are that services tend to be organized around the
+    concept of one or more types of <em>resources</em> and those resources
+    define stateless operations on them heavily decoupled from one another.
+    These web-oriented services typically define the operations as URLs where
+    the URL defines a specific resource (or part of a resource) along with
+    additional parameters or qualifiers. Simple modification operations may
+    encode the modification in the URL itself (such as query parameters) or
+    may attach them in the payload of the HTTP request (such as a
+    <code>POST</code>). The results of the operation are returned in the HTTP
+    responses.
+  </p>
+  <p>
+    The Google APIs Client Library for C++'s service layer provides higher
+    level C++ abstractions and programmer support for these types of APIs
+    and interactions. Rather than dealing with low level HTTP models and
+    syntax, it adds application-level objects, models, and support.
+    APIs tailored to C++ programmers for inidividual services can be found
+    in the document <a href="../available_service_apis.html">
+    Available Sepciailized Service APIs</a>.
+  </p>
+  <p class='note'>
+    Client applications typically download additional
+    <a href="../available_service_apis.html">
+    service-specific APIs</a> rather than directly use the
+    <code>googleapis::client::ClientServiceRequest</code> documented below.
+    However, understanding <code>ClientServiceRequest</code> will make it
+    easier to understand the service-specific API specializations.
+  </p>
+<section>
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#Examples">Typical use case examples</a>
+      <ol>
+	<li><a href="#List">Listing a small resource</a>
+	<li><a href="#Page">Paging through a large resource</a>
+	<li><a href="#Get">Getting a resource element</a>
+	<li><a href="#Insert">Adding a typical resource element</a>
+	<li><a href="#MediaUpload">Adding a large resource element</a>
+      </ol>
+    <li><a href="#CoreComponents">Core service layer components</a>
+      <ol>
+	<li><a href="#Service">ClientService</a>
+	<li><a href="#Resource">Resources</a>
+	<li><a href="#Method">ClientServiceRequest</a>
+      </ol>
+  </ol>
+</section>
+<section id='Examples'>
+  <h2>Typical use case examples</h2>
+  <p>
+    These examples show how to use the core components to issue various
+    types of requests. The examples below are for specific generated APIs,
+    but the general idea and flavor is commonly applicable to all APIs.
+  </p>
+
+  <p>
+    The following snippet applies to all the examples in this section.
+  </p>
+ <pre class='prettyprint'>
+#include "google/calendar_api/calendar_api.h"
+#include "googleapis/client/service/client_service.h"
+#include "googleapis/client/transport/http_response.h"
+#include "googleapis/client/transport/http_transport.h"
+
+using google_calendar_api::Calendar;
+using google_calendar_api::CalendarList;
+using google_calendar_api::CalendarListEntry;
+using google_calendar_api::CalendarsResource_DeleteMethod;
+using google_calendar_api::CalendarsResource_InsertMethod;
+using google_calendar_api::CalendarListResource_ListMethod;
+using google_calendar_api::CalendarService;
+using google_calendar_api::Event;
+using google_calendar_api::Events;
+using google_calendar_api::EventsResource_GetMethod;
+using google_calendar_api::EventsResource_InsertMethod;
+using google_calendar_api::EventsResource_ListMethod;
+using google_calendar_api::EventsResource_ListMethodPager;
+using google_calendar_api::EventsResource_PatchMethod;
+using google_calendar_api::EventsResource_UpdateMethod;
+</pre>
+</section>
+<section id='List'>
+  <h3>Listing a small resource</h3>
+  <p>
+    It is common for resources have some sort of <em>List</em> operation that
+    can be used to enumerate its elements, perhaps with some sort of filter.
+  </p>
+ <pre class='prettyprint'>
+void CalendarSample::ShowCalendars() {
+  scoped_ptr&lt;CalendarListResource_ListMethod&gt; method(
+      service_-&gt;get_calendarList().NewListMethod(&amp;credential_));
+
+  scoped_ptr&lt;CalendarList&gt; calendar_list(CalendarList::New());
+  if (!method-&gt;ExecuteAndParseResponse(calendar_list.get()).ok()) {
+    DisplayError(method.get());
+    return;
+  }
+  DisplayList&lt;CalendarList, CalendarListEntry&gt;(
+      "", "CalendarList", *calendar_list);
+  cout &lt;&lt; endl;
+}
+</pre>
+</section>
+<section id='Paging'>
+  <h3>Paging through a large resource</h3>
+  <p>
+    Services that define resources that can contain a large number of elements
+    will often offer a means to <em>page</em> through the results over multiple
+    queries rather than receiving an enormous response from a single request.
+    A common model used by these services is to have a <code>pageToken</code>
+    parameter in the <code>List</code> request and a <code>nextPageToken</code>
+    value in the response. The intent being that you iterate over the pages
+    by issuing successive requests using the different <code>pageToken</code>
+    values.
+  </p>
+  <p>
+    You can use the <code>ServiceRequestPager</code> to facilitate these paging
+    iterations. The C++ code generator will add support directly to the APIs
+    it provides as illustrated below.
+  </p>
+ <pre class='prettyprint'>
+void CalendarSample::PageThroughAllEvents(
+    const string&amp; calendar_id, int num_per_page) {
+  cout &lt;&lt; "All Events" &lt;&lt; endl;
+  scoped_ptr&lt;EventsResource_ListMethodPager&gt; pager(
+      service_-&gt;get_events().NewListMethodPager(&amp;credential_, calendar_id));
+  pager-&gt;request()-&gt;set_maxResults(num_per_page);
+  while (pager-&gt;NextPage()) {
+    DisplayList&lt;Events, Event&gt;("  ", "EventList", *pager-&gt;data());
+  }
+}
+</pre>
+</section>
+<section id='Get'>
+  <h3>Getting a resource element</h3>
+  <p>
+    <code>Get</code> operations are typically straight forward but have a
+    catch. Typically you need to know the ID of the resource you wish to get.
+    If you do not already know this (such as from the result of the
+    <code>Insert</code> which added it earlier) then you may first need to
+    issue a <code>List</code> and figure out the ID you want.
+  </p>
+  <p>
+    Elements are typically data objects serialized into the response payload.
+    The generated APIs know how to deserialize these responses into the
+    expected C++ objects so that you can treat the responses as type-safe
+    C++ objects rather than having to parse low level JSON or whatever
+    encoding is being used for the response data.
+  </p>
+ <pre class='prettyprint'>
+util::Status CalendarSample::GetEvent(
+    const string&amp; calendar_id, const StringPiece&amp; event_id, Event* event) {
+  scoped_ptr&lt;EventsResource_GetMethod&gt; method(
+      service_-&gt;get_events().NewGetMethod(
+          &amp;credential_, calendar_id, event_id));
+
+  return method-&gt;ExecuteAndParseResponse(event);
+}
+</pre>
+</section>
+<section id='Insert'>
+  <h3>Adding a typical resource element</h3>
+  <p>
+    Many resource elements are simple data objects, such as a calendar
+    event. There are usually added either by composing their individual
+    attributes or by giving it an actual data object. Which way depends on
+    how the service API is defined.
+  </p>
+  <p>
+    The following function is an example of an API that inserts a new resource
+    element by taking a data object specifying the element to be added.
+  </p>
+ <pre class='prettyprint'>
+void CalendarSample::AddEvent(const string&amp; calendar_id, Event* event) {
+  scoped_ptr&lt;EventsResource_InsertMethod&gt; method(
+      service_-&gt;get_events().NewInsertMethod(
+          &amp;credential_, calendar_id, *event));
+
+  if (!method-&gt;ExecuteAndParseResponse(event).ok()) {
+    DisplayError(method.get());
+    return;
+  }
+
+  cout &lt;&lt; "Added new event ID=" &lt;&lt; event-&gt;get_id() &lt;&lt; ":" &lt;&lt; endl;
+  Display("  ", *event);
+  cout &lt;&lt; endl;
+}
+</pre>
+</section>
+<section id='MediaUpload'>
+  <h3>Adding a large resource element</h3>
+  <p>
+    Sometimes Service APIs offer a <em>media upload</em> capability for
+    inserting larger data objects, such as files. The Google APIs Client
+    Library for C++ code generator will add a <code>media_uploader()</code>
+    getter to these operations. The snippet below gives a basic example for
+    using media upload-style method. For more information on using
+    <code>MediaUploader</code>, see the document <a href="media_upload.html">
+    Media Upload</a>.
+  </p>
+ <pre class='prettyprint'>
+using googleapis::client::MediaUploader;
+
+scoped_ptr&lt;FilesResource_InsertMethod&gt; insert
+    (drive_service-&gt;get_files().NewInsertMethod(credential));
+
+scoped_ptr&lt;google_drive_api::File&gt; file(google_drive_api::File::New());
+file-&gt;set_title(StrCat("Uploaded from ", googleapis::File::Basename(path)));
+file-&gt;set_originalFilename(googleapis::File::Basename(path));
+
+DataReader* reader = NewUnmanagedFileDataReader(path);
+MediaUploader* uploader = insert-&gt;media_uploader();
+uploader-&gt;set_metadata(*file);
+uploader-&gt;set_media_content_reader(mime_type, reader);
+
+insert-&gt;Execute();
+</pre>
+</section>
+<section id='CoreComponents'>
+  <h2>Core service layer components</h2>
+</section>
+<section id='Service'>
+  <h3>Client Service</h3>
+  <p>
+    A <code>ClientService</code> denotes a particular service (such as
+    a Google API or Cloud Endpoint) that you will be accessing as a client.
+    It is identified by its URL and has a <code>HttpTransport</code> bound to
+    it. The Google APIs Client Library for C++ was designed assuming that
+    <code>ClientService</code> instances would be long-lived over the lifetime
+    of your application rather than created and destroyed to make individual
+    operations. It is permissible for these instances to be short-lived however
+    there may be performance implications as the library implementations
+    evolve.
+  </p>
+  <aside class='note'>
+    <b>Note.</b> The code generator will create custom specializations of
+    this class which will include access to the various resources that the
+    specific service provides. Therefore, this class is not normally used
+    directly. You will typically use specialized subclasses instead.
+  </aside>
+  <p>
+    The primary purpose of a <code>ClientService</code> is to act as a request
+    factory (via the Resources <a href="Resource.html">described below</a>),
+    creating requests for the various capabilities offered by the
+    service's API. The base class does not offer much since the requests
+    are specific to individual services. Even the specialized classes will
+    have a small amount of state acting primarily as
+    <code>ClientServiceRequest</code> factories.
+  </p>
+</section>
+<section id='Resource'>
+  <h3>Resources</h3>
+  <p>
+    A resource denotes a particular REST-style resource that the service has
+    defined within its API. In the Google APIs Client Library for C++, a
+    resource is purely a <code>ClientServiceRequest</code> factory for the
+    available API that the service defines on that particular resource type.
+  </p>
+</section>
+<section id='Method'>
+  <h3>ClientServiceRequest</h3>
+  <p>
+    A <code>ClientServiceRequest</code> is an object that makes a request
+    to a specific operation in a service's API. It knows the endpoint URL
+    and parameters being passed. A <code>ClientServiceRequest</code> owns
+    a <code>HttpRequest</code> which it uses internally to perform the
+    transport layer messaging to the actual service in the cloud. The
+    responses are conveyed back up to the service layer using the same
+    <code>HttpResponse</code> object described in the
+    <a href="making_http_requests.html">Making HTTP Requests</a> document.
+  </p>
+  <p>
+    The request methods generated by the code generator have constructors
+    that take a credential and all the required parameters as specified by
+    the service. Optional parameters are set using setter methods. Required
+    (and only required) parameters are always set in the constructor.
+    Optional (and only optional) parameters are set by attribute setters on
+    the method. To make unauthorized (anonymous) calls, construct the
+    method with a <code>NULL</code> credential.
+  </p>
+  <p>
+    If an operation returns a result object, the code generator will
+    create a method <code>ExecuteAndParseResponse</code> with a type-safe
+    out parameter that will return the object in the response. If you are
+    not interested in the response data, you can just call the plain
+    <code>Execute</code> method and parse the response later should you
+    decide that you care about the details.
+  </p>
+</section>
+
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

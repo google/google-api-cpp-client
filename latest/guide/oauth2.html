@@ -1,0 +1,295 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Using OAuth 2.0</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="../start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="../start/get_started.html">Jumping In</a>
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="../guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="../guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="../guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li class="here">Using OAuth 2.0
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Using OAuth 2.0</div>
+<section>
+  <p>
+    This document discusses how to obtain and use OAuth 2.0 credentials
+    using the Google APIs Client Library for C++. It provides a high level
+    overview of the components involved and some basic use cases.
+  </p>
+  <p>
+    The document <a href='https://developers.google.com/accounts/docs/OAuth2'>
+    Using OAuth 2.0 to Access Google APIs</a> may provide useful supplemental
+    material to understand how to use OAuth 2.0 for authorization works in
+    general.
+  </p>
+</section>
+<section>
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#Examples">Typical use case examples</a>
+      <ol>
+        <li><a href="#ExampleMakeFlow">
+            Creating and configuring an OAuth2AuthorizationFlow</a>
+        <li><a href="#ExampleGetAccessCodeOob">
+            Obtaining an initial access code without a webserver</a>
+        <li><a href="#ExampleGetAccessCodeCallback">
+            Obtaining an initial access code with an embedded webserver</a>
+        <li><a href="#ExampleGetCredential">
+            Obtaining and refreshing credentials</a>
+      </ol>
+    <li><a href="#AuthorizationCode">About authorization codes</a>
+</section>
+<section id="Examples">
+  <h2>Typical use case examples</h2>
+  <p>
+    These examples show how to use the core OAuth 2.0 components to make
+    authorized calls into cloud APIs. The following snippet applies to
+    all the examples in this section.
+  </p>
+<pre class='prettyprint'>
+#include "googleapis/client/auth/file_credential_store.h"
+#include "googleapis/client/auth/oauth2_authorization.h"
+#include "googleapis/client/transport/http_authorization.h"
+
+using googleapis_client::CredentialStore;
+using googleapis_client::FileCredentialStoreFactory;
+using googleapis_client::OAuth2AuthorizationFlow;
+using googleapis_client::OAuth2Credential;
+using googleapis_client::OAuth2RequestOptions;
+</pre>
+</section>
+<section id="ExampleMakeFlow">
+  <h3>Creating and configuring an OAuth2AuthorizationFlow</h3>
+  <p>
+    Typically flows are created from client secrets files. The
+    <a href='../start/get_started.html#preparation'>Preparing to use the SDK</a>
+    section of the <em>Getting Started</em> document discusses how to
+    obtain a client_secrets file.
+    The <a href='https://developers.google.com/console/help/'>
+      Google APIs Console Help</a> may also be of use for more information
+    on creating a client secrets file.
+  </p>
+  <p>
+    The following snippet:
+    <ul>
+      <li> Loads a flow definition from a client-secrets file.
+      <li> Sets the default OAuth 2.0 scope when asking for credentials.
+        <ul>
+          <li> Individual requests can override this later.
+        </ul>
+      <li> Sets a callback for obtaining Authorization Codes.
+        <ul>
+          <li> This is used to obtain first-time authorization.
+        </ul>
+      <li> Binds a credential store to remember and recall authorizations.
+        <ul>
+          <li> See <code>FileCredentialStoreFactory</code> in
+            <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/auth/oauth2_authorization.h'>
+               oauth2_authorization.h</a>.
+          <li> Credentials will be stored in files named
+               <code>CalendarSample</code>.
+        </ul>
+    </ul>
+  </p>
+<pre class='prettyprint'>
+// We're passing in NULL here assuming that you have set
+// HttpTransport::default_transport_factory. Otherwise instead pass
+// a transport, such as CurlHttpTransportFactory::New().
+flow_.reset(
+    OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
+        client_secrets_path, transport, &amp;status));
+CHECK(status.ok()) &lt;&lt; status.error_message();
+
+util::Status store_status;
+string dir;
+store_status
+    = FileCredentialStoreFactory::GetSystemHomeDirectoryStorePath(&amp;dir);
+if (store_status.ok()) {
+  FileCredentialStoreFactory store_factory(dir);
+  flow_-&gt;ResetCredentialStore(
+      store_factory.NewCredentialStore("CalendarSample", &amp;store_status));
+}
+if (!store_status.ok()) {
+  LOG(WARNING) &lt;&lt; "Not adding a credential store: "
+               &lt;&lt; store_status.error_message();
+}
+
+flow_-&gt;set_default_scopes(CalendarService::SCOPES::CALENDAR);
+flow_-&gt;mutable_client_spec()-&gt;set_redirect_uri(
+    OAuth2AuthorizationFlow::kOutOfBandUrl);
+flow_-&gt;set_authorization_code_callback(
+    NewPermanentCallback(&amp;PromptShellForAuthorizationCode, flow_.get()));
+</pre>
+</section>
+<section id="ExampleGetAccessCodeOob">
+  <h3>Getting an initial access code without a webserver</h3>
+  <p>
+    The following example is the most primitive way to obtain an
+    authorization code where your application does not have an embedded
+    web server to handle a redirect. It uses the
+    <code>OAuth2AuthorizationFlow::kOutOfBandUrl</code> redirect, which
+    just gives the resulting access token directly to the user to
+    copy and paste back into the application.
+  </p>
+<pre class='prettyprint'>
+static util::Status PromptShellForAuthorizationCode(
+    OAuth2AuthorizationFlow* flow,
+    const OAuth2RequestOptions&amp; options,
+    string* authorization_code) {
+  string url = flow-&gt;GenerateAuthorizationCodeRequestUrlWithOptions(options);
+  cout &lt;&lt; "Enter the following url into a browser:\n" &lt;&lt; url &lt;&lt; endl;
+  cout &lt;&lt; endl;
+  cout &lt;&lt; "Enter the browser's response to confirm authorization: ";
+
+  authorization_code-&gt;clear();
+  cin &gt;&gt; *authorization_code;
+  if (authorization_code-&gt;empty()) {
+    return StatusCanceled("Canceled");
+  } else {
+    return StatusOk();
+  }
+}
+</pre>
+</section>
+<section id="ExampleGetAccessCodeCalback">
+  <h3>Getting an initial access code with an embedded webserver</h3>
+  <p>
+    If your application has a webserver then you can have the OAuth 2.0 server
+    give you the authorization code as a GET request to a URL served by your
+    embedded server. You must register that URL with the application in the
+    <a href='https://code.google.com/apis/console'>Google APIs Console</a>.
+  </p>
+  <p>
+    The Google APIs Client Library for C++ comes with an embeddable
+    HTTP server and some support for the time being, however these
+    will likely change in future releases. It is expected that you
+    have your own server or will have your own needs so the provided
+    code is for testing, samples, and illustrative purposes. These
+    classes have <code>MongooseWebServer</code> in the name and depend on
+    the <a href='https://code.google.com/p/mongoose/'>Mongoose</a> web server.
+  </p>
+</section>
+<section id="ExampleGetCredentials">
+  <h3>Obtaining and refreshing credentials</h3>
+  <p>
+    The following snippet refreshes a credential for the given user.
+    <ul>
+      <li> If there is a credential store on the flow, it will be consulted.
+      <li> If there is no store or the user has no store credentials then
+         the flow's AuthorizationCodeCallback will be called and the returned
+        code turned into an access token (and refresh token).
+        <ul>
+          <li> The newly obtained credential will be written into the store,
+            if a store is bound to the flow.
+          <li> The refresh will fail if there is no AuthorizationCodeCallback
+            or the authorization code could not be turned into an access token.
+        </ul>
+    </ul>
+    <aside class='warning'>
+      <b>Warning.</b> At present, the use of a user-id here has no
+      bearing back to the actual user id. It currently only serves as a cache
+      key. There is risk that mistyping the user-id and authorizing it against
+      a different actual user will persist the credentials under the "wrong"
+      key (for example, user A's credentials stored as user B).
+      The credential knows that the user is not verified for future reference.
+    </aside>
+  </p>
+<pre class='prettyprint'>
+util::Status RefreshCredentialForUser(
+     const string&amp; id, OAuth2Credential* credential) {
+  OAuth2RequestOptions options;
+  options.user_id = id;
+  return flow_-&gt;RefreshCredentialWithOptions(options, credential);
+}
+</pre>
+</section>
+<section id="AboutAuthorizationCodes">
+  <h2>About authorization codes</h2>
+  <p>
+    The OAuth 2.0 protocol requires a one-time <em>Authorization Code</em>
+    confirming user consent -- the degree of access that the user has granted
+    permission for the application to access. The OAuth 2.0 server can turn
+    the authorization code into a temporary access token and permanent
+    refresh token. Your application will be able to use the refresh token to
+    automatically obtain access tokens the next time the user uses your
+    program. However the first time, you will need to interact with the
+    user to get explicit permission.
+  </p>
+  <p>
+    Users interact directly with the OAuth 2.0 server to grant permissions
+    to your application. The
+    <code>OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrl</code>
+    method will return a suitable URL with all the necessary information
+    encoded into it identifying your application and the desired permissions.
+    The user will authenticate themselves with the OAuth 2.0 server using
+    the Google Account that they are granting access to. When the user
+    consents (or rejects) permission, the OAuth 2.0 server will inform
+    you through the <code>redirect_uri</code> in the
+    <code>OAuth2ClientSpec</code>that you configured the flow
+    with. For multi-user applications, you can add a <code>state</code>
+    query parameter to the authorization code request URL and correlate the
+    <code>state</code> parameter in the redirect response with your request
+    so that you know which user the authorization code is for.
+  </p>
+</section>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

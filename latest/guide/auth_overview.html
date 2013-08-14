@@ -1,0 +1,342 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../static/my.css"/>
+<link rel="shortcut icon" type="image/png" href="../static/favicon.ico"/>
+<title>Authentication and Authorization Overview</title>
+</head>
+<body>
+<div id="navigation"><ul class="nav">
+<li><a class="nav" href="../index.html">Home</a>
+<li><hr/>
+<li class="submenu">Getting Started</li>
+<ul class="nav">
+<li><a class="nav" href="../start/installation.html">Obtaining and Installing Libraries</a>
+<li><a class="nav" href="../start/get_started.html">Jumping In</a>
+<li><a class="nav" href="../activity_model.html">Understanding the Scope</a>
+<li><a class="nav" href="../object_model.html">Understanding the Code Base</a>
+<li><a class="nav" href="../available_service_apis.html">Available Specialized Service APIs</a>
+</ul>
+<li><hr/>
+<li class="submenu">Cloud Services</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/service_requests.html">Making Service Requests</a>
+</ul>
+<li class="submenu">HTTP</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/making_http_requests.html">Making HTTP Requests</a>
+<li><a class="nav" href="../guide/transport_configure.html">Configuring the Transport Layer</a>
+<li><a class="nav" href="../guide/transport_customization.html">Adding Custom HTTP Protocol Implementations</a>
+<li><a class="nav" href="../guide/transport_testing.html">Testing and Debugging the Transport Layer</a>
+</ul>
+<li class="submenu">Data</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/data_reader.html">Reading and Writing Data</a>
+<li><a class="nav" href="../guide/json_data.html">Using JSON Data Objects</a>
+</ul>
+<li class="submenu">Credentials</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/oauth2.html">Using OAuth 2.0</a>
+<li><a class="nav" href="../guide/credential_store.html">Storing Credentials</a>
+</ul>
+<li class="submenu">C++</li>
+<ul class="nav">
+<li><a class="nav" href="../guide/types.html">Understanding Foundation Types</a>
+</ul>
+<li><hr/>
+<li><a class="nav" href="../support.html">Getting Help and Reporting Issues</a>
+<li><a class="nav" href="../contribute.html">Making Contributions</a>
+<li><hr/>
+<li><a class="nav" href="../index.html">Other Libraries</a>
+</ul></div>
+<div id="content">
+<table class="layout"><tr>
+<td class="proj_name"><img src="../static/logo.png" width="25em" height="25em"/> Google APIs Client Library for C++</td>
+<td class="proj_desc"> A C++ library for client applications to access Google APIs.</td>
+</tr></table>
+<div class="title">Authentication and Authorization Overview</div>
+<section>
+  <p>
+    This document discusses authenticating and authorizing requests when
+    using the Google APIs Client Library for C++. It provides a high level
+    overview of the components involved and some basic use cases.
+  </p>
+  <p>
+    <strong>Authentication</strong> refers to the ability for the client
+    to prove that it is acting on behalf of a particular user. The document
+    <a href='https://developers.google.com/accounts/docs/OAuth2Login'>
+      Using OAuth 2.0 for Login</a> may provide useful supplemental information
+    on authenticating with OAuth 2.0.
+  </p>
+  <p>
+    <strong>Authorization</strong> refers to the ability for an authenticated
+    user to give permission for an application they are using to access certain
+    data that is private to them. OAuth 2.0 permits services to pick the degree
+    of granularity that their data can be protected with so as to provide some
+    levels of access to an application without providing complete access.
+    The document <a href='https://developers.google.com/accounts/docs/OAuth2'>
+    Using OAuth 2.0 to Access Google APIs</a> may provide useful supplemental
+    material to understand how to use OAuth 2.0 for authorization works in
+    general.
+  </p>
+</section>
+<section>
+  <h2>Contents</h2>
+  <ol class="toc">
+    <li><a href="#Examples">Typical use case examples</a>
+      <ol>
+        <li><a href="#ExampleMakeFlow">
+            Creating and configuring an OAuth2AuthorizationFlow</a>
+        <li><a href="#ExampleGetCredential">
+            Obtaining and refreshing credentials</a>
+      </ol>
+    <li><a href="#Components">Core components</a>
+      <ol>
+        <li><a href="#Credential">OAuth2Credential</a>
+        <li><a href="#CredentialStore">CredentialStore</a>
+        <li><a href="#Request">OAuth2TokenRequest</a>
+        <li><a href="#Flow">OAuth2AuthorizationFlow</a>
+      </ol>
+  </ol>
+</section>
+<section id="Examples">
+  <h2>Typical use case examples</h2>
+  <p>
+    These examples show how to use the core OAuth 2.0 components to make
+    authorized calls into cloud APIs. The following snippet applies to
+    all the examples in this section.
+  </p>
+<pre class='prettyprint'>
+#include "googleapis/client/auth/file_credential_store.h"
+#include "googleapis/client/auth/oauth2_authorization.h"
+#include "googleapis/client/transport/http_authorization.h"
+
+using googleapis_client::CredentialStore;
+using googleapis_client::FileCredentialStoreFactory;
+using googleapis_client::OAuth2AuthorizationFlow;
+using googleapis_client::OAuth2Credential;
+using googleapis_client::OAuth2RequestOptions;
+</pre>
+</section>
+<section id="ExampleMakeFlow">
+  <h3>Creating and configuring an OAuth2AuthorizationFlow</h3>
+  <p>
+    Typically flows are created from client secrets files. The
+    <a href='../start/get_started.html#preparation'>Preparing to use the SDK</a>
+    section of the <em>Getting Started</em> document discusses how to
+    obtain a client_secrets file.
+    The <a href='https://developers.google.com/console/help/'>
+      Google APIs Console Help</a> may also be of use for more information
+    on creating a client secrets file.
+  </p>
+  <p>
+    The following snippet:
+    <ul>
+      <li> Loads a flow definition from a client-secrets file.
+      <li> Sets the default OAuth 2.0 scope when asking for credentials.
+        <ul>
+          <li> Individual requests can override this later.
+        </ul>
+      <li> Sets a callback for obtaining Authorization Codes.
+        <ul>
+          <li> This is used to obtain first-time authorization.
+        </ul>
+      <li> Binds a credential store to remember and recall authorizations.
+        <ul>
+          <li> See <code>FileCredentialStoreFactory</code> in
+            <a href='http://giithub.com/google/google-api-cpp-client/src/googleapis/client/auth/oauth2_authorization.h'>
+               oauth2_authorization.h</a>.
+          <li> Credentials will be stored in files named
+               <code>CalendarSample</code>.
+        </ul>
+    </ul>
+  </p>
+<pre class='prettyprint'>
+// We're passing in NULL here assuming that you have set
+// HttpTransport::default_transport_factory. Otherwise instead pass
+// a transport, such as CurlHttpTransportFactory::New().
+flow_.reset(
+    OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
+        client_secrets_path, transport, &amp;status));
+CHECK(status.ok()) &lt;&lt; status.error_message();
+
+util::Status store_status;
+string dir;
+store_status
+    = FileCredentialStoreFactory::GetSystemHomeDirectoryStorePath(&amp;dir);
+if (store_status.ok()) {
+  FileCredentialStoreFactory store_factory(dir);
+  flow_-&gt;ResetCredentialStore(
+      store_factory.NewCredentialStore("CalendarSample", &amp;store_status));
+}
+if (!store_status.ok()) {
+  LOG(WARNING) &lt;&lt; "Not adding a credential store: "
+               &lt;&lt; store_status.error_message();
+}
+
+flow_-&gt;set_default_scopes(CalendarService::SCOPES::CALENDAR);
+flow_-&gt;mutable_client_spec()-&gt;set_redirect_uri(
+    OAuth2AuthorizationFlow::kOutOfBandUrl);
+flow_-&gt;set_authorization_code_callback(
+    NewPermanentCallback(&amp;PromptShellForAuthorizationCode, flow_.get()));
+</pre>
+</section>
+<section id="ExampleGetCredentials">
+  <h3>Obtaining and refreshing credentials</h3>
+  <p>
+    The following snippet refreshes a credential for the given user.
+    <ul>
+      <li> If there is a credential store on the flow, it will be consulted.
+      <li> If there is no store or the user has no store credentials then
+         the flow's AuthorizationCodeCallback will be called and the returned
+        code turned into an access token (and refresh token).
+        <ul>
+          <li> The newly obtained credential will be written into the store,
+            if a store is bound to the flow.
+          <li> The refresh will fail if there is no AuthorizationCodeCallback
+            or the authorization code could not be turned into an access token.
+        </ul>
+    </ul>
+    <aside class='warning'>
+      <b>Warning.</b> At present, the use of a user-id here has no
+      bearing back to the actual user id. It currently only serves as a cache
+      key. There is risk that mistyping the user-id and authorizing it against
+      a different actual user will persist the credentials under the "wrong"
+      key (for example, user A's credentials stored as user B).
+      The credential knows that the user is not verified for future reference.
+    </aside>
+  </p>
+<pre class='prettyprint'>
+util::Status RefreshCredentialForUser(
+     const string&amp; id, OAuth2Credential* credential) {
+  OAuth2RequestOptions options;
+  options.user_id = id;
+  return flow_-&gt;RefreshCredentialWithOptions(options, credential);
+}
+</pre>
+</section>
+<section id="Core Components">
+  <h2>Core components</h2>
+  <p>
+    The OAuth 2.0 module builds on abstract authorization concepts introduced
+    in the HTTP Transport Layer and makes them specific to using OAuth2. The
+    design goals were more to avoid a dependency on OAuth 2.0 in the
+    implementation of the transport layer than to permit other authorization
+    schemes.
+  </p>
+</section>
+<section id="Credential">
+  <h3>OAuth2Credential</h3>
+  <p>
+    An <code>OAuth2Credential</code> is an object that contains the
+    credential data for a specific user. This includes both the short-lived
+    access token as well as the permanent refresh token that can be used
+    to obtain new access tokens. The credential object also knows how to
+    authorize requests by adding the OAuth 2.0 authorization header with the
+    access token. Credentials are bound to <code>HttpRequests</code> so that
+    they can authorize requests when they are executed.
+  </p>
+</section>
+<section id="CredentialStore">
+  <h3>CredentialStore</h3>
+  <p>
+    A <code>CredentialStore</code> provides persistent storage to credentials.
+    Although the access tokens in the credentials have a limited lifespan,
+    the refresh tokens are valid indefinitely until they are explicitly
+    revoked. Storing a credential in a store for later retrieval will allow
+    a new access token to be granted for an existing refresh token. Otherwise
+    you will need to ask the user to authorize access over and over again
+    each time they use the application.
+  </p>
+  <dl>
+    <dt><code>FileCredentialStore</code>
+      <dd>Implements a credential store that writes to files.
+        The default configuration uses plain-text files secured by the
+        operating system. These can be made more secure by adding
+        an encryption/decryption <code>Codec</code>.
+  </dl>
+  <p>
+    See the <a href='credential_store.html'>Credential Store</a> document for more
+    information about using <code>CredentialStore</code> or adding your
+    own mechanism.
+  </p>
+</section>
+<section id="Request">
+  <h3>OAuth2TokenRequest</h3>
+  <p>
+    An <code>OAuth2TokenRequest</code> is a request made to an OAuth 2.0 server.
+    Internally it is implemented in terms of <code>HttpRequest</code> for
+    the communication. There are specific derived classes for the different
+    types of requests made to protocols. Most client applications will issue
+    requests indirectly using an <code>OAuth2AuthorizationFlow</code>
+    rather than use explicit token requests.
+  </p>
+  <dl>
+    <dt><code>OAuth2RevokeTokenRequest</code>
+      <dd>Revokes the <em>access token</em> and <em>refresh token</em>
+        so that they are no longer valid.
+        The user will have to re-authorize future access.
+    <dt><code>OAuth2ExchangeAuthorizationCodeRequest</code>
+      <dd>Exchanges an <em>authentication code</em> for an
+        <em>access token</em> and <em>refresh token</em>.
+        Authorization codes are only good one time so this request can only
+        be sent once.
+    <dt><code>OAuth2RefreshTokenRequest</code>
+      <dd>Obtains a new <em>access token</em> from an existing
+        <em>refresh token</em>.
+  </dl>
+</section>
+<section id="Flow">
+  <h3>OAuth2AuthorizationFlow</h3>
+  <p>
+    An <code>OAuth2AuthorizationFlow</code> is a high level object that
+    implements an OAuth 2.0 workflow and interactions with an OAuth 2.0 server.
+    The flow has factory methods to create <code>OAuth2TokenRequests</code>
+    as well has methods to orchestrate the entire workflow as needed to
+    obtain a credential.
+  </p>
+  <p>
+    The flow can accept a <a href='types.html#Closure'>callback</a> to obtain
+    the OAuth 2.0 <em>Authorization Code</em> to obtain the initial
+    access token and refresh token from. This step requires specific
+    application integration to authenticate the user and prompt them to
+    grant authorization.
+  </p>
+  <p>
+    If a flow has a <code>CredentialStore</code> bound to it then it will
+    automatically use that store as a cache.
+  </p>
+  <aside class='note'>
+    <b>Note.</b>Currently only the <code>Refresh</code> workflow methods
+    will use the store. The low level token request interface will not.
+  </aside>
+  <dl>
+    <dt><code>OAuth2InstalledApplicationFlow</code>
+      <dd>Implements the
+        <a href='https://developers.google.com/accounts/docs/OAuth2InstalledApp'>
+          OAuth 2.0 for Installed Applications</a> use case.
+    <dt><code>OAuth2WebApplicationFlow</code>
+      <dd>Implements the
+        <a href='https://developers.google.com/accounts/docs/OAuth2WebServer'>
+          OAuth 2.0 for Web Server Applications</a> use case.
+        Adds <code>offline_access_type</code> and
+        <code>force_approval_prompt</code> parameters.
+  </dl>
+</section>
+
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol)
+             ? "https://ssl." : "http://www.");
+
+document.write(unescape("%3Cscript src='" + gaJsHost
+   + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-18058-15");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>
