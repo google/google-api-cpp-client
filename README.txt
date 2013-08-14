@@ -2,15 +2,15 @@ For more information regarding installation, consult the following document:
   http://google.github.io/google-api-cpp-client/latest/start/installation.html
 
 To get started using the Google APIs Client Library for C++ see:
-  http://google.github.io/google-api-cpp-client/latest/start/get_startedhtml
+  http://google.github.io/google-api-cpp-client/latest/start/get_started.html
 
 The Doxygen-generated API reference is available online at:
-  http://google.github.io/google-api-cpp-client/latest/doxygen/html/index.html
+  http://google.github.io/google-api-cpp-client/latest/doxygen/index.html
 
 For the current Google APIs Client Library for C++ see:
   http://github.com/google/google-api-cpp-client/
 
-The current installation has only been tested on Unix/Linux systems including OS X.
+The current installation has only been tested on Unix/Linux systems and OS/X.
 This release does not support Windows yet. The following sequence of
 actions should result in a turnkey build of the client libraries from
 the source code given only:
@@ -18,7 +18,7 @@ the source code given only:
     * python   (Available from http://www.python.org/getit/)
         - verified with versions 2.6.4 and 2.7.3
     * C++ compiler and Make
-        - Mac OS X https://developer.apple.com/xcode/
+        - Mac OSX https://developer.apple.com/xcode/
         - Linux   http://gcc.gnu.org/
     * CMake
         - Either http://www.cmake.org/cmake/resources/software.html
