@@ -1,0 +1,14 @@
+*~
+.\#*
+CMakeFiles
+CMakeCache.txt
+CTestTestfile.cmake
+Makefile
+Testing
+cmake_install.cmake
+src/googleapis/config.h
+src/gmock
+external_dependencies
+bin
+lib
+export

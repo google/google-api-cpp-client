@@ -1,0 +1,33 @@
+{
+  "discoveryLink": "./apis/calendar/v3/rest", 
+  "kind": "discovery#directoryItem", 
+  "description": "Lets you manipulate events and other calendar data.", 
+  "title": "Calendar API", 
+  "discoveryRestUrl": "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest", 
+  "preferred": true, 
+  "version": "v3", 
+  "icons": {
+    "x32": "http://www.google.com/images/icons/product/calendar-32.png", 
+    "x16": "http://www.google.com/images/icons/product/calendar-16.png"
+  }, 
+  "documentationLink": "https://developers.google.com/google-apps/calendar/firstapp", 
+  "id": "calendar:v3", 
+  "name": "calendar", 
+  "files": [
+    {
+      "downloadUrl": "/downloads/calendar/v3/55/cpp/0.1/google-calendar-v3-rev55-cpp-0.1-doc.zip", 
+      "path": "google-calendar-v3-rev55-cpp-0.1-doc.zip", 
+      "type": "documentation", 
+      "timestamp": "2013-08-13 01:30"
+    }, 
+    {
+      "downloadUrl": "/downloads/calendar/v3/55/cpp/0.1/google-calendar-v3-rev55-cpp-0.1-src.zip", 
+      "path": "", 
+      "type": "source", 
+      "timestamp": "2013-08-13 01:30"
+    }
+  ], 
+  "revision": 55, 
+  "language": "cpp", 
+  "language_version": "0.1"
+}

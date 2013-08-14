@@ -1,0 +1,55 @@
+/*
+ * \copyright Copyright 2013 Google Inc. All Rights Reserved.
+ * \license @{
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @}
+ */
+
+// Author: ewiseblatt@google.com (Eric Wiseblatt)
+
+#include "googleapis/client/service/service_request_pager.h"
+
+namespace googleapis {
+
+namespace client {
+
+BaseServiceRequestPager::BaseServiceRequestPager(
+    ClientServiceRequest* request)
+    : request_(request), done_(false) {
+}
+
+BaseServiceRequestPager::~BaseServiceRequestPager() {
+}
+
+bool BaseServiceRequestPager::NextPage() {
+  http_response_.Clear();
+
+  if (done_) return false;
+
+  if (!ExecuteNextPage().ok()) {
+    done_ = true;
+    return false;
+  }
+  return true;
+}
+
+void BaseServiceRequestPager::Reset() {
+  done_ = false;
+  next_page_token_.clear();
+}
+
+}  // namespace client
+
+} // namespace googleapis

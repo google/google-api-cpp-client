@@ -1,0 +1,1197 @@
+{
+   "EndTime" : "2013-06-28T15:37:22.488913Z",
+   "MaxSnippet" : "9223372036854775807",
+   "Messages" : [
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "1053",
+         "Request" : {
+            "Bytes" : "{\"sessionName\":\"HttpTransportTest\"}\n",
+            "Headers" : {
+               "Content-Length" : "36",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "36"
+         },
+         "Response" : {
+            "Bytes" : "{\"newSessionId\": \"HttpTransportTest-0.04-1\", \"kind\": \"wax#waxNewSession\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "73"
+         },
+         "SentMicros" : "37",
+         "Url" : "http://localhost:5000/newsession"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "541",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"items\": [{\"kind\": \"wax#waxDataItem\", \"id\": \"A\", \"name\": \"Item A\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"B\", \"name\": \"Item B\"}], \"kind\": \"wax#waxList\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "150"
+         },
+         "SentMicros" : "17",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items"
+      },
+      {
+         "HttpCode" : 404,
+         "Method" : "GET",
+         "ReceiveMicros" : "617",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"message\": \"Unknown item\", \"code\": 404}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "40"
+         },
+         "SentMicros" : "16",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/XXX"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "495",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"A\", \"name\": \"Item A\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "56"
+         },
+         "SentMicros" : "15",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/A"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "754",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"A\", \"name\": \"Item A\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "56"
+         },
+         "SentMicros" : "26",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/A"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "574",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"A\", \"name\": \"Item A\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "56"
+         },
+         "SentMicros" : "17",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/A"
+      },
+      {
+         "ErrorMicros" : "3705",
+         "Method" : "POST",
+         "Request" : {
+            "Bytes" : "{\"id\":\"timout\",\"kind\":\"wax#waxDataItem\",\"name\":\"timeout test\"}\n",
+            "Headers" : {
+               "Content-Length" : "63",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "63"
+         },
+         "SentMicros" : "27",
+         "StatusCode" : 4,
+         "StatusMsg" : "Timed out. curl=28: Operation timed out after 3 milliseconds with 0 out of -1 bytes received",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3704",
+         "Request" : {
+            "Bytes" : "{\"id\":\"I\",\"kind\":\"wax#waxDataItem\",\"name\":\"Item I\"}\n",
+            "Headers" : {
+               "Content-Length" : "52",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "52"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"I\", \"name\": \"Item I\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "56"
+         },
+         "SentMicros" : "28",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "592",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"I\", \"name\": \"Item I\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "56"
+         },
+         "SentMicros" : "16",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/I"
+      },
+      {
+         "HttpCode" : 403,
+         "Method" : "POST",
+         "ReceiveMicros" : "629",
+         "Request" : {
+            "Bytes" : "{\"id\":\"A\",\"kind\":\"wax#waxDataItem\",\"name\":\"Duplicate of Item A\"}\n",
+            "Headers" : {
+               "Content-Length" : "65",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "65"
+         },
+         "Response" : {
+            "Bytes" : "{\"message\": \"Item already exists\", \"code\": 403}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "47"
+         },
+         "SentMicros" : "28",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3717",
+         "Request" : {
+            "Bytes" : "{\"id\":\"D\",\"kind\":\"wax#waxDataItem\",\"name\":\"Item D\"}\n",
+            "Headers" : {
+               "Content-Length" : "52",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "52"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"D\", \"name\": \"Item D\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "56"
+         },
+         "SentMicros" : "28",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "571",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"D\", \"name\": \"Item D\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "56"
+         },
+         "SentMicros" : "15",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/D"
+      },
+      {
+         "HttpCode" : 204,
+         "Method" : "DELETE",
+         "ReceiveMicros" : "511",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Content-Type" : "text/plain",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "0"
+         },
+         "SentMicros" : "14",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/D"
+      },
+      {
+         "HttpCode" : 404,
+         "Method" : "GET",
+         "ReceiveMicros" : "543",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"message\": \"Unknown item\", \"code\": 404}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:20 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "40"
+         },
+         "SentMicros" : "14",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/D"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "PATCH",
+         "ReceiveMicros" : "1001633",
+         "Request" : {
+            "Bytes" : "{\"name\":\"Patched A\"}\n",
+            "Headers" : {
+               "Content-Length" : "21",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "21"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"A\", \"name\": \"Patched A\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:21 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "59"
+         },
+         "SentMicros" : "30",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/A"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "596",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"A\", \"name\": \"Patched A\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:21 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "59"
+         },
+         "SentMicros" : "16",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/A"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "PUT",
+         "ReceiveMicros" : "1001612",
+         "Request" : {
+            "Bytes" : "{\"name\":\"Updated A\"}\n",
+            "Headers" : {
+               "Content-Length" : "21",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "21"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"name\": \"Updated A\", \"id\": \"A\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "59"
+         },
+         "SentMicros" : "28",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/A"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "623",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"name\": \"Updated A\", \"id\": \"A\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "59"
+         },
+         "SentMicros" : "15",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/A"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "596",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"name\": \"Updated A\", \"id\": \"A\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "59"
+         },
+         "SentMicros" : "15",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/A"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "602",
+         "Request" : {
+            "Bytes" : "{\"sessionId\":\"HttpTransportTest-0.04-1\"}\n",
+            "Headers" : {
+               "Content-Length" : "41",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "41"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxRemoveSession\", \"removeSessionId\": \"HttpTransportTest-0.04-1\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "79"
+         },
+         "SentMicros" : "26",
+         "Url" : "http://localhost:5000/removesession"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "622",
+         "Request" : {
+            "Bytes" : "{\"sessionName\":\"HttpTransportTest\"}\n",
+            "Headers" : {
+               "Content-Length" : "36",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "36"
+         },
+         "Response" : {
+            "Bytes" : "{\"newSessionId\": \"HttpTransportTest-0.04-2\", \"kind\": \"wax#waxNewSession\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "73"
+         },
+         "SentMicros" : "27",
+         "Url" : "http://localhost:5000/newsession"
+      },
+      {
+         "HttpCode" : 404,
+         "Method" : "GET",
+         "ReceiveMicros" : "526",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"message\": \"Unknown sessionId\", \"code\": 404}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "45"
+         },
+         "SentMicros" : "14",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-1/items/A"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "571",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"A\", \"name\": \"Item A\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "56"
+         },
+         "SentMicros" : "17",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-2/items/A"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "615",
+         "Request" : {
+            "Bytes" : "{\"sessionId\":\"HttpTransportTest-0.04-2\"}\n",
+            "Headers" : {
+               "Content-Length" : "41",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "41"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxRemoveSession\", \"removeSessionId\": \"HttpTransportTest-0.04-2\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "79"
+         },
+         "SentMicros" : "28",
+         "Url" : "http://localhost:5000/removesession"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "597",
+         "Request" : {
+            "Bytes" : "{\"sessionName\":\"HttpTransportTest\"}\n",
+            "Headers" : {
+               "Content-Length" : "36",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "36"
+         },
+         "Response" : {
+            "Bytes" : "{\"newSessionId\": \"HttpTransportTest-0.04-3\", \"kind\": \"wax#waxNewSession\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "73"
+         },
+         "SentMicros" : "27",
+         "Url" : "http://localhost:5000/newsession"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3705",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 0\",\"name\":\"AsyncName 0\"}\n",
+            "Headers" : {
+               "Content-Length" : "40",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "40"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 0\", \"name\": \"AsyncName 0\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "69"
+         },
+         "SentMicros" : "26",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3678",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 1\",\"name\":\"AsyncName 1\"}\n",
+            "Headers" : {
+               "Content-Length" : "40",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "40"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 1\", \"name\": \"AsyncName 1\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "69"
+         },
+         "SentMicros" : "26",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3721",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 2\",\"name\":\"AsyncName 2\"}\n",
+            "Headers" : {
+               "Content-Length" : "40",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "40"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 2\", \"name\": \"AsyncName 2\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "69"
+         },
+         "SentMicros" : "27",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3708",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 3\",\"name\":\"AsyncName 3\"}\n",
+            "Headers" : {
+               "Content-Length" : "40",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "40"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 3\", \"name\": \"AsyncName 3\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "69"
+         },
+         "SentMicros" : "26",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3718",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 4\",\"name\":\"AsyncName 4\"}\n",
+            "Headers" : {
+               "Content-Length" : "40",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "40"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 4\", \"name\": \"AsyncName 4\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "69"
+         },
+         "SentMicros" : "28",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3696",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 5\",\"name\":\"AsyncName 5\"}\n",
+            "Headers" : {
+               "Content-Length" : "40",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "40"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 5\", \"name\": \"AsyncName 5\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "69"
+         },
+         "SentMicros" : "27",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3727",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 6\",\"name\":\"AsyncName 6\"}\n",
+            "Headers" : {
+               "Content-Length" : "40",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "40"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 6\", \"name\": \"AsyncName 6\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "69"
+         },
+         "SentMicros" : "28",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3694",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 7\",\"name\":\"AsyncName 7\"}\n",
+            "Headers" : {
+               "Content-Length" : "40",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "40"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 7\", \"name\": \"AsyncName 7\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "69"
+         },
+         "SentMicros" : "25",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3690",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 8\",\"name\":\"AsyncName 8\"}\n",
+            "Headers" : {
+               "Content-Length" : "40",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "40"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 8\", \"name\": \"AsyncName 8\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "69"
+         },
+         "SentMicros" : "27",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3717",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 9\",\"name\":\"AsyncName 9\"}\n",
+            "Headers" : {
+               "Content-Length" : "40",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "40"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 9\", \"name\": \"AsyncName 9\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "69"
+         },
+         "SentMicros" : "27",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3717",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 10\",\"name\":\"AsyncName 10\"}\n",
+            "Headers" : {
+               "Content-Length" : "42",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "42"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 10\", \"name\": \"AsyncName 10\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "71"
+         },
+         "SentMicros" : "31",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "POST",
+         "ReceiveMicros" : "3704",
+         "Request" : {
+            "Bytes" : "{\"id\":\"AsyncId 11\",\"name\":\"AsyncName 11\"}\n",
+            "Headers" : {
+               "Content-Length" : "42",
+               "Content-Type" : "application/json",
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "42"
+         },
+         "Response" : {
+            "Bytes" : "{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 11\", \"name\": \"AsyncName 11\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "71"
+         },
+         "SentMicros" : "28",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 204,
+         "Method" : "DELETE",
+         "ReceiveMicros" : "508",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Content-Type" : "text/plain",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "0"
+         },
+         "SentMicros" : "14",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items/A"
+      },
+      {
+         "HttpCode" : 204,
+         "Method" : "DELETE",
+         "ReceiveMicros" : "518",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Content-Type" : "text/plain",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "0"
+         },
+         "SentMicros" : "15",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items/B"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "727",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"items\": [{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 0\", \"name\": \"AsyncName 0\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 1\", \"name\": \"AsyncName 1\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 2\", \"name\": \"AsyncName 2\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 3\", \"name\": \"AsyncName 3\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 4\", \"name\": \"AsyncName 4\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 5\", \"name\": \"AsyncName 5\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 6\", \"name\": \"AsyncName 6\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 7\", \"name\": \"AsyncName 7\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 8\", \"name\": \"AsyncName 8\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 9\", \"name\": \"AsyncName 9\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 10\", \"name\": \"AsyncName 10\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 11\", \"name\": \"AsyncName 11\"}], \"kind\": \"wax#waxList\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "890"
+         },
+         "SentMicros" : "15",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "693",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"items\": [{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 0\", \"name\": \"AsyncName 0\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 1\", \"name\": \"AsyncName 1\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 2\", \"name\": \"AsyncName 2\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 3\", \"name\": \"AsyncName 3\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 4\", \"name\": \"AsyncName 4\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 5\", \"name\": \"AsyncName 5\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 6\", \"name\": \"AsyncName 6\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 7\", \"name\": \"AsyncName 7\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 8\", \"name\": \"AsyncName 8\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 9\", \"name\": \"AsyncName 9\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 10\", \"name\": \"AsyncName 10\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 11\", \"name\": \"AsyncName 11\"}], \"kind\": \"wax#waxList\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "890"
+         },
+         "SentMicros" : "14",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "747",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"items\": [{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 0\", \"name\": \"AsyncName 0\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 1\", \"name\": \"AsyncName 1\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 2\", \"name\": \"AsyncName 2\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 3\", \"name\": \"AsyncName 3\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 4\", \"name\": \"AsyncName 4\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 5\", \"name\": \"AsyncName 5\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 6\", \"name\": \"AsyncName 6\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 7\", \"name\": \"AsyncName 7\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 8\", \"name\": \"AsyncName 8\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 9\", \"name\": \"AsyncName 9\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 10\", \"name\": \"AsyncName 10\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 11\", \"name\": \"AsyncName 11\"}], \"kind\": \"wax#waxList\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "890"
+         },
+         "SentMicros" : "15",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "694",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"items\": [{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 0\", \"name\": \"AsyncName 0\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 1\", \"name\": \"AsyncName 1\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 2\", \"name\": \"AsyncName 2\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 3\", \"name\": \"AsyncName 3\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 4\", \"name\": \"AsyncName 4\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 5\", \"name\": \"AsyncName 5\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 6\", \"name\": \"AsyncName 6\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 7\", \"name\": \"AsyncName 7\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 8\", \"name\": \"AsyncName 8\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 9\", \"name\": \"AsyncName 9\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 10\", \"name\": \"AsyncName 10\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 11\", \"name\": \"AsyncName 11\"}], \"kind\": \"wax#waxList\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "890"
+         },
+         "SentMicros" : "14",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "710",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"items\": [{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 0\", \"name\": \"AsyncName 0\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 1\", \"name\": \"AsyncName 1\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 2\", \"name\": \"AsyncName 2\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 3\", \"name\": \"AsyncName 3\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 4\", \"name\": \"AsyncName 4\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 5\", \"name\": \"AsyncName 5\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 6\", \"name\": \"AsyncName 6\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 7\", \"name\": \"AsyncName 7\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 8\", \"name\": \"AsyncName 8\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 9\", \"name\": \"AsyncName 9\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 10\", \"name\": \"AsyncName 10\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 11\", \"name\": \"AsyncName 11\"}], \"kind\": \"wax#waxList\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "890"
+         },
+         "SentMicros" : "14",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "720",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"items\": [{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 0\", \"name\": \"AsyncName 0\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 1\", \"name\": \"AsyncName 1\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 2\", \"name\": \"AsyncName 2\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 3\", \"name\": \"AsyncName 3\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 4\", \"name\": \"AsyncName 4\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 5\", \"name\": \"AsyncName 5\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 6\", \"name\": \"AsyncName 6\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 7\", \"name\": \"AsyncName 7\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 8\", \"name\": \"AsyncName 8\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 9\", \"name\": \"AsyncName 9\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 10\", \"name\": \"AsyncName 10\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 11\", \"name\": \"AsyncName 11\"}], \"kind\": \"wax#waxList\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "890"
+         },
+         "SentMicros" : "15",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "706",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"items\": [{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 0\", \"name\": \"AsyncName 0\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 1\", \"name\": \"AsyncName 1\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 2\", \"name\": \"AsyncName 2\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 3\", \"name\": \"AsyncName 3\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 4\", \"name\": \"AsyncName 4\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 5\", \"name\": \"AsyncName 5\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 6\", \"name\": \"AsyncName 6\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 7\", \"name\": \"AsyncName 7\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 8\", \"name\": \"AsyncName 8\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 9\", \"name\": \"AsyncName 9\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 10\", \"name\": \"AsyncName 10\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 11\", \"name\": \"AsyncName 11\"}], \"kind\": \"wax#waxList\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "890"
+         },
+         "SentMicros" : "15",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "751",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "{\"items\": [{\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 0\", \"name\": \"AsyncName 0\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 1\", \"name\": \"AsyncName 1\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 2\", \"name\": \"AsyncName 2\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 3\", \"name\": \"AsyncName 3\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 4\", \"name\": \"AsyncName 4\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 5\", \"name\": \"AsyncName 5\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 6\", \"name\": \"AsyncName 6\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 7\", \"name\": \"AsyncName 7\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 8\", \"name\": \"AsyncName 8\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 9\", \"name\": \"AsyncName 9\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 10\", \"name\": \"AsyncName 10\"}, {\"kind\": \"wax#waxDataItem\", \"id\": \"AsyncId 11\", \"name\": \"AsyncName 11\"}], \"kind\": \"wax#waxList\"}",
+            "Headers" : {
+               "Content-Type" : "application/json",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "890"
+         },
+         "SentMicros" : "16",
+         "Url" : "http://localhost:5000/sessions/HttpTransportTest-0.04-3/items"
+      },
+      {
+         "HttpCode" : 200,
+         "Method" : "GET",
+         "ReceiveMicros" : "3393",
+         "Request" : {
+            "Bytes" : "",
+            "Headers" : {
+               "Host" : "localhost:5000",
+               "User-Agent" : "curl_http_transport_test google-api-cpp-client/0.1-head Linux/3.2.5-gg1236"
+            },
+            "Size" : "0"
+         },
+         "Response" : {
+            "Bytes" : "BYE",
+            "Headers" : {
+               "Content-Type" : "text/plain",
+               "Date" : "Fri, 28 Jun 2013 15:37:22 GMT",
+               "Server" : "BaseHTTP/0.3 Python/2.7.3"
+            },
+            "Size" : "3"
+         },
+         "SentMicros" : "16",
+         "Url" : "http://localhost:5000/quit"
+      }
+   ],
+   "StartTime" : "2013-06-28T15:37:20.182700Z"
+}

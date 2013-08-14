@@ -1,0 +1,267 @@
+/*
+ * \copyright Copyright 2013 Google Inc. All Rights Reserved.
+ * \license @{
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @}
+ */
+
+// Author: ewiseblatt@google.com (Eric Wiseblatt)
+
+#include <iostream>
+using std::cout;
+using std::endl;
+using std::ostream;  // NOLINT
+#include <string>
+using std::string;
+#include <sstream>
+
+#include <glog/logging.h>
+#include "googleapis/client/data/serializable_json.h"
+#include "googleapis/client/service/client_service.h"
+#include "googleapis/client/transport/http_request.h"
+#include "googleapis/client/transport/http_response.h"
+#include "googleapis/client/transport/http_transport.h"
+#include "googleapis/client/util/status.h"
+#include "googleapis/client/util/uri_template.h"
+#include "googleapis/client/util/uri_utils.h"
+#include "googleapis/strings/strcat.h"
+#include "googleapis/strings/stringpiece.h"
+#include "googleapis/util/status.h"
+
+namespace googleapis {
+
+namespace client {
+
+ClientServiceRequest::ClientServiceRequest(
+    const ClientService* service,
+    AuthorizationCredential* credential,
+    const HttpRequest::HttpMethod& method,
+    const StringPiece& uri_template)
+    : http_request_(service->transport()->NewHttpRequest(method)),
+      destroy_when_done_(false), use_media_download_(false) {
+  http_request_->set_credential(credential);  // can be NULL
+  http_request_->set_url(uri_template.as_string());
+
+  // We own the request so make sure it wont auto destroy
+  http_request_->mutable_options()->set_destroy_when_done(false);
+}
+
+ClientServiceRequest::~ClientServiceRequest() {
+}
+
+void ClientServiceRequest::DestroyWhenDone() {
+  if (http_request_->state().done()) {
+    // Avoid race condition if we're destroying this while the underlying
+    // request isnt ready to be deleted.
+    HttpRequest* request = http_request_.release();
+    if (request) {
+      request->DestroyWhenDone();
+    }
+    delete this;
+  } else {
+    destroy_when_done_ = true;
+  }
+}
+
+util::Status ClientServiceRequest::PrepareHttpRequest(
+     HttpRequestCallback* callback) {
+  string url;
+  util::Status status = PrepareUrl(http_request_->url(), &url);
+  if (status.ok()) {
+    http_request_->set_url(url);
+  } else {
+    http_request_->WillNotExecute(status, callback);
+  }
+  VLOG(1) << "Prepared url:" << url;
+  return status;
+}
+
+util::Status ClientServiceRequest::PrepareUrl(
+    const StringPiece& templated_url, string* prepared_url) {
+  scoped_ptr<UriTemplate::AppendVariableCallback> callback(
+      NewPermanentCallback(this, &ClientServiceRequest::CallAppendVariable));
+  util::Status status =
+      UriTemplate::Expand(templated_url, callback.get(), prepared_url);
+  if (!status.ok()) {
+    LOG(ERROR) << status.error_message();
+    return status;
+  }
+
+  return AppendOptionalQueryParameters(prepared_url);
+}
+
+util::Status ClientServiceRequest::Execute() {
+  util::Status status = PrepareHttpRequest();
+  if (!status.ok()) {
+    return status;
+  }
+
+  status = http_request_->Execute();
+  if (destroy_when_done_) {
+    VLOG(1)  << "Auto-destroying " << this;
+    delete this;
+  }
+  return status;
+}
+
+util::Status ClientServiceRequest::ExecuteAndParseResponse(
+     SerializableJson* data) {
+  bool destroy_when_done = destroy_when_done_;
+  destroy_when_done_ = false;
+  util::Status result = Execute();
+  if (result.ok()) {
+    result = ParseResponse(http_response(), data);
+  }
+  if (destroy_when_done) {
+    delete this;
+  }
+  return result;
+}
+
+void ClientServiceRequest::CallbackThenDestroy(
+    HttpRequestCallback* callback, HttpRequest* request) {
+  callback->Run(request);
+  VLOG(1) << "Auto-deleting request because it is done.";
+
+  // TODO(ewiseblatt): 20130318
+  // This is called by HttpRequest::Execute via DoExecute which expects the
+  // request to still be valid so it can auto-destroy. Maybe I should cache
+  // that value before calling the callback to permit the callback to destroy
+  // the request, as it does here. In the meantime we'll detach the
+  // http request object so it can self destruct. Otherwise if we destroy it
+  // here, the caller will implode from having the object deleted when it goes
+  // to check whether it should destroy it or not.
+  http_request_->mutable_options()->set_destroy_when_done(true);
+  http_request_.release();
+
+  delete this;
+}
+
+void ClientServiceRequest::ExecuteAsync(HttpRequestCallback* callback) {
+  if (destroy_when_done_) {
+    // If we want to destroy the request when we're done then chain the
+    // callback into one that will destroy this request instance.
+    VLOG(1) << "Will intercept request callback to auto-delete";
+    HttpRequestCallback* destroy_request =
+        NewCallback(this, &ClientServiceRequest::CallbackThenDestroy,
+                    callback);
+    callback = destroy_request;
+  }
+
+  util::Status status = PrepareHttpRequest(callback);
+  if (status.ok()) {
+    http_request_->ExecuteAsync(callback);
+  }
+}
+
+// static
+util::Status ClientServiceRequest::ParseResponse(
+    HttpResponse* response, SerializableJson* data) {
+  data->Clear();
+  if (!response->status().ok()) return response->status();
+
+  DataReader* reader = response->body_reader();
+  if (!reader) {
+    return StatusInternalError("Response has no body to parse.");
+  }
+  return data->LoadFromJsonReader(reader);
+}
+
+util::Status ClientServiceRequest::AppendVariable(
+    const StringPiece& variable_name, const UriTemplateConfig& config,
+    string* target) {
+  LOG(FATAL) << "Either override AppendVariable or PrepareHttpRequest";
+  return StatusUnimplemented("Internal error");
+}
+
+util::Status ClientServiceRequest::AppendOptionalQueryParameters(
+     string* target) {
+  const char* sep = "?";
+  if (use_media_download_) {
+    const char kAlt[] = "alt=";
+    bool have_alt = false;
+    int begin_params = target->find('?');
+    if (begin_params != string::npos) {
+      sep = "&";
+      for (int offset = target->find(kAlt, begin_params + 1);
+           offset != string::npos;
+           offset = target->find(kAlt, offset + 1)) {
+        char prev = target->c_str()[offset - 1];
+        if (prev != '?' && prev != '&') continue;
+
+        StringPiece value(StringPiece(*target).substr(offset + sizeof(kAlt)));
+        if (value == "media" || value.starts_with("media&")) {
+          // That second check means that the value was 'media' and then
+          // another parameter is being declared within the url.
+          have_alt = true;
+        } else {
+          LOG(WARNING)
+              << "alt parameter was already specified in url="
+              << *target
+              << " which is inconsistent with 'media' for media-download";
+          have_alt = true;
+        }
+      }
+    }
+    if (!have_alt) {
+      StrAppend(target, sep, "alt=media");
+      sep = "&";
+    }
+  }
+
+  return StatusOk();
+}
+
+util::Status ClientServiceRequest::CallAppendVariable(
+    const StringPiece& variable_name, const UriTemplateConfig& config,
+    string* target) {
+  util::Status status = AppendVariable(variable_name, config, target);
+  if (!status.ok()) {
+    VLOG(1) << "Failed appending variable_name='" << variable_name << "'";
+  }
+  return status;
+}
+
+
+ClientService::ClientService(
+    const StringPiece& url_root,
+    const StringPiece& url_path,
+    HttpTransport* transport)
+    : transport_(transport) {
+  ChangeServiceUrl(url_root, url_path);
+}
+
+ClientService::~ClientService() {
+}
+
+void ClientService::ChangeServiceUrl(
+    const StringPiece& url_root, const StringPiece& url_path) {
+  // We're going to standardize so that:
+  //   url root always ends with '/'
+  //   url path never begins with '/'
+  // But we're not necessarily going to document it this way yet.
+  int url_root_extra = url_root.ends_with("/") ? 0 : 1;
+  int url_path_trim = url_path.starts_with("/") ? 1 : 0;
+
+  service_url_ = JoinPath(url_root, url_path);
+  url_root_ = StringPiece(service_url_, 0, url_root.size() + url_root_extra);
+  url_path_ = StringPiece(service_url_,
+                          url_root_.size(),
+                          url_path.size() - url_path_trim);
+}
+
+}  // namespace client
+
+} // namespace googleapis
