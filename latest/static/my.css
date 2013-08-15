@@ -3,10 +3,11 @@ a:hover, a:active { color:#FFFFFF;background-color:#000099 }
 a.nav:link, a.nav:visited { background-color:#FFFFCC;color:#000099;  }
 a.nav:hover, a.nav:active { color:#FFFFFF;background-color:#000099 }
 section { margin-bottom:2em; margin-left:0.5em; }
-p { margin-bottom:1em; margin-top:0em; font-family: "times", serif }
+body { font-family: "veranda", sans-serif }
+p { margin-bottom:1em; margin-top:0em }
 defn { font-weight: bold; font-style: italic; }
 dl { margin-left:2em; padding:0em 1em; border:1px inset #eee;}
-dt { font-weight:bold; padding-top:0.5em; font-family: "times", serif }
+dt { font-weight:bold; padding-top:0.5em }
 dd { kolor:#0033CC; }
 div.title { text-align:center; font-size:20pt; font-weight:bold }
 div.title,h1,h2,h3 {
@@ -20,9 +21,7 @@ h4 { margin-bottom: 0.5em; }
 h5 { margin-bottom: 0.0em; }
 
 ul { margin-top:0em; padding-left:1.5em; }
-ol.toc {
-  font-family: "georgia",sans-serif
-}
+ol.toc { font-family: "georgia",sans-serif }
 li { padding-left:0em; margin-left:0em }
 
 code { color:#339900; }
@@ -66,7 +65,8 @@ aside.warning {
 }
 
 table.layout { margin-left:1em; margin-bottom:1em }
-th { vertical-align:top; }
+th { vertical-align:top; text-align:left; }
 td { vertical-align:top; text-align:left; }
-td.proj_name { font-weight:bold; font-size:14pt; }
-td.proj_desc { text-indent:1em; font-style:italic; font-size:9pt; vertical-align:middle }
+td.proj_name { font-weight:bold; font-size:14pt; font-family: "times",serif }
+td.proj_desc { text-indent:1em; font-style:italic; font-size:9pt;
+               font-family: "times",serif; vertical-align:middle }
