@@ -1,3 +1,8 @@
+This is an early preview release. It is complete enough to interoperate with most if not all
+Google APIs using a REST style of interaction. Being an early preview, some details are likely
+co change in future releases as the libraries evolve and mature. Only Unix-like platforms
+(including Linux and OS/X) are supported in this preview release.
+
 For more information regarding installation, consult the following document:
   http://google.github.io/google-api-cpp-client/latest/start/installation.html
 
