@@ -39,6 +39,7 @@ target_link_libraries(gdrive_sample googleapis_curl_http)
 target_link_libraries(gdrive_sample googleapis_http)
 target_link_libraries(gdrive_sample googleapis_oauth2)
 target_link_libraries(gdrive_sample googleapis_utils)
+target_link_libraries(gdrive_sample pthread)
 target_link_libraries(gdrive_sample ${GFLAGS_LIBRARY})
 
 add_executable(webflow_sample
@@ -52,4 +53,5 @@ target_link_libraries(webflow_sample googleapis_curl_http)
 target_link_libraries(webflow_sample googleapis_http)
 target_link_libraries(webflow_sample googleapis_oauth2)
 target_link_libraries(webflow_sample googleapis_utils)
+target_link_libraries(webflow_sample pthread)
 target_link_libraries(webflow_sample ${GFLAGS_LIBRARY})
