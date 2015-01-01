@@ -30,7 +30,7 @@ the source code given only:
     ./external_dependencies/install/bin/cmake .
     make all
     make test
-    make export
+    make install
 
 To download additional APIs specialized for individual Google Services see:
 http://google.github.io/google-api-cpp-client/latest/available_service_apis.html
