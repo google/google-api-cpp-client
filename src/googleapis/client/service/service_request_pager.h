@@ -153,16 +153,16 @@ class BaseServiceRequestPager {
  * A pager over referenced REST APIs having a standard paging interface.
  * @ingroup ClientServiceLayer
  *
- * This template relies on the existence of REQUEST.set_pageToken and
- * RESPONSE.get_nextPageToken methods to control the page iteration.
+ * This template relies on the existence of REQUEST.set_page_token and
+ * RESPONSE.get_next_page_token methods to control the page iteration.
  *
  * This class does not own the request or data objects. See the
  * EncapsulatedServiceRequestPager as a variant that adds memory management.
  *
  * @tparam REQUEST must be a subclass of ClientServiceRequest
- *                  and have a set_pageToken method.
+ *                  and have a set_page_token method.
  * @tparam DATA must be a subclass of SerializableJson and have a
- *               get_nextPageToken method.
+ *               get_next_page_token method.
  */
 template<class REQUEST, class DATA>
 class ServiceRequestPager : public BaseServiceRequestPager {
@@ -221,7 +221,7 @@ class ServiceRequestPager : public BaseServiceRequestPager {
     if (next_page_token().empty()) {
       request()->clear_pageToken();
     } else {
-      request()->set_pageToken(next_page_token());
+      request()->set_page_token(next_page_token());
     }
 
     util::Status status =
@@ -231,7 +231,7 @@ class ServiceRequestPager : public BaseServiceRequestPager {
     status = request()->ExecuteAndParseResponse(page_data_storage_);
     if (!status.ok()) return status;
 
-    set_next_page_token(page_data_storage_->get_nextPageToken());
+    set_next_page_token(page_data_storage_->get_next_page_token());
     return status;
   }
 

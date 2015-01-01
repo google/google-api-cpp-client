@@ -13,21 +13,23 @@
   "documentationLink": "https://developers.google.com/drive/", 
   "id": "drive:v2", 
   "name": "drive", 
+  "packagePath": null, 
+  "canonicalName": null, 
   "files": [
     {
-      "downloadUrl": "/downloads/drive/v2/93/cpp/0.1/google-drive-v2-rev93-cpp-0.1-doc.zip", 
-      "path": "google-drive-v2-rev93-cpp-0.1-doc.zip", 
+      "downloadUrl": "/downloads/drive/v2/155/cpp/0.1.2/google-drive-v2-rev155-cpp-0.1.2-doc.zip", 
+      "path": "google-drive-v2-rev155-cpp-0.1.2-doc.zip", 
       "type": "documentation", 
-      "timestamp": "2013-08-12 09:01"
+      "timestamp": "2014-12-12 04:52"
     }, 
     {
-      "downloadUrl": "/downloads/drive/v2/93/cpp/0.1/google-drive-v2-rev93-cpp-0.1-src.zip", 
+      "downloadUrl": "/downloads/drive/v2/155/cpp/0.1.2/google-drive-v2-rev155-cpp-0.1.2-src.zip", 
       "path": "", 
       "type": "source", 
-      "timestamp": "2013-08-12 09:01"
+      "timestamp": "2014-12-12 04:52"
     }
   ], 
-  "revision": 93, 
+  "revision": 155, 
   "language": "cpp", 
-  "language_version": "0.1"
+  "language_version": "0.1.2"
 }

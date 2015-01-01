@@ -15,11 +15,13 @@ add_library(google_calendar_api STATIC
             calendar.cc
             calendar_list.cc
             calendar_list_entry.cc
+            calendar_notification.cc
             channel.cc
             color_definition.cc
             colors.cc
             error.cc
             event.cc
+            event_attachment.cc
             event_attendee.cc
             event_date_time.cc
             event_reminder.cc
