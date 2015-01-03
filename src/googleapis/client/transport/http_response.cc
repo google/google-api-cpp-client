@@ -87,7 +87,7 @@ void HttpResponse::Clear() {
 }
 
 const string* HttpResponse::FindHeaderValue(const StringPiece& name) const {
-  HttpHeaderMap::const_iterator found = headers_.find(name.as_string());
+  HttpHeaderMultiMap::const_iterator found = headers_.find(name.as_string());
   return (found == headers_.end()) ? NULL : &found->second;
 }
 
