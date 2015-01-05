@@ -144,12 +144,12 @@ Public Member Functions</h2></td></tr>
 class googleapis::client::ServiceRequestPager&lt; REQUEST, DATA &gt;</h3>
 
 <p>A pager over referenced REST APIs having a standard paging interface. </p>
-<p>This template relies on the existence of REQUEST.set_pageToken and RESPONSE.get_nextPageToken methods to control the page iteration.</p>
+<p>This template relies on the existence of REQUEST.set_page_token and RESPONSE.get_next_page_token methods to control the page iteration.</p>
 <p>This class does not own the request or data objects. See the <a class="el" href="classgoogleapis_1_1client_1_1EncapsulatedServiceRequestPager.html" title="A ServiceRequestPager that owns the request and data objects.">EncapsulatedServiceRequestPager</a> as a variant that adds memory management.</p>
 <dl class=""><dt><b>Template Parameters:</b></dt><dd>
   <table class="">
-    <tr><td class="paramname">REQUEST</td><td>must be a subclass of <a class="el" href="classgoogleapis_1_1client_1_1ClientServiceRequest.html" title="Base class for requests made to a ClientService.">ClientServiceRequest</a> and have a set_pageToken method. </td></tr>
-    <tr><td class="paramname">DATA</td><td>must be a subclass of <a class="el" href="classgoogleapis_1_1client_1_1SerializableJson.html" title="An abstract interface for data objects used to denote JSON compatability.">SerializableJson</a> and have a get_nextPageToken method. </td></tr>
+    <tr><td class="paramname">REQUEST</td><td>must be a subclass of <a class="el" href="classgoogleapis_1_1client_1_1ClientServiceRequest.html" title="Base class for requests made to a ClientService.">ClientServiceRequest</a> and have a set_page_token method. </td></tr>
+    <tr><td class="paramname">DATA</td><td>must be a subclass of <a class="el" href="classgoogleapis_1_1client_1_1SerializableJson.html" title="An abstract interface for data objects used to denote JSON compatability.">SerializableJson</a> and have a get_next_page_token method. </td></tr>
   </table>
   </dd>
 </dl>

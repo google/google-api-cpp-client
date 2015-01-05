@@ -630,8 +630,8 @@ void CalendarSample::AddEvent(const string&amp; calendar_id, Event* event) {
 DateTime now;
 scoped_ptr&lt;Event&gt; event(Event::New());
 event-&gt;set_summary("Calendar event added by CalendarSample");
-event-&gt;mutable_start().set_dateTime(now);
-event-&gt;mutable_end().set_dateTime(DateTime(now.ToEpochTime() + 60 * 60));
+event-&gt;mutable_start().set_date_time(now);
+event-&gt;mutable_end().set_date_time(DateTime(now.ToEpochTime() + 60 * 60));
 
 cout &lt;&lt; endl &lt;&lt; kSampleStepPrefix &lt;&lt; "Add Calendar Event" &lt;&lt; endl;
 AddEvent(calendar_id, event.get());
@@ -771,9 +771,9 @@ void CalendarSample::UpdateEvent(
 cout &lt;&lt; endl &lt;&lt; kSampleStepPrefix &lt;&lt; "Update Calendar Event" &lt;&lt; endl;
 // An update requires a time.
 // Go back a year and one day to distinguish it from the old value.
-event-&gt;mutable_start().set_dateTime(
+event-&gt;mutable_start().set_date_time(
     DateTime(now.ToEpochTime() - 60 * 60 * 24 * 367));
-event-&gt;mutable_end().set_dateTime(
+event-&gt;mutable_end().set_date_time(
     DateTime(now.ToEpochTime() - 60 * 60 * 24 * 366));
 event-&gt;clear_summary();
 UpdateEvent(calendar_id, *event);

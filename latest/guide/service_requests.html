@@ -178,10 +178,10 @@ void CalendarSample::ShowCalendars() {
     Services that define resources that can contain a large number of elements
     will often offer a means to <em>page</em> through the results over multiple
     queries rather than receiving an enormous response from a single request.
-    A common model used by these services is to have a <code>pageToken</code>
-    parameter in the <code>List</code> request and a <code>nextPageToken</code>
+    A common model used by these services is to have a <code>page_token</code>
+    parameter in the <code>List</code> request and a <code>next_page_token</code>
     value in the response. The intent being that you iterate over the pages
-    by issuing successive requests using the different <code>pageToken</code>
+    by issuing successive requests using the different <code>page_token</code>
     values.
   </p>
   <p>
@@ -195,7 +195,7 @@ void CalendarSample::PageThroughAllEvents(
   cout &lt;&lt; "All Events" &lt;&lt; endl;
   scoped_ptr&lt;EventsResource_ListMethodPager&gt; pager(
       service_-&gt;get_events().NewListMethodPager(&amp;credential_, calendar_id));
-  pager-&gt;request()-&gt;set_maxResults(num_per_page);
+  pager-&gt;request()-&gt;set_max_results(num_per_page);
   while (pager-&gt;NextPage()) {
     DisplayList&lt;Events, Event&gt;("  ", "EventList", *pager-&gt;data());
   }
