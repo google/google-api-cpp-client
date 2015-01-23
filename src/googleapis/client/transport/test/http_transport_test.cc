@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 //
 // This tests the whole core HttpTransport model since the classes are all
 // tied together.
@@ -81,6 +80,10 @@ using client::StatusOk;
 using client::StatusPermissionDenied;
 using client::StatusUnknown;
 using client::VersionInfo;
+using client::NewUnmanagedInMemoryDataReader;
+using client::NewManagedInMemoryDataReader;
+using client::kCRLF;
+using client::kCRLFCRLF;
 using thread::MockExecutor;
 
 class FakeDataWriter : public DataWriter {
@@ -240,7 +243,7 @@ TEST_F(HttpTransportFixture, TestAddHeader) {
   EXPECT_EQ("B", it->first);
   EXPECT_EQ("b", it->second);
 
-  // NOTE(ewiseblatt): 20120920
+  // NOTE(user): 20120920
   // Verify adding a redundant header overwrites the original value.
   // While this might not be correct in general, it's what we are assuming
   // for now so we can rewrite security headers if needed.
@@ -298,8 +301,7 @@ TEST_F(HttpTransportFixture, TestAddBuiltinHeaders) {
 
   mock_post.set_url(mock_request.url());
   mock_post.set_content_type(kContentType);
-  mock_post.set_content_reader(
-      client::NewUnmanagedInMemoryDataReader(kPostData));
+  mock_post.set_content_reader(NewUnmanagedInMemoryDataReader(kPostData));
 
   got_status = mock_post.Execute();
   value = mock_post.FindHeaderValue(HttpRequest::HttpHeader_CONTENT_LENGTH);
@@ -414,7 +416,7 @@ TEST_F(HttpTransportFixture, TestTransportErrorFlow) {
     MockHttpRequest mock_request(HttpRequest::GET, &transport);
 
     util::Status failure_status = StatusUnknown("Transport Error");
-    scoped_ptr<Closure> set_transport_status(
+    std::unique_ptr<Closure> set_transport_status(
         NewPermanentCallback(
             &mock_request, &MockHttpRequest::poke_transport_status,
             failure_status));
@@ -454,7 +456,7 @@ TEST_F(HttpTransportFixture, TestHttpErrorFlow) {
     MockHttpRequest mock_request(HttpRequest::GET, &transport);
     int http_code = 400 + allow_retries;  // just try some different codes
 
-    scoped_ptr<Closure> set_http_code(
+    std::unique_ptr<Closure> set_http_code(
         NewPermanentCallback(
             &mock_request, &MockHttpRequest::poke_http_code, http_code));
     EXPECT_CALL(mock_request, DoExecute(_))
@@ -525,9 +527,9 @@ TEST_F(HttpTransportFixture, TestDefault401ErrorFlow) {
   HttpTransportErrorHandler error_handler;
   transport.mutable_options()->set_error_handler(&error_handler);
 
-  scoped_ptr<MockHttpRequest> mock_request(
+  std::unique_ptr<MockHttpRequest> mock_request(
       new MockHttpRequest(HttpRequest::GET, &transport));
-  scoped_ptr<Closure> set_http_code(
+  std::unique_ptr<Closure> set_http_code(
       NewPermanentCallback(
           mock_request.get(), &MockHttpRequest::poke_http_code, 401));
   EXPECT_CALL(*mock_request.get(), DoExecute(_))
@@ -615,7 +617,7 @@ TEST_F(HttpTransportFixture, TestDefault503ErrorFlow) {
   EXPECT_CALL(mock_request, DoExecute(_))
       .WillOnce(InvokeWithoutArgs(set_http_code, &Closure::Run));
 
-  // TODO(ewiseblatt): 503 errors are not retried yet.
+  // TODO(user): 503 errors are not retried yet.
   EXPECT_FALSE(mock_request.Execute().ok());
   HttpResponse* http_response = mock_request.response();
 
@@ -625,8 +627,16 @@ TEST_F(HttpTransportFixture, TestDefault503ErrorFlow) {
   EXPECT_EQ(503, http_response->http_code());
 }
 
-TEST_F(HttpTransportFixture, Test301RedirectFlow) {
-  const StringPiece redirect_url = "the_redirected_url";
+void TestRedirectFlowHelper(bool same_domain, bool same_scheme) {
+  const string original_url = "http://test.org/original_path";
+  bool add_back_auth_header = same_domain && same_scheme;
+  const string redirect_url =
+      StrCat(same_scheme ? "http:" : "https:",
+             "//",
+             same_domain ? "test.org" : "another.org",
+             "/",
+             add_back_auth_header ? "different_path" : "original_path");
+
   MockHttpTransport transport;
   MockHttpRequest mock_request(HttpRequest::POST, &transport);
   HttpTransportErrorHandler error_handler;
@@ -634,12 +644,13 @@ TEST_F(HttpTransportFixture, Test301RedirectFlow) {
 
   MockAuthorizationCredential mock_credential;
   const string kAuthorizationHeaderValue = "whatever";
-  Closure* add_auth_header = NewCallback(
+  std::unique_ptr<Closure> add_auth_header(NewPermanentCallback(
       &mock_request, &HttpRequest::AddHeader,
-      HttpRequest::HttpHeader_AUTHORIZATION, kAuthorizationHeaderValue);
+      HttpRequest::HttpHeader_AUTHORIZATION, kAuthorizationHeaderValue));
   EXPECT_CALL(mock_credential, AuthorizeRequest(&mock_request))
-      .WillOnce(DoAll(
-          InvokeWithoutArgs(add_auth_header, &Closure::Run),
+      .Times(1 + (add_back_auth_header ? 1 : 0))
+      .WillRepeatedly(DoAll(
+          InvokeWithoutArgs(add_auth_header.get(), &Closure::Run),
           Return(StatusOk())));
 
   mock_request.set_credential(&mock_credential);
@@ -658,7 +669,7 @@ TEST_F(HttpTransportFixture, Test301RedirectFlow) {
       .WillOnce(InvokeWithoutArgs(set_final_http_code, &Closure::Run));
 
 
-  mock_request.set_url("original_url");
+  mock_request.set_url(original_url);
   EXPECT_TRUE(mock_request.Execute().ok());
   HttpResponse* http_response = mock_request.response();
   EXPECT_TRUE(http_response->transport_status().ok());
@@ -666,12 +677,25 @@ TEST_F(HttpTransportFixture, Test301RedirectFlow) {
   EXPECT_TRUE(http_response->status().ok());
   EXPECT_EQ(222, http_response->http_code());
 
-  EXPECT_TRUE(
+  EXPECT_EQ(
+      add_back_auth_header,
       mock_request.FindHeaderValue(HttpRequest::HttpHeader_AUTHORIZATION)
-      == NULL)
-      << "Did not string authorization header";
+      != NULL)
+      << "Did handle authorization header as expected";
   EXPECT_EQ(HttpRequest::POST, mock_request.http_method());
   EXPECT_EQ(HttpRequestState::COMPLETED, http_response->request_state_code());
+}
+
+TEST_F(HttpTransportFixture, Test301RedirectFlowDifferentDomain) {
+  TestRedirectFlowHelper(false, true);
+}
+
+TEST_F(HttpTransportFixture, Test301RedirectFlowDifferentScheme) {
+  TestRedirectFlowHelper(true, false);
+}
+
+TEST_F(HttpTransportFixture, Test301RedirectFlowWithinDomain) {
+  TestRedirectFlowHelper(true, true);
 }
 
 TEST_F(HttpTransportFixture, TestRedirectFlow) {
@@ -794,7 +818,7 @@ TEST_F(HttpTransportFixture, TestDoNotRedirect) {
   EXPECT_FALSE(mock_request.Execute().ok());
 
   // We're treating too many redirects as a transport error.
-  // TODO(ewiseblatt): 20130330
+  // TODO(user): 20130330
   // Maybe this is a mistake. Perhaps we need an easy way to know that the
   // request could not be resolved on the server. Perhaps a different
   // completion code (and unhandled redirects would end in this state as well).
@@ -868,7 +892,7 @@ TEST_F(HttpTransportFixture, TestCannotReuse) {
   MockHttpTransport transport;
   MockHttpRequest mock_request(HttpRequest::GET, &transport);
 
-  scoped_ptr<Closure> set_http_code(
+  std::unique_ptr<Closure> set_http_code(
       NewPermanentCallback(
           &mock_request, &MockHttpRequest::poke_http_code, 200));
   EXPECT_CALL(mock_request, DoExecute(_))
@@ -981,4 +1005,93 @@ TEST_F(HttpTransportFixture, TestWillNotExecute) {
   EXPECT_FALSE(mock_request.response()->ok());
 }
 
-} // namespace googleapis
+TEST_F(HttpTransportFixture, TestWriteReqeust) {
+  const char kUrl[] = "http://test.com/url_path?query@fragment";
+  const char kHeader1[] = "Header1";
+  const char kHeader2[] = "Header2";
+  const char kValue1[] = "Value1";
+  const char kValue2[] = "Value2";
+
+  MockHttpTransport transport;
+  MockHttpRequest mock_request(HttpRequest::POST, &transport);
+  FakeDataWriter writer;
+
+  HttpTransport::WriteRequest(&mock_request, &writer);
+
+  // This is invalid, but so is the request without a url.
+  // Just showing what happens.
+  EXPECT_EQ(StrCat("POST  HTTP/1.1", kCRLFCRLF), writer.got());
+
+  mock_request.set_url(kUrl);
+  writer.Clear();
+  HttpTransport::WriteRequest(&mock_request, &writer);
+  EXPECT_EQ(StrCat("POST ", kUrl, " HTTP/1.1", kCRLFCRLF), writer.got());
+
+  const string kExpectFirstLine = StrCat("POST ", kUrl, " HTTP/1.1", kCRLF);
+  const string kExpectHeaders = StrCat(
+      kHeader1, ": ", kValue1, kCRLF,
+      kHeader2, ": ", kValue2, kCRLF,
+      kCRLF);
+
+  mock_request.set_url(kUrl);
+  mock_request.AddHeader(kHeader1, kValue1);
+  mock_request.AddHeader(kHeader2, kValue2);
+
+  writer.Clear();
+  HttpTransport::WriteRequest(&mock_request, &writer);
+  EXPECT_EQ(StrCat(kExpectFirstLine, kExpectHeaders), writer.got());
+
+  const char kBody[] = "This is a post body\nIt is two lines long.";
+  mock_request.set_content_reader(NewUnmanagedInMemoryDataReader(kBody));
+
+  writer.Clear();
+  HttpTransport::WriteRequest(&mock_request, &writer);
+  EXPECT_EQ(StrCat(kExpectFirstLine, kExpectHeaders, kBody), writer.got());
+}
+
+TEST_F(HttpTransportFixture, TestReadResponse) {
+  MockHttpTransport transport;
+  MockHttpRequest mock_request(HttpRequest::GET, &transport);
+  HttpResponse* response = mock_request.response();
+
+  const char kHeader1[] = "Header1";
+  const char kHeader2[] = "Header2";
+  const char kValue1[] = "Value1";
+  const char kValue2[] = "Value2";
+
+  const string kGotFirstLine = StrCat("HTTP/1.1 200 (OK)", kCRLF);
+  const string kGotHeaders = StrCat(
+      kHeader1, ": ", kValue1, kCRLF,
+      kHeader2, ": ", kValue2, kCRLF,
+      kCRLF);
+  const string kGotBody = "Hello, World\nSecond line.";
+
+  std::unique_ptr<DataReader> response_reader;
+
+  response_reader.reset(client::NewManagedInMemoryDataReader(
+      StrCat(kGotFirstLine, kGotHeaders, kGotBody)));
+  HttpTransport::ReadResponse(response_reader.get(), response);
+  EXPECT_TRUE(response->ok()) << response->transport_status().error_message();
+  EXPECT_EQ(200, response->http_code());
+  EXPECT_EQ(2, response->headers().size());
+  const string* value = response->FindHeaderValue(kHeader1);
+  ASSERT_TRUE(value != NULL);
+  EXPECT_EQ(kValue1, *value);
+  value = response->FindHeaderValue(kHeader2);
+  ASSERT_TRUE(value != NULL);
+  EXPECT_EQ(kValue2, *value);
+  std::unique_ptr<DataReader> body_reader(
+      response->body_writer()->NewUnmanagedDataReader());
+  body_reader.reset(response->body_writer()->NewUnmanagedDataReader());
+  EXPECT_EQ(kGotBody, body_reader->RemainderToString());
+
+  response_reader.reset(NewManagedInMemoryDataReader(
+      StrCat(kGotFirstLine, kGotHeaders)));
+  HttpTransport::ReadResponse(response_reader.get(), response);
+  body_reader.reset(response->body_writer()->NewUnmanagedDataReader());
+  EXPECT_EQ(200, response->http_code());
+  EXPECT_EQ(2, response->headers().size());
+  EXPECT_EQ("", body_reader->RemainderToString());
+}
+
+}  // namespace googleapis

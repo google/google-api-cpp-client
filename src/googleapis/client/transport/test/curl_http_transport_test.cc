@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include "googleapis/client/transport/curl_http_transport.h"
 #include "googleapis/client/transport/http_transport.h"
@@ -28,9 +27,10 @@
 
 namespace googleapis {
 
+
 // This runs the standard test suite defined by HttpTransportTestFixture
 // but using the CurlHttpTransportFactory.
-} // namespace googleapis
+}  // namespace googleapis
 
 using namespace googleapis;
 int main(int argc, char** argv) {
@@ -42,7 +42,8 @@ int main(int argc, char** argv) {
 
   CHECK_EQ(client::CurlHttpTransport::kTransportIdentifier,
            factory->default_id());
-  scoped_ptr<client::HttpTransport> check_instance(factory->New());
+  std::unique_ptr<client::HttpTransport> check_instance(
+      factory->New());
   CHECK_EQ(client::CurlHttpTransport::kTransportIdentifier,
            check_instance->id());
 

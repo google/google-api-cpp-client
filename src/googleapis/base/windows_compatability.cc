@@ -16,7 +16,7 @@
  *
  * @}
  */
-// TODO(ewiseblatt): 20130723
+// TODO(user): 20130723
 //
 // Path handling is not right in general.
 //   - Need to handle share paths that start with '//'
@@ -28,11 +28,11 @@
 // Need to do a thorough scrubbing on TCHAR in the code.
 // And also the use of _MSC_VER is the appropriate guard in each
 // porting situation.
+#include <memory>
 #include <string>
 using std::string;
 #include <glog/logging.h>
 #include "googleapis/base/port.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/base/windows_compatability.h"
 #include "googleapis/strings/util.h"
 
@@ -50,7 +50,7 @@ string ToWindowsPath(const string& str) {
 
 const WCHAR* ToWindowsWideString(const string& from, string* to) {
   int buffer_size = from.size() + 1;
-  scoped_ptr<WCHAR[]> wide_string(new WCHAR[buffer_size]);
+  std::unique_ptr<WCHAR[]> wide_string(new WCHAR[buffer_size]);
 
   int len = MultiByteToWideChar(
       CP_UTF8,
@@ -72,7 +72,7 @@ string FromWindowsStr(const TCHAR* windows) {
   return string(windows);
 #else
   int data_size = wcslen(windows);
-  scoped_ptr<char[]> data(new char[2 * data_size + 2]);
+  std::unique_ptr<char[]> data(new char[2 * data_size + 2]);
   int len = WideCharToMultiByte(CP_UTF8, 0,
                                 windows, data_size,
                                 data.get(), 2 * data_size + 1,
@@ -84,4 +84,4 @@ string FromWindowsStr(const TCHAR* windows) {
 
 #endif  // _MSC_VER
 
-} // namespace googleapis
+}  // namespace googleapis

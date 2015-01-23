@@ -25,8 +25,8 @@
 //      SStringPrintf(&result, "%d %s\n", 10, "hello");
 //      StringAppendF(&result, "%d %s\n", 20, "there");
 
-#ifndef _BASE_STRINGPRINTF_H
-#define _BASE_STRINGPRINTF_H
+#ifndef BASE_STRINGPRINTF_H_
+#define BASE_STRINGPRINTF_H_
 
 #include <stdarg.h>
 #include <string>
@@ -62,7 +62,8 @@ extern const int kStringPrintfVectorMaxArgs;
 // You can use this version when all your arguments are strings, but
 // you don't know how many arguments you'll have at compile time.
 // StringPrintfVector will LOG(FATAL) if v.size() > kStringPrintfVectorMaxArgs
-extern string StringPrintfVector(const char* format, const vector<string>& v);
+extern string StringPrintfVector(
+    const char* format, const std::vector<string>& v);
 
-} // namespace googleapis
-#endif /* _BASE_STRINGPRINTF_H */
+}  // namespace googleapis
+#endif  // BASE_STRINGPRINTF_H_

@@ -39,5 +39,5 @@ string GetTestingTempDir();
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_UTIL_GOOGLEAPIS_GTEST_H_

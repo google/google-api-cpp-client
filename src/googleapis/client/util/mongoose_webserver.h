@@ -177,5 +177,5 @@ class MongooseWebServer : public AbstractWebServer {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_UTIL_MONGOOSE_WEBSERVER_H_

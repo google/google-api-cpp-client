@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <float.h>
 #include <cmath>
@@ -26,6 +25,7 @@ using std::multiset;
 using std::set;
 #include <map>
 using std::map;
+#include <memory>
 #include <string>
 using std::string;
 #include <sstream>
@@ -33,13 +33,12 @@ using std::string;
 #include "googleapis/client/data/jsoncpp_data.h"
 #include "googleapis/client/data/jsoncpp_data_helpers.h"
 #include "googleapis/base/integral_types.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/strip.h"
 #include <gtest/gtest.h>
-#include <json/value.h>
-#include <json/writer.h>
+#include <jsoncpp/value.h>
+#include <jsoncpp/writer.h>
 
 namespace googleapis {
 
@@ -223,7 +222,7 @@ TEST_F(JsonCppAdapterFixture, LoadEmpty) {
   EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(0, data.Storage().size());
 
-  scoped_ptr<DataReader> reader(data.MakeJsonReader());
+  std::unique_ptr<DataReader> reader(data.MakeJsonReader());
   EXPECT_TRUE(status.ok()) << status.ToString();
   JsonCppCapsule<JsonCppData> check;
   status = check.LoadFromJsonReader(reader.get());
@@ -253,7 +252,7 @@ TEST_F(JsonCppAdapterFixture, LoadStoreComplex) {
   // And just to be sure, we'll check a specific value.
   EXPECT_EQ("Hello, World!", StringPiece(got.Storage("1").asCString()));
 
-  scoped_ptr<DataReader> reader(got.MakeJsonReader());
+  std::unique_ptr<DataReader> reader(got.MakeJsonReader());
   EXPECT_TRUE(status.ok()) << status.ToString();
   JsonCppCapsule<JsonCppData> check;
   status = check.LoadFromJsonReader(reader.get());
@@ -583,7 +582,7 @@ TEST_F(JsonCppAdapterFixture, TestExportPrimitiveArray) {
   const int begin_segment = 2;
   const int end_segment = 7;  // inclusive
   const int segment_count = end_segment - begin_segment + 1;
-  scoped_ptr<int[]> data_array(new int[segment_count]);
+  std::unique_ptr<int[]> data_array(new int[segment_count]);
 
   EXPECT_TRUE(
     readable_array.Export(begin_segment, segment_count, data_array.get()));
@@ -612,7 +611,7 @@ TEST_F(JsonCppAdapterFixture, TestImportArray) {
 
   // Initialize the array we'll import from using Export.
   // We'll assume this works since it is tested elsewhere.
-  scoped_ptr<int[]> data_array(new int[kSize]);
+  std::unique_ptr<int[]> data_array(new int[kSize]);
   ASSERT_TRUE(readable_array.Export(0, kSize, data_array.get()));
 
   // Test the import interfaces, using == operator on underlying storage
@@ -641,7 +640,7 @@ TEST_F(JsonCppAdapterFixture, TestExportStringArray) {
   const int begin_segment = 2;
   const int end_segment = 7;  // inclusive
   const int segment_count = end_segment - begin_segment + 1;
-  scoped_ptr<string[]> data_array(new string[segment_count]);
+  std::unique_ptr<string[]> data_array(new string[segment_count]);
 
   EXPECT_TRUE(
     readable_array.Export(begin_segment, segment_count, data_array.get()));
@@ -666,7 +665,7 @@ TEST_F(JsonCppAdapterFixture, TestImportStringArray) {
   readable_array.Export(&data_vector);
   EXPECT_EQ(kSize, data_vector.size());
 
-  scoped_ptr<string[]> data_array(new string[kSize]);
+  std::unique_ptr<string[]> data_array(new string[kSize]);
   ASSERT_TRUE(readable_array.Export(0, kSize, data_array.get()));
 
   Json::Value writable_storage;
@@ -678,4 +677,4 @@ TEST_F(JsonCppAdapterFixture, TestImportStringArray) {
   EXPECT_EQ(storage, writable_storage);
 }
 
-} // namespace googleapis
+}  // namespace googleapis

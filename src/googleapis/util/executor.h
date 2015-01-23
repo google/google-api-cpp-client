@@ -52,5 +52,5 @@ Executor* SingletonInlineExecutor();
 
 }  // namespace thread
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // THREAD_EXECUTOR_H_

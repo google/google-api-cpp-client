@@ -47,6 +47,8 @@ namespace googleapis {
 // The "Try" version stores the stripped string in the 'result' out-param and
 // returns true iff the prefix was found and removed. It is safe for 'result' to
 // point back to the input string.
+//
+// See also StringPiece::Consume().
 string StripPrefixString(StringPiece str, StringPiece prefix);
 bool TryStripPrefixString(StringPiece str,
                           StringPiece prefix,
@@ -58,6 +60,8 @@ bool TryStripPrefixString(StringPiece str,
 // The "Try" version stores the stripped string in the 'result' out-param and
 // returns true iff the suffix was found and removed. It is safe for 'result' to
 // point back to the input string.
+//
+// See also StringPiece::ConsumeFromEnd().
 string StripSuffixString(StringPiece str, StringPiece suffix);
 bool TryStripSuffixString(StringPiece str, StringPiece suffix,
                           string* result);
@@ -88,37 +92,37 @@ int StripDupCharacters(string* s, char dup_char, int start_pos);
 // string, or StringPiece. If the caller is using NUL-terminated strings, it is
 // the caller's responsibility to insert the NUL character at the end of the
 // substring.
-void StripWhiteSpace(const char** str, int* len);
-inline void StripWhiteSpace(char** str, int* len) {
-  // The "real" type for StripWhiteSpace is ForAll char types C, take
+void StripWhitespace(const char** str, int* len);
+inline void StripWhitespace(char** str, int* len) {
+  // The "real" type for StripWhitespace is ForAll char types C, take
   // (C, int) as input and return (C, int) as output.  We're using the
   // cast here to assert that we can take a char*, even though the
   // function thinks it's assigning to const char*.
-  StripWhiteSpace(const_cast<const char**>(str), len);
+  StripWhitespace(const_cast<const char**>(str), len);
 }
-void StripWhiteSpace(string* str);
-inline void StripWhiteSpace(StringPiece* str) {
+void StripWhitespace(string* str);
+inline void StripWhitespace(StringPiece* str) {
   const char* data = str->data();
   int len = str->size();
-  StripWhiteSpace(&data, &len);
+  StripWhitespace(&data, &len);
   str->set(data, len);
 }
 
 namespace strings {
 
-// Calls StripWhiteSpace() on each element in the given collection.
+// Calls StripWhitespace() on each element in the given collection.
 //
 // Note: this implementation is conceptually similar to
 //
-//   std::for_each(c.begin(), c.end(), StripWhiteSpace);
+//   std::for_each(c.begin(), c.end(), StripWhitespace);
 //
-// except that StripWhiteSpace requires a *pointer* to the element, so the above
+// except that StripWhitespace requires a *pointer* to the element, so the above
 // std::for_each solution wouldn't work.
 template <typename Collection>
-inline void StripWhiteSpaceInCollection(Collection* collection) {
+inline void StripWhitespaceInCollection(Collection* collection) {
   for (typename Collection::iterator it = collection->begin();
        it != collection->end(); ++it)
-    StripWhiteSpace(&(*it));
+    StripWhitespace(&(*it));
 }
 
 }  // namespace strings
@@ -128,8 +132,8 @@ inline void StripWhiteSpaceInCollection(Collection* collection) {
 //
 // The versions that take C-strings return a pointer to the first non-whitespace
 // character if one is present or NULL otherwise. 'line' must be NUL-terminated.
-void StripLeadingWhiteSpace(string* str);
-inline const char* StripLeadingWhiteSpace(const char* line) {
+void StripLeadingWhitespace(string* str);
+inline const char* StripLeadingWhitespace(const char* line) {
   // skip leading whitespace
   while (ascii_isspace(*line))
     ++line;
@@ -139,10 +143,10 @@ inline const char* StripLeadingWhiteSpace(const char* line) {
 
   return line;
 }
-// StripLeadingWhiteSpace for non-const strings.
-inline char* StripLeadingWhiteSpace(char* line) {
+// StripLeadingWhitespace for non-const strings.
+inline char* StripLeadingWhitespace(char* line) {
   return const_cast<char*>(
-      StripLeadingWhiteSpace(const_cast<const char*>(line)));
+      StripLeadingWhitespace(const_cast<const char*>(line)));
 }
 
 // Removes whitespace from the end of the given string.
@@ -157,12 +161,12 @@ void RemoveExtraWhitespace(string* s);
 
 // Returns a pointer to the first non-whitespace character in 'str'. Never
 // returns NULL. 'str' must be NUL-terminated.
-inline const char* SkipLeadingWhiteSpace(const char* str) {
+inline const char* SkipLeadingWhitespace(const char* str) {
   while (ascii_isspace(*str))
     ++str;
   return str;
 }
-inline char* SkipLeadingWhiteSpace(char* str) {
+inline char* SkipLeadingWhitespace(char* str) {
   while (ascii_isspace(*str))
     ++str;
   return str;
@@ -225,5 +229,5 @@ int memrm(char* str, int strlen, char c);
 int strrmm(char* str, const char* chars);
 int strrmm(string* str, const string& chars);
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // STRINGS_STRIP_H_

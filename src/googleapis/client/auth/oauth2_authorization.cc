@@ -18,6 +18,7 @@
  */
 
 
+#include <memory>
 #include <sstream>
 #include <string>
 using std::string;
@@ -27,7 +28,6 @@ using std::vector;
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
 #include "googleapis/base/mutex.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/util/file.h"
 #include "googleapis/client/auth/credential_store.h"
 #include "googleapis/client/auth/oauth2_authorization.h"
@@ -48,11 +48,14 @@ using std::vector;
 //   2) I want to keep JsonCppData decoupled so I can easily replace the
 //      data model. Currently JsonCppData is introduced by the code generator
 //      and not by the core runtime library.
-#include <json/reader.h>
-#include <json/value.h>
+#include <jsoncpp/reader.h>
+#include <jsoncpp/value.h>
 
 #include "googleapis/strings/case.h"
+#include "googleapis/strings/escaping.h"
 #include "googleapis/strings/join.h"
+#include "googleapis/strings/numbers.h"
+#include "googleapis/strings/split.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/util.h"
 #include "googleapis/util/status.h"
@@ -75,12 +78,6 @@ const char kDefaultRevokeUri_[] =
 }  // anonymous namespace
 
 namespace client {
-
-OAuth2TokenRequest::OAuth2TokenRequest(HttpRequest* request)
-    : http_request_(request) {
-}
-OAuth2TokenRequest::~OAuth2TokenRequest() {}
-
 
 void OAuth2AuthorizationFlow::ResetCredentialStore(CredentialStore* store) {
   credential_store_.reset(store);
@@ -152,6 +149,35 @@ bool OAuth2AuthorizationFlow::SimpleJsonData::GetFirstArrayElement(
   return true;
 }
 
+void OAuth2AuthorizationFlow::AppendJsonStringAttribute(
+    string* to,
+    const StringPiece sep,
+    const StringPiece name,
+    const StringPiece value) {
+  StrAppend(to, sep, "\"", name, "\":\"", value, "\"");
+}
+
+void OAuth2AuthorizationFlow::AppendJsonBooleanAttribute(
+    string* to,
+    const StringPiece sep,
+    const StringPiece name,
+    bool value) {
+  StrAppend(to, sep, "\"", name, "\":", value ? "true" : "false");
+}
+
+void OAuth2AuthorizationFlow::AppendJsonScalarAttribute(
+    string* to,
+    const StringPiece sep,
+    const StringPiece name,
+    int value) {
+  StrAppend(to, sep, "\"", name, "\":", value);
+}
+
+bool OAuth2AuthorizationFlow::GetStringAttribute(
+    const SimpleJsonData* data, const char* key, string* value) {
+  return data->GetString(key, value);
+}
+
 
 const char OAuth2AuthorizationFlow::kOutOfBandUrl[] =
   "urn:ietf:wg:oauth:2.0:oob";
@@ -170,7 +196,7 @@ OAuth2ClientSpec::~OAuth2ClientSpec() {
 const StringPiece OAuth2Credential::kOAuth2CredentialType = "OAuth2";
 
 OAuth2Credential::OAuth2Credential()
-    : flow_(NULL), user_id_verified_(false) {
+    : flow_(NULL), email_verified_(false) {
   // If we dont know an expiration then assume it never will.
   expiration_timestamp_secs_.set(kint64max);
 }
@@ -186,8 +212,8 @@ void OAuth2Credential::Clear() {
   access_token_.clear();
   refresh_token_.clear();
   expiration_timestamp_secs_.set(kint64max);
-  user_id_.clear();
-  user_id_verified_ = false;
+  email_.clear();
+  email_verified_ = false;
 }
 
 util::Status OAuth2Credential::Refresh() {
@@ -195,6 +221,13 @@ util::Status OAuth2Credential::Refresh() {
     return StatusFailedPrecondition("No flow bound.");
   }
   return flow_->PerformRefreshToken(OAuth2RequestOptions(), this);
+}
+
+void OAuth2Credential::RefreshAsync(Callback1<util::Status>* callback) {
+  if (!flow_) {
+    callback->Run(StatusFailedPrecondition("No flow bound."));
+  }
+  flow_->PerformRefreshTokenAsync(OAuth2RequestOptions(), this, callback);
 }
 
 util::Status OAuth2Credential::Load(DataReader* reader) {
@@ -221,21 +254,27 @@ DataReader* OAuth2Credential::MakeDataReader() const {
   const char* sep = "";
 
   if (!access_token.empty()) {
-    StrAppend(&json, sep, "\"access_token\":\"", access_token, "\"");
+    OAuth2AuthorizationFlow::AppendJsonStringAttribute(
+        &json, sep, "access_token", access_token);
     sep = ",";
   }
   if (!refresh_token.empty()) {
-    StrAppend(&json, sep, "\"refresh_token\":\"", refresh_token, "\"");
+    OAuth2AuthorizationFlow::AppendJsonStringAttribute(
+        &json, sep, "refresh_token", refresh_token);
     sep = ",";
   }
   if (expires_at != kint64max) {
-    StrAppend(&json, sep, "\"expires_at\":\"", expires_at, "\"");
+    OAuth2AuthorizationFlow::AppendJsonStringAttribute(
+        &json, sep, "expires_at", SimpleItoa(expires_at));
     sep = ",";
   }
-  if (!user_id_.empty()) {
-    StrAppend(&json, sep, "\"user_id\":\"", user_id_, "\"");
-    StrAppend(&json, sep,
-              "\"user_id_verified\":", user_id_verified_ ? "true" : "false");
+  if (!email_.empty()) {
+    OAuth2AuthorizationFlow::AppendJsonStringAttribute(
+        &json, sep, "email", email_);
+    // OAuth returns this bool as "true"/"false" string, not a bool.
+    // We'll keep it that way too for consistency.
+    OAuth2AuthorizationFlow::AppendJsonStringAttribute(
+        &json, sep, "email_verified", email_verified_ ? "true" : "false");
   }
   json.append("}");
   return NewManagedInMemoryDataReader(json);
@@ -257,7 +296,6 @@ util::Status OAuth2Credential::UpdateFromString(const StringPiece& json) {
 
   string str_value;
   int int_value;
-  bool bool_value;
 
   if (data.GetString("refresh_token", &str_value)) {
     VLOG(1) << "Updating refresh token";
@@ -267,7 +305,8 @@ util::Status OAuth2Credential::UpdateFromString(const StringPiece& json) {
     access_token_.set(str_value);
     VLOG(1) << "Updating access token";
   }
-  if (data.GetString("expires_at", &str_value)) {
+  if (data.GetString("expires_at", &str_value)
+      || data.GetString("exp", &str_value)) {
     int64 timestamp;
     if (!safe_strto64(str_value.c_str(), &timestamp)) {
       LOG(ERROR) << "Invalid timestamp=[" << str_value << "]";
@@ -281,120 +320,39 @@ util::Status OAuth2Credential::UpdateFromString(const StringPiece& json) {
     expiration_timestamp_secs_.set(expiration);
     VLOG(1) << "Updating access token expiration";
   }
+  if (data.GetString("email", &str_value)) {
+    string bool_str;
+    // Read this as a string because OAuth2 server returns it as
+    // a true/false string.
+    data.GetString("email_verified", &bool_str);
 
-  if (data.GetString("user_id", &str_value)) {
-    if (!data.GetBool("is_validated", &bool_value)) {
-      bool_value = false;
+    email_ = str_value;
+    email_verified_ = bool_str == "true";
+  }
+
+  if (data.GetString("id_token", &str_value)) {
+    // Extract additional stuff from the JWT claims.
+    // We dont need to verify the signature since we already know
+    // this is coming from the OAuth2 server and is secure with https.
+    // see https://developers.google.com/accounts/docs/OAuth2Login
+    //     #validatinganidtoken
+    vector<StringPiece> parts = strings::Split(str_value, ".");
+    if (parts.size() != 3) {
+      return StatusUnknown("Invalid id_token attribute - not a JWT");
     }
-    user_id_ = str_value;
-    user_id_verified_ = bool_value;
+    string claims;
+    if (!strings::Base64Unescape(parts[1], &claims)) {
+      return StatusUnknown("id_token claims not base-64 encoded");
+    }
+    return UpdateFromString(claims);
   }
 
   return StatusOk();
 }
 
-OAuth2RevokeTokenRequest::OAuth2RevokeTokenRequest(
-    HttpTransport* transport,
-    const OAuth2ClientSpec* client,
-    ThreadsafeString* token)
-    : OAuth2TokenRequest(transport->NewHttpRequest(HttpRequest::POST)),
-      client_(client), token_(token) {
-}
-
-util::Status OAuth2RevokeTokenRequest::Execute() {
-  HttpRequest* request = http_request();
-  request->set_url(client_->revoke_uri());
-  request->set_content_type(HttpRequest::ContentType_FORM_URL_ENCODED);
-
-  string* content = new string("token=");
-  token_->AppendTo(content);
-  request->set_content_reader(
-      NewManagedInMemoryDataReader(
-          StringPiece(*content), DeletePointerClosure(content)));
-
-  util::Status status = request->Execute();
-  if (status.ok()) {
-    token_->set("");
-  }
-  return status;
-}
-
-OAuth2ExchangeAuthorizationCodeRequest::OAuth2ExchangeAuthorizationCodeRequest(
-    HttpTransport* transport,
-    const StringPiece& authorization_code,
-    const OAuth2ClientSpec& client,
-    const OAuth2RequestOptions& options,
-    OAuth2Credential* credential)
-    : OAuth2TokenRequest(transport->NewHttpRequest(HttpRequest::POST)),
-      credential_(credential) {
-  CHECK(!authorization_code.empty());
-  CHECK(!client.client_id().empty());
-  CHECK(!client.client_secret().empty());
-
-  const StringPiece redirect = options.redirect_uri.empty()
-      ? client.redirect_uri()
-      : options.redirect_uri;
-  content_ = StrCat("code=", EscapeForUrl(authorization_code),
-                    "&client_id=", EscapeForUrl(client.client_id()),
-                    "&client_secret=", EscapeForUrl(client.client_secret()),
-                    "&redirect_uri=", EscapeForUrl(redirect),
-                    "&grant_type=authorization_code");
-  token_uri_ = client.token_uri();
-}
-
-util::Status OAuth2ExchangeAuthorizationCodeRequest::Execute() {
-  HttpRequest* request = http_request();
-  request->set_url(token_uri_);
-  request->set_content_type(HttpRequest::ContentType_FORM_URL_ENCODED);
-  request->set_content_reader(NewUnmanagedInMemoryDataReader(content_));
-
-  util::Status status = request->Execute();
-  if (status.ok()) {
-    status = credential_->Update(request->response()->body_reader());
-  }
-  return status;
-}
-
-OAuth2RefreshTokenRequest::OAuth2RefreshTokenRequest(
-    HttpTransport* transport,
-    const OAuth2ClientSpec* client,
-    OAuth2Credential* credential)
-    : OAuth2TokenRequest(transport->NewHttpRequest(HttpRequest::POST)),
-      client_(client), credential_(credential) {
-  CHECK(!client_->client_id().empty());
-  CHECK(!client_->client_secret().empty());
-  CHECK(!credential_->refresh_token().empty());
-}
-
-util::Status OAuth2RefreshTokenRequest::Execute() {
-  HttpRequest* request = http_request();
-  request->set_url(client_->token_uri());
-  request->set_content_type(HttpRequest::ContentType_FORM_URL_ENCODED);
-  string* content =
-      new string(
-          StrCat("client_id=", client_->client_id(),
-                 "&client_secret=", client_->client_secret(),
-                 "&grant_type=refresh_token",
-                 "&refresh_token="));
-  credential_->refresh_token().AppendTo(content);
-  request->set_content_reader(
-      NewManagedInMemoryDataReader(
-          StringPiece(*content), DeletePointerClosure(content)));
-
-  util::Status status = request->Execute();
-  if (status.ok()) {
-    status = credential_->Update(http_response()->body_reader());
-  }
-
-  if (!status.ok()) {
-    LOG(ERROR) << "Refresh failed with " << status.error_message();
-  }
-
-  return status;
-}
 
 OAuth2AuthorizationFlow::OAuth2AuthorizationFlow(HttpTransport* transport)
-    : transport_(transport) {
+    : check_email_(false), transport_(transport) {
 }
 
 OAuth2AuthorizationFlow::~OAuth2AuthorizationFlow() {
@@ -412,41 +370,185 @@ void OAuth2AuthorizationFlow::set_authorization_code_callback(
   authorization_code_callback_.reset(callback);
 }
 
-util::Status
-OAuth2AuthorizationFlow::PerformExchangeAuthorizationCode(
-     const string& authorization_code,
-     const OAuth2RequestOptions& options,
-     OAuth2Credential* credential) {
-  scoped_ptr<OAuth2TokenRequest> request(
-      NewExchangeAuthorizationCodeRequestWithOptions(
-          authorization_code, options, credential));
-  return request->Execute();
+util::Status OAuth2AuthorizationFlow::PerformExchangeAuthorizationCode(
+    const string& authorization_code,
+    const OAuth2RequestOptions& options,
+    OAuth2Credential* credential) {
+  if (authorization_code.empty()) {
+    return StatusInvalidArgument("Missing authorization code");
+  }
+  if (client_spec_.client_id().empty()) {
+    return StatusFailedPrecondition("Missing client ID");
+  }
+  if (client_spec_.client_secret().empty()) {
+    return StatusFailedPrecondition("Missing client secret");
+  }
+
+  const StringPiece redirect = options.redirect_uri.empty()
+      ? client_spec_.redirect_uri()
+      : options.redirect_uri;
+  string content =
+      StrCat("code=", EscapeForUrl(authorization_code),
+             "&client_id=", EscapeForUrl(client_spec_.client_id()),
+             "&client_secret=", EscapeForUrl(client_spec_.client_secret()),
+             "&redirect_uri=", EscapeForUrl(redirect),
+             "&grant_type=authorization_code");
+
+  std::unique_ptr<HttpRequest> request(
+      transport_->NewHttpRequest(HttpRequest::POST));
+  if (options.timeout_ms > 0) {
+    request->mutable_options()->set_timeout_ms(options.timeout_ms);
+  }
+  request->set_url(client_spec_.token_uri());
+  request->set_content_type(HttpRequest::ContentType_FORM_URL_ENCODED);
+  request->set_content_reader(NewUnmanagedInMemoryDataReader(content));
+
+  util::Status status = request->Execute();
+  if (status.ok()) {
+    status = credential->Update(request->response()->body_reader());
+    if (status.ok() && check_email_ && !options.email.empty()) {
+      if (options.email != credential->email()) {
+        status = StatusUnknown(
+            StrCat("Credential email address mismatch. Expected [",
+                   options.email, "] but got [", credential->email(), "]"));
+        credential->Clear();
+      }
+    }
+  }
+  return status;
 }
 
 util::Status OAuth2AuthorizationFlow::PerformRefreshToken(
      const OAuth2RequestOptions& options, OAuth2Credential* credential) {
-  if (credential->refresh_token().empty()) {
-    // The constructor for OAuth2RefreshTokenRequest segfaults if the
-    //  refresh token is empty.
-    return StatusInvalidArgument(
-        "The credential doesn't contain a refresh token so we can't refresh.");
+  util::Status tokenStatus = ValidateRefreshToken_(credential);
+  if (!tokenStatus.ok()) {
+    return tokenStatus;
   }
-  scoped_ptr<OAuth2TokenRequest> request(NewRefreshTokenRequest(credential));
-  return request->Execute();
+
+  std::unique_ptr<HttpRequest> request(
+      ConstructRefreshTokenRequest_(options, credential));
+
+  util::Status status = request->Execute();
+  if (status.ok()) {
+    status = credential->Update(request->response()->body_reader());
+  }
+
+  if (!status.ok()) {
+    LOG(ERROR) << "Refresh failed with " << status.error_message();
+  }
+
+  return status;
+}
+
+void OAuth2AuthorizationFlow::PerformRefreshTokenAsync(
+    const OAuth2RequestOptions& options,
+    OAuth2Credential* credential,
+    Callback1<util::Status>* callback) {
+  util::Status status = ValidateRefreshToken_(credential);
+  if (!status.ok()) {
+    callback->Run(status);
+    return;
+  }
+
+  HttpRequest* request = ConstructRefreshTokenRequest_(options, credential);
+
+  HttpRequestCallback* cb =
+      NewCallback(this, &OAuth2AuthorizationFlow::UpdateCredentialAsync,
+                  credential, callback);
+
+  request->DestroyWhenDone();
+  request->ExecuteAsync(cb);
+}
+
+HttpRequest* OAuth2AuthorizationFlow::ConstructRefreshTokenRequest_(
+    const OAuth2RequestOptions& options,
+    OAuth2Credential* credential) {
+  HttpRequest* request(transport_->NewHttpRequest(HttpRequest::POST));
+  if (options.timeout_ms > 0) {
+    request->mutable_options()->set_timeout_ms(options.timeout_ms);
+  }
+  request->set_url(client_spec_.token_uri());
+  request->set_content_type(HttpRequest::ContentType_FORM_URL_ENCODED);
+
+  string* content = BuildRefreshTokenContent_(credential);
+  request->set_content_reader(
+      NewManagedInMemoryDataReader(
+          StringPiece(*content), DeletePointerClosure(content)));
+
+  return request;
+}
+
+util::Status OAuth2AuthorizationFlow::ValidateRefreshToken_(
+    OAuth2Credential* credential) const {
+  if (client_spec_.client_id().empty()) {
+    return StatusFailedPrecondition("Missing client ID");
+  }
+  if (client_spec_.client_secret().empty()) {
+    return StatusFailedPrecondition("Missing client secret");
+  }
+  if (credential->refresh_token().empty()) {
+    return StatusInvalidArgument("Missing refresh token");
+  }
+  return StatusOk();
+}
+
+string* OAuth2AuthorizationFlow::BuildRefreshTokenContent_(
+    OAuth2Credential* credential) {
+  string* content =
+      new string(
+          StrCat("client_id=", client_spec_.client_id(),
+                 "&client_secret=", client_spec_.client_secret(),
+                 "&grant_type=refresh_token",
+                 "&refresh_token="));
+  credential->refresh_token().AppendTo(content);
+  return content;
+}
+
+void OAuth2AuthorizationFlow::UpdateCredentialAsync(
+    OAuth2Credential* credential,
+    Callback1<util::Status>* callback,
+    HttpRequest* request) {
+  util::Status status = request->response()->status();
+  if (status.ok()) {
+    status = credential->Update(request->response()->body_reader());
+  }
+  delete request;
+
+  if (!status.ok()) {
+    LOG(ERROR) << "Refresh failed with " << status.error_message();
+  }
+
+  if (NULL != callback) {
+    callback->Run(status);
+  }
 }
 
 util::Status OAuth2AuthorizationFlow::PerformRevokeToken(
      bool access_token_only, OAuth2Credential* credential) {
-  scoped_ptr<OAuth2TokenRequest> request(
+  std::unique_ptr<HttpRequest> request(
+      transport_->NewHttpRequest(HttpRequest::POST));
+  request->set_url(client_spec_.revoke_uri());
+  request->set_content_type(HttpRequest::ContentType_FORM_URL_ENCODED);
+
+  ThreadsafeString* token =
       access_token_only
-      ? NewRevokeAccessTokenRequest(credential)
-      : NewRevokeRefreshTokenRequest(credential));
-  return request->Execute();
+      ? credential->mutable_access_token()
+      : credential->mutable_refresh_token();
+  string* content = new string("token=");
+  token->AppendTo(content);
+  request->set_content_reader(
+      NewManagedInMemoryDataReader(
+          StringPiece(*content), DeletePointerClosure(content)));
+
+  util::Status status = request->Execute();
+  if (status.ok()) {
+    token->set("");
+  }
+  return status;
 }
 
 util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
      const OAuth2RequestOptions& options, OAuth2Credential* credential) {
-  scoped_ptr<OAuth2TokenRequest> token_request;
   string refresh_token = credential->refresh_token().as_string();
 
   if (refresh_token.empty() && credential_store_.get()) {
@@ -454,41 +556,53 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
     // This could because we havent yet loaded the credential.
     // If this fails, we'll just handle it as a first-time case.
     util::Status status =
-        credential_store_->InitCredential(options.user_id, credential);
+        credential_store_->InitCredential(options.email, credential);
     if (status.ok()) {
-      if (credential->user_id().empty()) {
-        credential->set_user_id(options.user_id, false);
+      if (check_email_ && credential->email() != options.email) {
+        status = StatusUnknown(
+            StrCat(
+                "Stored credential email address mismatch. Expected [",
+                options.email, "] but got [", credential->email(), "]"));
+        credential->Clear();
+      } else if (credential->email().empty()) {
+        credential->set_email(options.email, false);
       }
-      refresh_token = credential->refresh_token().as_string();
+      if (status.ok()) {
+        refresh_token = credential->refresh_token().as_string();
+      }
     }
   }
 
-  bool refreshed_ok = false;
+  // Default status is not ok, meaning we did not make any attempts yet.
+  util::Status refresh_status = StatusUnknown("Do not have authorization");
   if (!refresh_token.empty()) {
-    if (options.user_id != credential->user_id()) {
-      string error = "UserID does not match credential's user_id";
+    if (options.email != credential->email()) {
+      string error = "Email does not match credential's email";
       LOG(ERROR) << error;
       return StatusInvalidArgument(error);
     }
-    token_request.reset(NewRefreshTokenRequest(credential));
+
+    // Maybe this will be ok, maybe not. If not we'll continue as if we
+    // never had a refresh token in case it is invalid or revoked.
+    refresh_status = PerformRefreshToken(options, credential);
 
     // Try executing this request. If it fails, we'll continue as if we
     // did not find the token.
-    refreshed_ok = token_request->Execute().ok();
-    if (!refreshed_ok) {
-      LOG(ERROR) << "Could not refresh existing credential.\n"
+    if (!refresh_status.ok()) {
+      LOG(ERROR) << "Could not refresh existing credential: "
+                 << refresh_status.error_message() << "\n"
                  << "Trying to obtain a new one instead.";
     }
   }
 
-  if (refreshed_ok) {
+  if (refresh_status.ok()) {
     // Do nothing until common code below.
   } else if (!authorization_code_callback_.get()) {
     StringPiece error = "No prompting mechanism provided to get authorization";
     LOG(ERROR) << error;
     return StatusUnimplemented(error);
   } else {
-    // If we still dont have a credeitnal then we need to kick off
+    // If we still dont have a credential then we need to kick off
     // authorization again to get an access (and refresh) token.
     string auth_code;
     OAuth2RequestOptions actual_options = options;
@@ -502,11 +616,10 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
           authorization_code_callback_->Run(actual_options, &auth_code);
     if (!status.ok()) return status;
 
-    token_request.reset(
-        NewExchangeAuthorizationCodeRequestWithOptions(
-            auth_code, options, credential));
+    refresh_status =
+        PerformExchangeAuthorizationCode(auth_code, options, credential);
 
-    // TODO(ewiseblatt): 20130301
+    // TODO(user): 20130301
     // Add an attribute to the flow where it will validate users.
     // If that's set then make another oauth2 call here to validate the user.
     // We'll need to add the oauth2 scope to the set of credentials so we
@@ -515,22 +628,14 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
 
   // Now that we have the request, execute it and write the result into the
   // credential store if successful.
-  if (!refreshed_ok) {
-    if (!token_request->Execute().ok()) {
-      VLOG(1) << "Failed to get access token: "
-              << token_request->http_response()->status().ToString();
-      return token_request->http_response()->status();
-    }
-  }
-
-  // If we have a user_id then record this and maybe store it.
-  if (!options.user_id.empty()) {
-    credential->set_user_id(options.user_id, false);
+  if (refresh_status.ok()
+      && !options.email.empty()) {
+    credential->set_email(options.email, false);
     if (credential_store_.get()) {
-      // TODO(ewiseblatt): 20130301
-      // if we havent verified the user_id yet, then attempt to do so first.
+      // TODO(user): 20130301
+      // if we havent verified the email yet, then attempt to do so first.
       util::Status status =
-          credential_store_->Store(options.user_id, *credential);
+          credential_store_->Store(options.email, *credential);
       if (!status.ok()) {
         LOG(WARNING) << "Could not store credential: "
                      << status.error_message();
@@ -538,14 +643,23 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
     }
   }
 
-  return StatusOk();
+  return refresh_status;
 }
 
 string OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrlWithOptions(
     const OAuth2RequestOptions& options) const {
   StringPiece default_redirect(client_spec_.redirect_uri());
-  const StringPiece scopes =
+  string actual_scopes;
+  StringPiece scopes =
       options.scopes.empty() ? default_scopes_ : options.scopes;
+  if (check_email_
+      && !scopes.starts_with("email ")
+      && scopes.find(" email") == StringPiece::npos) {
+    // Add "email" scope if it isnt already present
+    actual_scopes = StrCat("email ", scopes);
+    scopes = actual_scopes;
+  }
+
   const StringPiece redirect = options.redirect_uri.empty()
       ? client_spec_.redirect_uri()
       : options.redirect_uri;
@@ -558,33 +672,6 @@ string OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrlWithOptions(
                 "&redirect_uri=", EscapeForUrl(redirect),
                 "&scope=", EscapeForUrl(scopes),
                 "&response_type=code");
-}
-
-OAuth2TokenRequest*
-OAuth2AuthorizationFlow::NewExchangeAuthorizationCodeRequestWithOptions(
-    const StringPiece& authorization_code,
-    const OAuth2RequestOptions& options,
-    OAuth2Credential* credential) {
-  return new OAuth2ExchangeAuthorizationCodeRequest(
-      transport_.get(), authorization_code, client_spec_, options, credential);
-}
-
-OAuth2TokenRequest* OAuth2AuthorizationFlow::NewRefreshTokenRequest(
-    OAuth2Credential* credential) {
-  return new OAuth2RefreshTokenRequest(
-      transport_.get(), &client_spec_, credential);
-}
-
-OAuth2TokenRequest* OAuth2AuthorizationFlow::NewRevokeRefreshTokenRequest(
-    OAuth2Credential* credential) {
-  return new OAuth2RevokeTokenRequest(
-      transport_.get(), &client_spec_, credential->mutable_refresh_token());
-}
-
-OAuth2TokenRequest* OAuth2AuthorizationFlow::NewRevokeAccessTokenRequest(
-    OAuth2Credential* credential) {
-  return new OAuth2RevokeTokenRequest(
-      transport_.get(), &client_spec_, credential->mutable_access_token());
 }
 
 // static
@@ -602,7 +689,7 @@ OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
   if (!status->ok()) return NULL;
 
   string json;
-*status = File::ReadPath(path.as_string(), &json);
+  *status = File::ReadPath(path.as_string(), &json);
   if (!status->ok()) return NULL;
 
   return MakeFlowFromClientSecretsJson(json, transport, status);
@@ -614,7 +701,7 @@ OAuth2AuthorizationFlow::MakeFlowFromClientSecretsJson(
     const StringPiece& json,
     HttpTransport* transport,
     util::Status* status) {
-  scoped_ptr<HttpTransport> transport_deleter(transport);
+  std::unique_ptr<HttpTransport> transport_deleter(transport);
   if (!transport) {
     *status = StatusInvalidArgument("No transport instance provided");
     return NULL;
@@ -627,7 +714,7 @@ OAuth2AuthorizationFlow::MakeFlowFromClientSecretsJson(
     return NULL;
   }
 
-  scoped_ptr<OAuth2AuthorizationFlow> flow;
+  std::unique_ptr<OAuth2AuthorizationFlow> flow;
 
   if (StringCaseEqual(root_name, "installed")) {
     flow.reset(
@@ -647,10 +734,25 @@ OAuth2AuthorizationFlow::MakeFlowFromClientSecretsJson(
   return NULL;
 }
 
+util::Status OAuth2AuthorizationFlow::InitFromClientSecretsPath(
+    const string& path) {
+  util::Status status = SensitiveFileUtils::VerifyIsSecureFile(path, false);
+  if (!status.ok()) return status;
+
+  string json;
+  status = File::ReadPath(path, &json);
+  if (!status.ok()) return status;
+
+  return InitFromJson(json);
+}
+
 util::Status OAuth2AuthorizationFlow::InitFromJson(const StringPiece& json) {
   SimpleJsonData data;
-  util::Status status = data.Init(json);
-  if (!status.ok()) return status;
+  string root_name = data.InitFromContainer(json);
+  if (root_name.empty()) {
+    return StatusInvalidArgument("Invalid JSON");
+  }
+
   return InitFromJsonData(&data);
 }
 
@@ -688,8 +790,7 @@ OAuth2InstalledApplicationFlow::~OAuth2InstalledApplicationFlow() {
 
 string OAuth2InstalledApplicationFlow::GenerateAuthorizationCodeRequestUrl(
     const StringPiece& scope) const {
-  return OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrl(
-      scope.as_string());
+  return OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrl(scope);
 }
 
 util::Status OAuth2InstalledApplicationFlow::InitFromJsonData(
@@ -747,4 +848,4 @@ util::Status OAuth2WebApplicationFlow::InitFromJsonData(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

@@ -34,12 +34,18 @@
 
 #include <string>
 using std::string;
+#include <vector>
+using std::vector;
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/base/macros.h"
+#include "googleapis/base/mutex.h"
 namespace googleapis {
 
 namespace client {
+
+class CurlProcessor;
+
 /*
  * A concrete HttpTransport that is implemented using the open source CURL
  * library.
@@ -97,6 +103,19 @@ class CurlHttpTransport : public HttpTransport {
   static const StringPiece kTransportIdentifier;
 
  private:
+  // For efficiency we maintain a free-list of curl processors for use by
+  // requests made with this transport.
+  //
+  // Acquires a processor based upon transport configuration. The caller has
+  // exclusive use of the processor until it calls ReleaseProcessor.  Calls to
+  // AcquireProcessor and ReleaseProcessor must be paired.
+  CurlProcessor* AcquireProcessor();
+  void ReleaseProcessor(CurlProcessor* processor);
+
+  Mutex mutex_;
+  vector<CurlProcessor*> processors_;
+
+  friend class CurlHttpRequest;
   DISALLOW_COPY_AND_ASSIGN(CurlHttpTransport);
 };
 
@@ -156,5 +175,5 @@ class CurlHttpTransportFactory : public HttpTransportFactory {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_CURL_HTTP_TRANSPORT_H_

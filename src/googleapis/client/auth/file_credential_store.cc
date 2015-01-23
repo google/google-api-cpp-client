@@ -18,9 +18,12 @@
  */
 
 
+#include "googleapis/client/auth/file_credential_store.h"
+
+#include <memory>
 #include <string>
 using std::string;
-#include "googleapis/client/auth/file_credential_store.h"
+
 #include "googleapis/client/data/codec.h"
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/transport/http_authorization.h"
@@ -56,8 +59,8 @@ class FileCredentialStore : public CredentialStore {
           SensitiveFileUtils::VerifyIsSecureFile(path, true);
     if (!status.ok()) return status;
 
-    scoped_ptr<DataReader> file_reader(NewUnmanagedFileDataReader(path));
-    scoped_ptr<DataReader> decoder(
+    std::unique_ptr<DataReader> file_reader(NewUnmanagedFileDataReader(path));
+    std::unique_ptr<DataReader> decoder(
         EncodedToDecodingReader(file_reader.release(), &status));
     if (!status.ok()) return status;
 
@@ -66,13 +69,13 @@ class FileCredentialStore : public CredentialStore {
 
   util::Status Store(
        const StringPiece& user, const AuthorizationCredential& credential) {
-    scoped_ptr<DataReader> credential_reader(credential.MakeDataReader());
+    std::unique_ptr<DataReader> credential_reader(credential.MakeDataReader());
     string dir_path = UserToDir(user);
     util::Status status =
           SensitiveFileUtils::CreateSecureDirectoryRecursively(dir_path);
     if (!status.ok()) return status;
 
-    scoped_ptr<DataReader> encoder(
+    std::unique_ptr<DataReader> encoder(
         DecodedToEncodingReader(credential_reader.release(), &status));
     if (!status.ok()) return status;
 
@@ -151,7 +154,7 @@ CredentialStore* FileCredentialStoreFactory::NewCredentialStore(
     const string& client_id, util::Status* status) const {
   *status = SensitiveFileUtils::CreateSecureDirectoryRecursively(root_path_);
   if (status->ok()) {
-    scoped_ptr<FileCredentialStore> store(
+    std::unique_ptr<FileCredentialStore> store(
         new FileCredentialStore(root_path_, client_id));
     CodecFactory* factory = codec_factory();
     if (factory) {
@@ -165,4 +168,4 @@ CredentialStore* FileCredentialStoreFactory::NewCredentialStore(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

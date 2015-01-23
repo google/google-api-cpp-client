@@ -38,8 +38,6 @@ base/macros.h
 base/mutex.h
 base/once.h
 base/port.h
-base/scoped_ptr.h
-base/scoped_ptr_internals.h
 base/stringprintf.h
 base/strtoint.h
 base/template_util.h
@@ -68,6 +66,7 @@ util/algorithm.h
 util/case_insensitive_hash.h
 util/executor.h
 util/file.h
+util/free_deleter.h
 util/hash.h
 util/mock_executor.h
 util/status.h

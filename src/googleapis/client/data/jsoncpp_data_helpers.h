@@ -29,7 +29,7 @@ using std::string;
 #include "googleapis/client/util/date_time.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/strings/numbers.h"
-#include <json/json.h>
+#include <jsoncpp/json.h>
 namespace googleapis {
 
 namespace client {
@@ -46,6 +46,12 @@ template<typename T>
 void SetJsonValueFromCppValueHelper(const T& value, Json::Value* storage);
 template<typename T>
 void SetCppValueFromJsonValueHelper(const Json::Value& storage, T* value);
+
+// suppress warnings about const POD return types
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#endif
 
 // Explicit templated get implementation specific to int.
 template<>
@@ -243,6 +249,10 @@ inline void SetCppValueFromJsonValueHelper<double>(
   *value = storage.asDouble();
 }
 
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
 template<>
 inline void ClearCppValueHelper<string>(string* value) { value->clear(); }
 template<>
@@ -263,6 +273,29 @@ template<>
 inline void SetCppValueFromJsonValueHelper<string>(
     const Json::Value& storage, string* value) {
   *value = storage.asString();
+}
+
+template<>
+inline void ClearCppValueHelper<Date>(Date* value) {
+  *value = Date();
+}
+template<>
+inline const Date JsonValueToCppValueHelper<Date>(const Json::Value& value) {
+  return Date(value.asString());
+}
+template<>
+inline Date JsonValueToMutableCppValueHelper<Date>(Json::Value* value) {
+  return JsonValueToCppValueHelper<Date>(*value);
+}
+template<>
+inline void SetJsonValueFromCppValueHelper<Date>(
+     const Date& val, Json::Value* storage) {
+  *storage = val.ToYYYYMMDD().c_str();
+}
+template<>
+inline void SetCppValueFromJsonValueHelper<Date>(
+    const Json::Value& storage, Date* value) {
+  *value = Date(storage.asString());
 }
 
 template<>
@@ -315,5 +348,5 @@ inline void SetCppValueFromJsonValueHelper(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_DATA_JSONCPP_DATA_HELPERS_H_

@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 /*
  * @defgroup ClientServiceLayer Client Service Layer
@@ -37,28 +36,31 @@
  * module.
  *
  * The client service layer also includes additional helper classes such as
- * the ServiceRequetsPager for paging through large resources using finer
+ * the ServiceRequestPager for paging through large resources using finer
  * granularity requests.
  */
-#ifndef APISERVING_CLIENTSCPP_SERVICE_CLIENT_SERVICE_H_
-#define APISERVING_CLIENTSCPP_SERVICE_CLIENT_SERVICE_H_
+#ifndef APISERVING_CLIENTS_CPP_SERVICE_CLIENT_SERVICE_H_
+#define APISERVING_CLIENTS_CPP_SERVICE_CLIENT_SERVICE_H_
 
+#include <memory>
 #include <string>
 using std::string;
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
-class SerializableJson;
 class AuthorizationCredential;
 class HttpRequest;
+class HttpRequestBatch;
+class MediaUploader;
+class SerializableJson;
 struct UriTemplateConfig;
 
 class ClientService;
+
 /*
  * Base class for requests made to a ClientService.
  * @ingroup ClientServiceLayer
@@ -74,7 +76,7 @@ class ClientService;
  * The specialized subclasses will contain higher level methods for setting
  * the various arguments and parameters that are available to use. Those
  * class instances are created using the ClientService instance (i.e. the
- * ClientService acts as a ClientSrviceRequet factory. Therefore this class
+ * ClientService acts as a ClientServiceRequest factory. Therefore this class
  * is not typically explicitly instantiated. Lower level code may use this
  * class directly since it is concrete and fully capable.
  *
@@ -131,6 +133,40 @@ class ClientServiceRequest {
   void DestroyWhenDone();
 
   /*
+   * Converts this instance into an HttpRequest and destroys itself.
+   *
+   * This method is intended to allow the request to be put into an
+   * HttpRequestBatch, though you may execute it directly and treat it as
+   * any other HTTP request. That means you would Execute the HttpRequest
+   * rather than Execute this instance.
+   *
+   * @return The request returned will be similar to the http_request attribute
+   *         but with the URI templated URL resolved based on the current
+   *         configuration of the method's parameters. Ownership of the
+   *         HttpRequest is passed back to the caller.
+   *
+   * @note This ClientServiceRequest instance will be destroyed when the method
+   * returns.
+   */
+  HttpRequest* ConvertToHttpRequestAndDestroy();
+
+  /*
+   * Converts this instance into a batched HttpRequest and destroys itself.
+   *
+   * @param[in] batch The batch to add to will own the result.
+   * @param[in] callback If non-null then set the HttpRequest callback for
+   *            when this request finishes within the batch.
+   * @return The result request will be configured similar to the original
+   *         http_request attribute, but the instance might be different.
+   *         Ownerhip of this result is passed to the batch parameter.
+   *
+   * @see ConvertToHttpRequestAndDestroy
+   * @see HttpRequestBatch::AddFromGenericRequestAndRetire
+   */
+  HttpRequest* ConvertIntoHttpRequestBatchAndDestroy(
+      HttpRequestBatch* batch, HttpRequestCallback* callback = NULL);
+
+  /*
    * Ask the service to execute the request synchronously.
    *
    * The response data will be in the embedded HttpRequest
@@ -180,17 +216,19 @@ class ClientServiceRequest {
   virtual void ExecuteAsync(HttpRequestCallback* callback);
 
   /*
-   * Returns the underlying HttpRequest.
+   * Provides mutable access to the underlying HttpRequest.
    *
    * The request is set and managed by this instance.
    * The options on the request can be tuned. The request is owned by this
    * instance so you should not set its destroy_when_done attribute. Use
-   * DestroyWhenDone on this instance instead if desired.
+   * DestroyWhenDone on this ClientServiceRequest instance instead if desired.
+   *
+   * @see ConvertToHttpRequestAndDestroy
    */
   HttpRequest* mutable_http_request()  { return http_request_.get(); }
 
   /*
-   * Returns the underlying HttpReqeust.
+   * Returns the underlying HttpRequest.
    *
    * The request is set and managed by this instance.
    * The request provides access to its current HttpRequestState, response
@@ -207,26 +245,35 @@ class ClientServiceRequest {
    */
   HttpResponse* http_response() { return http_request_->response(); }
 
+  /*
+   * Parse the response payload (i.e. its body_reader) as a data instance.
+   *
+   * @param[in,out] response The response to parse is modified as it is read.
+   * @param[out] data The data to parse into
+   *
+   * @return Failure if the response has no data or cannot be parsed.
+   * @see HttpResponse::body_reader()
+   */
+  static util::Status ParseResponse(
+      HttpResponse* response, SerializableJson* data);
+
  protected:
   /*
    * Fills out the mutable_http_request() owned by this instance with the
    * information specified by this request.
    *
-   * The base class implementation calls PrepareUrl and snd sets the url
+   * The base class implementation calls PrepareUrl and sets the url
    * on the underlying request. Specialized classes may have other needs,
-   * such as setting the requset payload.
-   *
-   * @param callback [in] If not NULL then this will be called on failure.
+   * such as setting the request payload.
    */
-  virtual util::Status PrepareHttpRequest(
-      HttpRequestCallback* callback = NULL);
+  virtual util::Status PrepareHttpRequest();
 
   /*
    * Resolves the templated URL into the actual URL to use.
    *
    * The base class implementation assumes that the content was set in the
    * constructor. It uses UriTemplate to handle URL parameters and expects
-   * that specialized subclasses will override the ApendVariable method to
+   * that specialized subclasses will override the AppendVariable method to
    * resolve the values for the variables that this method finds in the
    * template.
    *
@@ -245,11 +292,11 @@ class ClientServiceRequest {
    * Appends the variable value to the target string.
    *
    * This method should use UriTemplate for the actual string append once
-   * it locally determines what the value shoudl be.
+   * it locally determines what the value should be.
    *
    * @param[in] variable_name The name of the variable to append
    * @param[in] config A pass through parameter needed when asking
-   * UriTemplate to append the strings. The value of this paraemter is
+   * UriTemplate to append the strings. The value of this parameter is
    * determined internally by the methods within this class that invoke this
    * method.
    * @param[out] target The string to append to.
@@ -262,7 +309,7 @@ class ClientServiceRequest {
   /*
    * Appends the optional query parameters to the url.
    *
-   * This method is called by the default PrepareHttpReqeuest to add the
+   * This method is called by the default PrepareHttpRequest to add the
    * optional parameters that might not be explicitly stated in the URI
    * template that was bound to the request.
    *
@@ -306,19 +353,29 @@ class ClientServiceRequest {
   void set_use_media_download(bool use) { use_media_download_ = use; }
 
   /*
-   * Parse the response payload (i.e. its body_reader) as a data instance.
-   *
-   * @param[in,out] response The response to parse is modified as it is read.
-   * @param[out] data The data to parse into
-   *
-   * @return Failure if the response has no data or cannot be parsed.
-   * @see HttpResponse::body_reader()
+   * A helper method to set the media uploader.
    */
-  static util::Status ParseResponse(
-      HttpResponse* response, SerializableJson* data);
+  void ResetMediaUploader(MediaUploader* uploader);
+
+ public:
+  /*
+   * Returns a MediaUploader for uploading the content of this request.
+   *
+   * @return A MediaUploader* or NULL if there is no media content in this
+   *         request.
+   * TODO(user): Make this protected when uses of the deprecated style
+   * of media request constructors are all removed.
+   */
+  client::MediaUploader* media_uploader() {
+    return uploader_.get();
+  }
 
  private:
-  scoped_ptr<HttpRequest> http_request_;  //!< The underlying HTTP request.
+  std::unique_ptr<HttpRequest> http_request_;  //!< The underlying HTTP request.
+
+  /*
+   * Destroy the request when it finishes executing.
+   */
   bool destroy_when_done_;
 
   /*
@@ -329,6 +386,21 @@ class ClientServiceRequest {
    */
   bool use_media_download_;
 
+  /*
+   * Copy of the URI template, needed in case the http request is reused.
+   */
+  string uri_template_;
+
+ protected:
+  /*
+   * The uploader for request with POST/PUT bodies.
+   *
+   * TODO(user): Migrate users to using ResetMediaUploader and make this
+   * private.
+   */
+  std::unique_ptr<MediaUploader> uploader_;
+
+ private:
   /*
    * A helper method.
    *
@@ -349,6 +421,13 @@ class ClientServiceRequest {
    */
   void CallbackThenDestroy(
       HttpRequestCallback* callback, HttpRequest* request);
+
+  /*
+   * A helper method.
+   *
+   * Helper method to handle Execute when there is a media uploader.
+   */
+  virtual util::Status ExecuteWithUploader();
 
   DISALLOW_COPY_AND_ASSIGN(ClientServiceRequest);
 };
@@ -434,12 +513,12 @@ class ClientService {
   StringPiece url_root_;  // Subset of service_url_
   StringPiece url_path_;  // Subset of service_url_
 
-  scoped_ptr<HttpTransport> transport_;
+  std::unique_ptr<HttpTransport> transport_;
 
   DISALLOW_COPY_AND_ASSIGN(ClientService);
 };
 
 }  // namespace client
 
-} // namespace googleapis
-#endif  // APISERVING_CLIENTSCPP_SERVICE_CLIENT_SERVICE_H_
+}  // namespace googleapis
+#endif  // APISERVING_CLIENTS_CPP_SERVICE_CLIENT_SERVICE_H_

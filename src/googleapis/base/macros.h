@@ -78,7 +78,7 @@ namespace googleapis {
 //     COMPILE_ASSERT(foo, msg); // not supposed to compile as foo is
 //                               // not a compile-time constant.
 //
-// - By using the type CompileAssert<(bool(expr))>, we ensures that
+// - By using the type CompileAssert<(bool(expr))>, we ensure that
 //   expr is a compile-time constant.  (Template arguments must be
 //   determined at compile-time.)
 //
@@ -103,20 +103,20 @@ namespace googleapis {
 
 
 // A macro to disallow the copy constructor and operator= functions
-// This should be used in the private: declarations for a class
+// This should be used in the private: declarations for a class.
+// (Note: this is not required when building for C++11, but is still needed
+// for any portable, non-C++11 code.)
 //
-// For disallowing only assign or copy, write the code directly, but declare
-// the intent in a comment, for example:
-// void operator=(const TypeName&);  // DISALLOW_ASSIGN
+// For disallowing only assign or copy, delete the relevant operator or
+// constructor, for example:
+// void operator=(const TypeName&) = delete;
 // Note, that most uses of DISALLOW_ASSIGN and DISALLOW_COPY are broken
 // semantically, one should either use disallow both or neither. Try to
 // avoid these in new code.
 //
-// The LANG_CXX11 branch is a workaround for
-// http://gcc.gnu.org/PR51213 in gcc-4.7 / Crosstool v16.
-// TODO(user): Remove "&& !defined(__clang_)" when =delete is
-// gcc-4.7 before =delete is allowed, go back to the C++98 definition.
-#if LANG_CXX11 && !defined(__clang__)
+// When building with C++11 toolchains, just use the language support
+// for explicitly deleted methods.
+#if LANG_CXX11
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&) = delete;      \
   void operator=(const TypeName&) = delete
@@ -125,10 +125,6 @@ namespace googleapis {
   TypeName(const TypeName&);               \
   void operator=(const TypeName&)
 #endif
-
-// An older, politically incorrect name for the above.
-// Prefer DISALLOW_COPY_AND_ASSIGN for new code.
-#define DISALLOW_EVIL_CONSTRUCTORS(TypeName) DISALLOW_COPY_AND_ASSIGN(TypeName)
 
 // A macro to disallow all the implicit constructors, namely the
 // default constructor, copy constructor and operator= functions.
@@ -209,7 +205,7 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 // - wan 2005-11-16
 //
 // Starting with Visual C++ 2005, WinNT.h includes ARRAYSIZE.
-#if !defined(COMPILER_MSVC) || (defined(_MSC_VER) && _MSC_VER < 1400)
+#if !defined(COMPILER_MSVC)
 #define ARRAYSIZE(a) \
   ((sizeof(a) / sizeof(*(a))) / \
    static_cast<size_t>(!(sizeof(a) % sizeof(*(a)))))
@@ -261,7 +257,7 @@ enum LinkerInitialized { LINKER_INITIALIZED };
 //  expanded to [[clang::fallthrough]] attribute, which is analysed when
 //  performing switch labels fall-through diagnostic ('-Wimplicit-fallthrough').
 //  See clang documentation on language extensions for details:
-//  http://clang.llvm.org/docs/LanguageExtensions.html#clang__fallthrough
+//  http://clang.llvm.org/docs/AttributeReference.html#fallthrough-clang-fallthrough
 //
 //  When used with unsupported compilers, the FALLTHROUGH_INTENDED macro has no
 //  effect on diagnostics.
@@ -276,6 +272,27 @@ enum LinkerInitialized { LINKER_INITIALIZED };
 
 #ifndef FALLTHROUGH_INTENDED
 #define FALLTHROUGH_INTENDED do { } while (0)
+#endif
+
+// The GOOGLE_DEPRECATED(...) macro can be used to mark deprecated class,
+// struct, enum, function, method and variable declarations. The macro argument
+// is used as a custom diagnostic message (e.g. suggestion of a better
+// alternative):
+//
+//   class GOOGLE_DEPRECATED("Use Bar instead") Foo {...};
+//   GOOGLE_DEPRECATED("Use Baz instead") void Bar() {...}
+//
+// Every usage of a deprecated entity will trigger a warning when compiled with
+// clang's -Wdeprecated-declarations option. This option is turned off by
+// default, but the warnings will be reported by go/clang-tidy.
+#if defined(__clang__) && defined(LANG_CXX11) && defined(__has_warning)
+#if __has_feature(cxx_attributes)
+#define GOOGLE_DEPRECATED(message) [[deprecated(message)]]  // NOLINT
+#endif
+#endif
+
+#ifndef GOOGLE_DEPRECATED
+#define GOOGLE_DEPRECATED(message)
 #endif
 
 // The CLANG_WARN_UNUSED_RESULT macro can be used on a class or struct to mark
@@ -322,5 +339,26 @@ enum LinkerInitialized { LINKER_INITIALIZED };
 # define CLANG_WARN_UNUSED_RESULT
 #endif
 
-} // namespace googleapis
+// The CLANG_BAD_CALL_IF macro can be used on a function overload to trap
+// bad calls: any call that matches the overload will cause a compile-time
+// error.  This uses a clang-specific "enable_if" attribute, as described at
+// http://clang.llvm.org/docs/AttributeReference.html#enable-if
+//
+// Overloads which use this macro should be surrounded by
+// "#ifdef CLANG_BAD_CALL_IF".  For example:
+//
+// int isdigit(int c);
+// #ifdef CLANG_BAD_CALL_IF
+// int isdigit(int c)
+//     CLANG_BAD_CALL_IF(c <= -1 || c > 255,
+//                       "'c' must have the value of an unsigned char or EOF");
+// #endif // CLANG_BAD_CALL_IF
+#if defined(__clang__)
+# if __has_attribute(enable_if)
+#  define CLANG_BAD_CALL_IF(expr, msg) \
+    __attribute__((enable_if(expr, "Bad call trap"), unavailable(msg)))
+# endif
+#endif
+
+}  // namespace googleapis
 #endif  // BASE_MACROS_H_

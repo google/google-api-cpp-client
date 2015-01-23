@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 //
 // Implementation of RFC 6570 based on (open source implementation) at
 //   java/com/google/api/client/http/UriTemplate.java
@@ -30,7 +29,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_template.h"
 #include "googleapis/client/util/uri_utils.h"
-#include <glog/logging.h>
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 
@@ -64,7 +62,7 @@ struct UriTemplateConfig {
     string escaped;
     if (reserved_expansion_) {
       // reserved expansion passes through everything.
-      escaped = value.as_string();
+      escaped = EscapeForReservedExpansion(value);
     } else {
       escaped = EscapeForUrl(value);
     }
@@ -148,6 +146,7 @@ static util::Status ProcessVariable(
 util::Status UriTemplate::Expand(
     const StringPiece& path_uri, AppendVariableCallback* provider,
     string* target, set<StringPiece>* vars_found) {
+  util::Status final_status = StatusOk();
   provider->CheckIsRepeatable();
   int cur = 0;
   int length = path_uri.length();
@@ -163,18 +162,23 @@ util::Status UriTemplate::Expand(
     int close = path_uri.find('}', next + 1);
     if (close == string::npos) {
       string error = StrCat("Malformed variable near ", next, " ", path_uri);
-      VLOG(1) << error;
       return StatusInvalidArgument(error);
     }
     StringPiece variable(path_uri, next + 1, close - next - 1);
     cur = close + 1;
     util::Status status = ProcessVariable(&variable, provider, target);
     if (!status.ok()) {
-      return status;
+      // Remember the last status to make a best effort expanding all the
+      // variables that we can.
+      final_status = status;
+
+      // Keep the variable reference since we could not resolve it.
+      target->append(path_uri.data() + next, close - next + 1);
+    } else if (vars_found) {
+      vars_found->insert(variable);
     }
-    if (vars_found) vars_found->insert(variable);
   }
-  return StatusOk();
+  return final_status;
 }
 
 // static
@@ -223,6 +227,12 @@ void UriTemplate::AppendMapNext(
   config.AppendKeyValue(key, value, target);
 }
 
+// static
+void UriTemplate::AppendValueStringPiece(
+    const StringPiece& value, const UriTemplateConfig& config, string* target) {
+  config.AppendValue(value, target);
+}
+
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

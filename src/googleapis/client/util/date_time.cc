@@ -234,6 +234,46 @@ string DateTime::ToString() const {
                       utc.tm_hour, utc.tm_min, utc.tm_sec, frac.c_str());
 }
 
+Date::Date(const string& yyyymmdd) {
+  struct tm local;
+  memset(&local, 0, sizeof(local));
+
+#ifndef _MSC_VER
+  // strptime %z doesnt match 'Z' or HH:MM nor does it support
+  // the fractional seconds that can appear in a RFC 3339 time
+  // so we'll do the timezone part ourselves and just
+  // match the date/time part.
+  const char* format = "%Y-%m-%d";
+  const char* remaining = strptime(yyyymmdd.c_str(), format, &local);
+#else
+  const char* remaining = yyyymmdd.c_str();
+  if (ParseIntComponent("", 4, &remaining, &local.tm_year)
+      && ParseIntComponent("-", 2, &remaining, &local.tm_mon)
+      && ParseIntComponent("-", 2, &remaining, &local.tm_mday)) {
+    local.tm_year -= 1900;
+    --local.tm_mon;
+    if (*remaining) {
+      remaining = NULL;
+    }
+  } else {
+    remaining = NULL;
+  }
+#endif
+  if (!remaining) {
+    date_time_.MarkInvalid();
+    LOG(ERROR) << "Invalid date [" << yyyymmdd << "]";
+  } else {
+    date_time_ = DateTime(local);
+  }
+}
+
+string Date::ToYYYYMMDD() const {
+  struct tm local;
+  date_time_.GetLocalTime(&local);
+  return StringPrintf("%04d-%02d-%02d",
+                      local.tm_year + 1900, local.tm_mon + 1, local.tm_mday);
+}
+
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

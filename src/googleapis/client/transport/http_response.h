@@ -21,13 +21,13 @@
 #ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_RESPONSE_H_
 #define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_RESPONSE_H_
 
+#include <memory>
 #include <string>
 using std::string;
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/base/thread_annotations.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
@@ -240,9 +240,9 @@ class HttpResponse {
   }
 
  private:
-  scoped_ptr<HttpRequestState> request_state_;
-  scoped_ptr<DataReader> body_reader_;
-  scoped_ptr<DataWriter> body_writer_;
+  std::unique_ptr<HttpRequestState> request_state_;
+  std::unique_ptr<DataReader> body_reader_;
+  std::unique_ptr<DataWriter> body_writer_;
   HttpHeaderMultiMap headers_;
 
   DISALLOW_COPY_AND_ASSIGN(HttpResponse);
@@ -250,5 +250,5 @@ class HttpResponse {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_RESPONSE_H_

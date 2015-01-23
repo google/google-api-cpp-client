@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <string>
 using std::string;
@@ -26,6 +25,7 @@ using std::string;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/openssl_codec.h"
 #include "googleapis/client/util/status.h"
+
 #include "googleapis/strings/strcat.h"
 #include <openssl/ossl_typ.h>
 #include <openssl/evp.h>
@@ -161,7 +161,7 @@ DataReader* OpenSslCodec::NewManagedEncodingReader(
     *status = StatusFailedPrecondition("Init not called");
     return NewManagedInvalidDataReader(*status, deleter);
   }
-  scoped_ptr<OpenSslReader> open_reader(
+  std::unique_ptr<OpenSslReader> open_reader(
       new OpenSslReader(deleter, reader, cipher_type_, key_, iv_,
                         chunk_size_, true));
   *status = open_reader->Init();
@@ -178,7 +178,7 @@ DataReader* OpenSslCodec::NewManagedDecodingReader(
     return NewManagedInvalidDataReader(*status, deleter);
   }
 
-  scoped_ptr<OpenSslReader> open_reader(
+  std::unique_ptr<OpenSslReader> open_reader(
       new OpenSslReader(deleter, reader, cipher_type_, key_, iv_,
                         chunk_size_, false));
   *status = open_reader->Init();
@@ -241,4 +241,4 @@ Codec* OpenSslCodecFactory::New(util::Status* status) {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <string>
 using std::string;
@@ -27,13 +26,17 @@ using std::pair;
 #include <vector>
 using std::vector;
 #include "googleapis/client/util/uri_utils.h"
+#include "googleapis/client/util/date_time.h"
 #include "googleapis/strings/strcat.h"
 #include <gtest/gtest.h>
 
 namespace googleapis {
 
 using client::CppValueToEscapedUrlValue;
+using client::Date;
+
 using client::DateTime;
+using client::EscapeForReservedExpansion;
 using client::EscapeForUrl;
 using client::JoinPath;
 using client::ParsedUrl;
@@ -160,6 +163,11 @@ TEST(Test, TestEscapeForUrl) {
   EXPECT_FALSE(UnescapeFromUrl("Invalid%", &s));
 }
 
+TEST(Test, TestEscapeForReservedExpansion) {
+  EXPECT_EQ("path/to/Hello%20World?",
+            EscapeForReservedExpansion("path/to/Hello World?"));
+}
+
 TEST(Test, TestValueToEscapedUrlValue) {
   EXPECT_EQ("a", CppValueToEscapedUrlValue('a'));
   EXPECT_EQ("a%20long%20phrase",
@@ -179,6 +187,7 @@ TEST(Test, TestValueToEscapedUrlValue) {
   EXPECT_EQ("true", CppValueToEscapedUrlValue(true));
   EXPECT_EQ("3.1415", CppValueToEscapedUrlValue(3.1415f));
   EXPECT_EQ("3.14159265359", CppValueToEscapedUrlValue(3.14159265359));
+  EXPECT_EQ("1998-09-04", CppValueToEscapedUrlValue(Date("1998-09-04")));
   EXPECT_EQ("1998-09-04T18%3A00%3A00Z",
             CppValueToEscapedUrlValue(DateTime("1998-09-04T10:00:00-08:00")));
 }
@@ -241,4 +250,4 @@ TEST(Test, TestResolveUrl) {
   }
 }
 
-} // namespace googleapis
+}  // namespace googleapis

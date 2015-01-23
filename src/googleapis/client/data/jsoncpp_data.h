@@ -46,9 +46,8 @@ using std::vector;
 
 #include "googleapis/client/data/serializable_json.h"
 #include "googleapis/client/data/jsoncpp_data_helpers.h"
-#include <glog/logging.h>
 #include "googleapis/base/macros.h"
-#include <json/json.h>
+#include <jsoncpp/json.h>
 namespace googleapis {
 
 namespace client {
@@ -192,7 +191,7 @@ class JsonCppData : public SerializableJson {
    * terminate the program. It is only intended to make assertions
    * that indicate programming errors.
    */
-  void CheckIsMutable() const { CHECK(is_mutable_); }
+  void CheckIsMutable() const;
 
   /*
    * Returns reference to the Json::Value instance used for storage.
@@ -258,7 +257,7 @@ class JsonCppData : public SerializableJson {
  *
  * This class is not thread-safe.
  *
- * @todo(ewiseblatt): 20120825
+ * @todo(user): 20120825
  * Probably change this so the arrays are fixed size unless you resize the
  * array or append/remove from it. That means get/set should rangecheck.
  */
@@ -506,7 +505,7 @@ class JsonCppDictionary : public JsonCppData {
     MutableStorage()->removeMember(key);
   }
 
-  // NOTE(ewiseblatt): 20120827
+  // NOTE(user): 20120827
   // The data value here is mutable. Currently there isnt a way to have
   // just const values in a dictionary.
   void put_value(const char* key, const Json::Value& data) {
@@ -713,5 +712,5 @@ class JsonCppConstAssociativeIterator
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_DATA_JSONCPP_DATA_H_

@@ -18,11 +18,11 @@
  */
 
 
+#include <memory>
 #include <string>
 using std::string;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/openssl_codec.h"
-#include "googleapis/base/scoped_ptr.h"
 #include <glog/logging.h>
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
@@ -52,7 +52,7 @@ TEST_F(OpenSslCodecTestFixture, TestEncryptDecrypt) {
   status = factoryX.SetPassphrase(kPassphraseX);
   ASSERT_TRUE(status.ok()) << status.error_message();
 
-  scoped_ptr<Codec> codecX(factoryX.New(&status));
+  std::unique_ptr<Codec> codecX(factoryX.New(&status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 
   string encryptedX;
@@ -61,7 +61,7 @@ TEST_F(OpenSslCodecTestFixture, TestEncryptDecrypt) {
 
   OpenSslCodecFactory factoryY;
   EXPECT_TRUE(factoryY.SetPassphrase(kPassphraseY).ok());
-  scoped_ptr<Codec> codecY(factoryY.New(&status));
+  std::unique_ptr<Codec> codecY(factoryY.New(&status));
   EXPECT_TRUE(status.ok()) << status.error_message();
 
   string encryptedY;
@@ -87,13 +87,13 @@ TEST_F(OpenSslCodecTestFixture, TestEncryptingReader) {
   OpenSslCodecFactory factory;
   EXPECT_TRUE(factory.SetPassphrase(kPassphraseX).ok());
 
-  scoped_ptr<Codec> codec(factory.New(&status));
+  std::unique_ptr<Codec> codec(factory.New(&status));
   ASSERT_TRUE(status.ok());
 
-  scoped_ptr<DataReader> plain_reader(
+  std::unique_ptr<DataReader> plain_reader(
       NewUnmanagedInMemoryDataReader(kPlainText));
 
-  scoped_ptr<DataReader> encrypting_reader(
+  std::unique_ptr<DataReader> encrypting_reader(
       codec->NewUnmanagedEncodingReader(plain_reader.get(), &status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 
@@ -128,17 +128,17 @@ TEST_F(OpenSslCodecTestFixture, TestDecryptingReader) {
   const StringPiece kPlainText = "Hello, World!";
   OpenSslCodecFactory factory;
   EXPECT_TRUE(factory.SetPassphrase(kPassphraseX).ok());
-  scoped_ptr<Codec> codec(factory.New(&status));
+  std::unique_ptr<Codec> codec(factory.New(&status));
   ASSERT_TRUE(status.ok());
 
   string encoded;
   status = codec->Encode(kPlainText, &encoded);
   ASSERT_TRUE(status.ok());
 
-  scoped_ptr<DataReader> encoded_reader(
+  std::unique_ptr<DataReader> encoded_reader(
       NewUnmanagedInMemoryDataReader(encoded));
 
-  scoped_ptr<DataReader> decrypting_reader(
+  std::unique_ptr<DataReader> decrypting_reader(
       codec->NewUnmanagedDecodingReader(encoded_reader.get(), &status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 
@@ -170,17 +170,17 @@ TEST_F(OpenSslCodecTestFixture, TestSeekDecryptingReader) {
   OpenSslCodecFactory factory;
   factory.set_chunk_size(32);
   EXPECT_TRUE(factory.SetPassphrase(kPassphraseX).ok());
-  scoped_ptr<Codec> codec(factory.New(&status));
+  std::unique_ptr<Codec> codec(factory.New(&status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 
   string encoded;
   status = codec->Encode(plain_text, &encoded);
   ASSERT_TRUE(status.ok()) << status.error_message();
 
-  scoped_ptr<DataReader> encoded_reader(
+  std::unique_ptr<DataReader> encoded_reader(
       NewUnmanagedInMemoryDataReader(encoded));
 
-  scoped_ptr<DataReader> decrypting_reader(
+  std::unique_ptr<DataReader> decrypting_reader(
       codec->NewUnmanagedDecodingReader(encoded_reader.get(), &status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 
@@ -203,4 +203,4 @@ TEST_F(OpenSslCodecTestFixture, TestSeekDecryptingReader) {
   }
 }
 
-} // namespace googleapis
+}  // namespace googleapis

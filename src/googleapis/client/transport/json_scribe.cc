@@ -20,13 +20,14 @@
 
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
-#include "googleapis/client/transport/json_scribe.h"
 #include "googleapis/client/transport/http_request.h"
+#include "googleapis/client/transport/http_request_batch.h"
 #include "googleapis/client/transport/http_response.h"
+#include "googleapis/client/transport/json_scribe.h"
 #include "googleapis/client/util/date_time.h"
 #include "googleapis/strings/numbers.h"
-#include <json/value.h>
-#include <json/writer.h>
+#include <jsoncpp/value.h>
+#include <jsoncpp/writer.h>
 
 namespace googleapis {
 
@@ -41,6 +42,7 @@ const char JsonScribe::kHttpCode[]       = "HttpCode";
 const char JsonScribe::kStatusCode[]     = "StatusCode";
 const char JsonScribe::kStatusMessage[]  = "StatusMsg";
 
+const char JsonScribe::kBatched[]   = "Batch";
 const char JsonScribe::kRequest[]   = "Request";
 const char JsonScribe::kResponse[]  = "Response";
 const char JsonScribe::kHeaders[]   = "Headers";
@@ -52,6 +54,7 @@ const char JsonScribe::kSendMicros[]      = "SentMicros";
 const char JsonScribe::kResponseMicros[]  = "ReceiveMicros";
 const char JsonScribe::kErrorMicros[]     = "ErrorMicros";
 
+namespace client {
 namespace {
 
 inline void set_json(const StringPiece& piece, Json::Value* value) {
@@ -64,16 +67,6 @@ inline void set_json(int64 n, Json::Value* value) {
   *value = SimpleItoa(n).c_str();
 }
 
-using client::DataReader;
-using client::DataWriter;
-using client::HttpEntryScribe;
-using client::HttpScribeCensor;
-using client::HttpHeaderMap;
-using client::HttpHeaderMultiMap;
-using client::HttpRequest;
-using client::HttpResponse;
-using client::JsonScribe;
-
 class JsonEntry : public HttpEntryScribe::Entry {
  public:
   JsonEntry(
@@ -81,6 +74,12 @@ class JsonEntry : public HttpEntryScribe::Entry {
       const HttpRequest* request,
       Json::Value* array)
       : HttpEntryScribe::Entry(scribe, request), json_array_(array) {
+  }
+  JsonEntry(
+      HttpEntryScribe* scribe,
+      const HttpRequestBatch* batch,
+      Json::Value* array)
+      : HttpEntryScribe::Entry(scribe, batch), json_array_(array) {
   }
   ~JsonEntry() {}
 
@@ -91,75 +90,134 @@ class JsonEntry : public HttpEntryScribe::Entry {
     delete this;
   }
 
-  void ConstructRequestJson() {
+  void ConstructRequestJson(
+      const HttpRequest* request, Json::Value* json) {
+    const int restriction_mask = request->scribe_restrictions();
     bool censored;
     const HttpScribeCensor* censor = scribe()->censor();
-    set_json(request()->http_method(), &json_[JsonScribe::kMethod]);
-    set_json(censor->GetCensoredUrl(*request(), &censored),
-             &json_[JsonScribe::kUrl]);
-    const HttpHeaderMap& headers = request()->headers();
-    Json::Value* json_request = &json_[JsonScribe::kRequest];
-    Json::Value* json_headers = &(*json_request)[JsonScribe::kHeaders];
-    for (HttpHeaderMap::const_iterator
-             it = headers.begin();
-         it != headers.end();
-         ++it) {
-      set_json(
-          censor->GetCensoredRequestHeaderValue(
-              *request(), it->first, it->second, &censored),
-          &(*json_headers)[it->first]);
+    set_json(request->http_method(), &(*json)[JsonScribe::kMethod]);
+    set_json(censor->GetCensoredUrl(*request, &censored),
+             &(*json)[JsonScribe::kUrl]);
+
+    if ((restriction_mask & HttpScribe::FLAG_NO_REQUEST_HEADERS) == 0) {
+      Json::Value* json_request = &(*json)[JsonScribe::kRequest];
+      const HttpHeaderMap& headers = request->headers();
+      Json::Value* json_headers = &(*json_request)[JsonScribe::kHeaders];
+      for (HttpHeaderMap::const_iterator
+               it = headers.begin();
+           it != headers.end();
+           ++it) {
+        set_json(
+            censor->GetCensoredRequestHeaderValue(
+                *request, it->first, it->second, &censored),
+            &(*json_headers)[it->first]);
+      }
     }
 
-    int64 original_size;
-    string content = censor->GetCensoredRequestContent(
-        *request(), scribe()->max_snippet(), &original_size, &censored);
-    set_json(content, &(*json_request)[JsonScribe::kPayload]);
-    set_json(original_size, &(*json_request)[JsonScribe::kPayloadSize]);
-    if (censored) {
-      (*json_request)[JsonScribe::kPayloadCensored] = true;
+    if ((restriction_mask & HttpScribe::FLAG_NO_REQUEST_PAYLOAD) == 0) {
+      Json::Value* json_request = &(*json)[JsonScribe::kRequest];
+      int64 original_size;
+      string content = censor->GetCensoredRequestContent(
+          *request, scribe()->max_snippet(), &original_size, &censored);
+      set_json(content, &(*json_request)[JsonScribe::kPayload]);
+      set_json(original_size, &(*json_request)[JsonScribe::kPayloadSize]);
+      if (censored) {
+        (*json_request)[JsonScribe::kPayloadCensored] = true;
+      }
+    }
+  }
+
+  void ConstructRequestBatchJson(
+      const HttpRequestBatch* batch, Json::Value* json) {
+    Json::Value* container = &(*json)[JsonScribe::kBatched];
+    const HttpRequestBatch::BatchedRequestList& list = batch->requests();
+    int i = 0;
+    for (HttpRequestBatch::BatchedRequestList::const_iterator it
+             = list.begin();
+         it != list.end();
+         ++it, ++i) {
+      ConstructRequestJson(*it, &(*container)[i]);
     }
   }
 
   virtual void Sent(const HttpRequest* request) {
-    ConstructRequestJson();
+    ConstructRequestJson(request, &json_);
     set_json(MicrosElapsed(), &json_[JsonScribe::kSendMicros]);
+  }
+
+  virtual void SentBatch(const HttpRequestBatch* batch) {
+    ConstructRequestBatchJson(batch, &json_);
   }
 
   void Received(const HttpRequest* request) {
     set_json(MicrosElapsed(), &json_[JsonScribe::kResponseMicros]);
-    json_[JsonScribe::kHttpCode] = request->response()->http_code();
-
-    bool censored;
-    const HttpScribeCensor* censor = scribe()->censor();
-    Json::Value* json_response = &json_[JsonScribe::kResponse];
-    Json::Value* json_headers = &(*json_response)[JsonScribe::kHeaders];
-    const HttpHeaderMultiMap& headers = request->response()->headers();
-    for (HttpHeaderMultiMap::const_iterator
-             it = headers.begin();
-         it != headers.end();
-         ++it) {
-      (*json_headers)[it->first] = censor->GetCensoredResponseHeaderValue(
-          *request, it->first, it->second, &censored).c_str();
-    }
-
-    int64 original_size;
-    set_json(
-        censor->GetCensoredResponseBody(
-            *request, scribe()->max_snippet(), &original_size, &censored),
-        &(*json_response)[JsonScribe::kPayload]);
-    set_json(original_size, &(*json_response)[JsonScribe::kPayloadSize]);
-    if (censored) {
-      (*json_response)[JsonScribe::kPayloadCensored] = true;
-    }
+    HandleResponse(request, &json_);
   }
 
-  void Failed(const HttpRequest*, const util::Status& status) {
+  void ReceivedBatch(const HttpRequestBatch* batch) {
+    HandleResponseBatch(batch, &json_);
+  }
+
+  void Failed(const HttpRequest* request, const util::Status& status) {
     if (json_.isNull()) {
-      ConstructRequestJson();
+      ConstructRequestJson(request, &json_);
     }
     set_json(MicrosElapsed(), &json_[JsonScribe::kErrorMicros]);
     json_[JsonScribe::kStatusCode] = status.error_code();
     set_json(status.error_message(), &json_[JsonScribe::kStatusMessage]);
+  }
+
+  void FailedBatch(const HttpRequestBatch* batch, const util::Status& status) {
+    if (json_.isNull()) {
+      ConstructRequestBatchJson(batch, &json_);
+    }
+  }
+
+  void HandleResponseBatch(const HttpRequestBatch* batch, Json::Value* json) {
+    Json::Value* container = &(*json)[JsonScribe::kBatched];
+    const HttpRequestBatch::BatchedRequestList& list = batch->requests();
+    int i = 0;
+    for (HttpRequestBatch::BatchedRequestList::const_iterator it
+             = list.begin();
+         it != list.end();
+         ++it, ++i) {
+      HandleResponse(*it, &(*container)[i]);
+    }
+  }
+
+  void HandleResponse(
+      const HttpRequest* request, Json::Value* json) {
+    const int restriction_mask = request->scribe_restrictions();
+    (*json)[JsonScribe::kHttpCode] = request->response()->http_code();
+
+    bool censored;
+    const HttpScribeCensor* censor = scribe()->censor();
+
+    if ((restriction_mask & HttpScribe::FLAG_NO_RESPONSE_HEADERS) == 0) {
+      Json::Value* json_response = &(*json)[JsonScribe::kResponse];
+      Json::Value* json_headers = &(*json_response)[JsonScribe::kHeaders];
+      const HttpHeaderMultiMap& headers = request->response()->headers();
+      for (HttpHeaderMultiMap::const_iterator
+               it = headers.begin();
+           it != headers.end();
+           ++it) {
+        (*json_headers)[it->first] = censor->GetCensoredResponseHeaderValue(
+            *request, it->first, it->second, &censored).c_str();
+      }
+    }
+
+    if ((restriction_mask & HttpScribe::FLAG_NO_RESPONSE_PAYLOAD) == 0) {
+      Json::Value* json_response = &(*json)[JsonScribe::kResponse];
+      int64 original_size;
+      set_json(
+          censor->GetCensoredResponseBody(
+              *request, scribe()->max_snippet(), &original_size, &censored),
+          &(*json_response)[JsonScribe::kPayload]);
+      set_json(original_size, &(*json_response)[JsonScribe::kPayloadSize]);
+      if (censored) {
+        (*json_response)[JsonScribe::kPayloadCensored] = true;
+      }
+    }
   }
 
  private:
@@ -168,8 +226,6 @@ class JsonEntry : public HttpEntryScribe::Entry {
 };
 
 }  // anonymous namespace
-
-namespace client {
 
 JsonScribe::JsonScribe(
     HttpScribeCensor* censor, DataWriter* writer, bool compact)
@@ -197,7 +253,7 @@ void JsonScribe::Checkpoint() {
   }
   if (num_messages == last_checkpoint_) return;
 
-  // TODO(ewiseblatt): 20130522
+  // TODO(user): 20130522
   // Change this so we keep a running stream to disk rather than in memory.
   // Need to add an autocorrect mechanism in the playback first so it can
   // deal with improperly terminated trasncripts.
@@ -223,6 +279,16 @@ HttpEntryScribe::Entry* JsonScribe::NewEntry(const HttpRequest* request) {
   return new JsonEntry(this, request, &json_[kMessages]);
 }
 
+HttpEntryScribe::Entry* JsonScribe::NewBatchEntry(
+    const HttpRequestBatch* batch) {
+  if (!started_) {
+    // Record the snippet size configuration.
+    json_[kMaxSnippet] = SimpleItoa(max_snippet()).c_str();
+    started_ = true;
+  }
+  return new JsonEntry(this, batch, &json_[kMessages]);
+}
+
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

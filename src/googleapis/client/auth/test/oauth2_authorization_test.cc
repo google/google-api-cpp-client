@@ -24,6 +24,7 @@
 using std::cout;
 using std::endl;
 using std::ostream;
+#include <memory>
 #include <string>
 using std::string;
 #include <vector>
@@ -31,7 +32,6 @@ using std::vector;
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/client/auth/oauth2_authorization.h"
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
@@ -56,7 +56,6 @@ using client::OAuth2AuthorizationFlow;
 using client::OAuth2ClientSpec;
 using client::OAuth2Credential;
 using client::OAuth2InstalledApplicationFlow;
-using client::OAuth2TokenRequest;
 using client::OAuth2WebApplicationFlow;
 using client::StatusFromHttp;
 using client::StatusOk;
@@ -122,7 +121,7 @@ class FakeExchangeAuthorizationCodeHttpRequest : public HttpRequest {
                "\n  \"expires_in\": ", kReturnedExpiresInSecs,
                "\n}")).ok());
     http_response->set_http_code(200);
-  };
+  }
 
  private:
   string encoded_redirect_;
@@ -150,7 +149,7 @@ class FakeRefreshTokenHttpRequest : public HttpRequest {
                "\n  \"access_token\": \"", kReturnedAccessToken, "\"",
                "\n}")).ok());
     http_response->set_http_code(200);
-  };
+  }
 };
 
 class FakeRevokeTokenHttpRequest : public HttpRequest {
@@ -183,7 +182,7 @@ class OAuth2TestFixture : public testing::Test {
     global_mock_transport_ = new MockHttpTransport;
     global_flow_.reset(new OAuth2AuthorizationFlow(global_mock_transport_));
 
-    // NOTE(ewiseblatt): 20121008
+    // NOTE(user): 20121008
     // This client is a personal client I created for purposes of this test.
     // It should eventually be replaced with something more widely internal
     // (such as a test user). Generating a new client and giving it access
@@ -199,7 +198,7 @@ class OAuth2TestFixture : public testing::Test {
   }
 
  protected:
-  static scoped_ptr<OAuth2AuthorizationFlow> global_flow_;
+  static std::unique_ptr<OAuth2AuthorizationFlow> global_flow_;
 };
 
 class FakeFailedHttpRequest : public HttpRequest {
@@ -217,7 +216,7 @@ class FakeFailedHttpRequest : public HttpRequest {
   int http_code_;
 };
 
-scoped_ptr<OAuth2AuthorizationFlow> OAuth2TestFixture::global_flow_;
+std::unique_ptr<OAuth2AuthorizationFlow> OAuth2TestFixture::global_flow_;
 
 
 TEST_F(OAuth2TestFixture, TestClientSpecFromJson) {
@@ -233,7 +232,7 @@ TEST_F(OAuth2TestFixture, TestClientSpecFromJson) {
       "}\n";
   const char* types[] = { "web", "installed" };
   for (int test = 0; test < arraysize(types); ++test) {
-    scoped_ptr<MockHttpTransport> transport(new MockHttpTransport);
+    std::unique_ptr<MockHttpTransport> transport(new MockHttpTransport);
     string json = StringReplace(json_template, "FLOW_TYPE", types[test], false);
     util::Status status;
     OAuth2AuthorizationFlow* flow =
@@ -242,7 +241,7 @@ TEST_F(OAuth2TestFixture, TestClientSpecFromJson) {
     ASSERT_TRUE(status.ok())
         << status.ToString()
         << ": test=" << types[test];
-    scoped_ptr<OAuth2AuthorizationFlow> delete_when_done(flow);
+    std::unique_ptr<OAuth2AuthorizationFlow> delete_when_done(flow);
 
     const OAuth2ClientSpec& spec = flow->client_spec();
     EXPECT_EQ("asdfjasdljfasdkjf", spec.client_id());
@@ -302,13 +301,11 @@ TEST_F(OAuth2TestFixture, TestExchangeAuthorizationCodeRequest) {
           new FakeExchangeAuthorizationCodeHttpRequest(
               global_mock_transport_, kTestEncodedRedirectUri)));
 
-  scoped_ptr<OAuth2TokenRequest> request(
-      global_flow_->NewExchangeAuthorizationCodeRequest(
-          kTestAuthorizationCode, &credential));
+  client::OAuth2RequestOptions options;
+  util::Status status = global_flow_->PerformExchangeAuthorizationCode(
+      kTestAuthorizationCode, options, &credential);
 
-  util::Status status = request->Execute();
   EXPECT_TRUE(status.ok()) << status.ToString();
-  EXPECT_TRUE(request->http_response()->ok());
 
   string access_token;
   string refresh_token;
@@ -319,7 +316,6 @@ TEST_F(OAuth2TestFixture, TestExchangeAuthorizationCodeRequest) {
   EXPECT_EQ(kReturnedRefreshToken, refresh_token);
 
   // Try mock call again, but this time we'll override the scope we asked for
-  client::OAuth2RequestOptions options;
   options.redirect_uri = "https://test_redirect";
   const string kEncodedUri = "https%3A%2F%2Ftest_redirect";
 
@@ -328,11 +324,8 @@ TEST_F(OAuth2TestFixture, TestExchangeAuthorizationCodeRequest) {
           new FakeExchangeAuthorizationCodeHttpRequest(
               global_mock_transport_, kEncodedUri)));
 
-  request.reset(
-      global_flow_->NewExchangeAuthorizationCodeRequestWithOptions(
-          kTestAuthorizationCode, options, &credential));
-
-  status = request->Execute();
+  status = global_flow_->PerformExchangeAuthorizationCode(
+      kTestAuthorizationCode, options, &credential);
   EXPECT_TRUE(status.ok()) << status.ToString();
 }
 
@@ -344,13 +337,13 @@ TEST_F(OAuth2TestFixture, TestExchangeAuthorizationCodeRequestFailure) {
       .WillOnce(Return(
           new FakeFailedHttpRequest(global_mock_transport_, 401)));
 
-  scoped_ptr<OAuth2TokenRequest> request(
-      global_flow_->NewExchangeAuthorizationCodeRequest(
-          kTestAuthorizationCode, &credential));
+  client::OAuth2RequestOptions options;
+  util::Status status = global_flow_->PerformExchangeAuthorizationCode(
+      kTestAuthorizationCode, options, &credential);
 
-  util::Status status = request->Execute();
   EXPECT_FALSE(status.ok()) << status.ToString();
-  EXPECT_EQ(401, request->http_response()->http_code());
+  EXPECT_EQ(util::error::PERMISSION_DENIED, status.error_code())
+      << status.error_message();
 
   string refresh_token;
   credential.refresh_token().AppendTo(&refresh_token);
@@ -368,15 +361,13 @@ TEST_F(OAuth2TestFixture, TestRefreshToken) {
       .WillOnce(Return(
           new FakeRefreshTokenHttpRequest(global_mock_transport_)));
 
-  scoped_ptr<OAuth2TokenRequest> request(
-      global_flow_->NewRefreshTokenRequest(&credential));
-
   int64 expires_near_secs =
       client::DateTime().ToEpochTime() + kReturnedExpiresInSecs;
 
-  util::Status status = request->Execute();
+  client::OAuth2RequestOptions options;
+  util::Status status =
+      global_flow_->PerformRefreshToken(options, &credential);
   EXPECT_TRUE(status.ok()) << status.ToString();
-  EXPECT_TRUE(request->http_response()->ok());
 
   string access_token;
   credential.access_token().AppendTo(&access_token);
@@ -393,13 +384,8 @@ TEST_F(OAuth2TestFixture, TestRefreshTokenFailure) {
       .WillOnce(Return(
           new FakeFailedHttpRequest(global_mock_transport_, 400)));
 
-  scoped_ptr<OAuth2TokenRequest> request(
-      global_flow_->NewRefreshTokenRequest(&credential));
-
-  util::Status status = request->Execute();
+  util::Status status = global_flow_->PerformRevokeToken(false, &credential);
   EXPECT_FALSE(status.ok()) << status.ToString();
-  EXPECT_EQ(400, request->http_response()->http_code());
-
   EXPECT_TRUE(credential.access_token().empty());
 }
 
@@ -414,12 +400,8 @@ TEST_F(OAuth2TestFixture, TestRevokeAccessToken) {
           new FakeRevokeTokenHttpRequest(global_mock_transport_,
                                          kReturnedAccessToken)));
 
-  scoped_ptr<OAuth2TokenRequest> request(
-      global_flow_->NewRevokeAccessTokenRequest(&credential));
-
-  util::Status status = request->Execute();
+  util::Status status = global_flow_->PerformRevokeToken(true, &credential);
   EXPECT_TRUE(status.ok()) << status.ToString();
-  EXPECT_TRUE(request->http_response()->ok());
   EXPECT_TRUE(credential.access_token().empty());
   EXPECT_TRUE(!credential.refresh_token().empty());
 }
@@ -435,12 +417,8 @@ TEST_F(OAuth2TestFixture, TestRevokeRefreshToken) {
           new FakeRevokeTokenHttpRequest(global_mock_transport_,
                                          kReturnedRefreshToken)));
 
-  scoped_ptr<OAuth2TokenRequest> request(
-      global_flow_->NewRevokeRefreshTokenRequest(&credential));
-
-  util::Status status = request->Execute();
+  util::Status status = global_flow_->PerformRevokeToken(false, &credential);
   EXPECT_TRUE(status.ok()) << status.ToString();
-  EXPECT_TRUE(request->http_response()->ok());
   EXPECT_TRUE(!credential.access_token().empty());
   EXPECT_TRUE(credential.refresh_token().empty());
 }
@@ -455,19 +433,15 @@ TEST_F(OAuth2TestFixture, TestRevokeAccessTokenFailure) {
       .WillOnce(Return(
           new FakeFailedHttpRequest(global_mock_transport_, 400)));
 
-  scoped_ptr<OAuth2TokenRequest> request(
-      global_flow_->NewRevokeAccessTokenRequest(&credential));
-
-  util::Status status = request->Execute();
+  util::Status status = global_flow_->PerformRevokeToken(true, &credential);
   EXPECT_FALSE(status.ok()) << status.ToString();
-  EXPECT_EQ(400, request->http_response()->http_code());
   EXPECT_TRUE(!credential.access_token().empty());
   EXPECT_TRUE(!credential.refresh_token().empty());
 }
 
 TEST_F(OAuth2TestFixture, TestSerialization) {
   OAuth2Credential credential;
-  scoped_ptr<DataReader> reader(credential.MakeDataReader());
+  std::unique_ptr<DataReader> reader(credential.MakeDataReader());
   string serialized = reader->RemainderToString();
   EXPECT_EQ("{}", serialized) << serialized;
 
@@ -493,10 +467,10 @@ TEST_F(OAuth2TestFixture, TestSerialization) {
   EXPECT_EQ(123, verify.expiration_timestamp_secs());
 }
 
-// TODO(ewiseblatt): 20130315
+// TODO(user): 20130315
 // Test RefreshCredential from store
 // Test RefreshCredential from refresh
 // Test RefreshCredential from scratch
 // Test RefreshCredential from revoked
 
-} // namespace googleapis
+}  // namespace googleapis

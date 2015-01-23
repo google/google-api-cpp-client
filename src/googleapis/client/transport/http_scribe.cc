@@ -18,8 +18,8 @@
  */
 
 
-#include <queue>
-using std::queue;
+#include <deque>
+using std::deque;
 #include <set>
 using std::multiset;
 using std::set;
@@ -27,6 +27,7 @@ using std::set;
 using std::string;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/transport/http_request.h"
+#include "googleapis/client/transport/http_request_batch.h"
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/transport/http_scribe.h"
 #include "googleapis/client/util/date_time.h"
@@ -113,6 +114,9 @@ string CensorAllJsonValuesForTagHelper(
 string ReadSnippet(int64 max_len, DataReader* reader) {
   string result;
   bool elide = false;
+  if (reader->offset() != 0) {
+    reader->Reset();
+  }
   reader->ReadToString(max_len, &result);
   if (reader->error()) {
     result = StrCat("ERROR: ", reader->status().error_message());
@@ -154,11 +158,15 @@ HttpScribeCensor::~HttpScribeCensor() {}
 
 string HttpScribeCensor::GetCensoredUrl(
     const HttpRequest& request, bool* censored) const {
+  if (request.scribe_restrictions() & HttpScribe::FLAG_NO_URL) {
+    *censored = true;
+    return "URL was not made available";
+  }
   ParsedUrl parsed_url(request.url());
   string censored_query = GetCensoredUrlQuery(parsed_url, censored);
 
   // Build normal url parts up to the query parameters.
-  // NOTE(ewiseblatt): 20130520
+  // NOTE(user): 20130520
   // We're assuming there's nothing sensitive in the path.
   string censored_url =
       StrCat(ParsedUrl::SegmentOrEmpty(!parsed_url.scheme().empty(),
@@ -178,6 +186,10 @@ string HttpScribeCensor::GetCensoredRequestHeaderValue(
     const HttpRequest& request,
     const StringPiece& name, const StringPiece& value,
     bool* censored) const {
+  if (request.scribe_restrictions() & HttpScribe::FLAG_NO_REQUEST_HEADERS) {
+    *censored = true;
+    return "Request headers was not made available";
+  }
   if (censored_request_header_names_.find(name.as_string())
       != censored_request_header_names_.end()) {
     *censored = true;
@@ -191,6 +203,10 @@ string HttpScribeCensor::GetCensoredResponseHeaderValue(
     const HttpRequest& request,
     const StringPiece& name, const StringPiece& value,
     bool* censored) const {
+  if (request.scribe_restrictions() & HttpScribe::FLAG_NO_RESPONSE_HEADERS) {
+    *censored = true;
+    return "Request headers was not made available";
+  }
   if (censored_response_header_names_.find(name.as_string())
       != censored_response_header_names_.end()) {
     *censored = true;
@@ -206,13 +222,16 @@ string HttpScribeCensor::GetCensoredRequestContent(
     int64* original_size,
     bool* censored) const {
   *censored = false;
-
   DataReader* reader = request.content_reader();
   if (!reader) {
     *original_size = 0;
     return "";
   }
   *original_size = reader->TotalLengthIfKnown();
+  if (request.scribe_restrictions() & HttpScribe::FLAG_NO_REQUEST_PAYLOAD) {
+    *censored = true;
+    return "Request payload was not made available";
+  }
 
   string result;
   if (IsSensitiveContent(request.url())) {
@@ -254,6 +273,10 @@ string HttpScribeCensor::GetCensoredResponseBody(
     return "";
   }
   *original_size = reader->TotalLengthIfKnown();
+  if (request.scribe_restrictions() & HttpScribe::FLAG_NO_RESPONSE_PAYLOAD) {
+    *censored = true;
+    return "Response payload was not made available";
+  }
 
   string result;
   if (IsSensitiveContent(request.url())) {
@@ -330,7 +353,16 @@ bool HttpScribeCensor::IsSensitiveContent(const string& url) const {
 
 HttpEntryScribe::Entry::Entry(
     HttpEntryScribe* scribe, const HttpRequest* request)
-    : scribe_(scribe), request_(request), done_(false) {
+    : scribe_(scribe), request_(request), batch_(NULL),
+      received_request_(false), received_batch_(false) {
+  DateTime now_time;
+  now_time.GetTimeval(&timeval_);
+}
+
+HttpEntryScribe::Entry::Entry(
+    HttpEntryScribe* scribe, const HttpRequestBatch* batch)
+    : scribe_(scribe), request_(&batch->http_request()), batch_(batch),
+      received_request_(false), received_batch_(false) {
   DateTime now_time;
   now_time.GetTimeval(&timeval_);
 }
@@ -371,19 +403,102 @@ void HttpEntryScribe::AboutToSendRequest(const HttpRequest* request) {
   GetEntry(request)->Sent(request);
 }
 
+void HttpEntryScribe::AboutToSendRequestBatch(const HttpRequestBatch* batch) {
+  GetBatchEntry(batch)->SentBatch(batch);
+}
+
+
+// This class is used to provide common code where we implement
+// regular Entry and BatchEntry essentially the same way but they use
+// different entry constructors or lookup methods.
+class HttpEntryScribe::Internal {
+ public:
+  static HttpEntryScribe::Entry* GetEntryHelper(
+      HttpEntryScribe* scribe,
+      const HttpRequest* request,
+      const HttpRequestBatch* batch) {
+    MutexLock l(&scribe->mutex_);
+    EntryMap::iterator it = scribe->map_.find(request);
+    if (it != scribe->map_.end()) return it->second;
+
+    HttpEntryScribe::Entry* entry =
+        batch ? scribe->NewBatchEntry(batch) : scribe->NewEntry(request);
+
+    VLOG(1) << "Adding " << entry;
+    scribe->map_.insert(make_pair(request, entry));
+    scribe->queue_.push_back(entry);
+    VLOG(1) << "Added " << entry << " as " << scribe->queue_.size();
+    return entry;
+  }
+
+  static HttpEntryScribe::Entry* GetEntry(
+      HttpEntryScribe* scribe, const HttpRequest* request) {
+    return GetEntryHelper(scribe, request, NULL);
+  }
+
+  static HttpEntryScribe::Entry* GetBatchEntry(
+      HttpEntryScribe* scribe, const HttpRequestBatch* batch) {
+    return GetEntryHelper(scribe, &batch->http_request(), batch);
+  }
+
+  static void ReceiveResponseForRequest(
+      HttpEntryScribe* scribe, const HttpRequest* request) {
+    HttpEntryScribe::Entry* entry = scribe->GetEntry(request);
+    entry->set_received_request(true);
+    entry->Received(request);
+    if (!entry->is_batch()) {
+      scribe->DiscardEntry(entry);
+    }
+  }
+
+  static void ReceiveResponseForRequestBatch(
+      HttpEntryScribe* scribe, const HttpRequestBatch* batch) {
+    HttpEntryScribe::Entry* entry = scribe->GetBatchEntry(batch);
+    entry->set_received_batch(true);
+    entry->ReceivedBatch(batch);
+    scribe->DiscardEntry(entry);
+  }
+
+  static void RequestFailedWithTransportError(
+      HttpEntryScribe* scribe,
+      const HttpRequest* request,
+      const util::Status& status) {
+    HttpEntryScribe::Entry* entry = scribe->GetEntry(request);
+    entry->set_received_request(true);
+    entry->Failed(request, status);
+    if (!entry->is_batch()) {
+      scribe->DiscardEntry(entry);
+    }
+  }
+
+  static void RequestBatchFailedWithTransportError(
+      HttpEntryScribe* scribe,
+      const HttpRequestBatch* batch,
+      const util::Status& status) {
+    HttpEntryScribe::Entry* entry = scribe->GetBatchEntry(batch);
+    entry->set_received_batch(true);
+    entry->FailedBatch(batch, status);
+    scribe->DiscardEntry(entry);
+  }
+};
+
 void HttpEntryScribe::ReceivedResponseForRequest(const HttpRequest* request) {
-  Entry* entry = GetEntry(request);
-  entry->set_done(true);
-  entry->Received(request);
-  DiscardEntry(entry);
+  Internal::ReceiveResponseForRequest(this, request);
+}
+
+void HttpEntryScribe::ReceivedResponseForRequestBatch(
+    const HttpRequestBatch* batch) {
+  Internal::ReceiveResponseForRequestBatch(this, batch);
 }
 
 void HttpEntryScribe::RequestFailedWithTransportError(
     const HttpRequest* request, const util::Status& status) {
-  Entry* entry = GetEntry(request);
-  entry->set_done(true);
-  entry->Failed(request, status);
-  DiscardEntry(entry);
+  Internal::RequestFailedWithTransportError(this, request, status);
+}
+
+void HttpEntryScribe::RequestBatchFailedWithTransportError(
+    const HttpRequestBatch* batch, const util::Status& status) {
+  Internal::RequestBatchFailedWithTransportError(this, batch, status);
 }
 
 void HttpEntryScribe::DiscardQueue() {
@@ -399,16 +514,12 @@ void HttpEntryScribe::DiscardQueue() {
 
 HttpEntryScribe::Entry* HttpEntryScribe::GetEntry(
     const HttpRequest* request) {
-  MutexLock l(&mutex_);
-  EntryMap::iterator it = map_.find(request);
-  if (it != map_.end()) return it->second;
+  return Internal::GetEntry(this, request);
+}
 
-  HttpEntryScribe::Entry* entry = NewEntry(request);
-  VLOG(1) << "Adding " << entry;
-  map_.insert(make_pair(request, entry));
-  queue_.push(entry);
-  VLOG(1) << "Added " << entry << " as " << queue_.size();
-  return entry;
+HttpEntryScribe::Entry* HttpEntryScribe::GetBatchEntry(
+    const HttpRequestBatch* batch) {
+  return Internal::GetBatchEntry(this, batch);
 }
 
 void HttpEntryScribe::DiscardEntry(HttpEntryScribe::Entry* entry) {
@@ -429,24 +540,24 @@ void HttpEntryScribe::UnsafeDiscardEntry(
     }
   }
   CHECK(found != map_.end());
-  map_.erase(found);
-
-  if (entry != queue_.front()) {
+  bool front = entry == queue_.front();
+  if (front) {
+    queue_.pop_front();
+  } else {
     VLOG(1) << "Still waiting on " << queue_.front();
-    return;
-  }
-
-  while (!queue_.empty()) {
-    Entry* head = queue_.front();
-    if (head != entry && !head->done()) {
-      break;
+    for (EntryQueue::iterator it = queue_.begin();
+         it != queue_.end();
+         ++it) {
+      if (*it == entry) {
+        queue_.erase(it);
+        break;
+      }
     }
-    VLOG(1) << "Flushing " << head << " in sequence";
-    queue_.pop();
-    head->FlushAndDestroy();
   }
+  map_.erase(found);
+  entry->FlushAndDestroy();
 }
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

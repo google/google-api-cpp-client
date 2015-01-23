@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <string>
 using std::string;
@@ -26,7 +25,6 @@ using std::vector;
 #include "googleapis/client/util/uri_utils.h"
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
-#include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/split.h"
 #include "googleapis/strings/strcat.h"
@@ -121,7 +119,7 @@ bool ParsedUrl::IsValid() const {
     GetQueryParameterAssignments();
   }
   return valid_;
-};
+}
 
 const vector<ParsedUrl::QueryParameterAssignment>&
 ParsedUrl::GetQueryParameterAssignments() const {
@@ -177,7 +175,7 @@ static const uint64 kReservedMask =
       | RESERVE_BIT(',') | RESERVE_BIT('/') | RESERVE_BIT('?')
       | RESERVE_BIT('#') | RESERVE_BIT('[') | RESERVE_BIT(']');
 
-inline bool NeedsEscaping(char c) {
+static bool NeedsEscaping(char c) {
   // If not in the special range then only needs encoding if it isnt
   // graphical (i.e. binary)
   if (c < kMinReserved || c > kMaxReserved) return !ascii_isgraph(c);
@@ -186,18 +184,36 @@ inline bool NeedsEscaping(char c) {
   return (kReservedMask & 1LL << (c - kMinReserved)) != 0;
 }
 
-string EscapeForUrl(const StringPiece& from) {
+static bool IsNotGraphic(char c) {
+  return !ascii_isgraph(c);
+}
+
+static string EscapeReservedCharacters(const StringPiece& from,
+                                       bool (*needs_escaping)(char)) {
+  const char *hex_digits = "0123456789ABCDEF";
   string escaped;
   const char* ptr = from.data();
   const char* end = ptr + from.size();
   for (; ptr < end; ++ptr) {
-    if (NeedsEscaping(*ptr)) {
-      StringAppendF(&escaped, "%%%02X", *ptr);
+    if (needs_escaping(*ptr)) {
+      escaped.push_back('%');
+      escaped.push_back(hex_digits[(*ptr >> 4) & 0xf]);
+      escaped.push_back(hex_digits[(*ptr) & 0xf]);
     } else {
       escaped.push_back(*ptr);
     }
   }
   return escaped;
+}
+
+string EscapeForUrl(const StringPiece& from) {
+  return EscapeReservedCharacters(from, NeedsEscaping);
+}
+
+string EscapeForReservedExpansion(const StringPiece& from) {
+  // TODO(user): This is not quite precise according to RFC 6570, but it is
+  // good enough.
+  return EscapeReservedCharacters(from, IsNotGraphic);
 }
 
 bool UnescapeFromUrl(const StringPiece& from, string* to) {
@@ -390,4 +406,4 @@ step_7:
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

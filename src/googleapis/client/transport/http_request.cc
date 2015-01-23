@@ -65,7 +65,7 @@ typedef map<StringPiece, int, CaseLess> HeaderSortOrderMap;
 
 // This ordering is initialized in InitGlobalVariables when the comparator
 // is first used.
-scoped_ptr<HeaderSortOrderMap> header_sort_order_;
+std::unique_ptr<HeaderSortOrderMap> header_sort_order_;
 
 const bool state_is_done_[] = {
   false,  // UNSENT
@@ -249,6 +249,10 @@ HttpRequestState::StateCode HttpRequestState::state_code() const {
   return state_code_;
 }
 
+void CallRequestCallback(HttpRequestCallback* callback, HttpRequest* request) {
+  callback->Run(request);
+}
+
 void HttpRequestState::TransitionAndNotifyIfDone(
     HttpRequestState::StateCode code) {
   VLOG(9) << "set_state_code=" << code << " on " << this;
@@ -257,23 +261,27 @@ void HttpRequestState::TransitionAndNotifyIfDone(
   // It will be true when the new code is done but the previous code wasnt.
   bool now_done = IsStateDone(code);
   HttpRequestCallback* callback = NULL;
+  thread::Executor* callback_executor = NULL;
   HttpRequest* request;
   {
     MutexLock l(&mutex_);
-    // TODO(ewiseblatt): 20130812
+    // TODO(user): 20130812
     // This is messy calling the callback from here. It is here as part
     // of a refactoring. To finish the refactoring move the entire state
     // transition logic into the request and have this state
     // just be a simple data object shared between request and response.
+    request = request_;
     if (now_done) {
       now_done = !IsStateDone(state_code_);
       if (now_done && request_) {
+        callback_executor =
+            request->transport()->options().callback_executor();
         callback = callback_;
         callback_ = NULL;
+        request_ = NULL;
       }
     }
     state_code_ = code;
-    request = request_;
   }
 
   // There is a race condition here where we havent yet called the callback.
@@ -282,15 +290,20 @@ void HttpRequestState::TransitionAndNotifyIfDone(
   // As an extra guard we state a policy that responses should not be destroyed
   // until they are done. Because of the race condition we cannot enforce it.
   if (now_done) {
-    if (callback) {
-      // Run the callback before we signal to those waiting to add some
-      // determinism. That way we can ensure the callback was run before
-      // anyone synchronizing on it continues (if that is how it is used).
-      callback->Run(request);
-    }
-
     VLOG(9) << "Signal " << this;
     condvar_.SignalAll();
+
+    // The callback should be the last thing executed because the client is
+    // likely to run DestroyWhenDone() in the callback which will destroy this
+    // object.
+    if (callback) {
+      if (callback_executor) {
+        Closure* closure = NewCallback(&CallRequestCallback, callback, request);
+        callback_executor->TryAdd(closure);
+      } else {
+        callback->Run(request);
+      }
+    }
   }
 }
 
@@ -330,7 +343,7 @@ util::Status HttpRequestState::AutoTransitionAndNotifyIfDone() {
     } else if (HttpStatusCode::IsInformational(http_code_)) {
       code = PENDING;  // provisional response
     } else if (http_code_ >= 300 && http_code_ < 400) {
-      // TODO(ewiseblatt): 20130227
+      // TODO(user): 20130227
       // Need to address redirection.
       code = COMPLETED;
     } else {
@@ -415,7 +428,7 @@ bool HttpRequestState::UnsafeWaitUntilDone(int64 timeout_ms) {
     timeout_ms = kint32max;
   }
 
-  // TODO(ewiseblatt): 20130325
+  // TODO(user): 20130325
   // Revisit this when there's more mature time support. I dont want to add
   // it yet just for this.
   const int64 start_time = time(0);
@@ -442,6 +455,380 @@ bool HttpRequestState::UnsafeWaitUntilDone(int64 timeout_ms) {
   return false;
 }
 
+/*
+ * Helper class for encapsulating and managing execution workflow state
+ * to support asynchronous requests. This is used for both synchronous
+ * and asynchronous requests.
+ *
+ * The workflow is:
+ *    Prepare
+ *    [if synchronous, in the same call flow]
+ *       repeat AttemptToExecute
+ *       until done or give up
+ *       Cleanup
+ *    [if asynchronous, each step is queued to an executor]
+ *       repeat QueueAsync (which later calls AttemptToExecute)
+ *       until done or give up
+ *       Cleanup
+ */
+class HttpRequest::HttpRequestProcessor {
+ public:
+  /*
+   * @param[in] request Caller retains ownership unless the request is
+   *                    configured to self destruct when done.
+   */
+  explicit HttpRequestProcessor(HttpRequest* request)
+      : request_(request),
+        state_(request->response()->mutable_request_state()),
+        scribe_(request->transport()->scribe()),
+        num_redirects_(0), num_retries_(0), retry_(true) {
+  }
+
+  /*
+   * Provides return result for HttpRequest::Execute().
+   * @return The final status of the execution attempts.
+   */
+  util::Status final_status() const { return final_status_; }
+
+
+  /*
+   * Run the synchronous workflow.
+   */
+  void ExecuteSync() {
+    Prepare();
+    while (retry_) {
+      AttemptToExecute(false);
+    }
+    Cleanup();
+  }
+
+  /*
+   * Run the asynchronous workflow then destroy the processor.
+   */
+  void ExecuteAsyncAndDestroy() {
+    Prepare();
+    QueueAsync();  // Will eventually destroy
+  }
+
+  /*
+   * Queues an asynchronous attempt to execute the request.
+   *
+   * This will queue into the Executor for the original request.
+   */
+  void QueueAsync() {
+    thread::Executor* executor = request_->transport()->options().executor();
+    util::Status status;
+    if (!executor) {
+      status = StatusInternalError("No default executor configured");
+    } else {
+      Closure* closure = NewCallback(
+          this, &HttpRequestProcessor::AttemptToExecute, true);
+      state_->TransitionAndNotifyIfDone(HttpRequestState::QUEUED);
+      if (!executor->TryAdd(closure)) {
+        delete closure;
+        status = StatusInternalError("Executor queue is full");
+      }
+    }
+    if (!status.ok()) {
+      state_->set_transport_status(status);
+      retry_ = false;
+      Cleanup();
+    }
+  }
+
+ private:
+  /*
+   * One-time preparation of the request to execute.
+   * We might retry to send the request, but wont do these steps again.
+   */
+  void Prepare() {
+    AuthorizationCredential* credential = request_->credential_;
+    if (credential) {
+      util::Status status = credential->AuthorizeRequest(request_);
+      if (!status.ok()) {
+        LOG(ERROR)
+            << "Failed authorizing request for url=" << request_->url();
+        state_->set_transport_status(status);
+        return;
+      }
+    }
+    request_->AddBuiltinHeaders();
+    retry_ = true;
+    request_->busy_ = true;
+  }
+
+  /*
+   * Attempt to execute (or retry to execute) the request.
+   *
+   * This will either be in support of a synchronous or asynchronous request.
+   * If async then the function may return before the attempt finishes.
+   * Otherwise if synchronous it will return when the attempt finishes.
+   *
+   * Regardless we might want to retry again after this returns.
+   */
+  void AttemptToExecute(bool async) {
+    state_->TransitionAndNotifyIfDone(HttpRequestState::PENDING);
+    if (scribe_) {
+      scribe_->AboutToSendRequest(request_);
+    }
+    if (async) {
+      Closure* closure =
+          NewCallback(
+              this, &HttpRequestProcessor::PostExecuteAsyncAndDestroy);
+      VLOG(1) << "DoExecuteAsync using transport:"
+              << request_->transport()->id();
+      request_->DoExecuteAsync(request_->response(), closure);
+    } else {
+      VLOG(1) << "DoExecute using transport:" << request_->transport()->id();
+      request_->DoExecute(request_->response());
+      DoPostExecute();
+    }
+  }
+
+  /*
+   * Process the response resulting from the execution.
+   *
+   * This creates the DataReader in the response and notifies the scribe
+   * if one is configured.
+   */
+  void ProcessResponse() {
+    HttpResponse* response = request_->response();
+
+    // Form the response_body reader from the collected response
+    DataWriter* response_writer = response->body_writer();
+    if (response_writer) {
+      if (response_writer->ok()) {
+        response->set_body_reader(
+            response_writer->NewUnmanagedDataReader());
+      } else {
+        response->set_body_reader(
+            NewUnmanagedInvalidDataReader(response_writer->status()));
+      }
+    }
+    if (scribe_) {
+      if (response->http_code()) {
+        scribe_->ReceivedResponseForRequest(request_);
+      } else {
+        scribe_->RequestFailedWithTransportError(
+            request_, response->transport_status());
+      }
+    }
+  }
+
+  /*
+   * Call the error handler, if any.
+   *
+   * This assumes the request was an error.
+   * It will modify the retry_ value depending on whether the caller should
+   * attempt to process again or not.
+   */
+  void HandleError() {
+    // We're going to invoke the error handler then, maybe, try again.
+    const HttpTransportErrorHandler* handler =
+        request_->transport()->options().error_handler();
+    if (!handler) {
+      retry_ = false;
+      return;
+    }
+
+    HttpResponse* response = request_->response();
+    if (HttpStatusCode::IsRedirect(response->http_code())) {
+      retry_ = handler->HandleRedirect(num_redirects_, request_);
+      if (retry_) {
+        VLOG(9) << "Redirecting to " << request_->url();
+        ++num_redirects_;
+      }
+    } else if (!response->transport_status().ok()) {
+      retry_ = handler->HandleTransportError(num_retries_, request_);
+      if (retry_) {
+        ++num_retries_;
+      }
+    } else {
+      retry_ = handler->HandleHttpError(num_retries_, request_);
+      ++num_retries_;
+    }
+  }
+
+  /*
+   * Call the error handler asynchronously, if any.
+   *
+   * This assumes the request was an error.
+   * It will modify the retry_ value depending on whether the caller should
+   * attempt to process again or not.
+   */
+  void HandleErrorAsync(Closure* callback) {
+    // We're going to invoke the error handler then, maybe, try again.
+    const HttpTransportErrorHandler* handler =
+        request_->transport()->options().error_handler();
+    if (!handler) {
+      retry_ = false;
+      callback->Run();
+      return;
+    }
+
+    HttpResponse* response = request_->response();
+    if (HttpStatusCode::IsRedirect(response->http_code())) {
+      Callback1<bool>* cb =
+          NewCallback(this,
+                      &HttpRequestProcessor::HandleRedirectResponseAsync,
+                      callback);
+      handler->HandleRedirectAsync(num_redirects_, request_, cb);
+    } else if (!response->transport_status().ok()) {
+      Callback1<bool>* cb =
+          NewCallback(this,
+                      &HttpRequestProcessor::HandleTransportErrorResponseAsync,
+                      callback);
+      handler->HandleTransportErrorAsync(num_retries_, request_, cb);
+    } else {
+      Callback1<bool>* cb =
+          NewCallback(this,
+                      &HttpRequestProcessor::HandleHttpErrorResponseAsync,
+                      callback);
+      handler->HandleHttpErrorAsync(num_retries_, request_, cb);
+    }
+  }
+
+  void HandleRedirectResponseAsync(
+      Closure* callback, bool retry) {
+    retry_ = retry;
+    if (retry_) {
+      VLOG(9) << "Redirecting to " << request_->url();
+      ++num_redirects_;
+    }
+    callback->Run();
+  }
+
+  void HandleTransportErrorResponseAsync(
+      Closure* callback, bool retry) {
+    retry_ = retry;
+    if (retry_) {
+      ++num_retries_;
+    }
+    callback->Run();
+  }
+
+  void HandleHttpErrorResponseAsync(
+      Closure* callback, bool retry) {
+    retry_ = retry;
+    ++num_retries_;
+    callback->Run();
+  }
+
+  /*
+   * Helper function for AttemptToExecute for after HTTP messaging.
+   *
+   * This function will determine if we need to retry or not, but will
+   * not actually attempt a retry.
+   */
+  void DoPostExecute() {
+    // Functionality provided by the base HttpRequest class for
+    // setting HttpResponse state
+    ProcessResponse();
+
+    // Determine if we need to retry or not.
+    if (request_->response()->ok()) {
+      retry_ = false;
+    } else {
+      // May modify retry_ as a side effect.
+      HandleError();
+    }
+
+    if (retry_) {
+      VLOG(1) << "Attempting to retry after http_code="
+              << request_->response()->http_code();
+    }
+
+    VLOG(9) << "Finished " << state_;
+  }
+
+  /*
+   * Helper function for AttemptToExecute for after HTTP messaging.
+   *
+   * This function will determine if we need to retry or not
+   * asynchronously, but will not actually attempt a retry.
+   */
+  void DoPostExecuteAsync(Closure* callback) {
+    // Functionality provided by the base HttpRequest class for
+    // setting HttpResponse state
+    ProcessResponse();
+
+    // Determine if we need to retry or not.
+    if (request_->response()->ok()) {
+      retry_ = false;
+      callback->Run();
+    } else {
+      // May modify retry_ as a side effect.
+      Closure* cb =
+          NewCallback(this,
+                      &HttpRequestProcessor::DoPostHandleErrorAsync,
+                      callback);
+      HandleErrorAsync(cb);
+    }
+  }
+
+  void DoPostHandleErrorAsync(Closure* callback) {
+    if (retry_) {
+      VLOG(1) << "Attempting to retry after http_code="
+              << request_->response()->http_code();
+    }
+
+    VLOG(9) << "Finished " << state_;
+
+    callback->Run();
+  }
+
+  /*
+   * The PostExecute for asynchronous execution.
+   *
+   * If we need to retry then this will queue the retry request.
+   * Otherwise it will cleanup and destroy the instance.
+   * The synchronous case does these additional steps in the
+   * original ExecuteSync method.
+   */
+  void PostExecuteAsyncAndDestroy() {
+    Closure* cb =
+        NewCallback(this,
+                    &HttpRequestProcessor::PostExecuteHandleRetry);
+    DoPostExecuteAsync(cb);
+  }
+
+  void PostExecuteHandleRetry() {
+    // If we arent done then requeue the request
+    if (retry_) {
+      QueueAsync();
+    } else {
+      Cleanup();
+      delete this;
+    }
+  }
+
+  /*
+   * Do one-time execution once we have finished executing the request
+   * for the final attempt, whether successful or not.
+   *
+   * If the request was configured to self-destruct then it will be
+   * destroyed here.
+   */
+  void Cleanup() {
+    final_status_ = state_->AutoTransitionAndNotifyIfDone();
+    request_->busy_ = false;
+
+    if (request_->options_.destroy_when_done()) {
+      delete request_;  // Caller just needs the response object.
+    }
+  }
+
+  util::Status final_status_;  // Ultimate execution status.
+  HttpRequest* request_;       // Request to execute owned by caller.
+  HttpRequestState* state_;    // Alias to request state.
+  HttpScribe* scribe_;         // Alias to request's transport scribe.
+  int num_redirects_;          // Number of redirects we followed so far.
+  int num_retries_;            // Number of retries so far.
+  bool retry_;                 // Whether we should retry again or not.
+
+  DISALLOW_COPY_AND_ASSIGN(HttpRequestProcessor);
+};
+
 
 HttpRequest::HttpRequest(
     HttpRequest::HttpMethod method, HttpTransport* transport)
@@ -450,6 +837,12 @@ HttpRequest::HttpRequest(
       transport_(transport),
       credential_(NULL),
       response_(new HttpResponse),
+      // By default the request will present itself to the censorship policy
+      // on the scribe. The default censor will still strip sensitive stuff.
+      // If for some reason we didnt trust the censor then we can use this
+      // attribute to hide parts of the request. This is used for batch
+      // requests since the HttpCensor interface does not know about batching.
+      scribe_restrictions_(HttpScribe::ALLOW_EVERYTHING),
       busy_(false) {
   CHECK_NOTNULL(transport);
 
@@ -472,6 +865,12 @@ void HttpRequest::DestroyWhenDone() {
 
 void HttpRequest::set_content_reader(DataReader* reader) {
   content_reader_.reset(reader);
+}
+
+void HttpRequest::set_content_writer(DataWriter* writer) {
+  // It is the Response which consumes the network response. Just let it do the
+  // forwarding to the writer.
+  response_->set_body_writer(writer);
 }
 
 void HttpRequest::Clear() {
@@ -505,13 +904,9 @@ void HttpRequest::AddHeader(
   header_map_[name.as_string()] = value.as_string();
 }
 
-void HttpRequest::WillNotExecute(
-    util::Status status, HttpRequestCallback* callback) {
+void HttpRequest::WillNotExecute(util::Status status) {
   HttpRequestState* state = response()->mutable_request_state();
   CHECK_EQ(HttpRequestState::UNSENT, state->state_code());
-  if (callback) {
-    state->set_notify_callback(this, callback);
-  }
   state->set_transport_status(status);
   state->AutoTransitionAndNotifyIfDone().IgnoreError();
 }
@@ -522,125 +917,34 @@ util::Status HttpRequest::Execute() {
     CHECK_EQ(HttpRequestState::UNSENT, state->state_code())
         << "Must call Clear() before reusing";
   }
-  util::Status status;
-  if (credential_) {
-    status = credential_->AuthorizeRequest(this);
-    if (!status.ok()) {
-      LOG(ERROR) << "Failed authorizing request for url=" << url_;
-      state->set_transport_status(status);
-    }
-  }
 
-  busy_ = true;
-  if (status.ok()) {
-    HttpScribe* scribe = transport_->scribe();
-    AddBuiltinHeaders();
-    VLOG(9) << "Executing " << state;
-    int num_redirects = 0;
-    int num_retries = 0;
-    bool retry = true;
-    while (retry) {
-      state->TransitionAndNotifyIfDone(HttpRequestState::PENDING);
-      if (scribe) {
-        scribe->AboutToSendRequest(this);
-      }
-      VLOG(1) << "DoExecute using transport:" << transport_->id();
-      DoExecute(response_.get());
-
-      // Form the response_body reader from the collected response
-      DataWriter* response_writer = response_->body_writer();
-      if (response_writer) {
-        if (response_writer->ok()) {
-          response_->set_body_reader(
-              response_writer->NewUnmanagedDataReader());
-        } else {
-          response_->set_body_reader(
-              NewUnmanagedInvalidDataReader(response_writer->status()));
-        }
-      }
-      if (scribe) {
-        if (response_->http_code()) {
-          scribe->ReceivedResponseForRequest(this);
-        } else {
-          scribe->RequestFailedWithTransportError(
-              this, state->transport_status());
-        }
-      }
-      if (response_->ok()) break;
-
-      // We're going to invoke the error handler then, maybe, try again.
-      const HttpTransportErrorHandler* handler =
-          transport_->options().error_handler();
-      if (!handler) break;
-
-      if (HttpStatusCode::IsRedirect(response_->http_code())) {
-        retry = handler->HandleRedirect(num_redirects, this);
-        if (retry) {
-          VLOG(9) << "Redirecting to " << url_;
-          ++num_redirects;
-        }
-      } else if (!response_->transport_status().ok()) {
-        retry = handler->HandleTransportError(num_retries, this);
-        if (retry) {
-          ++num_retries;
-        }
-      } else {
-        retry = handler->HandleHttpError(num_retries, this);
-        ++num_retries;
-      }
-      if (retry) {
-        VLOG(1) << "Attempting to retry after http_code="
-                << response_->http_code();
-      }
-    };
-    VLOG(9) << "Finished " << state;
-  }
-
-  status = state->AutoTransitionAndNotifyIfDone();
-  busy_ = false;
-
-  if (options_.destroy_when_done()) {
-    VLOG(1) << "Auto-deleting " << this;
-    delete this;  // Caller just needs the response object.
-  }
-
-  return status;
+  HttpRequestProcessor executor(this);
+  executor.ExecuteSync();
+  return executor.final_status();
 }
 
-static void ExecuteRequestHelper(HttpRequest* request) {
-  request->Execute().IgnoreError();
+void HttpRequest::set_callback(HttpRequestCallback* callback) {
+  CHECK(!mutable_state()->has_notify_callback());
+  mutable_state()->set_notify_callback(this, callback);
+}
+
+void HttpRequest::DoExecuteAsync(HttpResponse* response, Closure* callback) {
+  DoExecute(response);
+  if (callback) {
+    callback->Run();
+  }
 }
 
 void HttpRequest::ExecuteAsync(HttpRequestCallback* callback) {
   HttpRequestState* state = response()->mutable_request_state();
   CHECK_EQ(HttpRequestState::UNSENT, state->state_code())
       << "Must Clear request to reuse it.";
-  CHECK(!state->has_notify_callback());
   if (callback) {
-    state->set_notify_callback(this, callback);
+    set_callback(callback);
   }
 
-  thread::Executor* executor = transport()->options().executor();
-  util::Status status;
-  if (!executor) {
-    status = StatusInternalError("No default executor configured");
-  } else {
-    Closure* closure = NewCallback(&ExecuteRequestHelper, this);
-    state->TransitionAndNotifyIfDone(HttpRequestState::QUEUED);
-    if (!executor->TryAdd(closure)) {
-      delete closure;
-      status = StatusInternalError("Executor queue is full");
-    }
-  }
-
-  if (!status.ok()) {
-    state->set_transport_status(status);
-    state->AutoTransitionAndNotifyIfDone().IgnoreError();
-    if (options_.destroy_when_done()) {
-      VLOG(1) << "Auto-deleting " << this;
-      delete this;  // Caller just needs the response object.
-    }
-  }
+  HttpRequestProcessor* executor(new HttpRequestProcessor(this));
+  executor->ExecuteAsyncAndDestroy();
 }
 
 util::Status HttpRequest::PrepareRedirect(int num_redirects) {
@@ -659,6 +963,7 @@ util::Status HttpRequest::PrepareRedirect(int num_redirects) {
   }
   const string url = location->second;
   const string resolved_url = ResolveUrl(url_, url);
+
   VLOG(1) << "Redirecting to " << resolved_url;
   if (response_->http_code() == HttpStatusCode::SEE_OTHER) {
     // 10.3.4 in http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
@@ -669,8 +974,18 @@ util::Status HttpRequest::PrepareRedirect(int num_redirects) {
       set_content_reader(NULL);
     }
   }
+
   util::Status status = PrepareToReuse();
   if (status.ok()) {
+    // Reauthorize request if network location hasnt changed.
+    if (credential_) {
+      ParsedUrl original_url(this->url());
+      ParsedUrl new_url(resolved_url);
+      if (new_url.netloc() == original_url.netloc()
+          && new_url.scheme() == original_url.scheme()) {
+        status = credential_->AuthorizeRequest(this);
+      }
+    }
     set_url(resolved_url);  // url references a header so set before clearing.
   }
   return status;
@@ -737,6 +1052,29 @@ void HttpRequest::AddBuiltinHeaders() {
   }
 }
 
+// This function is used by batch requests to convert a request specialized
+// for a transport into one specialized by an HttpBatchRequest. It is private
+// only permitting the HttpBatchRequest to use it. The method works on any
+// request but it is dangerous to generalize because requests instances can
+// be coupled with transport specializations that act as their factories.
+//
+// We are allowing this for batch requests so that higher level components
+// that are composed using http requests dont need to know that the request is
+// going to be batched when it is constructed and can adjust their attribute
+// later on.
+void HttpRequest::SwapToRequestThenDestroy(HttpRequest* target) {
+  CHECK(!busy_);
+  target->options_ = options_;
+  target->credential_ = credential_;
+  target->content_reader_.swap(content_reader_);
+  target->header_map_.swap(header_map_);
+  target->response_.swap(response_);
+  target->url_.swap(url_);
+  target->set_callback(target->response_->request_state().callback());
+
+  delete this;
+}
+
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

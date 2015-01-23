@@ -45,9 +45,9 @@ namespace client {
  * @warning This factory stores plain text files to the given path.
  *          It only permits user read/write permissions on the files
  *          and directories, however is still dangerous because if the
- *          files are compramised, the refresh tokens will be insecure.
+ *          files are compromised, the refresh tokens will be insecure.
  *
- * @warning You can encrypt/decrypt the files by binding an
+ * @warning You can encrypt/decrypt the files by binding a
  *          CodecFactory that performs encryption/decryption
  *          to this factory. However, such a factory is not included with
  *          the SDK at this time. You will need to write one yourself.
@@ -56,7 +56,7 @@ namespace client {
  *          to the cloud user, not the user on the local device. A given
  *          device user may have multiple cloud user names. The expectation
  *          is that the provided user_name is the cloud name, but it is not
- *          enforced. This could lead to accidents if the files are compramised
+ *          enforced. This could lead to accidents if the files are compromised
  *          or the program provides a name to the store different than the
  *          name with which it received the credentials being stored.
  *
@@ -85,7 +85,7 @@ class FileCredentialStoreFactory : public CredentialStoreFactory {
    * Creates a new store for the given client id.
    *
    * @param[in] client_id The client this store is for is used as the filename.
-   * @param[out] status Set witth the reason for failure if NULL is returned.
+   * @param[out] status Set with the reason for failure if NULL is returned.
    *
    * @return NULL is returned on failure.
    */
@@ -110,5 +110,5 @@ class FileCredentialStoreFactory : public CredentialStoreFactory {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_AUTH_FILE_CREDENTIAL_STORE_H_

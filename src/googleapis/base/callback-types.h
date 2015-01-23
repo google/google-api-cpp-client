@@ -185,5 +185,5 @@ class ResultCallback5 {
   ResultCallback5() {}
 };
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif /* _CALLBACK_TYPES_H */

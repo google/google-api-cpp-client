@@ -50,7 +50,7 @@
 # define read _read
 # define write _write
 # define lseek _lseek
-# define fchmod(fd, mode)  (/* TODO(ewiseblatt) implement this */ 0)
+# define fchmod(fd, mode)  (/* TODO(user) implement this */ 0)
 
 #endif
 
@@ -59,6 +59,24 @@ using std::string;
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
+
+namespace file {
+
+// Class used by various functions and methods in the File namespace.
+class Options {
+ public:
+  Options() {}
+  ~Options() {}
+};
+
+// A convienience for getting standard values for file APIs with options.
+inline const Options Defaults() { return Options(); }
+
+// Returns the part of the path after the final "/".  If there is no
+// "/" in the path, the result is the same as the input.
+StringPiece Basename(StringPiece path);
+
+}  // namespace file
 
 class FileOpenOptions {
  public:
@@ -112,7 +130,7 @@ class File {
   util::Status WriteString(const StringPiece& bytes);
   util::Status ReadToString(string* output);
   util::Status Read(char* buffer, int64 length, int64* got);
-  bool Seek(int64 position);
+  util::Status Seek(int64 position, const file::Options& options);
   int64 Tell();
   int64 Size();
 
@@ -123,5 +141,5 @@ class File {
   int fd_;
 };
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // GOOGLEAPIS_FILE_H_

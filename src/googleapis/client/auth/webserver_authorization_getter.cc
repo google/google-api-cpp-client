@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <ostream>  // NOLINT
 #include <string>
@@ -160,4 +159,4 @@ void WebServerAuthorizationCodeGetter::AddReceiveAuthorizationCodeUrlPath(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

@@ -26,13 +26,34 @@
 #include <string.h>
 
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 
+namespace strings {
+
 AlphaNum gEmptyAlphaNum("");
+
+AlphaNum::AlphaNum(strings::Hex hex) {
+  char *const end = &digits[kFastToBufferSize];
+  char *writer = end;
+  uint64 value = hex.value;
+  uint64 width = hex.spec;
+  // We accomplish minimum width by OR'ing in 0x10000 to the user's value,
+  // where 0x10000 is the smallest hex number that is as wide as the user
+  // asked for.
+  uint64 mask = ((static_cast<uint64>(1) << (width - 1) * 4)) | value;
+  static const char hexdigits[] = "0123456789abcdef";
+  do {
+    *--writer = hexdigits[value & 0xF];
+    value >>= 4;
+    mask >>= 4;
+  } while (mask != 0);
+  piece.set(writer, end - writer);
+}
+
+}  // namespace strings
 
 // ----------------------------------------------------------------------
 // StrCat()
@@ -246,4 +267,4 @@ void StrAppend(string *result,
   DCHECK_EQ(out, begin + result->size());
 }
 
-} // namespace googleapis
+}  // namespace googleapis

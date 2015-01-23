@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <errno.h>
 #include <string>
@@ -206,4 +205,4 @@ util::Status StatusFromHttp(int http_status, const StringPiece& msg) {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

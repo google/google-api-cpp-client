@@ -32,4 +32,4 @@ void GoogleOnceInit(GoogleOnceType* once, void (*initializer)()) {
 }
 #endif
 
-} // namespace googleapis
+}  // namespace googleapis

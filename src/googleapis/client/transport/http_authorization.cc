@@ -29,4 +29,4 @@ AuthorizationCredential::~AuthorizationCredential() {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

@@ -31,4 +31,4 @@ void CallbackUtils_::FailIsRepeatable(const char* name) {
                                 "is not a repeatable callback!";
 }
 
-} // namespace googleapis
+}  // namespace googleapis

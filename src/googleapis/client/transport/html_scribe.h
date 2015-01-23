@@ -21,13 +21,13 @@
 #ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTML_SCRIBE_H_
 #define APISERVING_CLIENTS_CPP_TRANSPORT_HTML_SCRIBE_H_
 
+#include <memory>
 #include <string>
 using std::string;
 
 #include "googleapis/client/transport/http_scribe.h"
 #include "googleapis/base/thread_annotations.h"
 #include "googleapis/base/integral_types.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 namespace googleapis {
@@ -150,15 +150,16 @@ class HtmlScribe : public HttpEntryScribe {
    * the request.
    */
   virtual Entry* NewEntry(const HttpRequest* request);
+  virtual Entry* NewBatchEntry(const HttpRequestBatch* batch);
 
  private:
   int64 sequence_number_;
-  scoped_ptr<DataWriter> writer_;
+  std::unique_ptr<DataWriter> writer_;
   string last_netloc_;
   int presentation_;
 };
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTML_SCRIBE_H_

@@ -20,10 +20,12 @@
 
 #include <map>
 using std::map;
+#include <memory>
 #include <string>
 using std::string;
 #include <vector>
 using std::vector;
+
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
 #include "googleapis/client/transport/json_playback_transport.h"
@@ -37,11 +39,10 @@ using std::vector;
 #include "googleapis/base/macros.h"
 #include <glog/logging.h>
 #include "googleapis/base/mutex.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include <json/reader.h>
-#include <json/value.h>
+#include <jsoncpp/reader.h>
+#include <jsoncpp/value.h>
 #include "googleapis/util/stl_util.h"
 #include "googleapis/util/status.h"
 
@@ -281,7 +282,7 @@ return StatusUnknown(json_reader.getFormatedErrorMessages());
 
   for (int i = 0; i < array.size(); ++i) {
     const Json::Value* msg = &array[i];
-    scoped_ptr<RequestRecord> record(new RequestRecord);
+    std::unique_ptr<RequestRecord> record(new RequestRecord);
     CHECK(record->Init(msg)) << "i=" << " msg=" << msg->toStyledString();
 
     string key = StrCat(record->method, record->url);
@@ -388,10 +389,10 @@ HttpRequest* JsonPlaybackTransport::NewHttpRequest(
 
 util::Status JsonPlaybackTransport::LoadTranscript(
      DataReader* reader) {
-  scoped_ptr<JsonPlaybackTranscript> t(
+  std::unique_ptr<JsonPlaybackTranscript> t(
       new JsonPlaybackTranscript(censor_));
   transcript_ = NULL;
-  util::Status status =t->Load(reader);
+  util::Status status = t->Load(reader);
   if (status.ok()) {
     transcript_storage_.reset(t.release());
     transcript_ = transcript_storage_.get();
@@ -429,9 +430,9 @@ HttpTransport* JsonPlaybackTransportFactory::DoAlloc(
 
 util::Status JsonPlaybackTransportFactory::LoadTranscript(
      DataReader* reader) {
-  scoped_ptr<JsonPlaybackTranscript> t(
+  std::unique_ptr<JsonPlaybackTranscript> t(
       new JsonPlaybackTranscript(censor_.get()));
-  util::Status status =t->Load(reader);
+  util::Status status = t->Load(reader);
   if (status.ok()) {
     transcript_.reset(t.release());
   }
@@ -440,4 +441,4 @@ util::Status JsonPlaybackTransportFactory::LoadTranscript(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

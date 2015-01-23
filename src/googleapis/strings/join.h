@@ -77,5 +77,5 @@ inline string Join(const CONTAINER& components, StringPiece delim) {
 }
 
 }  // namespace strings
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // STRINGS_JOIN_H_

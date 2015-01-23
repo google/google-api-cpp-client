@@ -21,22 +21,24 @@
 #ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_REQUEST_H_
 #define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_REQUEST_H_
 
+#include <memory>
 #include <string>
 using std::string;
+
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
+class AuthorizationCredential;
 class DataReader;
 class HttpRequest;
 class HttpResponse;
+class HttpScribe;
 class HttpTransport;
-class AuthorizationCredential;
 
 /*
  * Denotes an HTTP request to be sent to an HTTP server.
@@ -191,7 +193,7 @@ class HttpRequest {
   }
 
   /*
-   * Returns the content_reader specifying this requests's message body.
+   * Returns the content_reader providing this requests's message body.
    *
    * @note When you read from the resulting data reader, you will modify
    * the position in the stream. If the content was already read then it
@@ -205,11 +207,34 @@ class HttpRequest {
   DataReader* content_reader() const { return content_reader_.get(); }
 
   /*
-   * Specifies the requests message body using a DataReader.
+   * Set the DataReader to provide the requests message body.
    *
    * @param[in] reader Ownership is passed to the request instance.
    */
   void set_content_reader(DataReader* reader);
+
+  /*
+   * Set the DataWriter to consume the request's response.
+   *
+   * When a request is for media download, the response is non-JSON and possibly
+   * very large. A content_writer can be provided as a sink for incoming data.
+   *
+   * @param[in] writer Ownership is passed to the request instance.
+   */
+  void set_content_writer(DataWriter* writer);
+
+  /*
+   * Sets the callback to be called when the request has finished.
+   *
+   * Once a callback has been set, it cannot be replaced or cleared in order
+   * to ensure the semantics of it being called exactly once.
+   *
+   * @param[in] callback The callback to invoke when done will eventually be
+   *                     called exactly once. The caller retains ownership but
+   *                     can use a single-use self-destructing callback.
+   *                     This parameter can be NULL to indicate no callback.
+   */
+  void set_callback(HttpRequestCallback* callback);
 
   /*
    * Removes the named header, if it exists.
@@ -226,7 +251,7 @@ class HttpRequest {
    *
    * The underlying strings will be copied into this object instance.
    *
-   * @todo(ewiseblatt): 20130430
+   * @todo(user): 20130430
    * http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
    * says certain types of request headers can be repeated however here
    * we are requiring request headers to be unique. We do permit
@@ -269,11 +294,8 @@ class HttpRequest {
    * the request is now considered a transport-level failrue.
    *
    * @param[in] status The transport_status to give the request
-   * @param[in] callback If non-NULL then
-   *            run the callback after setting the status.
    */
-  void WillNotExecute(
-      util::Status status, HttpRequestCallback* callback = NULL);
+  void WillNotExecute(util::Status status);
 
   /*
    * Synchronously send the request to the designated URL and wait for the
@@ -372,7 +394,28 @@ class HttpRequest {
    */
   util::Status PrepareRedirect(int num_redirects_so_far);
 
+  /*
+   * Restrict how this message is scribed when transcripts are enabled.
+   *
+   * @param[in] mask Bit-wise-or values of what not to record in detail.
+   * @see HttpScribe::ScribeRestrictions
+   */
+  void set_scribe_restrictions(int mask) { scribe_restrictions_ = mask; }
+
+  /*
+   * Returns any transcript scribing restrictions for this request.
+   */
+  int scribe_restrictions() const        { return scribe_restrictions_; }
+
+  /*
+   * Returns the transport instance bound to the request.
+   */
+  HttpTransport* transport() const { return transport_; }
+
+
  protected:
+  friend class HttpRequestProcessor;
+
   /*
    * Constructs method instance.
    *
@@ -387,11 +430,6 @@ class HttpRequest {
    * The constructor is only protected since this class is abstract.
    */
   HttpRequest(HttpMethod method, HttpTransport* transport);
-
-  /*
-   * Returns the transport instance bound to the request.
-   */
-  HttpTransport* transport() const { return transport_; }
 
   /*
    * Initiate the actually messaging for this message with the HTTP server.
@@ -415,16 +453,60 @@ class HttpRequest {
    */
   virtual void DoExecute(HttpResponse* response) = 0;
 
+  /*
+   * Asynchronous form of DoExecute may return before the request has finished.
+   *
+   * The default implementation of this method calls DoExecute so is
+   * actually synchronous. However it can be overriden by specialized
+   * transports implementing asynchronous behaviors.
+   *
+   * @param[in] response The response to write into.
+   * @param[in] callback Will be called exactly once when the request
+   *                     is finished executing, or has failed to execute.
+   *                     Caller retains ownership. Since this is called
+   *                     exactly once a single-use callback can be used.
+   *                     A NULL callback is permissable.
+   */
+  virtual void DoExecuteAsync(HttpResponse* response, Closure* callback);
+
  private:
+  friend class HttpRequestBatch;
+
+  /*
+   * Swap these attributes into the given source then destroy this instance.
+   *
+   * The instance is destroyed on return.
+   *
+   * This is an obscure method needed to batch objects that construct requests
+   * after they may have constructed the HttpRequest instance to be batched.
+   * This is because the original request was created by a particular
+   * HttpTransport but the batched requests should be created by
+   * HttpBatchRequest to ensure correct usage.
+   *
+   * The method is only called by HttpRequestBatch which seems reasonable to
+   * have coupled to this simple request. The coupling is only as a friend
+   * though so this class implements the behavior so that it can track
+   * evolution of the attributes.
+   *
+   * @param[in,out] source The request to update with this instance attributes.
+   *                       The caller retains ownership.
+   */
+  void SwapToRequestThenDestroy(HttpRequest* source);
+
+ private:
+  class HttpRequestProcessor;
+  friend class HttpRequestProcessor;
+
   HttpMethod http_method_;
   HttpRequestOptions options_;
-  HttpTransport* transport_;               // Not owned, cannot be NULL.
-  AuthorizationCredential* credential_;    // Not owned, might be NULL.
-  scoped_ptr<DataReader> content_reader_;  // payload can be NULL
-  HttpHeaderMap header_map_;               // headers for request
-  scoped_ptr<HttpResponse> response_;      // response and request state
-  string url_;                             // url to send request to
-  bool busy_;                              // dont destroy it yet.
+  HttpTransport* transport_;                // Not owned, cannot be NULL.
+  AuthorizationCredential* credential_;     // Not owned, might be NULL.
+  std::unique_ptr<DataReader> content_reader_;  // payload can be NULL
+  HttpHeaderMap header_map_;                // headers for request
+  std::unique_ptr<HttpResponse> response_;  // response and request state
+  string url_;                              // url to send request to
+  int scribe_restrictions_;                 // HttpScribe::ScribeRestrictions
+  bool busy_;                               // dont destroy it yet.
 
   /*
    * Adds the builtin headers implied by the framework.
@@ -439,5 +521,5 @@ class HttpRequest {
 
 }  // namespace client
 
-} // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_HTTP_REQUEST_H_
+}  // namespace googleapis
+#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_REQUEST_H_

@@ -129,4 +129,4 @@ void TitlecaseString(string *s, StringPiece delimiters) {
   }
 }
 
-} // namespace googleapis
+}  // namespace googleapis

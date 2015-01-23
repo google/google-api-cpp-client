@@ -25,7 +25,7 @@ using std::string;
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/util/status.h"
-#include "googleapis/base/scoped_ptr.h"
+#include <glog/logging.h>
 #include "googleapis/strings/strcat.h"
 #include "googleapis/util/status.h"
 
@@ -39,7 +39,7 @@ HttpResponse::HttpResponse()
 }
 
 HttpResponse::~HttpResponse() {
-  // TODO(ewiseblatt): 20130525
+  // TODO(user): 20130525
   // Need to clean this up.
   //
   // There might be a subtle race condition here in that the state allows us to
@@ -65,7 +65,7 @@ util::Status HttpResponse::GetBodyString(string* body) {
     return StatusOk();
   }
 
-  if (body_reader_->offset() == 0 && !body_reader_->Reset()) {
+  if (body_reader_->offset() != 0 && !body_reader_->Reset()) {
     LOG(WARNING) << "Could not reset HTTP response reader";
     return body_reader_->status();
   }
@@ -87,10 +87,10 @@ void HttpResponse::Clear() {
 }
 
 const string* HttpResponse::FindHeaderValue(const StringPiece& name) const {
-  HttpHeaderMap::const_iterator found = headers_.find(name.as_string());
+  HttpHeaderMultiMap::const_iterator found = headers_.find(name.as_string());
   return (found == headers_.end()) ? NULL : &found->second;
 }
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

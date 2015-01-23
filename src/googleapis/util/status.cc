@@ -61,4 +61,4 @@ string Status::ToString() const {
 
 }  // namespace util
 
-} // namespace googleapis
+}  // namespace googleapis

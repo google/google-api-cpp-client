@@ -17,9 +17,9 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include "googleapis/client/transport/http_scribe.h"
+#include <memory>
 #include <string>
 using std::string;
 
@@ -32,7 +32,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/util/status.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -41,6 +40,7 @@ using std::string;
 
 namespace googleapis {
 
+using client::HttpRequestBatch;
 using client::HttpHeaderMap;
 using client::HttpRequest;
 using client::HttpResponse;
@@ -49,6 +49,7 @@ using client::HttpEntryScribe;
 using client::HttpScribe;
 using client::MockHttpRequest;
 using client::MockHttpTransport;
+using client::NewUnmanagedInMemoryDataReader;
 using client::StatusInternalError;
 
 using testing::_;
@@ -71,13 +72,20 @@ class MockEntry : public HttpEntryScribe::Entry {
  public:
   MockEntry(HttpEntryScribe* scribe, const HttpRequest* request)
       : HttpEntryScribe::Entry(scribe, request) {}
+  MockEntry(HttpEntryScribe* scribe, const HttpRequestBatch* batch)
+      : HttpEntryScribe::Entry(scribe, batch) {}
   virtual ~MockEntry() {}
 
   MOCK_METHOD0(FlushAndDestroy, void());
   MOCK_METHOD1(Sent, void(const HttpRequest* request));
+  MOCK_METHOD1(SentBatch, void(const HttpRequestBatch* batch));
   MOCK_METHOD1(Received, void(const HttpRequest* request));
+  MOCK_METHOD1(ReceivedBatch, void(const HttpRequestBatch* batch));
   MOCK_METHOD2(Failed,
                void(const HttpRequest* request, const util::Status& status));
+  MOCK_METHOD2(
+      FailedBatch,
+      void(const HttpRequestBatch* batch, const util::Status& status));
 };
 
 class MockHttpEntryScribe : public HttpEntryScribe {
@@ -89,6 +97,8 @@ class MockHttpEntryScribe : public HttpEntryScribe {
 
   MOCK_METHOD1(NewEntry,
                MockHttpEntryScribe::Entry*(const HttpRequest* request));
+  MOCK_METHOD1(NewBatchEntry,
+               MockHttpEntryScribe::Entry*(const HttpRequestBatch* batch));
   MOCK_METHOD0(Checkpoint, void());
 };
 
@@ -106,7 +116,7 @@ class HttpScribeTestFixture : public testing::Test {
 };
 
 TEST_F(HttpScribeTestFixture, CensorUrl) {
-  scoped_ptr<HttpScribeCensor> censor(new HttpScribeCensor);
+  std::unique_ptr<HttpScribeCensor> censor(new HttpScribeCensor);
   string bad_url = StrCat(censored_base_url,
                           "?client_id=ID3&client_secret=SECRET"
                           "&data=DATA&refresh_token=REFRESH");
@@ -136,13 +146,12 @@ TEST_F(HttpScribeTestFixture, CensorUrl) {
 }
 
 TEST_F(HttpScribeTestFixture, CensorResponseWholeBody) {
-  scoped_ptr<HttpScribeCensor> censor(new HttpScribeCensor);
+  std::unique_ptr<HttpScribeCensor> censor(new HttpScribeCensor);
   const StringPiece kResponseBody("RESPONSE BODY");
   HttpResponse* response = request_.response();
   request_.set_url(StrCat(censored_base_url, "?arg=foo"));
 
-  response->set_body_reader(
-      client::NewUnmanagedInMemoryDataReader(kResponseBody));
+  response->set_body_reader(NewUnmanagedInMemoryDataReader(kResponseBody));
 
   int64 original_size;
   bool censored;
@@ -185,11 +194,10 @@ TEST_F(HttpScribeTestFixture, CensorPartialResponseBody) {
       "{\"A\":\"ok\", \"refresh_token\" :  \"X\"}");
   const StringPiece kCensoredBody(
       "{\"A\":\"ok\", \"refresh_token\" :  \"CENSORED\"}");
-  scoped_ptr<HttpScribeCensor> censor(new HttpScribeCensor);
+  std::unique_ptr<HttpScribeCensor> censor(new HttpScribeCensor);
   request_.set_url("https://www.google.com");
   HttpResponse* response = request_.response();
-  response->set_body_reader(
-      client::NewUnmanagedInMemoryDataReader(kResponseBody));
+  response->set_body_reader(NewUnmanagedInMemoryDataReader(kResponseBody));
   response->AddHeader(HttpRequest::HttpHeader_CONTENT_TYPE, "text/plain");
 
   bool censored = true;
@@ -212,7 +220,7 @@ TEST_F(HttpScribeTestFixture, CensorPartialResponseBody) {
 }
 
 TEST_F(HttpScribeTestFixture, CensorRequestHeader) {
-  scoped_ptr<HttpScribeCensor> censor(new HttpScribeCensor);
+  std::unique_ptr<HttpScribeCensor> censor(new HttpScribeCensor);
   request_.set_url("https://www.google.com");
 
   StringPiece value("value");
@@ -282,4 +290,87 @@ TEST_F(HttpScribeTestFixture, ScribeRequestFailure) {
   EXPECT_FALSE(request.Execute().ok());
 }
 
-} // namespace googleapis
+TEST_F(HttpScribeTestFixture, HttpRequestCensoring) {
+  const StringPiece kUrl = "THE URL";
+  const StringPiece kRequestHeader = "A-REQUEST-HEADER";
+  const StringPiece kRequestHeaderValue = "REQUEST HEADER VALUE";
+  const StringPiece kResponseHeader = "A-RESPONSE-HEADER";
+  const StringPiece kResponseHeaderValue = "RESPONSE HEADER VALUE";
+  const StringPiece kRequestContent = "REQUEST CONTENT";
+  const StringPiece kResponseBody = "RESPONSE BODY";
+
+  MockHttpTransport transport;
+  MockHttpRequest request(HttpRequest::POST, &transport);
+  EXPECT_EQ(request.scribe_restrictions(), HttpScribe::ALLOW_EVERYTHING);
+
+  request.set_url(kUrl.as_string());
+  request.AddHeader(kRequestHeader, kRequestHeaderValue);
+  request.set_content_reader(NewUnmanagedInMemoryDataReader(kRequestContent));
+  HttpResponse* response = request.response();
+  response->AddHeader(kResponseHeader, kResponseHeaderValue);
+  response->set_body_reader(NewUnmanagedInMemoryDataReader(kResponseBody));
+
+  int tests[] = {
+    HttpScribe::FLAG_NO_URL,
+    HttpScribe::FLAG_NO_REQUEST_HEADERS,
+    HttpScribe::FLAG_NO_RESPONSE_HEADERS,
+    HttpScribe::FLAG_NO_REQUEST_PAYLOAD,
+    HttpScribe::FLAG_NO_RESPONSE_PAYLOAD,
+    HttpScribe::MASK_NO_HEADERS,
+    HttpScribe::MASK_NO_PAYLOADS,
+    HttpScribe::MASK_NOTHING,
+  };
+
+  // Verify masks have expected bits set
+  EXPECT_EQ(HttpScribe::MASK_NO_HEADERS,
+            HttpScribe::FLAG_NO_REQUEST_HEADERS
+            | HttpScribe::FLAG_NO_RESPONSE_HEADERS);
+
+  EXPECT_EQ(HttpScribe::MASK_NO_PAYLOADS,
+            HttpScribe::FLAG_NO_REQUEST_PAYLOAD
+            | HttpScribe::FLAG_NO_RESPONSE_PAYLOAD);
+
+  EXPECT_EQ(HttpScribe::MASK_NOTHING,
+            HttpScribe::FLAG_NO_URL
+            | HttpScribe::FLAG_NO_REQUEST_HEADERS
+            | HttpScribe::FLAG_NO_REQUEST_PAYLOAD
+            | HttpScribe::FLAG_NO_RESPONSE_HEADERS
+            | HttpScribe::FLAG_NO_RESPONSE_PAYLOAD);
+
+  // Check different hard-wired censoring into the requests.
+  HttpScribeCensor censor;
+  for (int i = 0; i < ARRAYSIZE(tests); ++i) {
+    string got;
+    int64 original_size;
+    bool censored;
+    request.set_scribe_restrictions(tests[i]);
+
+    got = censor.GetCensoredUrl(request, &censored);
+    EXPECT_EQ((tests[i] & HttpScribe::FLAG_NO_URL) != 0, censored);
+    EXPECT_EQ(!censored, got == kUrl);
+
+    got = censor.GetCensoredRequestHeaderValue(
+        request, kRequestHeader, kRequestHeaderValue, &censored);
+    EXPECT_EQ((tests[i] & HttpScribe::FLAG_NO_REQUEST_HEADERS) != 0, censored);
+    EXPECT_EQ(!censored, got == kRequestHeaderValue);
+
+    got = censor.GetCensoredResponseHeaderValue(
+        request, kResponseHeader, kResponseHeaderValue, &censored);
+    EXPECT_EQ((tests[i] & HttpScribe::FLAG_NO_RESPONSE_HEADERS) != 0, censored);
+    EXPECT_EQ(!censored, got == kResponseHeaderValue);
+
+    got = censor.GetCensoredRequestContent(
+        request, kint64max, &original_size, &censored);
+    EXPECT_EQ((tests[i] & HttpScribe::FLAG_NO_REQUEST_PAYLOAD) != 0, censored);
+    EXPECT_EQ(kRequestContent.size(), original_size);
+    EXPECT_EQ(!censored, got == kRequestContent);
+
+    got = censor.GetCensoredResponseBody(
+        request, kint64max, &original_size, &censored);
+    EXPECT_EQ((tests[i] & HttpScribe::FLAG_NO_RESPONSE_PAYLOAD) != 0, censored);
+    EXPECT_EQ(kResponseBody.size(), original_size);
+    EXPECT_EQ(!censored, got == kResponseBody);
+  }
+}
+
+}  // namespace googleapis

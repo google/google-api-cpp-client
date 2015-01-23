@@ -65,4 +65,4 @@ vector<StringPiece> Split(
 
 } // namespace strings
 
-} // namespace googleapis
+}  // namespace googleapis

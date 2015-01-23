@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <string>
 using std::string;
@@ -44,9 +43,9 @@ Codec::~Codec() {
 }
 
 util::Status Codec::Encode(const StringPiece& plain, string* encoded) {
-  scoped_ptr<DataReader> source(NewUnmanagedInMemoryDataReader(plain));
+  std::unique_ptr<DataReader> source(NewUnmanagedInMemoryDataReader(plain));
   util::Status status;
-  scoped_ptr<DataReader> reader(
+  std::unique_ptr<DataReader> reader(
       NewUnmanagedEncodingReader(source.get(), &status));
   if (status.ok()) {
     *encoded = reader->RemainderToString();
@@ -58,9 +57,9 @@ util::Status Codec::Encode(const StringPiece& plain, string* encoded) {
 }
 
 util::Status Codec::Decode(const StringPiece& encoded, string* plain) {
-  scoped_ptr<DataReader> source(NewUnmanagedInMemoryDataReader(encoded));
+  std::unique_ptr<DataReader> source(NewUnmanagedInMemoryDataReader(encoded));
   util::Status status;
-  scoped_ptr<DataReader> reader(
+  std::unique_ptr<DataReader> reader(
       NewUnmanagedDecodingReader(source.get(), &status));
   if (status.ok()) {
     *plain = reader->RemainderToString();
@@ -86,7 +85,7 @@ struct CodecReader::Buffer {
   }
 
   int allocated;
-  scoped_ptr<char[]> storage;
+  std::unique_ptr<char[]> storage;
   const char* ptr;
   const char* end;
 };
@@ -201,4 +200,4 @@ int64 CodecReader::DoSetOffset(int64 to_offset) {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

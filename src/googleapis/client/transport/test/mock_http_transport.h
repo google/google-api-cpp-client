@@ -65,6 +65,7 @@ class MockAuthorizationCredential : public AuthorizationCredential {
   MOCK_CONST_METHOD0(type, const StringPiece());
   MOCK_METHOD1(AuthorizeRequest, util::Status(HttpRequest* request));
   MOCK_METHOD0(Refresh, util::Status());
+  MOCK_METHOD1(RefreshAsync, void(Callback1<util::Status>* callback));
   MOCK_METHOD1(Load, util::Status(DataReader* reader));
   MOCK_CONST_METHOD0(MakeDataReader, DataReader*());
 };
@@ -186,5 +187,5 @@ class MockHttpTransportFactory : public HttpTransportFactory {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_MOCK_HTTP_TRANSPORT_H_

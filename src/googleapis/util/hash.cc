@@ -88,4 +88,4 @@ uint64 FingerprintReferenceImplementation(const char *s, uint32 len) {
   return Hash64StringWithSeed(s, len, 42);
 }
 
-} // namespace googleapis
+}  // namespace googleapis

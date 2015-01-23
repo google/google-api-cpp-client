@@ -23,8 +23,9 @@ using std::string;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/jsoncpp_data.h"
 #include "googleapis/client/util/status.h"
-#include <json/reader.h>
-#include <json/writer.h>
+#include <glog/logging.h>
+#include <jsoncpp/reader.h>
+#include <jsoncpp/writer.h>
 
 namespace googleapis {
 
@@ -37,6 +38,10 @@ JsonCppData::JsonCppData(Json::Value* value)
   : is_mutable_(true), value_(value) {
 }
 JsonCppData::~JsonCppData() {
+}
+
+void JsonCppData::CheckIsMutable() const {
+  CHECK(is_mutable_);
 }
 
 DataReader* JsonCppData::MakeJsonReader() const {
@@ -93,4 +98,4 @@ JsonCppDictionary::JsonCppDictionary(Json::Value* value)
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

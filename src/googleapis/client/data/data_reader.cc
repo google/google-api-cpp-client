@@ -20,6 +20,7 @@
 //
 // Implements the DataReader base class.
 
+#include <memory>
 #include <string>
 using std::string;
 
@@ -28,6 +29,7 @@ using std::string;
 #include "googleapis/base/integral_types.h"
 #include <glog/logging.h>
 #include "googleapis/strings/strcat.h"
+#include "googleapis/util/free_deleter.h"
 
 namespace googleapis {
 
@@ -93,7 +95,7 @@ int64 DataReader::ReadToString(int64 max_bytes, string* append_to) {
     }
   }
 
-  scoped_ptr<char, base::FreeDeleter> buffer(
+  std::unique_ptr<char, util::memory::FreeDeleter> buffer(
       reinterpret_cast<char*>(malloc(kDefaultBufferSize)));
   char* storage = buffer.get();
   if (storage == NULL) {
@@ -104,7 +106,7 @@ int64 DataReader::ReadToString(int64 max_bytes, string* append_to) {
   int64 total_read = 0;
   while (total_read < max_bytes && !done()) {
     const int64 bytes_to_read =
-        min(kDefaultBufferSize, max_bytes - total_read);
+        std::min(kDefaultBufferSize, max_bytes - total_read);
     int64 read = DoReadToBuffer(bytes_to_read, storage);
     DCHECK_LE(0, read);  // specialization violated interface
     if (read < 0) {
@@ -141,9 +143,69 @@ int64 DataReader::ReadToBuffer(int64 max_bytes, char* storage) {
   return total_read;
 }
 
+bool DataReader::ReadUntilPatternInclusive(
+    const string &pattern, string* consumed) {
+  consumed->clear();
+  bool result = DoAppendUntilPatternInclusive(pattern, consumed);
+  offset_ += consumed->size();
+  return result;
+}
+
 int64 DataReader::DoSetOffset(int64 position) {
   set_status(StatusUnimplemented("Reader cannot seek to offset"));
   return -1;
+}
+
+bool DataReader::DoAppendUntilPatternInclusive(
+    const string& pattern, string* consumed) {
+  const char* find = pattern.c_str();
+  int64 found_offset = consumed->size();
+  while (*find) {
+    if (done()) return false;
+    int64 original_size = consumed->size();
+    char c;
+    if (!DoReadToBuffer(1, &c)) continue;
+    consumed->push_back(c);
+    if (c == *find) {
+      ++find;
+      continue;
+    }
+
+    // We arent matching the pattern so reset our pattern.
+    // But if the pattern has a repeated substring then we might still be
+    // in the middle of matching it from an offset between the old
+    // found_offset and the end of the consumed string. So let's look for
+    // one.
+    //
+    // This wont be the case if we werent in the middle of matching a string
+    if (found_offset == original_size) {
+      ++found_offset;
+      continue;
+    }
+
+    const char* end_consumed = consumed->c_str() + consumed->size();
+    while ((found_offset = consumed->find(
+               pattern.c_str(), found_offset + 1, 1)) != string::npos) {
+      const char* have;
+      for (have = consumed->c_str() + found_offset + 1,
+               find = pattern.c_str() + 1;
+           have < end_consumed && *find == *have;
+           ++find, ++have) {
+      }
+      if (have == end_consumed) break;
+
+      // Start over again from a found_offset closer to the end of the
+      // consumed string.
+    }
+
+    if (found_offset == string::npos) {
+      // The consumed string so far doesnt end with a substring of the pattern.
+      found_offset = consumed->size();
+      find = pattern.c_str();
+    }
+  }
+
+  return true;
 }
 
 class InvalidDataReader : public DataReader {
@@ -172,4 +234,4 @@ DataReader* NewManagedInvalidDataReader(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

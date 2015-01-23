@@ -28,14 +28,12 @@
 #ifndef BASE_INTEGRAL_TYPES_H_
 #define BASE_INTEGRAL_TYPES_H_
 
-// These typedefs are also defined in base/google.swig. In the
+// These typedefs are also defined in base/swig/google.swig. In the
 // SWIG environment, we use those definitions and avoid duplicate
 // definitions here with an ifdef. The definitions should be the
 // same in both files, and ideally be only defined in this file.
 #ifndef SWIG
 // Standard typedefs
-// All Google2 code is compiled with -funsigned-char to make "char"
-// unsigned.  Google2 code therefore doesn't need a "uchar" type.
 typedef signed char         schar;
 typedef signed char         int8;
 typedef short               int16;
@@ -71,7 +69,7 @@ typedef signed int         char32;
 // scanning through memory for checksums or index searching). Don't use
 // this for storing normal integers. Ideally this would be just
 // unsigned int, but our 64-bit architectures use the LP64 model
-// (http://www.opengroup.org/public/tech/aspen/lp64_wp.htm), hence
+// (http://en.wikipedia.org/wiki/64-bit_computing#64-bit_data_models), hence
 // their ints are only 32 bits. We want to use the same fundamental
 // type on all archs if possible to preserve *printf() compatability.
 typedef unsigned long      uword_t;

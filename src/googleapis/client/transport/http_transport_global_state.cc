@@ -53,4 +53,4 @@ HttpTransportLayerConfig* GetGlobalHttpTransportLayerConfiguration() {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

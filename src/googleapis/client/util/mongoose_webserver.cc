@@ -69,7 +69,7 @@ class MongooseResponse : public WebServerResponse {
     for (vector<string>::const_iterator it = cookies_.begin();
          it != cookies_.end();
          ++it) {
-      StrAppend(&headers, "Set-Cookie:", it->c_str(), "\r\n");
+      StrAppend(&headers, "Set-Cookie:", *it, "\r\n");
     }
     StrAppend(&headers, "\r\n");
     int wrote = mg_write(connection_, headers.c_str(), headers.size());
@@ -109,7 +109,7 @@ class MongooseResponse : public WebServerResponse {
   vector<string> cookies_;
 };
 
-// TODO(ewiseblatt): 20130626
+// TODO(user): 20130626
 // This doesnt read the post data, but there isnt really an
 // interface to get at it anyway. The current interface is only
 // intended to suppport OAuth 2.0 redirects, which GET a redirect.
@@ -131,17 +131,17 @@ class MongooseRequest : public WebServerRequest {
     char* buffer = local_storage;
     MongooseResponse* webserver_response =
         static_cast<MongooseResponse*>(response());
-    int result = mg_get_cookie(
-        webserver_response->connection(), key, buffer, sizeof(local_storage));
+    const char* cookies =
+        mg_get_header(webserver_response->connection(), "Cookie");
+    int result = mg_get_cookie(cookies, key, buffer, sizeof(local_storage));
 
     size_t size = 0;
-    scoped_ptr<char[]> heap_storage;
+    std::unique_ptr<char[]> heap_storage;
 
     if (result == -2) {
       heap_storage.reset(new char[size]);
       buffer = heap_storage.get();
-      result =
-          mg_get_cookie(webserver_response->connection(), key, buffer, size);
+      result = mg_get_cookie(cookies, key, buffer, size);
     }
     if (result >= 0) {
       value->assign(buffer, result);
@@ -221,7 +221,8 @@ util::Status MongooseWebServer::DoStartup() {
   if (!use_ssl()) {
     LOG(WARNING) << "Starting embedded MicroHttpd webserver without SSL";
   }
-  scoped_ptr<const char* []> options(new const char*[2 * options_.size() + 1]);
+  std::unique_ptr<const char* []> options(
+      new const char*[2 * options_.size() + 1]);
   const char** next_option_ptr = options.get();
   for (map<string, string>::const_iterator it = options_.begin();
        it != options_.end();
@@ -248,4 +249,4 @@ void MongooseWebServer::DoShutdown() {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

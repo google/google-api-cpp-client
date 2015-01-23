@@ -45,6 +45,7 @@ using std::string;
 #include "googleapis/base/strtoint.h"
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/case.h"
+#include "googleapis/strings/strcat.h"
 
 namespace googleapis {
 
@@ -98,7 +99,7 @@ static inline bool EatADouble(const char** text, int* len, bool allow_question,
     retval = strtod(pos, &end_nonconst);
   } else {
     // not '\0'-terminated & no obvious terminator found. must copy.
-    scoped_array<char> buf(new char[rem + 1]);
+    scoped_ptr<char[]> buf(new char[rem + 1]);
     memcpy(buf.get(), pos, rem);
     buf[rem] = '\0';
     retval = strtod(buf.get(), &end_nonconst);
@@ -527,12 +528,9 @@ string FpToString(Fprint fp) {
 
 // Default arguments
 string Uint128ToHexString(uint128 ui128) {
-  char buf[33];
-  snprintf(buf, sizeof(buf), "%016" GG_LL_FORMAT "x",
-           Uint128High64(ui128));
-  snprintf(buf + 16, sizeof(buf) - 16, "%016" GG_LL_FORMAT "x",
-           Uint128Low64(ui128));
-  return string(buf);
+  using strings::Hex;
+  return StrCat(Hex(Uint128High64(ui128), Hex::ZERO_PAD_16),
+                Hex(Uint128Low64(ui128),  Hex::ZERO_PAD_16));
 }
 
 bool HexStringToUint128(StringPiece hex, uint128* value) {
@@ -541,7 +539,7 @@ bool HexStringToUint128(StringPiece hex, uint128* value) {
   // Verify that there are no invalid characters.
   if (hex.find_first_not_of("0123456789abcdefABCDEF", 0) != StringPiece::npos)
     return false;
-  // Consume 16 character suffixes and parse them as we go beore merging.
+  // Consume 16 character suffixes and parse them as we go before merging.
   uint64 parts[2] = {0, 0};
   for (uint64* p = parts; !hex.empty(); ++p) {
     StringPiece next = hex;
@@ -617,6 +615,10 @@ inline bool safe_parse_sign_and_base(StringPiece* text  /*inout*/,
         (start[1] == 'x' || start[1] == 'X')) {
       base = 16;
       start += 2;
+      if (start >= end) {
+        // "0x" with no digits after is invalid.
+        return false;
+      }
     } else if (end - start >= 1 && start[0] == '0') {
       base = 8;
       start += 1;
@@ -627,6 +629,10 @@ inline bool safe_parse_sign_and_base(StringPiece* text  /*inout*/,
     if (end - start >= 2 && start[0] == '0' &&
         (start[1] == 'x' || start[1] == 'X')) {
       start += 2;
+      if (start >= end) {
+        // "0x" with no digits after is invalid.
+        return false;
+      }
     }
   } else if (base >= 2 && base <= 36) {
     // okay
@@ -673,14 +679,22 @@ inline bool safe_parse_positive_int(
   const char* start = text.data();
   const char* end = start + text.size();
   // loop over digits
-  // loop body is interleaved for perf, not readability
   for (; start < end; ++start) {
     unsigned char c = static_cast<unsigned char>(start[0]);
     int digit = kAsciiToInt[c];
-    if (value > vmax_over_base) return false;
+    if (digit >= base) {
+      *value_p = value;
+      return false;
+    }
+    if (value > vmax_over_base) {
+      *value_p = vmax;
+      return false;
+    }
     value *= base;
-    if (digit >= base) return false;
-    if (value > vmax - digit) return false;
+    if (value > vmax - digit) {
+      *value_p = vmax;
+      return false;
+    }
     value += digit;
   }
   *value_p = value;
@@ -705,14 +719,22 @@ inline bool safe_parse_negative_int(
   const char* start = text.data();
   const char* end = start + text.size();
   // loop over digits
-  // loop body is interleaved for perf, not readability
   for (; start < end; ++start) {
     unsigned char c = static_cast<unsigned char>(start[0]);
     int digit = kAsciiToInt[c];
-    if (value < vmin_over_base) return false;
+    if (digit >= base) {
+      *value_p = value;
+      return false;
+    }
+    if (value < vmin_over_base) {
+      *value_p = vmin;
+      return false;
+    }
     value *= base;
-    if (digit >= base) return false;
-    if (value < vmin + digit) return false;
+    if (value < vmin + digit) {
+      *value_p = vmin;
+      return false;
+    }
     value -= digit;
   }
   *value_p = value;
@@ -723,6 +745,7 @@ inline bool safe_parse_negative_int(
 // http://pubs.opengroup.org/onlinepubs/9699919799/functions/strtol.html
 template<typename IntType>
 bool safe_int_internal(StringPiece text, IntType* value_p, int base) {
+  *value_p = 0;
   bool negative;
   if (!safe_parse_sign_and_base(&text, &base, &negative)) {
     return false;
@@ -736,6 +759,7 @@ bool safe_int_internal(StringPiece text, IntType* value_p, int base) {
 
 template<typename IntType>
 inline bool safe_uint_internal(StringPiece text, IntType* value_p, int base) {
+  *value_p = 0;
   bool negative;
   if (!safe_parse_sign_and_base(&text, &base, &negative) || negative) {
     return false;
@@ -753,26 +777,6 @@ bool safe_strto64_base(StringPiece text, int64* value, int base) {
   return safe_int_internal<int64>(text, value, base);
 }
 
-bool safe_strto32(StringPiece text, int32* value) {
-  return safe_int_internal<int32>(text, value, 10);
-}
-
-bool safe_strto64(StringPiece text, int64* value) {
-  return safe_int_internal<int64>(text, value, 10);
-}
-
-bool safe_strtou32(StringPiece text, uint32* value) {
-  return safe_uint_internal<uint32>(text, value, 10);
-}
-
-bool safe_strtou64(StringPiece text, uint64* value) {
-  return safe_uint_internal<uint64>(text, value, 10);
-}
-
-bool safe_strtosize_t(StringPiece text, size_t* value) {
-  return safe_uint_internal<size_t>(text, value, 10);
-}
-
 bool safe_strtou32_base(StringPiece text, uint32* value, int base) {
   return safe_uint_internal<uint32>(text, value, base);
 }
@@ -783,56 +787,6 @@ bool safe_strtou64_base(StringPiece text, uint64* value, int base) {
 
 bool safe_strtosize_t_base(StringPiece text, size_t* value, int base) {
   return safe_uint_internal<size_t>(text, value, base);
-}
-
-bool safe_strto32_base(const char* str, int32* value, int base) {
-  char* endptr;
-  errno = 0;  // errno only gets set on errors
-  *value = strto32(str, &endptr, base);
-  if (endptr != str) {
-    while (ascii_isspace(*endptr)) ++endptr;
-  }
-  return *str != '\0' && *endptr == '\0' && errno == 0;
-}
-
-bool safe_strto64_base(const char* str, int64* value, int base) {
-  char* endptr;
-  errno = 0;  // errno only gets set on errors
-  *value = strto64(str, &endptr, base);
-  if (endptr != str) {
-    while (ascii_isspace(*endptr)) ++endptr;
-  }
-  return *str != '\0' && *endptr == '\0' && errno == 0;
-}
-
-bool safe_strtou32_base(const char* str, uint32* value, int base) {
-  // strtoul does not give any errors on negative numbers, so we have to
-  // search the string for '-' manually.
-  while (ascii_isspace(*str)) ++str;
-  if (*str == '-') return false;
-
-  char* endptr;
-  errno = 0;  // errno only gets set on errors
-  *value = strtou32(str, &endptr, base);
-  if (endptr != str) {
-    while (ascii_isspace(*endptr)) ++endptr;
-  }
-  return *str != '\0' && *endptr == '\0' && errno == 0;
-}
-
-bool safe_strtou64_base(const char* str, uint64* value, int base) {
-  // strtou64 does not give any errors on negative numbers, so we have to
-  // search the string for '-' manually.
-  while (ascii_isspace(*str)) ++str;
-  if (*str == '-') return false;
-
-  char* endptr;
-  errno = 0;  // errno only gets set on errors
-  *value = strtou64(str, &endptr, base);
-  if (endptr != str) {
-    while (ascii_isspace(*endptr)) ++endptr;
-  }
-  return *str != '\0' && *endptr == '\0' && errno == 0;
 }
 
 // ----------------------------------------------------------------------
@@ -861,23 +815,6 @@ size_t u64tostr_base36(uint64 number, size_t buf_size, char* buffer) {
 
   return result_size - 1;
 }
-
-// Generate functions that wrap safe_strtoXXX_base.
-#define GEN_SAFE_STRTO(name, type)                           \
-bool name##_base(const string& str, type* value, int base) { \
-  return name##_base(str.c_str(), value, base);              \
-}                                                            \
-bool name(const char* str, type* value) {                    \
-  return name##_base(str, value, 10);                        \
-}                                                            \
-bool name(const string& str, type* value) {                  \
-  return name##_base(str.c_str(), value, 10);                \
-}
-GEN_SAFE_STRTO(safe_strto32, int32);
-GEN_SAFE_STRTO(safe_strtou32, uint32);
-GEN_SAFE_STRTO(safe_strto64, int64);
-GEN_SAFE_STRTO(safe_strtou64, uint64);
-#undef GEN_SAFE_STRTO
 
 bool safe_strtof(const char* str, float* value) {
   char* endptr;
@@ -908,6 +845,7 @@ bool safe_strtod(const char* str, double* value) {
   return *str != '\0' && *endptr == '\0';
 }
 
+#if defined(HAS_GLOBAL_STRING)
 bool safe_strtof(const string& str, float* value) {
   return safe_strtof(str.c_str(), value);
 }
@@ -915,6 +853,24 @@ bool safe_strtof(const string& str, float* value) {
 bool safe_strtod(const string& str, double* value) {
   return safe_strtod(str.c_str(), value);
 }
+#endif  // HAS_GLOBAL_STRING
+
+bool safe_strtof(StringPiece str, float* value) {
+  return safe_strtof(str.ToString(), value);
+}
+
+bool safe_strtod(StringPiece str, double* value) {
+  return safe_strtod(str.ToString(), value);
+}
+
+bool safe_strtof(const std::string& str, float* value) {
+  return safe_strtof(str.c_str(), value);
+}
+
+bool safe_strtod(const std::string& str, double* value) {
+  return safe_strtod(str.c_str(), value);
+}
+
 
 bool safe_strtob(StringPiece str, bool* value) {
   CHECK(value != NULL) << "NULL output boolean given.";
@@ -983,10 +939,6 @@ uint64 atoi_kmgt(const char* s) {
 //    which may not be the beginning of the input buffer.  (Though
 //    for FastTimeToBuffer(), we guarantee that it is.)
 // ----------------------------------------------------------------------
-
-// Offset into buffer where FastInt32ToBuffer places the end of string
-// null character.  Also used by FastInt32ToBufferLeft
-static const int kFastInt32ToBufferOffset = 11;
 
 char *FastHexToBuffer(int i, char* buffer) {
   CHECK_GE(i, 0) << "FastHexToBuffer() wants non-negative integers, not " << i;
@@ -1197,7 +1149,7 @@ int AutoDigitStrCmp(const char* a, int alen,
   int aindex = 0;
   int bindex = 0;
   while ((aindex < alen) && (bindex < blen)) {
-    if (isdigit(a[aindex]) && isdigit(b[bindex])) {
+    if (ascii_isdigit(a[aindex]) && ascii_isdigit(b[bindex])) {
       // Compare runs of digits.  Instead of extracting numbers, we
       // just skip leading zeroes, and then get the run-lengths.  This
       // allows us to handle arbitrary precision numbers.  We remember
@@ -1215,8 +1167,8 @@ int AutoDigitStrCmp(const char* a, int alen,
       // Count digit lengths
       int astart = aindex;
       int bstart = bindex;
-      while ((aindex < alen) && isdigit(a[aindex])) aindex++;
-      while ((bindex < blen) && isdigit(b[bindex])) bindex++;
+      while ((aindex < alen) && ascii_isdigit(a[aindex])) aindex++;
+      while ((bindex < blen) && ascii_isdigit(b[bindex])) bindex++;
       if (aindex - astart < bindex - bstart) {
         // a has shorter run of digits: so smaller
         return -1;
@@ -1316,6 +1268,14 @@ bool StrictAutoDigitLessThan(const char* a, int alen,
 //    implementation.
 // ----------------------------------------------------------------------
 
+// Although DBL_DIG is typically 15, DBL_MAX is normally represented with 17
+// digits of precision. When converted to a string value with fewer digits
+// of precision using strtod(), the result can be bigger than DBL_MAX due to
+// a rounding error. Converting this value back to a double will produce an
+// Inf which will trigger a SIGFPE if FP exceptions are enabled. We skip
+// the precision check for sufficiently large values to avoid the SIGFPE.
+static const double kDoublePrecisionCheckMax = DBL_MAX / 1.000000000000001;
+
 string SimpleDtoa(double value) {
   char buffer[kFastToBufferSize];
   return DoubleToBuffer(value, buffer);
@@ -1333,16 +1293,21 @@ char* DoubleToBuffer(double value, char* buffer) {
   // this assert.
   COMPILE_ASSERT(DBL_DIG < 20, DBL_DIG_is_too_big);
 
-  int snprintf_result =
-    snprintf(buffer, kFastToBufferSize, "%.*g", DBL_DIG, value);
+  bool full_precision_needed = true;
+  if (std::abs(value) <= kDoublePrecisionCheckMax) {
+    int snprintf_result =
+        snprintf(buffer, kFastToBufferSize, "%.*g", DBL_DIG, value);
 
-  // The snprintf should never overflow because the buffer is significantly
-  // larger than the precision we asked for.
-  DCHECK(snprintf_result > 0 && snprintf_result < kFastToBufferSize);
+    // The snprintf should never overflow because the buffer is significantly
+    // larger than the precision we asked for.
+    DCHECK(snprintf_result > 0 && snprintf_result < kFastToBufferSize);
 
-  if (strtod(buffer, NULL) != value) {
-    snprintf_result =
-      snprintf(buffer, kFastToBufferSize, "%.*g", DBL_DIG+2, value);
+    full_precision_needed = strtod(buffer, NULL) != value;
+  }
+
+  if (full_precision_needed) {
+    int snprintf_result =
+        snprintf(buffer, kFastToBufferSize, "%.*g", DBL_DIG + 2, value);
 
     // Should never overflow; see above.
     DCHECK(snprintf_result > 0 && snprintf_result < kFastToBufferSize);
@@ -1416,4 +1381,79 @@ string ItoaKMGT(int64 i) {
   return StringPrintf("%s%" GG_LL_FORMAT "d%s", sign, val, suffix);
 }
 
-} // namespace googleapis
+namespace strings {
+
+namespace internal {
+
+// Helper function for creating log messages.
+// We cannot log bad floating-point values directly.
+// If we need to log in the first place,
+// the value might be poisonous (unformattable somehow).
+
+static string ValueToPrettyString(const void* value_ptr, size_t value_length) {
+  static const char hex[] = "0123456789abcdef";
+  string pretty_string;
+  const unsigned char* value = static_cast<const unsigned char*>(value_ptr);
+  for (size_t i = 0; i < value_length; ++i) {
+    if (i > 0) {
+      pretty_string.append(" ");
+    }
+    pretty_string.append("0x");
+    pretty_string.push_back(hex[value[i] >> 8]);
+    pretty_string.push_back(hex[value[i] & 0x0f]);
+  }
+  return pretty_string;
+}
+
+char* FloatToCharBuffer(float value, char* buffer, size_t buffer_length) {
+  CHECK_GE(buffer_length, kFastToBufferSize);
+  // Try precisions: 6, 8, 9.  We are constrained by compatibility:
+  // some developers have stored previous outputs as data keys.
+  int rc = snprintf(buffer, buffer_length, "%.6g", value);
+  if (rc >= 0 && strtof(buffer, NULL) == value) {
+    return buffer;
+  }
+  rc = snprintf(buffer, buffer_length, "%.8g", value);
+  if (rc >= 0 && strtof(buffer, NULL) == value) {
+    return buffer;
+  }
+  rc = snprintf(buffer, buffer_length, "%.9g", value);
+  if (rc >= 0) {
+    return buffer;
+  }
+  // We cannot succeed.
+  // Log and give up.
+  LOG(DFATAL) << "snprintf failed: value: "
+              << ValueToPrettyString(&value, sizeof(value))
+              << " last rc: " << rc;
+  snprintf(buffer, buffer_length, "nan");
+  return buffer;
+}
+
+char* DoubleToCharBuffer(double value, char* buffer, size_t buffer_length) {
+  CHECK_GE(buffer_length, kFastToBufferSize);
+  // Try precisions: 15, 17.  Again, constrained by compatibility.
+  if (std::abs(value) <= kDoublePrecisionCheckMax) {
+    int rc = snprintf(buffer, buffer_length, "%.15g", value);
+    if (rc >= 0 && strtod(buffer, NULL) == value) {
+      return buffer;
+    }
+  }
+  int rc = snprintf(buffer, buffer_length, "%.17g", value);
+  if (rc >= 0) {
+    return buffer;
+  }
+  // We cannot succeed.
+  // Log and give up.
+  LOG(DFATAL) << "snprintf failed: value: "
+              << ValueToPrettyString(&value, sizeof(value))
+              << " last rc: " << rc;
+  snprintf(buffer, buffer_length, "nan");
+  return buffer;
+}
+
+}  // namespace internal
+
+}  // namespace strings
+
+}  // namespace googleapis

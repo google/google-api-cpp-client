@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <iostream>
 using std::cout;
@@ -30,7 +29,9 @@ using std::string;
 #include <glog/logging.h>
 #include "googleapis/client/data/serializable_json.h"
 #include "googleapis/client/service/client_service.h"
+#include "googleapis/client/service/media_uploader.h"
 #include "googleapis/client/transport/http_request.h"
+#include "googleapis/client/transport/http_request_batch.h"
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/util/status.h"
@@ -50,15 +51,32 @@ ClientServiceRequest::ClientServiceRequest(
     const HttpRequest::HttpMethod& method,
     const StringPiece& uri_template)
     : http_request_(service->transport()->NewHttpRequest(method)),
-      destroy_when_done_(false), use_media_download_(false) {
+      destroy_when_done_(false), use_media_download_(false),
+      uri_template_(uri_template.as_string()) {
   http_request_->set_credential(credential);  // can be NULL
-  http_request_->set_url(uri_template.as_string());
 
   // We own the request so make sure it wont auto destroy
   http_request_->mutable_options()->set_destroy_when_done(false);
 }
 
 ClientServiceRequest::~ClientServiceRequest() {
+}
+
+HttpRequest* ClientServiceRequest::ConvertToHttpRequestAndDestroy() {
+  util::Status status = PrepareHttpRequest();
+  if (!status.ok()) {
+    LOG(WARNING) << "Error preparing request: " << status.error_message();
+    http_request_->mutable_state()->set_transport_status(status);
+  }
+  HttpRequest* result = http_request_.release();
+  delete this;
+  return result;
+}
+
+HttpRequest* ClientServiceRequest::ConvertIntoHttpRequestBatchAndDestroy(
+    HttpRequestBatch* batch, HttpRequestCallback* callback) {
+  HttpRequest* http_request = ConvertToHttpRequestAndDestroy();
+  return batch->AddFromGenericRequestAndRetire(http_request, callback);
 }
 
 void ClientServiceRequest::DestroyWhenDone() {
@@ -75,36 +93,34 @@ void ClientServiceRequest::DestroyWhenDone() {
   }
 }
 
-util::Status ClientServiceRequest::PrepareHttpRequest(
-     HttpRequestCallback* callback) {
+util::Status ClientServiceRequest::PrepareHttpRequest() {
   string url;
-  util::Status status = PrepareUrl(http_request_->url(), &url);
-  if (status.ok()) {
-    http_request_->set_url(url);
-  } else {
-    http_request_->WillNotExecute(status, callback);
-  }
+  util::Status status = PrepareUrl(uri_template_, &url);
+  http_request_->set_url(url);
   VLOG(1) << "Prepared url:" << url;
   return status;
 }
 
 util::Status ClientServiceRequest::PrepareUrl(
     const StringPiece& templated_url, string* prepared_url) {
-  scoped_ptr<UriTemplate::AppendVariableCallback> callback(
+  std::unique_ptr<UriTemplate::AppendVariableCallback> callback(
       NewPermanentCallback(this, &ClientServiceRequest::CallAppendVariable));
-  util::Status status =
-      UriTemplate::Expand(templated_url, callback.get(), prepared_url);
-  if (!status.ok()) {
-    LOG(ERROR) << status.error_message();
-    return status;
-  }
 
-  return AppendOptionalQueryParameters(prepared_url);
+  // Attempt to expand everything for best effort.
+  util::Status expand_status =
+      UriTemplate::Expand(templated_url, callback.get(), prepared_url);
+  util::Status query_status = AppendOptionalQueryParameters(prepared_url);
+
+  return expand_status.ok() ? query_status : expand_status;
 }
 
 util::Status ClientServiceRequest::Execute() {
+  if (uploader_.get()) {
+    return this->ExecuteWithUploader();
+  }
   util::Status status = PrepareHttpRequest();
   if (!status.ok()) {
+    http_request_->WillNotExecute(status);
     return status;
   }
 
@@ -114,6 +130,18 @@ util::Status ClientServiceRequest::Execute() {
     delete this;
   }
   return status;
+}
+
+util::Status ClientServiceRequest::ExecuteWithUploader() {
+  client::HttpRequest* request = mutable_http_request();
+  googleapis::util::Status status =
+    uploader_->BuildRequest(
+        request,
+        NewCallback(this, &ClientServiceRequest::PrepareUrl));
+  if (!status.ok()) {
+    return status;
+  }
+  return uploader_->Upload(request);
 }
 
 util::Status ClientServiceRequest::ExecuteAndParseResponse(
@@ -135,7 +163,7 @@ void ClientServiceRequest::CallbackThenDestroy(
   callback->Run(request);
   VLOG(1) << "Auto-deleting request because it is done.";
 
-  // TODO(ewiseblatt): 20130318
+  // TODO(user): 20130318
   // This is called by HttpRequest::Execute via DoExecute which expects the
   // request to still be valid so it can auto-destroy. Maybe I should cache
   // that value before calling the callback to permit the callback to destroy
@@ -159,10 +187,31 @@ void ClientServiceRequest::ExecuteAsync(HttpRequestCallback* callback) {
                     callback);
     callback = destroy_request;
   }
+  if (callback) {
+    // bind the callback here so if PrepareHttpRequest fails then we
+    // can notify the callback.
+    http_request_->set_callback(callback);
+  }
 
-  util::Status status = PrepareHttpRequest(callback);
-  if (status.ok()) {
-    http_request_->ExecuteAsync(callback);
+  util::Status status;
+  if (uploader_.get()) {
+    status = uploader_->BuildRequest(
+        http_request_.get(),
+        NewCallback(this, &ClientServiceRequest::PrepareUrl));
+  } else {
+    status = PrepareHttpRequest();
+  }
+  if (!status.ok()) {
+    http_request_->WillNotExecute(status);
+    return;
+  }
+
+  // We already bound the callback, so it does not have to be passed to the
+  // executor.
+  if (uploader_.get()) {
+    uploader_->UploadAsync(http_request_.get(), NULL);
+  } else {
+    http_request_->ExecuteAsync(NULL);
   }
 }
 
@@ -234,6 +283,10 @@ util::Status ClientServiceRequest::CallAppendVariable(
   return status;
 }
 
+void ClientServiceRequest::ResetMediaUploader(MediaUploader* uploader) {
+  return uploader_.reset(uploader);
+}
+
 
 ClientService::ClientService(
     const StringPiece& url_root,
@@ -264,4 +317,4 @@ void ClientService::ChangeServiceUrl(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

@@ -46,6 +46,8 @@ inline void gmtime_r(const long* secs, struct tm* out) {
 #endif
 
 namespace client {
+class Date;
+
 
 /*
  * Represents a date convertable among various standard
@@ -196,6 +198,8 @@ class DateTime {
  protected:
   struct timeval t_;
   static const time_t kInvalidEpoch_;
+  friend class Date;
+
 
   /*
    * Marks this date as being invalid.
@@ -211,7 +215,55 @@ class DateTime {
   explicit DateTime(const struct tm& local);
 };
 
+/*
+ * Represents a simple date used by JSON encodings.
+ * @ingroup PlatformLayer
+ */
+class Date {
+ public:
+  /*
+   * Construct a Date from a DateTime instance.
+   */
+  explicit Date(const DateTime& date_time) : date_time_(date_time) {}
+
+  /*
+   * Construct a Date from a string in the form YYYY-MM-DD.
+   */
+  explicit Date(const string& yyyymmdd);
+
+  /*
+   * Copy constructor from another date.
+   */
+  Date(const Date& date) : date_time_(date.date_time_) {}
+
+  /*
+   * Default constructor for today.
+   */
+  Date() {}
+
+  /*
+   * Standard destructor.
+   */
+  ~Date() {}
+
+  /*
+   * Standard assignment operator.
+   */
+  Date& operator=(const Date& date) {
+    date_time_ = date.date_time_;
+    return *this;
+  }
+
+  /*
+   * Convert date to YYYY-MM-DD string.
+   */
+  string ToYYYYMMDD() const;
+
+ private:
+  DateTime date_time_;
+};
+
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_UTIL_DATE_TIME_H_

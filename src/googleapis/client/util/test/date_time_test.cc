@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <time.h>
 #include <string>
@@ -197,4 +196,4 @@ TEST_F(DateTimeTestFixture, TestCompare) {
   }
 }
 
-} // namespace googleapis
+}  // namespace googleapis

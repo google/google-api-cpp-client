@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <string>
 using std::string;
@@ -86,9 +85,9 @@ void MediaUploader::set_metadata(
 
 void MediaUploader::set_metadata(const SerializableJson& from_json) {
   std::ostringstream stream;
-  // TODO(ewiseblatt): make this a reader.
+  // TODO(user): make this a reader.
   from_json.StoreToJsonStream(&stream).IgnoreError();
-  metadata_content_ = stream.str();  // TODO(ewiseblatt): can we swap?
+  metadata_content_ = stream.str();  // TODO(user): can we swap?
   metadata_content_type_ = "application/json";
   ready_ = false;
 }
@@ -102,12 +101,12 @@ util::Status MediaUploader::BuildRequest(
   }
 
   string content_type;
-  scoped_ptr<DataReader> payload_reader;
+  std::unique_ptr<DataReader> payload_reader;
   StringPiece upload_type;
   util::Status status;
 
   // If there is no metadata, then this is just the media content.
-  if (!media_content_reader_.get()) {
+  if (!media_content_reader_.get() && media_content_type_.empty()) {
     if (metadata_content_type_.empty()) {
       StringPiece error = "Neither content nor metadata provided";
       LOG(ERROR) << error;
@@ -143,7 +142,7 @@ util::Status MediaUploader::BuildRequest(
     }
     upload_type = "";
   } else if (!spec_->is_multipart()) {
-    // TODO(ewiseblatt): 20130122
+    // TODO(user): 20130122
     // Need to sequence calls and pass created id from first into second
     // (and is the second an update or insert?). Also need to handle partial
     // failure where first part succeeds but second part fails.
@@ -151,6 +150,12 @@ util::Status MediaUploader::BuildRequest(
         "Media spec does not support multipart uploads");
     upload_type = "";
   } else {
+    if (!media_content_reader_.get()) {
+      // Treat NULL as empty in this case, but will keep it NULL when
+      // we didnt specify a content_type_ either.
+      CHECK(!media_content_type_.empty());
+      media_content_reader_.reset(NewUnmanagedInMemoryDataReader(""));
+    }
     payload_reader.reset(CreateMultipartPayloadReader(&content_type));
     upload_type = kMultipartUploadType;
   }
@@ -198,7 +203,7 @@ DataReader* MediaUploader::CreateMultipartPayloadReader(string* content_type) {
 
   string boundary = multipart_boundary_;
 
-  // TODO(ewiseblatt)
+  // TODO(user)
   // Add boundary.empty() clause for auto-finding a boundary.
   // This is going to be tricky given fragmented readers.
   // This also requires rewindable readers to use it.
@@ -264,6 +269,16 @@ util::Status MediaUploader::Upload(HttpRequest* request) {
   return request->Execute();
 }
 
+void MediaUploader::UploadAsync(HttpRequest* request,
+                                HttpRequestCallback* callback) {
+  if (!is_ready()) {
+    util::Status status = StatusInternalError("Uploader was not prepared");
+    LOG(ERROR) << status.error_message();
+    request->WillNotExecute(status);
+  }
+  request->ExecuteAsync(callback);
+}
+
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

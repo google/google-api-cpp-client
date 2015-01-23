@@ -71,8 +71,9 @@ class FileDataReader : public DataReader {
     if (position > len) {
       position = len;
     }
-    if (!file_->Seek(position)) {
-      set_status(StatusUnknown("Seek failed."));
+    util::Status status = file_->Seek(position, file::Defaults());
+    if (!status.ok()) {
+      set_status(status);
       return -1;
     }
 
@@ -84,7 +85,7 @@ class FileDataReader : public DataReader {
       DCHECK(error());
       return 0;
     }
-int64 len;
+    int64 len;
     util::Status status = file_->Read(storage, max_bytes, &len);
     if (!status.ok()) {
       set_status(status);
@@ -114,4 +115,4 @@ DataReader* NewUnmanagedFileDataReader(const StringPiece& path) {
 // The open source doesnt have File
 // so New*FileDataReader will be implemented in istream_data_reader.
 
-} // namespace googleapis
+}  // namespace googleapis

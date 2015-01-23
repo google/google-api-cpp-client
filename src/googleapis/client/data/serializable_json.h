@@ -131,5 +131,5 @@ inline std::ostream& operator <<(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_DATA_SERIALIZABLE_JSON_H_

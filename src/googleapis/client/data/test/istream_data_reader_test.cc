@@ -19,13 +19,13 @@
 
 
 #include <fstream>
+#include <memory>
 #include <string>
 using std::string;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/util/test/googleapis_gtest.h"
 #include "googleapis/client/util/uri_utils.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/util/file.h"
 #include "googleapis/strings/stringpiece.h"
 
@@ -60,7 +60,7 @@ ASSERT_TRUE(
 
 TEST_F(IstreamReaderTestFixture, InvalidFile) {
   std::istream* stream = NewStream("invalid");
-  scoped_ptr<DataReader> reader(
+  std::unique_ptr<DataReader> reader(
       NewManagedIstreamDataReader(stream, DeletePointerClosure(stream)));
   char buffer[100];
   EXPECT_EQ(0, reader->ReadToBuffer(1, buffer));
@@ -71,7 +71,7 @@ TEST_F(IstreamReaderTestFixture, InvalidFile) {
 
 TEST_F(IstreamReaderTestFixture, ReadInOneBlock) {
   std::istream* stream = NewStream("data");
-  scoped_ptr<DataReader> reader(
+  std::unique_ptr<DataReader> reader(
       NewManagedIstreamDataReader(stream, DeletePointerClosure(stream)));
   EXPECT_FALSE(reader->done());
   EXPECT_FALSE(reader->error());
@@ -106,7 +106,7 @@ TEST_F(IstreamReaderTestFixture, ReadInOneBlock) {
 
 TEST_F(IstreamReaderTestFixture, ReadInMultipleBlocks) {
   std::istream* stream = NewStream("data");
-  scoped_ptr<DataReader> reader(
+  std::unique_ptr<DataReader> reader(
       NewManagedIstreamDataReader(stream, DeletePointerClosure(stream)));
   EXPECT_FALSE(reader->done());
   EXPECT_TRUE(reader->ok());
@@ -143,4 +143,4 @@ TEST_F(IstreamReaderTestFixture, ReadInMultipleBlocks) {
   EXPECT_EQ(kExpect, StringPiece(buffer, kExpect.size()));
 }
 
-} // namespace googleapis
+}  // namespace googleapis

@@ -17,9 +17,8 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 //
-// TODO(ewiseblatt): 20130117
+// TODO(user): 20130117
 // Make this test independent of the wax json service.
 // Instead add some other simple PUBLIC service or mock
 // that can be open sourced.
@@ -67,5 +66,5 @@ class HttpTransportTestFixture : public testing::Test {
   DISALLOW_COPY_AND_ASSIGN(HttpTransportTestFixture);
 };
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_HTTP_TRANSPORT_TEST_FIXTURE_H_

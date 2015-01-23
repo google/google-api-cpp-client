@@ -24,9 +24,8 @@
 #include <string>
 using std::string;
 #include "googleapis/client/data/codec.h"
-#include <glog/logging.h>
+#include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
 
@@ -148,5 +147,5 @@ class Base64CodecFactory : public CodecFactory {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_DATA_BASE64_CODEC_H_

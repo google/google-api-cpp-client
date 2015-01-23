@@ -18,13 +18,13 @@
  */
 
 
+#include <memory>
 #include <string>
 using std::string;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/util/test/googleapis_gtest.h"
 #include "googleapis/client/util/uri_utils.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/util/file.h"
 #include "googleapis/strings/stringpiece.h"
 
@@ -52,7 +52,7 @@ ASSERT_TRUE(
 };
 
 TEST_F(FileReaderTestFixture, InvalidFile) {
-  scoped_ptr<DataReader> reader(
+  std::unique_ptr<DataReader> reader(
       NewUnmanagedFileDataReader(JoinPath(GetTestingTempDir(), "invalid")));
   EXPECT_TRUE(reader->done());
   EXPECT_TRUE(reader->error());
@@ -60,7 +60,7 @@ TEST_F(FileReaderTestFixture, InvalidFile) {
 }
 
 TEST_F(FileReaderTestFixture, ReadInOneBlock) {
-  scoped_ptr<DataReader> reader(
+  std::unique_ptr<DataReader> reader(
       NewUnmanagedFileDataReader(JoinPath(GetTestingTempDir(), "data")));
   EXPECT_FALSE(reader->done());
   EXPECT_FALSE(reader->error());
@@ -94,7 +94,7 @@ TEST_F(FileReaderTestFixture, ReadInOneBlock) {
 }
 
 TEST_F(FileReaderTestFixture, ReadInMultipleBlocks) {
-  scoped_ptr<DataReader> reader(
+  std::unique_ptr<DataReader> reader(
       NewUnmanagedFileDataReader(JoinPath(GetTestingTempDir(), "data")));
   EXPECT_FALSE(reader->done());
   EXPECT_FALSE(reader->error());
@@ -132,4 +132,4 @@ TEST_F(FileReaderTestFixture, ReadInMultipleBlocks) {
   EXPECT_EQ(kExpect, StringPiece(buffer, kExpect.size()));
 }
 
-} // namespace googleapis
+}  // namespace googleapis

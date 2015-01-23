@@ -90,14 +90,14 @@ class InMemoryDataReaderTestFixture : public testing::Test {
 
 TEST_F(InMemoryDataReaderTestFixture, InMemoryStringPiece) {
   StringPiece  kExpect("Hello World!");
-  scoped_ptr<DataReader> reader(NewUnmanagedInMemoryDataReader(kExpect));
+  std::unique_ptr<DataReader> reader(NewUnmanagedInMemoryDataReader(kExpect));
   TestDataReaderHelper(kExpect, reader.get());
 }
 
 TEST_F(InMemoryDataReaderTestFixture, InMemoryCopiedString) {
   StringPiece  kExpect("Hello World!");
   string str(kExpect.data());
-  scoped_ptr<DataReader> reader(NewManagedInMemoryDataReader(str));
+  std::unique_ptr<DataReader> reader(NewManagedInMemoryDataReader(str));
   str.clear();
   TestDataReaderHelper(kExpect, reader.get());
 }
@@ -105,10 +105,10 @@ TEST_F(InMemoryDataReaderTestFixture, InMemoryCopiedString) {
 TEST_F(InMemoryDataReaderTestFixture, InMemoryTransferedString) {
   StringPiece kExpect("Hello World!");
   string* storage = new string(kExpect.data());
-  scoped_ptr<DataReader> reader(
+  std::unique_ptr<DataReader> reader(
       NewManagedInMemoryDataReader(
           StringPiece(*storage), DeletePointerClosure(storage)));
   TestDataReaderHelper(kExpect, reader.get());
 }
 
-} // namespace googleapis
+}  // namespace googleapis

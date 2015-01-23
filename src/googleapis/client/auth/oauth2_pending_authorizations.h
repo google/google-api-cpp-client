@@ -132,5 +132,5 @@ class OAuth2PendingAuthorizations {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_AUTH_OAUTH2_PENDING_AUTHORIZATIONS_H_

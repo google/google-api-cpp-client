@@ -17,7 +17,7 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
+#include <memory>
 #include <string>
 using std::string;
 
@@ -25,7 +25,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/stringpiece.h"
 #include <gtest/gtest.h>
@@ -50,23 +49,35 @@ class UriTemplateTestFixture : public testing::Test {
       out->append("value");
       return StatusOk();
     }
+    if (name == "ivar") {
+      int v = 42;
+      UriTemplate::AppendValue(v, config, out);
+      return StatusOk();
+    }
+    if (name == "varwithslash") {
+      string v("i/am a/path");
+      UriTemplate::AppendValue(v, config, out);
+      return StatusOk();
+    }
     if (name == "list") {
       UriTemplate::AppendListFirst("red", config, out);
       UriTemplate::AppendListNext("green", config, out);
       UriTemplate::AppendListNext("blue", config, out);
+      return StatusOk();
     }
 
     if (name == "map") {
       UriTemplate::AppendMapFirst("semi", ";", config, out);
       UriTemplate::AppendMapNext("dot", ".", config, out);
       UriTemplate::AppendMapNext("comma", ",", config, out);
+      return StatusOk();
     }
 
     return StatusUnknown("Testing failure");
   }
 
  protected:
-  scoped_ptr<UriTemplate::AppendVariableCallback> provider_;
+  std::unique_ptr<UriTemplate::AppendVariableCallback> provider_;
 
   string Expand(const StringPiece uri) {
     string result;
@@ -77,6 +88,8 @@ class UriTemplateTestFixture : public testing::Test {
 
 TEST_F(UriTemplateTestFixture, TestSimpleExpansion) {
   EXPECT_EQ("value", Expand("{var}"));
+  EXPECT_EQ("42", Expand("{ivar}"));
+  EXPECT_EQ("i%2Fam%20a%2Fpath", Expand("{varwithslash}"));
   EXPECT_EQ("red,green,blue", Expand("{list}"));
   EXPECT_EQ("red,green,blue", Expand("{list*}"));
 
@@ -85,6 +98,10 @@ TEST_F(UriTemplateTestFixture, TestSimpleExpansion) {
 }
 
 TEST_F(UriTemplateTestFixture, TestReservedExpansion) {
+  EXPECT_EQ("value", Expand("{+var}"));
+  EXPECT_EQ("42", Expand("{+ivar}"));
+  EXPECT_EQ("i/am%20a/path", Expand("{+varwithslash}"));
+
   EXPECT_EQ("red,green,blue", Expand("{+list}"));
   EXPECT_EQ("red,green,blue", Expand("{+list*}"));
 
@@ -144,4 +161,4 @@ TEST_F(UriTemplateTestFixture, TestEmbeddedValue) {
   EXPECT_EQ("XvalueY", Expand("X{var}Y"));
 }
 
-} // namespace googleapis
+}  // namespace googleapis

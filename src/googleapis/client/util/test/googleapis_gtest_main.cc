@@ -23,6 +23,7 @@
 using std::cout;
 using std::endl;
 using std::ostream;
+#include <memory>
 
 #ifdef _MSC_VER
 #include <tchar.h>
@@ -30,7 +31,6 @@ using std::ostream;
 #include "googleapis/client/util/test/googleapis_gtest.h"
 #include <glog/logging.h>
 
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/util/file.h"
 #include "googleapis/util/status.h"
 
@@ -58,7 +58,7 @@ static string tempnam(const char* ignore_dir, const char* prefix) {
 }
 #endif
 
-scoped_ptr<string> default_tempdir_;
+std::unique_ptr<string> default_tempdir_;
 
 void CreateTestingTempDir() {
   default_tempdir_.reset(new string(tempnam(NULL, "gapi")));
@@ -88,7 +88,7 @@ string GetTestingTempDir() {
 }  // namespace client
 
 
-} // namespace googleapis
+}  // namespace googleapis
 
 using namespace googleapis;
 int main(int argc, char** argv) {

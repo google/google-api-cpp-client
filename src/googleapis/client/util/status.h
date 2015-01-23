@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 /*
  * @defgroup PlatformLayer Platform Layer - General Programming Support
  *
@@ -185,5 +184,5 @@ inline util::Status StatusFailedPrecondition(const StringPiece& msg) {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_UTIL_STATUS_H_

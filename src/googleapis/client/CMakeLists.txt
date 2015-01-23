@@ -4,6 +4,7 @@ project (GoogleApis_C++_Client)
 
 # just for testing
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/test)
+include_directories(${GFLAGS_INCLUDES} ${GTEST_INCLUDES})
 
 configure_file(data/roots.pem ${EXECUTABLE_OUTPUT_PATH}/roots.pem COPYONLY)
 
@@ -89,6 +90,7 @@ add_library(googleapis_http STATIC
             auth/file_credential_store.cc
             transport/http_authorization.cc
             transport/http_request.cc
+            transport/http_request_batch.cc
             transport/http_response.cc
             transport/http_scribe.cc
             transport/http_transport.cc
@@ -106,6 +108,7 @@ install(FILES auth/credential_store.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/auth)
 install(FILES transport/http_authorization.h
               transport/http_request.h
+              transport/http_request_batch.h
               transport/http_response.h
               transport/http_scribe.h
               transport/http_transport.h
@@ -261,7 +264,9 @@ endif()
 
 googleapis_test(auth oauth2_authorization_test googleapis_oauth2)
 googleapis_test(auth file_credential_store_test)
+googleapis_test(transport http_request_batch_test)
 googleapis_test(transport http_scribe_test)
+googleapis_test(transport html_scribe_test googleapis_scribes)
 googleapis_test(transport http_transport_test)
 googleapis_test(transport curl_http_transport_test
                 googleapis_http_transport_test_fixture

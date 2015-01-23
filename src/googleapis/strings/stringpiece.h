@@ -46,7 +46,7 @@
 //
 // This code is okay:
 //   string str = obj.MethodReturningString();  // str owns its contents
-//   StringPiece sp(str);  // GOOD, although you may not need sp at all
+//   StringPiece sp(str);  // GOOD, because str outlives sp
 //
 // StringPiece is sometimes a poor choice for a return value and usually a poor
 // choice for a data member.  If you do use a StringPiece this way, it is your
@@ -209,15 +209,15 @@ class StringPiece {
   }
 
   template <class Allocator>
-  StringPiece(const std::basic_string<char, std::char_traits<char>,
-              Allocator> &str)  // NOLINT(runtime/explicit)
+  StringPiece(  // NOLINT(runtime/explicit)
+      const std::basic_string<char, std::char_traits<char>, Allocator>& str)
       : ptr_(str.data()), length_(0) {
     length_ = CheckedSsizeTFromSizeT(str.size());
   }
 #if defined(HAS_GLOBAL_STRING)
   template <class Allocator>
-  StringPiece(const basic_string<char, std::char_traits<char>,
-              Allocator> &str)  // NOLINT(runtime/explicit)
+  StringPiece(  // NOLINT(runtime/explicit)
+      const basic_string<char, std::char_traits<char>, Allocator>& str)
       : ptr_(str.data()), length_(0) {
     length_ = CheckedSsizeTFromSizeT(str.size());
   }
@@ -325,6 +325,13 @@ class StringPiece {
             (memcmp(ptr_ + (length_-x.length_), x.ptr_, x.length_) == 0));
   }
 
+  // Checks whether StringPiece starts with x and if so advances the beginning
+  // of it to past the match.  It's basically a shortcut for starts_with
+  // followed by remove_prefix.
+  bool Consume(StringPiece x);
+  // Like above but for the end of the string.
+  bool ConsumeFromEnd(StringPiece x);
+
   // standard STL container boilerplate
   typedef char value_type;
   typedef const char* pointer;
@@ -377,10 +384,6 @@ class StringPiece {
   StringPiece substr(size_type pos, size_type n = npos) const;
 };
 
-#ifndef SWIG
-DECLARE_POD(StringPiece);  // So vector<StringPiece> becomes really fast
-#endif
-
 // This large function is defined inline so that in a fairly common case where
 // one of the arguments is a literal, the compiler can elide a lot of the
 // following comparisons.
@@ -426,6 +429,14 @@ template <class X> struct GoodFastHash;
 //  cannot safely store a StringPiece into an STL container
 // ------------------------------------------------------------------
 
+namespace base {
+// Specializations of base:: traits enable the use of StringPiece in
+// compact_array, etc. Note that StringPiece is not being declared as POD.
+template <> struct has_trivial_copy<StringPiece> : base::true_type {};
+template <> struct has_trivial_assign<StringPiece> : base::true_type {};
+template <> struct has_trivial_destructor<StringPiece> : base::true_type {};
+}  // namespace base
+
 // SWIG doesn't know how to parse this stuff properly. Omit it.
 #ifndef SWIG
 
@@ -448,5 +459,5 @@ template<> struct GoodFastHash<StringPiece> {
 extern std::ostream& operator<<(std::ostream& o, StringPiece piece);
 
 
-} // namespace googleapis
-#endif  // STRINGS_STRINGPIECE_H__
+}  // namespace googleapis
+#endif  // STRINGS_STRINGPIECE_H_

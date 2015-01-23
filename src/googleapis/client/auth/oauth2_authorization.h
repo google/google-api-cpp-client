@@ -40,6 +40,7 @@
 #ifndef APISERVING_CLIENTS_CPP_AUTH_OAUTH2_AUTHORIZATION_H_
 #define APISERVING_CLIENTS_CPP_AUTH_OAUTH2_AUTHORIZATION_H_
 
+#include <memory>
 #include <string>
 using std::string;
 #include <vector>
@@ -47,7 +48,6 @@ using std::vector;
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/strings/stringpiece.h"
@@ -294,8 +294,8 @@ class OAuth2Credential : public AuthorizationCredential {
    *
    * @param[in] access_token The access token provided by the OAuth 2.0 server.
    *
-   * @see OAuth2ExchangeAuthorizationCodeRequest
-   * @see OAuth2RefreshTokenRequest
+   * @see OAuth2PerformExchangeAuthorizationCode
+   * @see OAuth2PerformRefreshToken
    */
   void set_access_token(const StringPiece& access_token) {
     access_token_.set(access_token);
@@ -416,38 +416,33 @@ class OAuth2Credential : public AuthorizationCredential {
   util::Status UpdateFromString(const StringPiece& json);
 
   /*
-   * Returns the user ID associated with this credential, if known.
+   * Returns the email associated with this credential, if known.
    *
-   * The user_id is not used for runtime authentication.
-   * It is normally used for managing persistence but certain flows such as
-   * web flow may use it as a login_hint.
+   * To have the OAuth2 server return the email with the flow, add the
+   * "email" scope. To have a flow do this for you automatically set its
+   * check_email property.
    *
-   * @warning The client application may have set the user id different from
-   *          the source which actually authorized the user, making these out
-   *          of sync.
-   *
-   * @see user_id_verified
+   * @see email_verified
    */
-  const string& user_id() const { return user_id_; }
+  const string& email() const { return email_; }
 
   /*
-   * Returns true if the user_id has been verified to be the actual user id
-   * that authorized access.
+   * Returns true if the email has been verified.
    *
-   * @warning even if this is true, this data structure might not have come
-   *          from a secure source so this attribute might be compramised.
+   * Typically this comes from the OAuth2 server, though this can be set
+   * directly.
    */
-  bool user_id_verified() const { return user_id_verified_; }
+  bool email_verified() const { return email_verified_; }
 
   /*
-   * Set the user_id for the credential.
+   * Set the email for the credential.
    *
-   * @param[in] user_id The user_id will be copied into the credental.
-   * @param[in] verified Whether or not the user_id has been verified as true.
+   * @param[in] email The email address will be copied into the credental.
+   * @param[in] verified Whether or not the email address has been verified.
    */
-  void set_user_id(const StringPiece& user_id, bool verified) {
-    user_id_ = user_id.as_string();
-    user_id_verified_ = verified;
+  void set_email(const StringPiece& email, bool verified) {
+    email_ = email.as_string();
+    email_verified_ = verified;
   }
 
   /*
@@ -464,190 +459,41 @@ class OAuth2Credential : public AuthorizationCredential {
    */
   virtual util::Status Refresh();
 
+  /*
+   * Attempt to refresh the credential asynchronously.
+   *
+   * This will fail immediately if there is no flow bound.
+   *
+   * @param[in] callback  Callback to run upon refresh completion.
+   */
+  virtual void RefreshAsync(Callback1<util::Status>* callback);
+
  private:
   OAuth2AuthorizationFlow* flow_;
   ThreadsafeString access_token_;
   ThreadsafeString refresh_token_;
   ThreadsafePrimitive<int64> expiration_timestamp_secs_;
-  string user_id_;
-  bool user_id_verified_;
+  string email_;
+  bool email_verified_;
 
   DISALLOW_COPY_AND_ASSIGN(OAuth2Credential);
 };
 
 /*
  * Options for overriding the default attributes in an OAuth2AuthorizationFlow
- * when making OAuth2TokenRequests.
+ * when performing OAuth2 token requests.
  * @ingroup AuthSupportOAuth2
  *
  * These overrides are used in APIs to change the default values configured
  * in the flow. Empty values will defer to the default value (if any).
  */
 struct OAuth2RequestOptions {
+  OAuth2RequestOptions() { timeout_ms = 0; }
+
   string redirect_uri;  //!< if empty use flow's default redirect_uri
   string scopes;        //!< if empty use flow's default scopes
-  string user_id;       //!< an optional key for credential_store
-};
-
-/*
- * The base class for token-related requests made to an OAuth 2.0 server.
- *
- * @deprecated Use OAuth2AuthorizatioFlow methods
- */
-class OAuth2TokenRequest {
- public:
-  /*
-   * Constructor
-   * @param[in] request Takes ownership
-   */
-  explicit OAuth2TokenRequest(HttpRequest* request);
-
-  /*
-   * Standard destructor.
-   */
-  virtual ~OAuth2TokenRequest();
-
-  /*
-   * Sends the request to the OAuth 2.0 server and waits until the
-   * response comes back and has been processed.
-   *
-   * @return ok if the request was successful, otherwise the cause of failure.
-   */
-  virtual util::Status Execute() = 0;
-
-  /*
-   * Returns the response from the HTTP request to the OAuth 2.0 server.
-   */
-  HttpResponse* http_response() const { return http_request_->response(); }
-
- protected:
-  /*
-   * Returns the HttpRequest used for the message to the OAuth 2.0 server.
-   */
-  HttpRequest* http_request() { return http_request_.get(); }
-
- private:
-  scoped_ptr<HttpRequest> http_request_;
-  DISALLOW_COPY_AND_ASSIGN(OAuth2TokenRequest);
-};
-
-/*
- * A concrete OAuth2TokenRequest for revoking access and refresh tokens.
- *
- * @deprecated Use OAuth2AuthorizatioFlow methods
- */
-class OAuth2RevokeTokenRequest : public OAuth2TokenRequest {
- public:
-  /*
-   * Constructs the request.
-   *
-   * The caller retains ownership to all parameters. The instance will
-   * be using these pointers so the caller must keep them valid over the
-   * lifetime of the request.
-   *
-   * @param[in] transport Transport instance to use.
-   * @param[in] client Client specification.
-   * @param[in] token The token to revoke.
-   */
-  OAuth2RevokeTokenRequest(
-      HttpTransport* transport,
-      const OAuth2ClientSpec* client,
-      ThreadsafeString* token);
-
-  /*
-   * Asks the OAuth 2.0 server to revoke the token.
-   *
-   * This will clear the token given the the constructor on success.
-   */
-  virtual util::Status Execute();
-
- private:
-  const OAuth2ClientSpec* client_;
-  ThreadsafeString* token_;
-  DISALLOW_COPY_AND_ASSIGN(OAuth2RevokeTokenRequest);
-};
-
-/*
- * A concrete OAuth2TokenRequest for turning an authorization code
- * into access and refresh tokens.
- *
- * @deprecated Use OAuth2AuthorizatioFlow methods
- */
-class OAuth2ExchangeAuthorizationCodeRequest : public OAuth2TokenRequest {
- public:
-  /*
-   * Constructs the request.
-   *
-   * The caller retains ownership to all parameters. The instance will
-   * be using these pointers so the caller must keep them valid over the
-   * lifetime of the request.
-   *
-   * @param[in] transport Transport instance to use.
-   * @param[in] authorization_code The authorization code from the user action
-   *            that authorized access.
-   * @param[in] client Client specification.
-   * @param[in] options Can override the redirect_uri from the one in
-   *            the client parameter.
-   * @param[in] credential The credential to update with the response tokens.
-   */
-  OAuth2ExchangeAuthorizationCodeRequest(
-    HttpTransport* transport,
-    const StringPiece& authorization_code,
-    const OAuth2ClientSpec& client,
-    const OAuth2RequestOptions& options,
-    OAuth2Credential* credential);
-
-  /*
-   * Asks the OAuth 2.0 server for an initial Access Token and Refresh Token.
-   *
-   * This will update the credential given the constructor on success.
-   */
-  virtual util::Status Execute();
-
- private:
-  OAuth2Credential* credential_;
-  string content_;
-  string token_uri_;
-  DISALLOW_COPY_AND_ASSIGN(OAuth2ExchangeAuthorizationCodeRequest);
-};
-
-/*
- * A concrete OAuth2TokenRequest for obtaining a new access token
- * from a refresh token.
- *
- * @deprecated Use OAuth2AuthorizatioFlow methods
- */
-class OAuth2RefreshTokenRequest : public OAuth2TokenRequest {
- public:
-  /*
-   * Constructs the request.
-   *
-   * The caller retains ownership to all parameters. The instance will
-   * be using these pointers so the caller must keep them valid over the
-   * lifetime of the request.
-   *
-   * @param[in] transport Transport instance to use.
-   * @param[in] client Client specification.
-   * @param[in] credential The credential to update with the response tokens.
-   */
-  OAuth2RefreshTokenRequest(
-    HttpTransport* transport,
-    const OAuth2ClientSpec* client,
-    OAuth2Credential* credential);
-
-  /*
-   * Asks the OAuth 2.0 server for a new Access Token from the
-   * existing Refresh Token
-   *
-   * This will update the credential given the constructor on success.
-   */
-  virtual util::Status Execute();
-
- private:
-  const OAuth2ClientSpec* client_;
-  OAuth2Credential* credential_;
-
-  DISALLOW_COPY_AND_ASSIGN(OAuth2RefreshTokenRequest);
+  string email;         //!< an optional key for credential_store
+  int64 timeout_ms;     //!< if non-0, overrides the default request timeout
 };
 
 /*
@@ -726,6 +572,21 @@ class OAuth2AuthorizationFlow {
   util::Status InitFromJson(const StringPiece& json);
 
   /*
+   * Initializes instance from the client secrets json data at the path.
+   *
+   * This method is a wrapper around InitFromJson that reads the content
+   * from the path. Unlike MakeFlowFromClientSecretsJson, this function
+   * initializes the existing instance rather than creating a new one.
+   *
+   * As a security safeguard, the file must be read-only and not a symbolic
+   * link.
+   *
+   * @param[in] path The path to a file containing the JSON-encoded secrets.
+   * @return ok or explaination of the failure.
+   */
+  util::Status InitFromClientSecretsPath(const string& path);
+
+  /*
    * Sets the callback used to obtain an Authorization Code.
    *
    * @param[in] callback Must be repeatable if not NULL. Ownership is
@@ -788,11 +649,29 @@ class OAuth2AuthorizationFlow {
   }
 
   /*
+   * Configure flow to add the email scope to every request.
+   *
+   * If we're checking email then the flow will add the "email" scope to
+   * each request so that the email is returned with the token. It will then
+   * check the email returned by the token with the email expected to ensure
+   * that the credentials are consistent.
+   *
+   * @param[in] add Whether to add the email scope or not.
+   */
+  void set_check_email(bool check) { check_email_ = check; }
+
+  /*
+   * Returns true if flow will check email addresses, false otherwise.
+   */
+  bool check_email() const         { return check_email_; }
+
+
+  /*
    * Refreshes the credential with a current access token.
    *
    * @param options Clarifies details about the desired credentials.
    * <table><tr><th>Option<th>Purpose
-   *        <tr><td>user_id
+   *        <tr><td>email
    *            <td>Only used as a key for the CredentialStore. If there is
    *                no store for the flow or this is empty then the call will
    *                proceed without using a CredentialStore. Some flows, such
@@ -807,7 +686,7 @@ class OAuth2AuthorizationFlow {
    *  </table>
    *
    * @param[in] credential The credential to refresh can be empty. If it
-   *            has already been initialized then the user_id, if any, must
+   *            has already been initialized then the email, if any, must
    *            match that in the options.
    *
    * The a CredentialStore is to be used, then the flow will attempt to
@@ -827,7 +706,7 @@ class OAuth2AuthorizationFlow {
    * with a valid Access Token and store the updated credential if
    * a store was configured.
    */
-  // TODO(ewiseblatt): This currently only considers the scopes when the
+  // TODO(user): This currently only considers the scopes when the
   // credential has no refresh_token. If there is a refresh token, then the
   // updated credentials will still only be for the old scopes. To get around
   // this bug, you need to clear the credential and start all over.
@@ -847,7 +726,7 @@ class OAuth2AuthorizationFlow {
    * @return The appropriate URL to HTTP GET.
    *
    * @see RefreshCredentialWithOptions.
-   * @see GeenrateAuthorizationCodeRequestUrlWithOptions
+   * @see GenerateAuthorizationCodeRequestUrlWithOptions
    */
   string GenerateAuthorizationCodeRequestUrl(const StringPiece& scopes) const {
     OAuth2RequestOptions options;
@@ -857,7 +736,7 @@ class OAuth2AuthorizationFlow {
 
   /*
    * Variation of GenerateAuthorizationCodeRequestUrl that takes a vector of
-   * scopes rather than a ' '-delmited string.
+   * scopes rather than a ' '-delimited string.
    *
    * @param[in] scopes The individual scope strings.
    *
@@ -891,6 +770,30 @@ class OAuth2AuthorizationFlow {
       const OAuth2RequestOptions& options, OAuth2Credential* credential);
 
   /*
+   * Refresh the access token asynchronously.
+   *
+   * @param[in] options  Overriden options, like the redirect_uri.
+   * @param[in, out] credential Uses the refresh_token to update access_token.
+   * @param[out] callback  Callback to run after request terminates.
+   */
+  virtual void PerformRefreshTokenAsync(
+      const OAuth2RequestOptions& options,
+      OAuth2Credential* credential,
+      Callback1<util::Status>* callback);
+
+  /*
+   * Update credential based on the OAuth 2.0 server response asynchronously.
+   *
+   * @param[in] credential Credential to update.
+   * @param[in] callback  Callback to run after updating.
+   * @param[in] request  OAuth request.
+   */
+  virtual void UpdateCredentialAsync(
+      OAuth2Credential* credential,
+      Callback1<util::Status>* callback,
+      HttpRequest* request);
+
+  /*
    * Sends request to OAuth 2.0 server to obtain Access and Refresh tokens from
    * an Authorization Code.
    *
@@ -919,96 +822,8 @@ class OAuth2AuthorizationFlow {
       bool access_token_only, OAuth2Credential* credential);
 
   /*
-   * Creates a new request for obtaining Access and Refresh tokens from
-   * an Authorization Code.
-   *
-   * This method is only intended when manually implementing flows.
-   *
-   * @param[in] authorization_code The Authorization Code.
-   * @param[out] credential The credential to update with the tokens.
-   *
-   * @see RefreshCredentialWithOptions.
-   * @see PerformExchangeAuthorizationCode
-   *
-   * @deprecated
-   */
-  OAuth2TokenRequest* NewExchangeAuthorizationCodeRequest(
-      const StringPiece& authorization_code,
-      OAuth2Credential* credential) {
-    return NewExchangeAuthorizationCodeRequestWithOptions(
-        authorization_code, OAuth2RequestOptions(), credential);
-  }
-
-  /*
-   * Creates a new request for obtaining Access and Refresh tokens from
-   * an Authorization Code.
-   *
-   * This method is only intended when manually implementing flows.
-   *
-   * @param[in] authorization_code The Authorization Code.
-   * @param[in] options Used to refine what is being requested.
-   * @param[out] credential The credential to update with the tokens.
-   *
-   * @see RefreshCredentialWithOptions.
-   * @see PerformExchangeAuthorizationCode
-   *
-   * @deprecated
-   */
-  OAuth2TokenRequest* NewExchangeAuthorizationCodeRequestWithOptions(
-      const StringPiece& authorization_code,
-      const OAuth2RequestOptions& options,
-      OAuth2Credential* credential);
-
-  /*
-   * Creates a new request for obtaining an Access Token from an
-   * existing Refresh Token.
-   *
-   * @param[in] credential The credential to update should already contain
-   *            an existing refresh token. The credential will be updated
-   *            with a new Access Token if the request is executed
-   *            successfully.
-   * @see RefreshCredentialWithOptions
-   * @see PerformRefreshToken
-   *
-   * @deprecated
-   */
-  OAuth2TokenRequest* NewRefreshTokenRequest(OAuth2Credential* credential);
-
-  /*
-   * Creates a new request for revoking a Refresh Token so that it is no
-   * longer valid.
-   *
-   * The user will have to go through the entire flow to obtain a new
-   * Authorization Code if they want to use the credential again.
-   *
-   * @param[in] credential The credential to update should already contain
-   *            an existing refresh token. The token will be cleared after
-   *            the revoke request executes successfully.
-   *
-   * @see PerformRevokeToken
-   *
-   * @deprecated
-   */
-  OAuth2TokenRequest* NewRevokeRefreshTokenRequest(
-      OAuth2Credential* credential);
-
-  /*
-   * Creates a new request for revoking an Access Token so that it is no
-   * longer valid.
-   *
-   * @param[in] credential The credential to update should already contain
-   *            an existing access token. The token will be cleared after
-   *            the revoke request executes successfully.
-   * @see PerformRevokeToken
-   *
-   * @deprecated
-   */
-  OAuth2TokenRequest* NewRevokeAccessTokenRequest(
-      OAuth2Credential* credential);
-
-  /*
    * The standard URL used for clients that do not have an HTTP server.
-   // TODO(ewiseblatt): Better description.
+   // TODO(user): Better description.
    */
   static const char kOutOfBandUrl[];
 
@@ -1103,12 +918,59 @@ class OAuth2AuthorizationFlow {
    */
   virtual util::Status InitFromJsonData(const SimpleJsonData* data);
 
+  // These methods are only intended to support oauth2_service_authorization
+  // to share common private implementation across files.
+  static void AppendJsonStringAttribute(
+      string* to,
+      const StringPiece sep,
+      const StringPiece name,
+      const StringPiece value);
+  static void AppendJsonScalarAttribute(
+      string* to,
+      const StringPiece sep,
+      const StringPiece name,
+      int value);
+  static void AppendJsonBooleanAttribute(
+      string* to,
+      const StringPiece sep,
+      const StringPiece name,
+      bool value);
+
+  static bool GetStringAttribute(const SimpleJsonData* data,
+                                 const char* key,
+                                 string* value);
+
+  HttpTransport* transport() const { return transport_.get(); }
+
  private:
   OAuth2ClientSpec client_spec_;
   string default_scopes_;
-  scoped_ptr<HttpTransport> transport_;
-  scoped_ptr<CredentialStore> credential_store_;
-  scoped_ptr<AuthorizationCodeCallback> authorization_code_callback_;
+  bool check_email_;
+  std::unique_ptr<HttpTransport> transport_;
+  std::unique_ptr<CredentialStore> credential_store_;
+  std::unique_ptr<AuthorizationCodeCallback> authorization_code_callback_;
+
+  /*
+   * Builds the http request for refreshing the oauth token.
+   *
+   * @return The http request, caller assumes ownership.
+   */
+  HttpRequest* ConstructRefreshTokenRequest_(
+    const OAuth2RequestOptions& options,
+    OAuth2Credential* credential);
+
+  /*
+   * Validates the client id, secret and refresh token.
+   *
+   * @return NULL if no validation error, otherwise an appropriate status
+   *         based on what client information is invalid.
+   */
+  util::Status ValidateRefreshToken_(OAuth2Credential* credential) const;
+
+  /*
+   * Builds the token content used for the refresh token http request.
+   */
+  string* BuildRefreshTokenContent_(OAuth2Credential* credential);
 
   DISALLOW_COPY_AND_ASSIGN(OAuth2AuthorizationFlow);
 };
@@ -1203,5 +1065,5 @@ class OAuth2WebApplicationFlow : public OAuth2AuthorizationFlow {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_AUTH_OAUTH2_AUTHORIZATION_H_

@@ -197,6 +197,21 @@ bool IsAscii(const char* str, int len) {
   return true;
 }
 
+namespace strings {
+
+bool IsPrint(StringPiece str) {
+  const char* strp = str.data();
+  const char* end = strp + str.size();
+  while (strp < end) {
+    if (!ascii_isprint(*strp++)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+}  // namespace strings
+
 // ----------------------------------------------------------------------
 // StringReplace()
 //    Give me a string and two patterns "old" and "new", and I replace
@@ -278,32 +293,6 @@ int GlobalReplaceSubstring(StringPiece substring,
     s->swap(tmp);
   }
   return num_replacements;
-}
-
-//---------------------------------------------------------------------------
-// RemoveStrings()
-//   Remove the strings from v given by the (sorted least -> greatest)
-//   numbers in indices.
-//   Order of v is *not* preserved.
-//---------------------------------------------------------------------------
-void RemoveStrings(vector<string>* v, const vector<int>& indices) {
-  assert(v);
-  assert(indices.size() <= v->size());
-  // go from largest index to smallest so that smaller indices aren't
-  // invalidated
-  for (int lcv = indices.size() - 1; lcv >= 0; --lcv) {
-#ifndef NDEBUG
-    // verify that indices is sorted least->greatest
-    if (indices.size() >= 2 && lcv > 0) {
-      // use LT and not LE because we should never see repeat indices
-      CHECK_LT(indices[lcv-1], indices[lcv]);
-    }
-#endif
-    assert(indices[lcv] >= 0);
-    assert(indices[lcv] < v->size());
-    swap((*v)[indices[lcv]], v->back());
-    v->pop_back();
-  }
 }
 
 // ----------------------------------------------------------------------
@@ -664,7 +653,13 @@ char* FastTimeToBuffer(time_t s, char* buffer) {
   buffer[11] = ' ';
 
   int32 year = tm.tm_year + 1900;
-  PutTwoDigits(year/100, buffer+12);
+  if (year >= 0 && year <= 9999) {
+    PutTwoDigits(year/100, buffer+12);
+  } else {
+    memcpy(buffer, "Invalid:", sizeof("Invalid:"));
+    FastInt64ToBufferLeft(s, buffer+strlen(buffer));
+    return buffer;
+  }
   PutTwoDigits(year%100, buffer+14);
   buffer[16] = ' ';
 
@@ -712,8 +707,6 @@ char* strndup_with_new(const char* the_string, int max_length) {
 }
 
 
-
-
 // ----------------------------------------------------------------------
 // ScanForFirstWord()
 //    This function finds the first word in the string "the_string" given.
@@ -750,6 +743,25 @@ const char* ScanForFirstWord(const char* the_string, const char** end_ptr) {
   *end_ptr = curr;
   return first_word;
 }
+
+namespace strings {
+
+StringPiece ScanForFirstWord(StringPiece input) {
+  const char* curr = input.data();
+  const char* const end = curr + input.size();
+
+  // Skip initial spaces to locate the start of the word.
+  while ((curr < end) && ascii_isspace(*curr))
+    ++curr;
+  const char* const word = curr;
+
+  // Skip subsequent non-spaces to locate the end of the word.
+  while ((curr < end) && !ascii_isspace(*curr))
+    ++curr;
+  return StringPiece(word, curr - word);
+}
+
+}  // namespace strings
 
 // ----------------------------------------------------------------------
 // AdvanceIdentifier()
@@ -932,7 +944,7 @@ bool OnlyWhitespace(StringPiece s) {
 
 string PrefixSuccessor(StringPiece prefix) {
   // We can increment the last character in the string and be done
-  // unless that character is 255, in which case we have to erase the
+  // unless that character is 255 (0xff), in which case we have to erase the
   // last character and increment the previous character, unless that
   // is 255, etc. If the string is empty or consists entirely of
   // 255's, we just return the empty string.
@@ -940,7 +952,7 @@ string PrefixSuccessor(StringPiece prefix) {
   string limit(prefix.data(), prefix.size());
   int index = limit.length() - 1;
   while (!done && index >= 0) {
-    if (limit[index] == 255) {
+    if (limit[index] == '\xff') {  // char literal avoids signed/unsigned.
       limit.erase(index);
       index--;
     } else {
@@ -990,7 +1002,7 @@ void FindShortestSeparator(StringPiece start,
     return;
   }
 
-  if (start[diff_index] == 0xff) {
+  if (start[diff_index] == '\xff') {  // char literal avoids signed/unsigned.
     // Avoid overflow when incrementing start[diff_index]
     start.CopyToString(separator);
     return;
@@ -1025,4 +1037,4 @@ bool GetlineFromStdioFile(FILE* file, string* str, char delim) {
   }
 }
 
-} // namespace googleapis
+}  // namespace googleapis

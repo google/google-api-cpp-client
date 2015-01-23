@@ -21,17 +21,17 @@
 #ifndef APISERVING_CLIENTS_CPP_TRANSPORT_JSON_SCRIBE_H_
 #define APISERVING_CLIENTS_CPP_TRANSPORT_JSON_SCRIBE_H_
 
+#include <memory>
 #include <string>
 using std::string;
 
 #include "googleapis/client/transport/http_scribe.h"
 #include "googleapis/base/thread_annotations.h"
 #include "googleapis/base/integral_types.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include <json/value.h>
-#include <json/writer.h>
+#include <jsoncpp/value.h>
+#include <jsoncpp/writer.h>
 namespace googleapis {
 
 namespace client {
@@ -185,7 +185,8 @@ class JsonScribe : public HttpEntryScribe {
   static const char kPayload[];        //< Message payload data.
   static const char kPayloadSize[];    //< Real request payload size (int64).
   static const char kPayloadCensored[];  //< True if censored (bool).
-  static const char kHeaders[];          //< Headers (dict). (
+  static const char kHeaders[];          //< Headers (dict).
+  static const char kBatched[];          //< Requests for HttpBatchRequest
 
  protected:
   /*
@@ -193,10 +194,11 @@ class JsonScribe : public HttpEntryScribe {
    * the request.
    */
   virtual Entry* NewEntry(const HttpRequest* request);
+  virtual Entry* NewBatchEntry(const HttpRequestBatch* batch);
 
  private:
-  scoped_ptr<DataWriter> writer_;
-  scoped_ptr<Json::Writer> json_writer_;
+  std::unique_ptr<DataWriter> writer_;
+  std::unique_ptr<Json::Writer> json_writer_;
   int64 last_checkpoint_;
   bool  started_;
   Json::Value json_;
@@ -204,5 +206,5 @@ class JsonScribe : public HttpEntryScribe {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_JSON_SCRIBE_H_

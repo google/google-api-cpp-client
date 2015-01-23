@@ -42,7 +42,6 @@ using std::vector;
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/case.h"
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/strip.h"
@@ -61,6 +60,7 @@ using client::HttpRequestState;
 using client::HttpResponse;
 using client::HttpStatusCode;
 using client::HttpTransport;
+using client::HttpTransportOptions;
 using client::NewManagedInMemoryDataReader;
 using client::StatusDeadlineExceeded;
 using client::StatusInternalError;
@@ -69,6 +69,9 @@ using client::StatusOk;
 using client::StatusOutOfRange;
 using client::StatusUnknown;
 
+
+namespace client {
+
 namespace {
 
 inline bool is_space_or_cntrl(char c) {
@@ -76,8 +79,8 @@ inline bool is_space_or_cntrl(char c) {
 }
 
 // Helper function when reading response headers that strips off trailing \r\n
-// since StripWhiteSpace does not.
-void StripWhiteSpaceAndCntrl(StringPiece* str) {
+// since StripWhitespace does not.
+void StripWhitespaceAndCntrl(StringPiece* str) {
   int len = str->size();
   const char* data = str->data();
   while (len > 0 && is_space_or_cntrl(data[len - 1])) {
@@ -91,9 +94,11 @@ void StripWhiteSpaceAndCntrl(StringPiece* str) {
   str->set(data + offset, len - offset);
 }
 
+}  // anonymous namespace
+
 class CurlHttpRequest : public HttpRequest {
  public:
-  CurlHttpRequest(const HttpMethod& method, HttpTransport* transport);
+  CurlHttpRequest(const HttpMethod& method, CurlHttpTransport* transport);
   ~CurlHttpRequest();
 
  protected:
@@ -135,11 +140,11 @@ util::Status StatusFromCurlCode(CURLcode code, const StringPiece& msg) {
 }
 
 // The CurlProcessor is an individual stateful request processor.
-// It can be reused across requests but can only fulfil one at a time.
+// It can be reused across requests but can only fulfill one at a time.
 // These are internally used to allow the connection-based class to
 // process multiple requests at a time (using one of these per request).
 //
-// NOTE(ewiseblatt): 20120925
+// NOTE(user): 20120925
 // The use of "const HttpRequest" in this class' methods is an implementation
 // detail, not a design constraint. The external interface does permit
 // modifications to the request, intended for injecting security headers.
@@ -204,9 +209,25 @@ class CurlProcessor {
       return StatusInternalError(error);
     }
 
-    const string& cacerts_path = transport_->options().cacerts_path();
-    if (transport_->options().ssl_verification_disabled()) {
-      LOG_FIRST_N(INFO, 1)
+    const HttpTransportOptions& options = transport_->options();
+    if (!options.proxy_host().empty()) {
+      ok = ok && !curl_easy_setopt(
+          curl_, CURLOPT_PROXY, options.proxy_host().c_str());
+      if (options.proxy_port()) {
+        ok = ok && !curl_easy_setopt(
+            curl_, CURLOPT_PROXYPORT, options.proxy_port());
+      }
+      if (!ok) {
+        StringPiece error = "Unexpected error setting proxy";
+        LOG(ERROR) << error;
+        return StatusInternalError(error);
+      }
+      VLOG(1) << "Using proxy host=" << options.proxy_host()
+              << " port=" << options.proxy_port();
+    }
+    const string& cacerts_path = options.cacerts_path();
+    if (options.ssl_verification_disabled()) {
+      LOG_FIRST_N(WARNING, 1)
           << "Disabling SSL_VERIFYPEER.";
       curl_easy_setopt(curl_, CURLOPT_SSL_VERIFYPEER, false);
     } else if (cacerts_path.empty()) {
@@ -224,21 +245,22 @@ class CurlProcessor {
     // nosignals because we are multithreaded
     ok = ok && !curl_easy_setopt(curl_, CURLOPT_NOSIGNAL, 1L);
 
-    // These timeouts are in seconds
-    //
-    // TODO(ewiseblatt): 20120908
-    // Have configurable options so they can be overriden per-request.
-    ok = ok && !curl_easy_setopt(curl_, CURLOPT_CONNECTTIMEOUT, 10L);
+    ok = ok &&
+         !curl_easy_setopt(curl_, CURLOPT_CONNECTTIMEOUT_MS,
+                           options.connect_timeout_ms() <= 0
+                               ? 10000L
+                               : options.connect_timeout_ms());
+
+    // This timeout is in seconds.
     ok = ok && !curl_easy_setopt(curl_, CURLOPT_DNS_CACHE_TIMEOUT, 60L);
-    ok = ok && !curl_easy_setopt(curl_, CURLOPT_FOLLOWLOCATION, 1);
-    ok = ok && !curl_easy_setopt(curl_, CURLOPT_MAXREDIRS, 5);
 
     // For security we'll handle redirects ourself.
     ok = ok && !curl_easy_setopt(curl_, CURLOPT_FOLLOWLOCATION, 0);
 
     if (!ok) {
-      LOG(WARNING) << "Failed some transport configuration";
-      // ignore
+      StringPiece error = "Failed some transport configuration";
+      LOG(ERROR) << error;
+      return StatusInternalError(error);
     }
 
     return StatusOk();
@@ -333,7 +355,7 @@ class CurlProcessor {
     return ok;
   }
 
-  // TODO(ewiseblatt): this is just for the purpose of making the review
+  // TODO(user): this is just for the purpose of making the review
   // easier. Move this above to the public section.
  public:
   void PerformRequest(CurlHttpRequest* request, HttpResponse* response) {
@@ -392,8 +414,8 @@ class CurlProcessor {
       // Status should be an error from the curl library before the
       // request was even sent. But let's double-check this in debug.
       DCHECK(!status.ok());
-      LOG(ERROR) << "Call to url=" << request->url()
-                 << " failed with " << status.ToString();
+      LOG(ERROR) << "Call to url=" << request->url() <<
+                 " failed with http status " << http_code_;
       state->set_transport_status(status);
     }
     return;
@@ -435,12 +457,12 @@ class CurlProcessor {
     if (FindHttpStatus(header, &http_code)) {
       processor->http_code_ = http_code;
     } else {
-      StripWhiteSpaceAndCntrl(&header);  // remove whitespace and trailing \r\n
+      StripWhitespaceAndCntrl(&header);  // remove whitespace and trailing \r\n
       if (!header.empty()) {
         int colon = header.find(':');
         CHECK_NE(string::npos, colon) << "Header=[" << header << "]";
         StringPiece value = header.substr(colon + 1);
-        StripWhiteSpace(&value);
+        StripWhitespace(&value);
         processor->response_->AddHeader(header.substr(0, colon), value);
       }
     }
@@ -481,9 +503,8 @@ class CurlProcessor {
   }
 };
 
-
 CurlHttpRequest::CurlHttpRequest(
-    const HttpMethod& method, HttpTransport* transport)
+    const HttpMethod& method, CurlHttpTransport* transport)
     : HttpRequest(method, transport) {
 }
 
@@ -491,13 +512,12 @@ CurlHttpRequest::~CurlHttpRequest() {
 }
 
 void CurlHttpRequest::DoExecute(HttpResponse* response) {
-  CurlProcessor processor(transport());
-  processor.PerformRequest(this, response);
-};
-
-}  // anonymous namespace
-
-namespace client {
+  CurlHttpTransport* curl_transport =
+      static_cast<CurlHttpTransport*>(transport());
+  CurlProcessor* processor = curl_transport->AcquireProcessor();
+  processor->PerformRequest(this, response);
+  curl_transport->ReleaseProcessor(processor);
+}
 
 // static
 const StringPiece CurlHttpTransport::kTransportIdentifier("Curl");
@@ -508,6 +528,25 @@ CurlHttpTransport::CurlHttpTransport(const HttpTransportOptions& options)
 }
 
 CurlHttpTransport::~CurlHttpTransport() {
+  for (CurlProcessor* processor : processors_)
+    delete processor;
+}
+
+CurlProcessor* CurlHttpTransport::AcquireProcessor() {
+  {
+    MutexLock lock(&mutex_);
+    if (!processors_.empty()) {
+      CurlProcessor* processor = processors_.back();
+      processors_.pop_back();
+      return processor;
+    }
+  }
+  return new CurlProcessor(this);
+}
+
+void CurlHttpTransport::ReleaseProcessor(CurlProcessor* processor) {
+  MutexLock lock(&mutex_);
+  processors_.push_back(processor);
 }
 
 HttpRequest* CurlHttpTransport::NewHttpRequest(
@@ -542,4 +581,4 @@ HttpTransport* CurlHttpTransportFactory::NewCurlHttpTransport(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

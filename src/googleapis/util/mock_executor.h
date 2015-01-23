@@ -18,12 +18,12 @@
  */
 
 
+#ifndef THREAD_MOCK_EXECUTOR_H_
+#define THREAD_MOCK_EXECUTOR_H_
+
 #include <gmock/gmock.h>
 #include "googleapis/util/executor.h"
 namespace googleapis {
-
-#ifndef THREAD_MOCK_EXECUTOR_H_
-#define THREAD_MOCK_EXECUTOR_H_
 
 namespace thread {
 
@@ -38,5 +38,5 @@ class MockExecutor : public Executor {
 
 }  // namespace thread
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // THREAD_MOCK_EXECUTOR_H_

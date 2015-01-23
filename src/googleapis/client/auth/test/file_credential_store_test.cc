@@ -17,12 +17,13 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include "googleapis/client/auth/file_credential_store.h"
 
-#include <stdlib.h>
 #include <sys/stat.h>
+#include <stdlib.h>
+
+#include <memory>
 #include <string>
 using std::string;
 
@@ -34,13 +35,15 @@ using std::string;
 #include "googleapis/client/util/test/googleapis_gtest.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_utils.h"
+#include "googleapis/util/filesystem.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
 #include <gmock/gmock.h>
+#include "googleapis/util/canonical_errors.h"
 #include "googleapis/util/status.h"
+#include "googleapis/util/status_test_util.h"
 
 namespace googleapis {
 
@@ -67,6 +70,7 @@ class MockAuthorizationCredential : public AuthorizationCredential {
   MOCK_CONST_METHOD0(type, const StringPiece());
   MOCK_METHOD1(AuthorizeRequest, util::Status(HttpRequest* request));
   MOCK_METHOD0(Refresh, util::Status());
+  MOCK_METHOD1(RefreshAsync, void(Callback1<util::Status>* callback));
   MOCK_METHOD1(Load, util::Status(DataReader* reader));
   MOCK_CONST_METHOD0(MakeDataReader, DataReader*());
 };
@@ -114,23 +118,25 @@ TEST_F(FileCredentialStoreFixture, TestCreateDir) {
   const string kRoot = StrCat(GetTestingTempDir(), "/test_create_dir");
   const string kClientId = "test_client_id";
   File::DeleteDir(kRoot.c_str());
-  ASSERT_FALSE(File::Exists(kRoot.c_str()));
+  ASSERT_TRUE(util::IsNotFound(file::Exists(kRoot, file::Defaults())));
 
   util::Status status;
   FileCredentialStoreFactory factory(kRoot);
-  scoped_ptr<CredentialStore> store(
+  std::unique_ptr<CredentialStore> store(
       factory.NewCredentialStore(kClientId, &status));
   EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(store.get() != NULL);
   status = SensitiveFileUtils::VerifyIsSecureDirectory(kRoot);
   EXPECT_TRUE(status.ok()) << status.ToString();
-  EXPECT_FALSE(File::Exists(JoinPath(kRoot, kClientId).c_str()));
+  EXPECT_TRUE(util::IsNotFound(
+      file::Exists(JoinPath(kRoot, kClientId), file::Defaults())));
 
   store.reset(factory.NewCredentialStore(kClientId, &status));
   EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(store.get() != NULL);
   EXPECT_TRUE(SensitiveFileUtils::VerifyIsSecureDirectory(kRoot).ok());
-  EXPECT_FALSE(File::Exists(JoinPath(kRoot, kClientId).c_str()));
+  EXPECT_TRUE(util::IsNotFound(
+      file::Exists(JoinPath(kRoot, kClientId), file::Defaults())));
 
   File::DeleteDir(kRoot.c_str());
 }
@@ -140,7 +146,7 @@ TEST_F(FileCredentialStoreFixture, TestInvalidDir) {
   const string kRoot = StrCat(GetTestingTempDir(), "/test_invalid_dir");
   const string kClientId = "test_client_id";
   File::DeleteDir(kRoot.c_str());
-  ASSERT_FALSE(File::Exists(kRoot.c_str()));
+  ASSERT_TRUE(util::IsNotFound(file::Exists(kRoot, file::Defaults())));
 
   const mode_t bad_permissions = S_IRUSR | S_IWUSR | S_IXGRP;
   EXPECT_TRUE(
@@ -149,7 +155,7 @@ TEST_F(FileCredentialStoreFixture, TestInvalidDir) {
 
   util::Status status;
   FileCredentialStoreFactory factory(kRoot);
-  scoped_ptr<CredentialStore> store(
+  std::unique_ptr<CredentialStore> store(
       factory.NewCredentialStore(kClientId, &status));
   EXPECT_FALSE(status.ok());
   EXPECT_EQ(NULL, store.get());
@@ -164,7 +170,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreFile) {
 
   util::Status status;
   FileCredentialStoreFactory factory(kRoot);
-  scoped_ptr<CredentialStore> store(
+  std::unique_ptr<CredentialStore> store(
       factory.NewCredentialStore(kClientId, &status));
   EXPECT_TRUE(store->Delete(kKey).ok());  // delete entry if it already exists.
 
@@ -175,12 +181,13 @@ TEST_F(FileCredentialStoreFixture, TestStoreFile) {
 
   status = store->Store(kKey, mock_credential);
   EXPECT_TRUE(status.ok()) << status.ToString();
-  EXPECT_TRUE(!File::Exists(JoinPath(kRoot, kClientId)));
+  EXPECT_TRUE(util::IsNotFound(
+      file::Exists(JoinPath(kRoot, kClientId), file::Defaults())));
   EXPECT_TRUE(SensitiveFileUtils::VerifyIsSecureDirectory(kRoot).ok());
   EXPECT_TRUE(SensitiveFileUtils::VerifyIsSecureFile(kFullPath, true).ok());
 
   typedef Callback1<DataReader*> ValidateReaderCallback;
-  scoped_ptr<ValidateReaderCallback> closure(
+  std::unique_ptr<ValidateReaderCallback> closure(
       NewPermanentCallback(
           this, &FileCredentialStoreFixture::ValidateReaderData,
           kReaderData));
@@ -194,7 +201,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreFile) {
   EXPECT_TRUE(status.ok()) << status.ToString();
 
   status = store->Delete(kKey);
-  EXPECT_TRUE(!File::Exists(kFullPath));
+  EXPECT_TRUE(util::IsNotFound(file::Exists(kFullPath, file::Defaults())));
 }
 #else
 TEST_F(FileCredentialStoreFixture, DISABLED_TestInvalidDir) {
@@ -209,7 +216,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreEncodedFile) {
   // The factory will return our mock_codec, which we'll setup
   // below.
   typedef Callback1< util::Status*> SetStatusCallback;
-  scoped_ptr<SetStatusCallback> set_status(NewPermanentCallback(
+  std::unique_ptr<SetStatusCallback> set_status(NewPermanentCallback(
       this, &FileCredentialStoreFixture::SetStatus, StatusOk()));
   EXPECT_CALL(*codec_factory, New(_))
       .WillOnce(
@@ -226,7 +233,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreEncodedFile) {
   util::Status status;
   FileCredentialStoreFactory factory(kRoot);
   factory.set_codec_factory(codec_factory);
-  scoped_ptr<CredentialStore> store(
+  std::unique_ptr<CredentialStore> store(
       factory.NewCredentialStore(kClientId, &status));
 
   // The encoder expects the kOriginalString and encode it to the
@@ -236,7 +243,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreEncodedFile) {
 
   typedef ResultCallback3<DataReader*, DataReader*, Closure*, util::Status*>
       NewTransformReaderCallback;
-  scoped_ptr<NewTransformReaderCallback> encode_reader(
+  std::unique_ptr<NewTransformReaderCallback> encode_reader(
       NewPermanentCallback(
           this, &FileCredentialStoreFixture::NewTransformReader,
           kOriginalString, kExpectEncode));
@@ -259,7 +266,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreEncodedFile) {
   // When we load the credential from the store, we should run the
   // stored encoded string back through the decoder to get the
   // original string back.
-  scoped_ptr<NewTransformReaderCallback> decode_reader(
+  std::unique_ptr<NewTransformReaderCallback> decode_reader(
       NewPermanentCallback(
           this, &FileCredentialStoreFixture::NewTransformReader,
           kExpectEncode, kOriginalString));
@@ -269,7 +276,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreEncodedFile) {
                          &NewTransformReaderCallback::Run));
 
   typedef Callback1<DataReader*> ValidateReaderCallback;
-  scoped_ptr<ValidateReaderCallback> closure(
+  std::unique_ptr<ValidateReaderCallback> closure(
       NewPermanentCallback(
           this, &FileCredentialStoreFixture::ValidateReaderData,
           kOriginalString));
@@ -300,4 +307,4 @@ TEST_F(FileCredentialStoreFixture, TestHomeDir) {
   EXPECT_EQ(expect, home_path);
 }
 
-} // namespace googleapis
+}  // namespace googleapis

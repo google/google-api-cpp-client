@@ -56,6 +56,12 @@
 // Using the macros defined here instead of the raw GCC attributes allows
 // for portability and future compatibility.
 //
+// When referring to mutexes in the arguments of the attributes, you should
+// use variable names or more complex expressions (e.g. my_object->mutex_)
+// that evaluate to a concrete mutex object whenever possible. If the mutex
+// you want to refer to is not in scope, you may use a member pointer
+// (e.g. &MyClass::mutex_) to refer to a mutex in some (unknown) object.
+//
 
 
 #ifndef BASE_THREAD_ANNOTATIONS_H_
@@ -142,14 +148,25 @@ namespace googleapis {
 #define UNLOCK_FUNCTION(...) \
   THREAD_ANNOTATION_ATTRIBUTE__(unlock_function(__VA_ARGS__))
 
-// Document functions that try to acquire a lock, and return success or failure.
-// The first argument should be true, for functions that return true on success,
-// or false, for functions that return false on success.
+// Document functions that try to acquire a lock, and return success or failure
+// (or a non-boolean value that can be interpreted as a boolean).
+// The first argument should be true for functions that return true on success,
+// or false for functions that return false on success. The second argument
+// specifies the mutex that is locked on success. If unspecified, it is assumed
+// to be 'this'.
 #define EXCLUSIVE_TRYLOCK_FUNCTION(...) \
   THREAD_ANNOTATION_ATTRIBUTE__(exclusive_trylock_function(__VA_ARGS__))
 
 #define SHARED_TRYLOCK_FUNCTION(...) \
   THREAD_ANNOTATION_ATTRIBUTE__(shared_trylock_function(__VA_ARGS__))
+
+// Document functions that dynamically check to see if a lock is held, and fail
+// if it is not held.
+#define ASSERT_EXCLUSIVE_LOCK(...) \
+  THREAD_ANNOTATION_ATTRIBUTE__(assert_exclusive_lock(__VA_ARGS__))
+
+#define ASSERT_SHARED_LOCK(...) \
+  THREAD_ANNOTATION_ATTRIBUTE__(assert_shared_lock(__VA_ARGS__))
 
 // Turns off thread safety checking within the body of a particular function.
 // This is used as an escape hatch for cases where either (a) the function
@@ -158,22 +175,10 @@ namespace googleapis {
 #define NO_THREAD_SAFETY_ANALYSIS \
   THREAD_ANNOTATION_ATTRIBUTE__(no_thread_safety_analysis)
 
-// Deprecated.
-// NO_THREAD_SAFETY_ANALYSIS_OPT  is a workaround for bugs gcc annotalysis.
-#define NO_THREAD_SAFETY_ANALYSIS_OPT
-
 // TS_UNCHECKED should be placed around lock expressions that are not valid
 // C++ syntax, but which are present for documentation purposes.  These
 // annotations will be ignored by the analysis.
 #define TS_UNCHECKED(x) ""
-
-// Deprecated.
-// This is used to pass different annotations to gcc and clang, in cases where
-// gcc would reject a lock expression (e.g. &MyClass::mu_) that is accepted
-// by clang.  This is seldom needed, since GCC usually ignores invalid lock
-// expressions except in certain cases, such as LOCK_RETURNED.
-// TODO(user): remove all uses of this macro from google.
-#define TS_CLANG_ONLY(CLANG_EXPR, GCC_EXPR) CLANG_EXPR
 
 // TS_FIXME is used to mark lock expressions that are not valid C++ syntax.
 // It is used by automated tools to mark and disable invalid expressions.
@@ -213,5 +218,5 @@ inline T& ts_unchecked_read(T& v) NO_THREAD_SAFETY_ANALYSIS {
 
 }  // namespace thread_safety_analysis
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // BASE_THREAD_ANNOTATIONS_H_

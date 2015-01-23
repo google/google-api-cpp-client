@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 /*
  * @defgroup PlatformLayerFiles Platform Layer - File Support
@@ -119,5 +118,5 @@ class SensitiveFileUtils {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_UTIL_FILE_UTILS_H_

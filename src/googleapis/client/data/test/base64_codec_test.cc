@@ -18,11 +18,11 @@
  */
 
 
+#include <memory>
 #include <string>
 using std::string;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/base64_codec.h"
-#include "googleapis/base/scoped_ptr.h"
 #include <glog/logging.h>
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
@@ -43,7 +43,7 @@ class Base64CodecTestFixture : public testing::Test {
 TEST_F(Base64CodecTestFixture, TestSimple) {
   Base64CodecFactory factory;
   util::Status status;
-  scoped_ptr<Codec> codec(factory.New(&status));
+  std::unique_ptr<Codec> codec(factory.New(&status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 
   const StringPiece kPlain = "Hello, World!";
@@ -58,9 +58,9 @@ TEST_F(Base64CodecTestFixture, TestSimple) {
   EXPECT_TRUE(status.ok());
   EXPECT_EQ(kPlain, got);
 
-  scoped_ptr<DataReader> plain_reader(
+  std::unique_ptr<DataReader> plain_reader(
       NewUnmanagedInMemoryDataReader(kPlain));
-  scoped_ptr<DataReader> encoding_reader(
+  std::unique_ptr<DataReader> encoding_reader(
       codec->NewUnmanagedEncodingReader(plain_reader.get(), &status));
   EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(kEncoded, encoding_reader->RemainderToString());
@@ -85,7 +85,7 @@ TEST_F(Base64CodecTestFixture, TestEncodeDecode) {
       googleapis::util::Status status;
       Base64CodecFactory factory;
       factory.set_chunk_size(chunk_size);
-      scoped_ptr<Codec> codec(factory.New(&status));
+      std::unique_ptr<Codec> codec(factory.New(&status));
       ASSERT_TRUE(status.ok()) << status.error_message();
 
       string encoded;
@@ -112,13 +112,13 @@ TEST_F(Base64CodecTestFixture, TestEncodingReader) {
   googleapis::util::Status status;
   const StringPiece kPlainText = "Hello, World!";
   Base64CodecFactory factory;
-  scoped_ptr<Codec> codec(factory.New(&status));
+  std::unique_ptr<Codec> codec(factory.New(&status));
   ASSERT_TRUE(status.ok());
 
-  scoped_ptr<DataReader> plain_reader(
+  std::unique_ptr<DataReader> plain_reader(
       NewUnmanagedInMemoryDataReader(kPlainText));
 
-  scoped_ptr<DataReader> encoding_reader(
+  std::unique_ptr<DataReader> encoding_reader(
       codec->NewUnmanagedEncodingReader(plain_reader.get(), &status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 
@@ -152,17 +152,17 @@ TEST_F(Base64CodecTestFixture, TestDecodeingReader) {
   googleapis::util::Status status;
   const StringPiece kPlainText = "Hello, World!";
   Base64CodecFactory factory;
-  scoped_ptr<Codec> codec(factory.New(&status));
+  std::unique_ptr<Codec> codec(factory.New(&status));
   ASSERT_TRUE(status.ok());
 
   string encoded;
   status = codec->Encode(kPlainText, &encoded);
   ASSERT_TRUE(status.ok());
 
-  scoped_ptr<DataReader> encoded_reader(
+  std::unique_ptr<DataReader> encoded_reader(
       NewUnmanagedInMemoryDataReader(encoded));
 
-  scoped_ptr<DataReader> decoding_reader(
+  std::unique_ptr<DataReader> decoding_reader(
       codec->NewUnmanagedDecodingReader(encoded_reader.get(), &status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 
@@ -193,17 +193,17 @@ TEST_F(Base64CodecTestFixture, TestSeekDecodingReader) {
   googleapis::util::Status status;
   Base64CodecFactory factory;
   factory.set_chunk_size(32);
-  scoped_ptr<Codec> codec(factory.New(&status));
+  std::unique_ptr<Codec> codec(factory.New(&status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 
   string encoded;
   status = codec->Encode(plain_text, &encoded);
   ASSERT_TRUE(status.ok()) << status.error_message();
 
-  scoped_ptr<DataReader> encoded_reader(
+  std::unique_ptr<DataReader> encoded_reader(
       NewUnmanagedInMemoryDataReader(encoded));
 
-  scoped_ptr<DataReader> decrypting_reader(
+  std::unique_ptr<DataReader> decrypting_reader(
       codec->NewUnmanagedDecodingReader(encoded_reader.get(), &status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 
@@ -226,4 +226,4 @@ TEST_F(Base64CodecTestFixture, TestSeekDecodingReader) {
   }
 }
 
-} // namespace googleapis
+}  // namespace googleapis

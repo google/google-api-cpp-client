@@ -24,8 +24,8 @@
 #include <string>
 using std::string;
 
+#include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
@@ -41,7 +41,7 @@ class HttpRequest;
  * @ingroup TransportLayerCore
  *
  * In practice this is probably an OAuth2Credential, but this class provides
- * an abstract interface sufficient to keep OAuth 2.0 depedencies out of the
+ * an abstract interface sufficient to keep OAuth 2.0 dependencies out of the
  * HTTP transport layer and core libraries that dont care about the mechanism
  * details.
  */
@@ -63,6 +63,13 @@ class AuthorizationCredential {
    * @return ok or reason for failure.
    */
   virtual util::Status Refresh() = 0;
+
+  /*
+   * Refreshes credential asynchronously.
+   *
+   * @param[in] callback Called on refresh termination status.
+   */
+  virtual void RefreshAsync(Callback1<util::Status>* callback) = 0;
 
   /*
    * Initialize the credential from a stream.
@@ -96,5 +103,5 @@ class AuthorizationCredential {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_AUTHORIZATION_H_

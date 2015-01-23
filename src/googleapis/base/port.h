@@ -22,6 +22,7 @@
 //
 // These are weird things we need to do to get this compiling on
 // random systems (and on SWIG).
+//
 
 #ifndef BASE_PORT_H_
 #define BASE_PORT_H_
@@ -32,15 +33,30 @@
 
 #if defined(OS_MACOSX)
 #include <unistd.h>         // for getpagesize() on mac
-#elif defined(OS_CYGWIN)
+#elif defined(OS_CYGWIN) || defined(__ANDROID__)
 #include <malloc.h>         // for memalign()
+#elif defined(COMPILER_MSVC)
+#include <stdio.h>          // declare snprintf/vsnprintf before overriding
 #endif
 
 #include "googleapis/base/integral_types.h"
 
-// We support MSVC++ 8.0 and later.
-#if defined(_MSC_VER) && _MSC_VER < 1400
-#error "Using this package with msvc requires _MSVC_VER of 1400 or higher"
+// We support gcc 4.4 and later.
+#if defined(__GNUC__) && !defined(__clang__)
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)
+#error "This package requires gcc 4.4 or higher"
+#endif
+#endif
+
+// We support MSVC++ 10.0 and later.
+#if defined(_MSC_VER) && _MSC_VER < 1600
+#error "This package requires _MSC_VER of 1600 or higher"
+#endif
+
+// We support Apple Xcode clang 4.2.1 (version 421.11.65) and later.
+// This corresponds to Apple Xcode version 4.5.
+#if defined(__apple_build_version__) && __apple_build_version__ < 4211165
+#error "This package requires __apple_build_version__ of 4211165 or higher"
 #endif
 
 // Must happens before inttypes.h inclusion */
@@ -94,8 +110,10 @@ typedef unsigned long ulong;
 #include <cstddef>              // For _GLIBCXX macros
 #endif
 
-#if !defined(HAVE_TLS) && defined(_GLIBCXX_HAVE_TLS) && \
-  (defined(ARCH_K8) || defined(__powerpc64__))
+#if !defined(HAVE_TLS) && \
+    (defined(GOOGLE_LIBCXX) || defined(_GLIBCXX_HAVE_TLS)) && \
+    (defined(ARCH_K8) || defined(ARCH_POWERPC64) || defined(ARCH_PPC) || \
+     defined(ARCH_ARM))
 #define HAVE_TLS 1
 #endif
 
@@ -115,8 +133,8 @@ typedef unsigned long ulong;
 
 #endif
 
-// The following guarenty declaration of the byte swap functions, and
-// define __BYTE_ORDER for MSVC
+// The following guarantees declaration of the byte swap functions, and
+// defines __BYTE_ORDER for MSVC
 #ifdef COMPILER_MSVC
 #include <stdlib.h>  // NOLINT(build/include)
 #define __BYTE_ORDER __LITTLE_ENDIAN
@@ -131,13 +149,13 @@ typedef unsigned long ulong;
 #define bswap_32(x) OSSwapInt32(x)
 #define bswap_64(x) OSSwapInt64(x)
 
-#elif defined(__GLIBC__)
+#elif defined(__GLIBC__) || defined(__CYGWIN__)
 #include <byteswap.h>  // IWYU pragma: export
 
 #else
 
 static inline uint16 bswap_16(uint16 x) {
-  return ((x & 0xFF) << 8) | ((x & 0xFF00) >> 8);
+  return static_cast<uint16>(((x & 0xFF) << 8) | ((x & 0xFF00) >> 8));
 }
 #define bswap_16(x) bswap_16(x)
 static inline uint32 bswap_32(uint32 x) {
@@ -206,16 +224,18 @@ const char PATH_SEPARATOR = '/';
 
 // va_copy portability definitions
 #ifdef COMPILER_MSVC
-// MSVC doesn't have va_copy yet.
+// MSVC before version 12 doesn't have va_copy.
 // This is believed to work for 32-bit msvc.  This may not work at all for
 // other platforms.
 // If va_list uses the single-element-array trick, you will probably get
 // a compiler error here.
 //
+#if (_MSC_VER < 1800)
 #include <stdarg.h>
 inline void va_copy(va_list& a, va_list& b) {
   a = b;
 }
+#endif  // _MSC_VER < 1800
 
 // Nor does it have uid_t
 typedef int uid_t;
@@ -309,7 +329,7 @@ inline size_t strnlen(const char *s, size_t maxlen) {
 namespace std {}  // Avoid error if we didn't see std.
 using namespace std;  // Just like VC++, we need a using here.
 
-// Doesn't exist on OSX; used in google.cc for send() to mean "no flags".
+// Doesn't exist on OSX.
 #define MSG_NOSIGNAL 0
 
 // No SIGPWR on MacOSX.  SIGINFO seems suitably obscure.
@@ -386,9 +406,11 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 #if defined(__i386__) || defined(__x86_64__)
 #define CACHELINE_SIZE 64
 #elif defined(__powerpc64__)
-// TODO(user) This is the L1 D-cache line size of our Power7 machines.
-// Need to check if this is appropriate for other PowerPC64 systems.
 #define CACHELINE_SIZE 128
+#elif defined(__aarch64__)
+// We would need to read special regiter ctr_el0 to find out L1 dcache size.
+// This value is a good estimate based on a real aarch64 machine.
+#define CACHELINE_SIZE 64
 #elif defined(__arm__)
 // Cache line sizes for ARM: These values are not strictly correct since
 // cache line sizes depend on implementations, not architectures.  There
@@ -401,17 +423,17 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 #endif
 #endif
 
-// This is a NOP if CACHELINE_SIZE is not defined.
-#ifdef CACHELINE_SIZE
-#define CACHELINE_ALIGNED __attribute__((aligned(CACHELINE_SIZE)))
-#else
-#define CACHELINE_ALIGNED
+#ifndef CACHELINE_SIZE
+// A reasonable default guess.  Note that overestimates tend to waste more
+// space, while underestimates tend to waste more time.
+#define CACHELINE_SIZE 64
 #endif
+
+#define CACHELINE_ALIGNED __attribute__((aligned(CACHELINE_SIZE)))
 
 //
 // Prevent the compiler from complaining about or optimizing away variables
 // that appear unused
-// (careful, others e.g. third_party/libxml/xmlversion.h also define this)
 #undef ATTRIBUTE_UNUSED
 #define ATTRIBUTE_UNUSED __attribute__ ((unused))
 
@@ -432,12 +454,38 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 // See http://people.redhat.com/drepper/tls.pdf for the gory details.
 #define ATTRIBUTE_INITIAL_EXEC __attribute__ ((tls_model ("initial-exec")))
 
+// Tell the compiler either that a particular function parameter
+// should be a non-null pointer, or that all pointer arguments should
+// be non-null.
 //
-// Tell the compiler that some function parameters should be non-null pointers.
 // Note: As the GCC manual states, "[s]ince non-static C++ methods
 // have an implicit 'this' argument, the arguments of such methods
 // should be counted from two, not one."
 //
+// Args are indexed starting at 1.
+// For non-static class member functions, the implicit "this" argument
+// is arg 1, and the first explicit argument is arg 2.
+// For static class member functions, there is no implicit "this", and
+// the first explicit argument is arg 1.
+//
+//   /* arg_a cannot be NULL, but arg_b can */
+//   void Function(void* arg_a, void* arg_b) ATTRIBUTE_NONNULL(1);
+//
+//   class C {
+//     /* arg_a cannot be NULL, but arg_b can */
+//     void Method(void* arg_a, void* arg_b) ATTRIBUTE_NONNULL(2);
+//
+//     /* arg_a cannot be NULL, but arg_b can */
+//     static void StaticMethod(void* argc_a, void* arg_b) ATTRIBUTE_NONNULL(1);
+//   };
+//
+// If no arguments are provided, then all pointer arguments should be non-null.
+//
+//  /* No pointer arguments may be null. */
+//  void Function(void* arg_a, void* arg_b, int arg_c) ATTRIBUTE_NONNULL();
+//
+// NOTE: The GCC nonnull attribute actually accepts a list of arguments, but
+// ATTRIBUTE_NONNULL does not.
 #define ATTRIBUTE_NONNULL(arg_index) __attribute__((nonnull(arg_index)))
 
 //
@@ -450,10 +498,10 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 // calls _exit from a cloned subprocess, deliberately accesses buffer
 // out of bounds or does other scary things with memory.
 #ifdef ADDRESS_SANITIZER
-#define ATTRIBUTE_NO_ADDRESS_SAFETY_ANALYSIS \
-    __attribute__((no_address_safety_analysis))
+#define ATTRIBUTE_NO_SANITIZE_ADDRESS \
+    __attribute__((no_sanitize_address))
 #else
-#define ATTRIBUTE_NO_ADDRESS_SAFETY_ANALYSIS
+#define ATTRIBUTE_NO_SANITIZE_ADDRESS
 #endif
 
 // Tell MemorySanitizer to relax the handling of a given function. All "Use of
@@ -477,7 +525,6 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 //
 // Tell the compiler/linker to put a given function into a section and define
 // "__start_ ## name" and "__stop_ ## name" symbols to bracket the section.
-// Sections can not span more than none compilation unit.
 // This functionality is supported by GNU linker.
 // Any function with ATTRIBUTE_SECTION must not be inlined, or it will
 // be placed into whatever section its caller is placed into.
@@ -515,19 +562,7 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 
 #endif  // HAVE_ATTRIBUTE_SECTION
 
-//
-// The legacy prod71 libc does not provide the stack alignment required for use
-// of SSE intrinsics.  In order to properly use the intrinsics you need to use
-// a trampoline function which aligns the stack prior to calling your code,
-// or as of crosstool v10 with gcc 4.2.0 there is an attribute which asks
-// gcc to do this for you.
-//
-// It has also been discovered that crosstool up to and including v10 does not
-// provide proper alignment for pthread_once() functions in x86-64 code either.
-// Unfortunately gcc does not provide force_align_arg_pointer as an option in
-// x86-64 code, so this requires us to always have a trampoline.
-//
-// For an example of using this see util/hash/adler32*
+// Support for aligning the stack on 32-bit x86.
 
 #if defined(__i386__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))
 #define ATTRIBUTE_STACK_ALIGN_FOR_OLD_LIBC __attribute__((force_align_arg_pointer))
@@ -556,7 +591,7 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 #define MUST_USE_RESULT
 #endif
 
-#if defined(COMPILER_GCC3)
+#if defined(COMPILER_GCC3) || defined(__llvm__)
 // Defined behavior on some of the uarchs:
 // PREFETCH_HINT_T0:
 //   prefetch to all levels of the hierarchy (except on p4: prefetch to L2)
@@ -670,6 +705,43 @@ extern inline void prefetch(const void *x) {
 #define FTELLO ftello
 #define FSEEKO fseeko
 
+#else   // not GCC
+
+#define PRINTF_ATTRIBUTE(string_index, first_to_check)
+#define SCANF_ATTRIBUTE(string_index, first_to_check)
+#define PACKED
+#define CACHELINE_SIZE 64
+#define CACHELINE_ALIGNED
+#define ATTRIBUTE_UNUSED
+#define ATTRIBUTE_ALWAYS_INLINE
+#define ATTRIBUTE_NOINLINE
+#define ATTRIBUTE_HOT
+#define ATTRIBUTE_COLD
+#define ATTRIBUTE_WEAK
+#define HAVE_ATTRIBUTE_WEAK 0
+#define ATTRIBUTE_INITIAL_EXEC
+#define ATTRIBUTE_NONNULL(arg_index)
+#define ATTRIBUTE_NORETURN
+#define ATTRIBUTE_NO_SANITIZE_ADDRESS
+#define ATTRIBUTE_NO_SANITIZE_MEMORY
+#define HAVE_ATTRIBUTE_SECTION 0
+#define ATTRIBUTE_STACK_ALIGN_FOR_OLD_LIBC
+#define REQUIRE_STACK_ALIGN_TRAMPOLINE (0)
+#define MUST_USE_RESULT
+extern inline void prefetch(const void*) {}
+#define PREDICT_FALSE(x) x
+#define PREDICT_TRUE(x) x
+
+// These should be redefined appropriately if better alternatives to
+// ftell/fseek exist in the compiler
+#define FTELLO ftell
+#define FSEEKO fseek
+
+#endif  // GCC
+
+#if ((defined(COMPILER_GCC3) || defined(OS_MACOSX)) && !defined(SWIG)) || \
+    ((__GNUC__ >= 3 || defined(__clang__)) && defined(__ANDROID__))
+
 #if !defined(__cplusplus) && !defined(OS_MACOSX) && !defined(OS_CYGWIN)
 // stdlib.h only declares this in C++, not in C, so we declare it here.
 // Also make sure to avoid declaring it on platforms which don't support it.
@@ -688,10 +760,16 @@ inline void *aligned_malloc(size_t size, int minimum_alignment) {
     return valloc(size);
   // give up
   return NULL;
-#elif defined(OS_CYGWIN)
+#elif defined(__ANDROID__) || defined(OS_ANDROID) || defined(OS_CYGWIN)
   return memalign(minimum_alignment, size);
-#else  // !OS_MACOSX && !OS_CYGWIN
+#else  // !__ANDROID__ && !OS_ANDROID && !OS_MACOSX && !OS_CYGWIN
   void *ptr = NULL;
+  // posix_memalign requires that the requested alignment be at least
+  // sizeof(void*). In this case, fall back on malloc which should return memory
+  // aligned to at least the size of a pointer.
+  const int required_alignment = sizeof(void*);
+  if (minimum_alignment < required_alignment)
+    return malloc(size);
   if (posix_memalign(&ptr, minimum_alignment, size) != 0)
     return NULL;
   else
@@ -703,36 +781,9 @@ inline void aligned_free(void *aligned_memory) {
   free(aligned_memory);
 }
 
-#else   // not GCC
-
-#define PRINTF_ATTRIBUTE(string_index, first_to_check)
-#define SCANF_ATTRIBUTE(string_index, first_to_check)
-#define PACKED
-#define CACHELINE_ALIGNED
-#define ATTRIBUTE_UNUSED
-#define ATTRIBUTE_ALWAYS_INLINE
-#define ATTRIBUTE_NOINLINE
-#define ATTRIBUTE_HOT
-#define ATTRIBUTE_COLD
-#define ATTRIBUTE_WEAK
-#define HAVE_ATTRIBUTE_WEAK 0
-#define ATTRIBUTE_INITIAL_EXEC
-#define ATTRIBUTE_NONNULL(arg_index)
-#define ATTRIBUTE_NORETURN
-#define HAVE_ATTRIBUTE_SECTION 0
-#define ATTRIBUTE_STACK_ALIGN_FOR_OLD_LIBC
-#define REQUIRE_STACK_ALIGN_TRAMPOLINE (0)
-#define MUST_USE_RESULT
-extern inline void prefetch(const void *x) {}
-#define PREDICT_FALSE(x) x
-#define PREDICT_TRUE(x) x
-
-// These should be redefined appropriately if better alternatives to
-// ftell/fseek exist in the compiler
-#define FTELLO ftell
-#define FSEEKO fseek
-
-#endif  // GCC
+#endif
+// #if ((defined(COMPILER_GCC3) || defined(OS_MACOSX)) && !defined(SWIG)) ||
+// ((__GNUC__ >= 3 || defined(__clang__)) && defined(__ANDROID__))
 
 //
 // Provides a char array with the exact same alignment as another type. The
@@ -787,8 +838,9 @@ BASE_PORT_H_ALIGNTYPE_TEMPLATE(8192);
 #undef BASE_PORT_H_ALIGN_ATTRIBUTE
 
 #else  // defined(BASE_PORT_H_ALIGN_ATTRIBUTE)
-#define ALIGNED_CHAR_ARRAY you_must_define_ALIGNED_CHAR_ARRAY_for_your_compiler_in_base_port_h
-#endif // defined(BASE_PORT_H_ALIGN_ATTRIBUTE)
+#define ALIGNED_CHAR_ARRAY \
+  you_must_define_ALIGNED_CHAR_ARRAY_for_your_compiler_in_base_port_h
+#endif  // defined(BASE_PORT_H_ALIGN_ATTRIBUTE)
 
 #else  // !SWIG
 
@@ -883,16 +935,39 @@ typedef SSIZE_T ssize_t;
 // You say tomato, I say atotom
 #define PATH_MAX MAX_PATH
 
+// MSVC requires to know how code will be linked in order to compile it.
+// This information can be provided via a .def file or __declspec() annotations.
+// The following macro can be set on the compiler command line by those wishing
+// to use __declspec.
+#ifndef BASE_PORT_MSVC_DLL_MACRO
+#define BASE_PORT_MSVC_DLL_MACRO
+#endif
+
+// Wrap Microsoft _snprintf/_vsnprintf calls so they nul-terminate on buffer
+// overflow.
+#define vsnprintf base_port_MSVC_vsnprintf
+BASE_PORT_MSVC_DLL_MACRO
+    int base_port_MSVC_vsnprintf(char *str, size_t size,
+                                 const char *format, va_list ap);
+#define snprintf base_port_MSVC_snprintf
+BASE_PORT_MSVC_DLL_MACRO
+    int base_port_MSVC_snprintf(char *str, size_t size, const char *fmt, ...);
+
 // You say tomato, I say _tomato
-#define vsnprintf _vsnprintf
-#define snprintf _snprintf
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 
 #define nextafter _nextafter
 
+// In MSVC >= 12, the redefinitions of hypot and hypotf will cause an
+// inconsistent DLL linkage problem because hypot and hypotf are also defined
+// in xtgmath.h, which is included later via <string>. The redefinitions are,
+// however not necessary any more as both functions are redirected to _hypot
+// and _hypotf in math.h.
+#if (_MSC_VER < 1800)
 #define hypot _hypot
 #define hypotf _hypotf
+#endif  // _MSC_VER < 1800
 
 #define strdup _strdup
 #define tempnam _tempnam
@@ -902,8 +977,8 @@ typedef SSIZE_T ssize_t;
 
 
 // You say tomato, I say toma
-#define random() rand()
-#define srandom(x) srand(x)
+inline int random() { return rand(); }
+inline void srandom(unsigned int seed) { srand(seed); }
 
 // You say juxtapose, I say transpose
 #define bcopy(s, d, n) memcpy(d, s, n)
@@ -921,6 +996,7 @@ inline void aligned_free(void *aligned_memory) {
 // See http://en.wikipedia.org/wiki/IEEE_754 for details of
 // floating point format.
 
+#if (_MSC_VER < 1800)  // MSVC after version 12 has these definitions.
 enum {
   FP_NAN,  //  is "Not a Number"
   FP_INFINITE,  //  is either plus or minus infinity.
@@ -929,6 +1005,7 @@ enum {
   FP_NORMAL  // if nothing of the above is correct that it must be a
   // normal floating-point number.
 };
+#endif  // _MSC_VER < 1800
 
 inline int fpclassify_double(double x) {
   const int float_point_class =_fpclass(x);
@@ -987,23 +1064,12 @@ inline int isinf(double x) {
   return 0;
 }
 
-// #include "conflict-signal.h"
 typedef void (*sig_t)(int);
 
-// These actually belong in errno.h but there's a name confilict in errno
+// This actually belongs in errno.h but there's a name conflict in errno
 // on WinNT. They (and a ton more) are also found in Winsock2.h, but
 // if'd out under NT. We need this subset at minimum.
 #define EXFULL      ENOMEM  // not really that great a translation...
-// The following are already defined in VS2010.
-#if (_MSC_VER < 1600)
-#define EWOULDBLOCK WSAEWOULDBLOCK
-#ifndef PTHREADS_REDHAT_WIN32
-#define ETIMEDOUT   WSAETIMEDOUT
-#endif
-#define ENOTSOCK    WSAENOTSOCK
-#define EINPROGRESS WSAEINPROGRESS
-#define ECONNRESET  WSAECONNRESET
-#endif
 
 //
 // Really from <string.h>
@@ -1047,18 +1113,48 @@ struct PortableHashBase { };
 #define gethostbyname gethostbyname_is_not_thread_safe_DO_NOT_USE
 #endif
 
-// create macros in which the programmer should enclose all specializations
-// for hash_maps and hash_sets. This is necessary since these classes are not
-// STL standardized. Depending on the STL implementation they are in different
-// namespaces. Right now the right namespace is passed by the Makefile
-// Examples: gcc3: -DHASH_NAMESPACE=__gnu_cxx
-//           icc:  -DHASH_NAMESPACE=std
-//           gcc2: empty
+// Define the namespace for pre-C++11 functors for hash_map and hash_set.
+// This is not the namespace for C++11 functors (that namespace is "std").
+//
+// We used to require that the build tool or Makefile provide this definition.
+// Now we usually get it from testing target macros. If the testing target
+// macros are different from an external definition, you will get a build
+// error.
+//
+// Note that any platform that defines HASH_NAMESPACE to be "std" must also
+// define HASH_NAMESPACE_IS_STD_NAMESPACE_INTERNAL. That macro is an
+// implementation detail of this header; do not use it in your code.
+//
+// TODO(user): always get HASH_NAMESPACE from testing target macros.
+
+#if defined(__GNUC__) && defined(GOOGLE_GLIBCXX_VERSION)
+// Crosstool v17 or later.
+#define HASH_NAMESPACE __gnu_cxx
+#elif defined(__GNUC__) && defined(STLPORT)
+// A version of gcc with stlport.
+#define HASH_NAMESPACE std
+#define HASH_NAMESPACE_IS_STD_NAMESPACE_INTERNAL
+#elif defined(_MSC_VER)
+// MSVC.
+// http://msdn.microsoft.com/en-us/library/6x7w9f6z(v=vs.100).aspx
+#define HASH_NAMESPACE stdext
+#elif defined(__APPLE__)
+// Xcode.
+#define HASH_NAMESPACE __gnu_cxx
+#elif defined(__GNUC__)
+// Some other version of gcc.
+#define HASH_NAMESPACE __gnu_cxx
+#else
+// HASH_NAMESPACE defined externally.
+// TODO(user): make this an error. Do not use external value of HASH_NAMESPACE.
+#endif
 
 #ifndef HASH_NAMESPACE
 #define HASH_NAMESPACE __gnu_cxx
 #endif
 #ifndef HASH_NAMESPACE
+// TODO(user): try to delete this.
+// I think gcc 2.95.3 was the last toolchain to use this.
 #else
 #endif
 
@@ -1133,7 +1229,7 @@ inline void UNALIGNED_STORE64(void *p, uint64 v) {
 }
 
 #elif defined(ARCH_PIII) || defined(ARCH_ATHLON) || \
-     defined(ARCH_K8) || defined(_ARCH_PPC)
+     defined(ARCH_K8) || defined(ARCH_PPC)
 
 // x86 and x86-64 can perform unaligned loads/stores directly;
 // modern PowerPC hardware can also do unaligned integer loads and stores;
@@ -1320,10 +1416,29 @@ std::ostream& operator << (std::ostream& out, const pthread_t& thread_id);
 #define LANG_CXX11 1
 #endif
 
+// CAN_SPECIALIZE_STD_HASH is a portability macro for specializing std::hash.
+// Portable code should use it to guard any std::hash specializations:
+//
+// #ifdef CAN_SPECIALIZE_STD_HASH
+// namespace std
+// template <> struct hash<Foo> {
+//   ...
+// };
+// }  // namespace std
+// #endif
+#if defined(LANG_CXX11) && !defined(HASH_NAMESPACE_IS_STD_NAMESPACE_INTERNAL)
+#define CAN_SPECIALIZE_STD_HASH
+#endif
+
+// Undefine this internal macro now that we no longer need it, to prevent
+// misuse by clients.
+#undef HASH_NAMESPACE_IS_STD_NAMESPACE_INTERNAL
+
 // On some platforms, a "function pointer" points to a function descriptor
 // rather than directly to the function itself.  Use FUNC_PTR_TO_CHAR_PTR(func)
 // to get a char-pointer to the first instruction of the function func.
-#if defined(__powerpc__) || defined(__ia64)
+#if (defined(__powerpc__) && !(_CALL_ELF > 1)) || \
+    defined(__ia64)
 // use opd section for function descriptors on these platforms, the function
 // address is the first word of the descriptor
 enum { kPlatformUsesOPDSections = 1 };
@@ -1349,24 +1464,18 @@ enum { kPlatformUsesOPDSections = 0 };
 // message is ignored (though the compiler error will likely mention
 // "static_assert_failed" and point to the line with the failing assertion).
 
-#if LANG_CXX11 || __has_extension(cxx_static_assert) || _MSC_VER >= 1600
+// Something else (perhaps libc++) may have provided its own definition of
+// static_assert.
+#ifndef static_assert
+#if LANG_CXX11 || __has_extension(cxx_static_assert) || defined(_MSC_VER)
 // There's a native implementation of static_assert, no need to define our own.
-// Except that Crosstool V15 blocks use of static_assert, and lacks a warning
-// option to permit it, so we fall back to _Static_assert in that case.
-// TODO(user): Eliminate this when we no longer need to support compilation
-// with Crosstool V15.
-#if defined(__clang__)
-#if !__has_warning("-Wc++98-compat-static-assert")
-#define static_assert _Static_assert
-#else
-#endif
-#endif
 #elif __has_extension(c_static_assert)
 // C11's _Static_assert is available, and makes a great static_assert.
 #define static_assert _Static_assert
 #else
 // Fall back on our home-grown implementation, with its limitations.
 #define static_assert GG_PRIVATE_STATIC_ASSERT
+#endif
 #endif
 
 // CompileAssert is an implementation detail of COMPILE_ASSERT and
@@ -1382,7 +1491,8 @@ struct CompileAssert {
 #define GG_PRIVATE_CAT(a, b) GG_PRIVATE_CAT_IMMEDIATE(a, b)
 #define GG_PRIVATE_STATIC_ASSERT(expr, ignored) \
   typedef CompileAssert<(static_cast<bool>(expr))> \
-  GG_PRIVATE_CAT(static_assert_failed_at_line, __LINE__)[bool(expr) ? 1 : -1]
+  GG_PRIVATE_CAT(static_assert_failed_at_line, __LINE__)[bool(expr) ? 1 : -1] \
+  ATTRIBUTE_UNUSED
 
 #endif  // __cplusplus
 
@@ -1400,3 +1510,5 @@ using std::string;
 #endif  // SWIG, __cplusplus
 
 #endif  // BASE_PORT_H_
+
+

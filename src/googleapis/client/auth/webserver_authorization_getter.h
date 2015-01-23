@@ -17,10 +17,10 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #ifndef APISERVING_CLIENTS_CPP_AUTH_WEBSERVER_AUTHORIZATION_GETTER_H_
 #define APISERVING_CLIENTS_CPP_AUTH_WEBSERVER_AUTHORIZATION_GETTER_H_
+#include <memory>
 #include <ostream>  // NOLINT
 #include <string>
 using std::string;
@@ -31,7 +31,6 @@ using std::string;
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/base/thread_annotations.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
@@ -127,7 +126,7 @@ class WebServerAuthorizationCodeGetter {
 
  private:
   int64 timeout_ms_;
-  scoped_ptr<AskCallback> ask_callback_;
+  std::unique_ptr<AskCallback> ask_callback_;
   Mutex mutex_;
   CondVar authorization_condvar_        GUARDED_BY(mutex_);
   string authorization_code_            GUARDED_BY(mutex_);
@@ -140,5 +139,5 @@ class WebServerAuthorizationCodeGetter {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_AUTH_WEBSERVER_AUTHORIZATION_GETTER_H_

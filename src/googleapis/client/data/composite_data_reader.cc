@@ -243,4 +243,4 @@ Closure* NewCompositeReaderListAndContainerDeleter(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

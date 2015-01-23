@@ -52,13 +52,14 @@
 #ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TRANSPORT_H_
 #define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TRANSPORT_H_
 
-#include <string>
-using std::string;
 #include <map>
 using std::map;
+#include <memory>
+#include <string>
+using std::string;
+
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/client/transport/http_request.h"
 namespace googleapis {
 
@@ -137,6 +138,18 @@ class HttpTransportErrorHandler {
       int num_retries_so_far, HttpRequest* request) const;
 
   /*
+   * Handles transport errors asynchronously.
+   *
+   * @param[in] num_retries_so_far Number of retries performed already.
+   * @param[in] request The request that caused the error.
+   * @param[in] callback Called with whether to retry request or not.
+   */
+  virtual void HandleTransportErrorAsync(
+      int num_retries_so_far,
+      HttpRequest* request,
+      Callback1<bool>* callback) const;
+
+  /*
    * Handles HTTP redirects (HTTP 3xx series results).
    *
    * @param[in] num_redirects_so_far Number of redirects already followed.
@@ -148,7 +161,20 @@ class HttpTransportErrorHandler {
       int num_redirects_so_far, HttpRequest* request) const;
 
   /*
-   * Handles erorrs from requests with HTTP status code errors.
+   * Handles HTTP redirects (HTTP 3xx series results) asynchronously.
+   *
+   * @param[in] num_redirects_so_far Number of redirects already followed.
+   * @param[in] request The request that caused the error.
+   *
+   * @return true if we should consider trying again, policy permitting.
+   */
+  virtual void HandleRedirectAsync(
+      int num_redirects_so_far,
+      HttpRequest* request,
+      Callback1<bool>* callback) const;
+
+  /*
+   * Handles errors from requests with HTTP status code errors.
    *
    * This includes 401 (Authorization) and 503 (Unavailable)
    *
@@ -162,11 +188,53 @@ class HttpTransportErrorHandler {
   virtual bool HandleHttpError(
       int num_retries_so_far, HttpRequest* request) const;
 
+  /*
+   * Handles errors from requests with HTTP status code errors
+   * asynchronously.
+   *
+   * This includes 401 (Authorization) and 503 (Unavailable)
+   *
+   * @param[in] num_retries_so_far Number of retries performed already.
+   * @param[in] request The request that returned the error.
+   * @param[in] callback Callback to run upon error or termination.
+   *
+   * @return true if we should consider trying again, policy permitting.
+   *
+   * @see ResetHttpCodeHandler for overriding this behavior before subclassing.
+   */
+  virtual void HandleHttpErrorAsync(
+      int num_retries_so_far,
+      HttpRequest* request,
+      Callback1<bool>* callback) const;
+
+  /*
+   * Handles credential refresh response asynchronously.
+   *
+   * @param[in] callback Callback to run on refresh status.
+   * @param[in] request Refresh HTTP request.
+   * @param[in] status Refresh status.
+   */
+  virtual void HandleRefreshAsync(
+      Callback1<bool>* callback,
+      HttpRequest* request,
+      util::Status status) const;
+
  private:
   /*
    * Maps HTTP status code to specific handler for it.
    */
   map<int, HttpCodeHandler*>  specialized_http_code_handlers_;
+
+  /*
+   * Handles HTTP redirects (HTTP 3xx series results).
+   *
+   * @param[in] num_redirects_so_far Number of redirects already followed.
+   * @param[in] request The request that caused the error.
+   *
+   * @return true if we should consider trying again, policy permitting.
+   */
+  virtual bool ShouldRetryRedirect_(
+    int num_redirects, HttpRequest* request) const;
 
   DISALLOW_COPY_AND_ASSIGN(HttpTransportErrorHandler);
 };
@@ -219,11 +287,33 @@ class HttpTransportOptions {
   /*
    * Returns the executor that should be used with this transport.
    *
-   * @return  If the transport is using the global default hten the global
+   * @return  If the transport is using the global default then the global
    *          default will be returned. This might still be NULL if no global
    *          default was set.
    */
   thread::Executor* executor() const;
+
+  /*
+   * Sets the executor to use for HTTP callback responses.
+   *
+   * Setting the executor to NULL will use the InlineExecutor.
+   *
+   * @param[in] executor The executor this transport will use for HTTP
+   * responses.  The caller retains ownership so should guarantee that
+   * the executor will remain valid over the lifetime of these options
+   * and any optinos assigned from it.
+   */
+  void set_callback_executor(thread::Executor* executor) {
+    callback_executor_ = executor;
+  }
+
+  /*
+   * Returns the executor used for HTTP callback responses.
+   *
+   * @return  If the transport is using the default InlineExecutor then that
+   *          default will be returned.
+   */
+  thread::Executor* callback_executor() const;
 
   /*
    * Returns the error handler for this transport.
@@ -265,6 +355,27 @@ class HttpTransportOptions {
   void SetApplicationName(const StringPiece& name);
 
   /*
+   * Sets the proxy server host and port.
+   *
+   * @param[in] host If empty then there is no proxy server
+   * @param[in] port Ignored if the host is empty.
+   */
+  void SetProxyServer(const StringPiece& host, int port) {
+    proxy_host_ = host.as_string();
+    proxy_port_ = proxy_host_.empty() ? 0 : port;
+  }
+
+  /*
+   * Returns the proxy host or empty if none.
+   */
+  const string& proxy_host() const { return proxy_host_; }
+
+  /*
+   * Returns the proxy port or 0 if no proxy.
+   */
+  int proxy_port() const { return proxy_port_; }
+
+  /*
    * Sets an exact literal value to use for the HTTP User-Agent header.
    *
    * You may use this, but we would prefer you use SetApplicationName instead,
@@ -295,6 +406,29 @@ class HttpTransportOptions {
   void set_cacerts_path(const StringPiece& path);
 
   /*
+   * Returns the timeout permitted for establishing new connections.
+   *
+   */
+  int64 connect_timeout_ms() const       { return connect_timeout_ms_; }
+
+  /*
+   * Sets the timeout permitted for establishing new connections.
+   *
+   * The connect timeout is used by the transport when setting up connections to
+   * new servers. The request timeout is used for the full round trip message
+   * exchanges over those connections.
+   * Note that the connect_timeout is used for setting up new connections
+   * whereas the request timeout in HttpRequestOptions is used for the full
+   * round trip message exchanges over these connections.
+   *
+   * @param[in] connect_timeout_ms Maximum time transport should allow for new
+   * connections to set up. 0 can be used to indicate the default timeout.
+   *
+   * @see HttpRequestOptions::set_timeout
+   */
+  void set_connect_timeout_ms(const int64 connect_timeout_ms);
+
+  /*
    * An identifier used to declare this client library within the User-Agent.
    */
   static const StringPiece kGoogleApisUserAgent;
@@ -322,6 +456,13 @@ class HttpTransportOptions {
   static string DetermineDefaultCaCertsPath();
 
  private:
+  int proxy_port_;
+
+  /*
+   * The hostname for the proxy is empty for none.
+   */
+  string proxy_host_;
+
   /*
    * The value for the User-Agent header identifying this client.
    */
@@ -337,6 +478,10 @@ class HttpTransportOptions {
    */
   bool ssl_verification_disabled_;
 
+  /*
+   * Timeout permitted for establishing new connections.
+   */
+  int64 connect_timeout_ms_;
 
   /*
    * Specifies the executor to use for asynchronous requests.
@@ -344,6 +489,11 @@ class HttpTransportOptions {
    * Not owned. NULL means use global default.
    */
   thread::Executor* executor_;
+
+  /*
+   * NULL means same-thread executor
+   */
+  thread::Executor* callback_executor_;
 
   /*
    * Specifies the error handler to use.
@@ -482,9 +632,9 @@ class HttpTransportLayerConfig {
 
  private:
   HttpTransportOptions default_options_;
-  scoped_ptr<HttpTransportFactory> default_transport_factory_;
-  scoped_ptr<HttpTransportErrorHandler> default_error_handler_;
-  scoped_ptr<thread::Executor> default_executor_;
+  std::unique_ptr<HttpTransportFactory> default_transport_factory_;
+  std::unique_ptr<HttpTransportErrorHandler> default_error_handler_;
+  std::unique_ptr<thread::Executor> default_executor_;
 
   DISALLOW_COPY_AND_ASSIGN(HttpTransportLayerConfig);
 };
@@ -615,6 +765,52 @@ class HttpTransport {
    */
   virtual HttpRequest* NewHttpRequest(
       const HttpRequest::HttpMethod& method) = 0;
+
+  /*
+   * Encodes a HttpRequest start line and headers but not the message body.
+   *
+   * This is a helper function for WriteRequest that omits the body
+   * stream.
+   *
+   * @param[in] http_request The request to encode.
+   * @param[in, out] writer The writer to encode into. Its status will
+   *                        indicate whether an error occurred writing.
+   *
+   * @see WriteRequest
+   * @see HttpWriter::status
+   */
+  static void WriteRequestPreamble(
+      const HttpRequest* http_request, DataWriter* writer);
+
+  /*
+   * Encodes a HttpRequest into a writer using the HTTP protocol.
+   *
+   * This is intended as a helper function when needing to produce an HTTP
+   * stream. Concrete transport implementations may have some higher level
+   * interface for this, so this function will not necessarily get called.
+   *
+   * @param[in] http_request The request to encode.
+   * @param[in, out] writer The writer to encode into. Its status will
+   *                        indicate whether an error occurred writing.
+   *
+   *
+   * @see HttpWriter::status
+   */
+  static void WriteRequest(
+      const HttpRequest* http_request, DataWriter* writer);
+
+  /*
+   * Decodes an protocol HTTP response into an HttpResponse.
+   *
+   * @param[in] reader Contains the HTTP response stream to read.
+   * @param[in, out] response The response to decode should be associated
+   *                          with the HttpRequest that the HTTP is for.
+   *                          The transport_status will indicate if an error
+   *                          occurred reading the response.
+   *
+   * @see HttpResponse::status
+   */
+  static void ReadResponse(DataReader* reader, HttpResponse* response);
 
  private:
   string id_;
@@ -759,7 +955,7 @@ class HttpTransportFactory {
  private:
   const HttpTransportLayerConfig* config_;
   HttpRequestOptions default_request_options_;
-  scoped_ptr<HttpScribe> scribe_;
+  std::unique_ptr<HttpScribe> scribe_;
   string default_id_;
 
   DISALLOW_COPY_AND_ASSIGN(HttpTransportFactory);
@@ -767,5 +963,5 @@ class HttpTransportFactory {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TRANSPORT_H_

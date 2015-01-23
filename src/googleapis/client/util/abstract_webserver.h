@@ -38,6 +38,7 @@
 #ifndef APISERVING_CLIENTS_CPP_UTIL_ABSTRACT_WEBSERVER_H_
 #define APISERVING_CLIENTS_CPP_UTIL_ABSTRACT_WEBSERVER_H_
 
+#include <memory>
 #include <string>
 using std::string;
 #include <utility>
@@ -48,7 +49,6 @@ using std::vector;
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
@@ -185,7 +185,7 @@ class WebServerRequest {
  private:
   string method_;
   ParsedUrl parsed_url_;
-  scoped_ptr<WebServerResponse> response_;
+  std::unique_ptr<WebServerResponse> response_;
 };
 
 /*
@@ -301,5 +301,5 @@ class AbstractWebServer {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_UTIL_ABSTRACT_WEBSERVER_H_

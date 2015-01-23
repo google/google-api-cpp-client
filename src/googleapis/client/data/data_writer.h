@@ -47,7 +47,7 @@ class DataReader;
  * @see NewStringDataWriter
  * @see NewFileDataWriter
  */
-// TODO(ewiseblatt): 20130418
+// TODO(user): 20130418
 // Consider adding << operator
 class DataWriter {
  public:
@@ -80,7 +80,7 @@ class DataWriter {
   /*
    * Clears any prior data writen into the stream so that it is empty.
    *
-   * TODO(ewiseblatt): 20130306
+   * TODO(user): 20130306
    * I'm not sure what clear means yet.
    * Should it delete files or any other side effects?
    * This is needed to reset a response, such as when retrying.
@@ -116,6 +116,16 @@ class DataWriter {
   util::Status Write(const StringPiece& data) {
     return Write(data.size(), data.data());
   }
+
+  /*
+   * Synchronously stream a reader's content into a writer.
+   *
+   * @param[in] reader The reader to read from.
+   * @param[in] max_bytes Limits the number of bytes to write.
+   *                      If max_bytes < 0 then write all remaining bytes.
+   * @return Ok or reason for failure.
+   */
+  util::Status Write(DataReader* reader, int64 max_bytes = -1);
 
   /*
    * Notifies the writer that it has finished writing a stream.
@@ -218,7 +228,7 @@ class DataWriter {
  *
  * @param[in] path The caller will own the file at the given path.
  */
-DataWriter* NewFileDataWriter(const StringPiece& path);
+DataWriter* NewFileDataWriter(const string& path);
 
 /*
  * Creates a data writer that rewrites the file at the given path with control
@@ -230,7 +240,7 @@ DataWriter* NewFileDataWriter(const StringPiece& path);
  *            to given the created file.
  */
 DataWriter* NewFileDataWriter(
-    const StringPiece& path, const FileOpenOptions& options);
+    const string& path, const FileOpenOptions& options);
 
 /*
  * Creates a data writer that rewrites the given string.
@@ -252,5 +262,5 @@ DataWriter* NewStringDataWriter();
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_DATA_DATA_WRITER_H_

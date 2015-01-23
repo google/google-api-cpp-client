@@ -36,6 +36,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <memory>
 #include <stack>
 using std::stack;
 #include <string>
@@ -44,7 +45,6 @@ using std::string;
 using std::vector;
 
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/util.h"
@@ -54,10 +54,10 @@ using std::vector;
 namespace googleapis {
 
 #ifdef _MSC_VER
-static int kBinaryMode = O_BINARY;
+static const int kBinaryMode = O_BINARY;
 inline string ToNativePath(const string& path) {  return ToWindowsPath(path); }
 #else
-static int kBinaryMode = 0;
+static const int kBinaryMode = 0;
 inline const string& ToNativePath(const string& path) { return path; }
 #endif
 
@@ -229,7 +229,7 @@ bool File::RecursivelyDeleteDir(const string& path) {
   string dir_str;
   const TCHAR* dir = ToWindowsString(windows_path, &dir_str);
   int len = _tcslen(dir);
-  scoped_ptr<TCHAR[]> shop_from(new TCHAR[len + 2]);
+  std::unique_ptr<TCHAR[]> shop_from(new TCHAR[len + 2]);
   _tcscpy_s(shop_from.get(), len + 1, dir);
   shop_from[len] = 0;
   shop_from[len + 1] = 0;  // double-null terminate
@@ -292,7 +292,7 @@ util::Status File::RecursivelyCreateDirWithPermissions(
 
   int last_slash = path.size();
   while (last_slash > 0) {
-    string parent = string(path.c_str(), 0, last_slash);
+    string parent = string(path, 0, last_slash);
     if (File::Exists(parent)) {
       break;
     }
@@ -327,34 +327,23 @@ File* File::OpenWithOptions(
     return NULL;
   }
   int fd;
-  if (maybe_create && options.permissions()) {
-    bool exists = access(native_path.c_str(), F_OK) == 0;
+  if (maybe_create) {
+    oflags |= O_CREAT;
+  }
 #ifndef _MSC_VER
-    fd = open(native_path.c_str(), oflags | O_CREAT);
+  fd = open(native_path.c_str(), oflags, options.permissions());
 #else
-    _sopen_s(&fd, native_path.c_str(), oflags | O_CREAT, _SH_DENYNO,
-             options.permissions() & (_S_IREAD | _S_IWRITE));
-    LOG(INFO) << "Created file with "
-              << StringPrintf(
-                  "%x", options.permissions() & (_S_IREAD | _S_IWRITE));
+  _sopen_s(&fd, native_path.c_str(), oflags | O_CREAT, _SH_DENYNO,
+           options.permissions() & (_S_IREAD | _S_IWRITE));
+  LOG(INFO) << "Created file with "
+            << StringPrintf(
+                "%x", options.permissions() & (_S_IREAD | _S_IWRITE));
 #endif
 
-    if (fd < 0) {
-      LOG(ERROR) << "Could not open " << native_path
-                 << ": " << strerror(errno);
-      return NULL;
-    }
-#ifndef _MSC_VER
-    if (!exists && fchmod(fd, options.permissions()) != 0) {
-      LOG(ERROR) << "Could not set permissions on "
-                 << native_path << ": " << strerror(errno);
-      close(fd);
-      unlink(native_path.c_str());
-      return NULL;
-    }
-#endif
-  } else {
-    fd = open(native_path.c_str(), oflags);
+  if (fd < 0) {
+    LOG(ERROR) << "Could not open " << native_path
+               << ": " << strerror(errno);
+    return NULL;
   }
   if (fd < 0) {
     LOG(ERROR) << "Error opening " << native_path << ": " << strerror(errno);
@@ -485,7 +474,7 @@ util::Status File::ReadPath(const string& path, string* s) {
   return status;
 }
 
-bool File::Seek(int64 pos) {
+util::Status File::Seek(int64 pos, const file::Options& options) {
   while (true) {
     // If seek isnt 64 bit then this will fail if pos is too big.
     // For OSx 10.6 we dont have FSTAT64 but it is 64 bit anyway
@@ -494,7 +483,11 @@ bool File::Seek(int64 pos) {
     if (now < 0 && (errno == EINTR || errno == EAGAIN)) {
       continue;
     }
-    return now == pos;
+    if (now == pos) {
+      return util::Status();
+    }
+    return util::Status(util::error::UNKNOWN,
+                        StrCat("Seek failed. errno=", errno));
   }
 }
 
@@ -508,4 +501,15 @@ int64 File::Tell() {
   }
 }
 
-} // namespace googleapis
+
+namespace file {
+
+StringPiece Basename(const StringPiece path) {
+  int slash = path.rfind("/");
+  if (slash == string::npos) return path;
+  return path.substr(slash + 1);
+}
+
+}  // namespace file
+
+}  // namespace googleapis

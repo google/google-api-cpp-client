@@ -17,11 +17,11 @@
  * @}
  */
 
-#ifndef UTILS_HASH_HASH_H_
+#ifndef UTILS_HASH_HASH_H_  // NOLINT
 #define UTILS_HASH_HASH_H_
 #include <stddef.h>
 #if defined(__APPLE__)
-#include <ext/hash_set>
+#include <unordered_set>
 #else
 #include <hash_set>
 #endif
@@ -35,31 +35,31 @@ using std::pair;
 #include "googleapis/base/integral_types.h"
 namespace googleapis {
 
-static inline void mix(uint32& a, uint32& b, uint32& c) {     // 32bit version
-  a -= b; a -= c; a ^= (c>>13);
-  b -= c; b -= a; b ^= (a<<8);
-  c -= a; c -= b; c ^= (b>>13);
-  a -= b; a -= c; a ^= (c>>12);
-  b -= c; b -= a; b ^= (a<<16);
-  c -= a; c -= b; c ^= (b>>5);
-  a -= b; a -= c; a ^= (c>>3);
-  b -= c; b -= a; b ^= (a<<10);
-  c -= a; c -= b; c ^= (b>>15);
+static inline void mix(uint32& a, uint32& b, uint32& c) {  // 32bit version NOLINT
+  a -= b; a -= c; a ^= (c >> 13);
+  b -= c; b -= a; b ^= (a << 8);
+  c -= a; c -= b; c ^= (b >> 13);
+  a -= b; a -= c; a ^= (c >> 12);
+  b -= c; b -= a; b ^= (a << 16);
+  c -= a; c -= b; c ^= (b >> 5);
+  a -= b; a -= c; a ^= (c >> 3);
+  b -= c; b -= a; b ^= (a << 10);
+  c -= a; c -= b; c ^= (b >> 15);
 }
 
-static inline void mix(uint64& a, uint64& b, uint64& c) {     // 64bit version
-  a -= b; a -= c; a ^= (c>>43);
-  b -= c; b -= a; b ^= (a<<9);
-  c -= a; c -= b; c ^= (b>>8);
-  a -= b; a -= c; a ^= (c>>38);
-  b -= c; b -= a; b ^= (a<<23);
-  c -= a; c -= b; c ^= (b>>5);
-  a -= b; a -= c; a ^= (c>>35);
-  b -= c; b -= a; b ^= (a<<49);
-  c -= a; c -= b; c ^= (b>>11);
-  a -= b; a -= c; a ^= (c>>12);
-  b -= c; b -= a; b ^= (a<<18);
-  c -= a; c -= b; c ^= (b>>22);
+static inline void mix(uint64& a, uint64& b, uint64& c) {  // 64bit version NOLINT
+  a -= b; a -= c; a ^= (c >> 43);
+  b -= c; b -= a; b ^= (a << 9);
+  c -= a; c -= b; c ^= (b >> 8);
+  a -= b; a -= c; a ^= (c >> 38);
+  b -= c; b -= a; b ^= (a << 23);
+  c -= a; c -= b; c ^= (b >> 5);
+  a -= b; a -= c; a ^= (c >> 35);
+  b -= c; b -= a; b ^= (a << 49);
+  c -= a; c -= b; c ^= (b >> 11);
+  a -= b; a -= c; a ^= (c >> 12);
+  b -= c; b -= a; b ^= (a << 18);
+  c -= a; c -= b; c ^= (b >> 22);
 }
 
 inline uint32 Hash32NumWithSeed(uint32 num, uint32 c) {
@@ -90,5 +90,5 @@ inline size_t HashStringThoroughly(const char* s, size_t len) {
 // MOE::strip_line   But if it doesnt port, steal guts of protobuf's hash.h
 
 
-} // namespace googleapis
-#endif // UTILS_HASH_HASH_H_
+}  // namespace googleapis
+#endif  // UTILS_HASH_HASH_H_  NOLINT

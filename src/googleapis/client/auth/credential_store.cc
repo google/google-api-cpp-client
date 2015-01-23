@@ -26,7 +26,6 @@ using std::string;
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
-#include "googleapis/base/scoped_ptr.h"
 
 namespace googleapis {
 
@@ -72,4 +71,4 @@ DataReader* CredentialStore::EncodedToDecodingReader(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

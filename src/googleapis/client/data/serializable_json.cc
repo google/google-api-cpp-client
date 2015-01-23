@@ -20,6 +20,7 @@
 
 #include <istream>  // NOLINT
 #include <ostream>  // NOLINT
+#include <memory>
 #include <string>
 using std::string;
 
@@ -37,7 +38,7 @@ SerializableJson::~SerializableJson() {
 }
 
 util::Status SerializableJson::LoadFromJsonStream(std::istream* stream) {
-  scoped_ptr<DataReader> reader(NewUnmanagedIstreamDataReader(stream));
+  std::unique_ptr<DataReader> reader(NewUnmanagedIstreamDataReader(stream));
   if (!reader->ok()) {
     return reader->status();
   }
@@ -46,7 +47,7 @@ util::Status SerializableJson::LoadFromJsonStream(std::istream* stream) {
 
 util::Status SerializableJson::StoreToJsonStream(
      std::ostream* stream) const {
-  scoped_ptr<DataReader> reader(MakeJsonReader());
+  std::unique_ptr<DataReader> reader(MakeJsonReader());
   if (!reader->ok()) return reader->status();
 
   string data = reader->RemainderToString();
@@ -61,4 +62,4 @@ util::Status SerializableJson::StoreToJsonStream(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

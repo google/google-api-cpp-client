@@ -20,25 +20,30 @@
 #ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_SCRIBE_H_
 #define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_SCRIBE_H_
 
+#include <deque>
+using std::deque;
 #include <map>
 using std::map;
-#include <queue>
-using std::queue;
+#include <memory>
 #include <set>
 using std::multiset;
 using std::set;
 #include <string>
 using std::string;
+#include <vector>
+using std::vector;
+#include "googleapis/client/transport/http_request_batch.h"
 #include "googleapis/base/integral_types.h"
+#include <glog/logging.h>
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/base/thread_annotations.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
+class HttpRequestBatch;
 class HttpRequest;
 class ParsedUrl;
 
@@ -80,7 +85,7 @@ class HttpScribeCensor {
    *
    * @return The censored request payload.
    */
-  // TODO(ewiseblatt): 20130520
+  // TODO(user): 20130520
   // Really this should return a DataReader of either the original
   // reader or censored content but ownership cases are tricky and is
   // more vulnerable to rewind bugs so am leaving this as a string for now.
@@ -102,7 +107,7 @@ class HttpScribeCensor {
    *
    * @return The censored response payload.
    */
-  // TODO(ewiseblatt): 20130520
+  // TODO(user): 20130520
   // Really this should return a DataReader of either the original
   // reader or censored content but ownership cases are tricky and is
   // more vulnerable to rewind bugs so am leaving this as a string for now.
@@ -276,6 +281,7 @@ class HttpScribe {
    * @param[in] request The request being sent.
    */
   virtual void AboutToSendRequest(const HttpRequest* request) = 0;
+  virtual void AboutToSendRequestBatch(const HttpRequestBatch* batch) = 0;
 
   /*
    * Notification that a request has received a response.
@@ -287,6 +293,8 @@ class HttpScribe {
    * @param[in] request The request holds its response.
    */
   virtual void ReceivedResponseForRequest(const HttpRequest* request) = 0;
+  virtual void ReceivedResponseForRequestBatch(
+      const HttpRequestBatch* batch) = 0;
 
   /*
    * Notification that a sent request has encountered a transport error.
@@ -299,6 +307,8 @@ class HttpScribe {
    */
   virtual void RequestFailedWithTransportError(
       const HttpRequest* request, const util::Status& error) = 0;
+  virtual void RequestBatchFailedWithTransportError(
+      const HttpRequestBatch* batch, const util::Status& error) = 0;
 
   void reset_censor(HttpScribeCensor* censor) {
     censor_.reset(censor);
@@ -312,6 +322,38 @@ class HttpScribe {
    */
   virtual void Checkpoint() = 0;
 
+  /*
+   * Requests can use these flags to indicate restrictions on their transcript.
+   *
+   * This is a bit of a hack to accomodate batched requests where we have
+   * a logical HttpRequestBatch and a physical HttpRequest where we want to
+   * put the logical request in the transcript but not the physical one. It
+   * might be applicable to other sensitive messagss that cannot be properly
+   * censored.
+   *
+   * Usage of these restrictions is discouraged. Transcript production is
+   * under the control of the application to begin with. If you dont want to
+   * request details in the transcript then simply dont produce one or add
+   * a censor that strips things out.
+   *
+   * The typical default is to ALLOW_EVERYTHING to the scribe. The scribe
+   * will still apply its own censorship policy. The default policy will
+   * remove standard sensitive data such as credentials.
+   */
+  enum ScribeRestrictions {
+    ALLOW_EVERYTHING = 0,             //< Normal behavior - no restrictions.
+    FLAG_NO_URL = 0x1,                //< Dont disclose the URL.
+    FLAG_NO_REQUEST_HEADERS = 0x2,    //< Dont enumerate the request headers.
+    FLAG_NO_REQUEST_PAYLOAD = 0x4,    //< Dont record the request content.
+    FLAG_NO_RESPONSE_HEADERS = 0x20,  //< Dont enumerate the response headers.
+    FLAG_NO_RESPONSE_PAYLOAD = 0x40,  //< Dont record the response body.
+
+    MASK_NO_HEADERS = FLAG_NO_REQUEST_HEADERS | FLAG_NO_RESPONSE_HEADERS,
+    MASK_NO_PAYLOADS = FLAG_NO_REQUEST_PAYLOAD | FLAG_NO_RESPONSE_PAYLOAD,
+    MASK_NOTHING = FLAG_NO_URL | MASK_NO_HEADERS | MASK_NO_PAYLOADS,
+    MASK_NOTHING_EXCEPT_URL = MASK_NO_HEADERS | MASK_NO_PAYLOADS,
+  };
+
  protected:
   /*
    * Class is abstract so needs to be specialized to construct.
@@ -321,7 +363,7 @@ class HttpScribe {
   explicit HttpScribe(HttpScribeCensor* censor);
 
  private:
-  scoped_ptr<HttpScribeCensor> censor_;
+  std::unique_ptr<HttpScribeCensor> censor_;
   int64 max_snippet_;
   DISALLOW_COPY_AND_ASSIGN(HttpScribe);
 };
@@ -350,6 +392,16 @@ class HttpEntryScribe : public HttpScribe {
     Entry(HttpEntryScribe* scribe, const HttpRequest* request);
 
     /*
+     * Batch constructor
+     *
+     * @param[in] scribe The scribe constructing the entry.
+     * @param[in] batch The batch request that the entry is for.
+     *
+     * Caller should call either CancelAndDestroy or FlushAndDestroy when done.
+     */
+    Entry(HttpEntryScribe* scribe, const HttpRequestBatch* batch);
+
+    /*
      * Finish recording the entry instance and destroy it.
      *
      * The entry has finished so should finish recording. Ownershp is passed
@@ -374,6 +426,7 @@ class HttpEntryScribe : public HttpScribe {
      * @param[in] request The request is about to be executed.
      */
     virtual void Sent(const HttpRequest* request) = 0;
+    virtual void SentBatch(const HttpRequestBatch* batch) = 0;
 
     /*
      * Hook for recording that the request received a response.
@@ -382,6 +435,7 @@ class HttpEntryScribe : public HttpScribe {
      * might be an HTTP failure.
      */
     virtual void Received(const HttpRequest* request) = 0;
+    virtual void ReceivedBatch(const HttpRequestBatch* batch) = 0;
 
     /*
      * Hook for recording that the request encountered a transport error.
@@ -393,6 +447,8 @@ class HttpEntryScribe : public HttpScribe {
      */
     virtual void Failed(
         const HttpRequest* request, const util::Status& status) = 0;
+    virtual void FailedBatch(
+        const HttpRequestBatch* batch, const util::Status& status) = 0;
 
     /*
      * Returns the age of this intance.
@@ -411,15 +467,22 @@ class HttpEntryScribe : public HttpScribe {
     /*
      * Returns bound request.
      *
-     * @return request bound in constructor.
+     * @return request bound in constructor is NULL if this is a batch.
      */
     const HttpRequest* request() const  { return request_; }
+
+    /*
+     * Returns bound request batch.
+     *
+     * @return batch bound in constructor is NULL if this is a request.
+     */
+    const HttpRequestBatch* batch() const  { return batch_; }
 
     /*
      * Returns time instance was constructed.
      */
     const struct timeval& timeval() const  { return timeval_; }
-
+#if 0
     /*
      * Returns true if the request has completed.
      * If this is true then the request might have been destroyed already.
@@ -432,11 +495,18 @@ class HttpEntryScribe : public HttpScribe {
     bool done() const  { return done_; }
 
     /*
-     * Informs the entry that the reqeust has finished.
+     * Informs the entry that the request has finished.
      *
-     * This method is called internally so you do not need to call this..
+     * This method is called internally so you do not need to call this.
      */
     void set_done(bool is_done) { done_ = is_done; }
+#endif
+
+    bool is_batch() const            { return batch_ != NULL; }
+    void set_received_request(bool got)  { received_request_ = got; }
+    void set_received_batch(bool got)    { received_batch_ = got; }
+    bool received_batch() const          { return received_batch_; }
+    bool received_request() const        { return received_request_; }
 
    protected:
     /*
@@ -450,8 +520,10 @@ class HttpEntryScribe : public HttpScribe {
    private:
     HttpEntryScribe* scribe_;
     const HttpRequest* request_;
+    const HttpRequestBatch* batch_;
     struct timeval timeval_;
-    bool done_;
+    bool received_request_;
+    bool received_batch_;
 
     DISALLOW_COPY_AND_ASSIGN(Entry);
   };
@@ -464,6 +536,7 @@ class HttpEntryScribe : public HttpScribe {
    * @param[in] request The request that was sent.
    */
   virtual void AboutToSendRequest(const HttpRequest* request);
+  virtual void AboutToSendRequestBatch(const HttpRequestBatch* batch);
 
   /*
    * Implements the HttpScribe::ReceivedResponseForRequest method.
@@ -474,6 +547,7 @@ class HttpEntryScribe : public HttpScribe {
    * @param[in] request The request whose response was received.
    */
   virtual void ReceivedResponseForRequest(const HttpRequest* request);
+  virtual void ReceivedResponseForRequestBatch(const HttpRequestBatch* batch);
 
   /*
    * Implements the HttpScribe::RequestFailedWithTransportError method.
@@ -486,6 +560,8 @@ class HttpEntryScribe : public HttpScribe {
    */
   virtual void RequestFailedWithTransportError(
       const HttpRequest* request, const util::Status& error);
+  virtual void RequestBatchFailedWithTransportError(
+      const HttpRequestBatch* batch, const util::Status& error);
 
  protected:
   /*
@@ -511,6 +587,7 @@ class HttpEntryScribe : public HttpScribe {
    * @see DiscardEntry
    */
   Entry* GetEntry(const HttpRequest* request) LOCKS_EXCLUDED(mutex_);
+  Entry* GetBatchEntry(const HttpRequestBatch* batch) LOCKS_EXCLUDED(mutex_);
 
   /*
    * Unmaps and destroys the logical entry.
@@ -536,6 +613,17 @@ class HttpEntryScribe : public HttpScribe {
   void DiscardQueue();
 
   /*
+   * Returns the entries that have not yet been unmapped.
+   *
+   * These are in the order they were created, which is probably
+   * the order in which they were sent (minus race conditions).
+   */
+  deque<Entry*>* outstanding_queue() { return &queue_; }
+
+ protected:
+  friend class Internal;
+
+  /*
    * Create a new entry instance for the request.
    *
    * This is called from within a critical section so does not have to
@@ -550,18 +638,17 @@ class HttpEntryScribe : public HttpScribe {
   virtual Entry* NewEntry(const HttpRequest* request)
       EXCLUSIVE_LOCKS_REQUIRED(mutex_)
       = 0;
-
-  /*
-   * Returns the entries that have not yet been unmapped.
-   *
-   * These are in the order they were created, which is probably
-   * the order in which they were sent (minus race conditions).
-   */
-  queue<Entry*>* outstanding_queue() { return &queue_; }
+  virtual Entry* NewBatchEntry(const HttpRequestBatch* batch)
+      EXCLUSIVE_LOCKS_REQUIRED(mutex_) {
+    LOG(FATAL) << "Not Implemented";  // Remove base/logging.h with this.
+    return NULL;
+  }
 
  private:
+  class Internal;
+  friend class Internal;
   typedef map<const HttpRequest*, Entry*> EntryMap;
-  typedef queue<Entry*> EntryQueue;
+  typedef deque<Entry*> EntryQueue;
 
   void UnsafeDiscardEntry(Entry* entry) EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 
@@ -575,5 +662,5 @@ class HttpEntryScribe : public HttpScribe {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_SCRIBE_H_

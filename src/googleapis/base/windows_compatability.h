@@ -65,7 +65,7 @@ inline const TCHAR* ToWindowsString(const string& from, string* to) {
   return ToWindowsWideString(from, to);  // TCHAR is WCHAR
 #else
   *to = from;
-  return reinterpret_cast<const TCHAR *>to->c_str();
+  return reinterpret_cast<const TCHAR *>(to->c_str());
 #endif
 }
 
@@ -78,5 +78,5 @@ string ToWindowsPath(const string& str);
 // Converts windows '\' delimited paths into standard '/' delimited paths.
 string FromWindowsPath(const string& str);
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // defined(_MSC_VER) && !defined(GOOGLEAPIS_BASE_WINDOWS_COMPATABILITY_H_)

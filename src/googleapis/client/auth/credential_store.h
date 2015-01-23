@@ -34,11 +34,11 @@
 #ifndef APISERVING_CLIENTS_CPP_AUTH_CREDENTIAL_STORE_H_
 #define APISERVING_CLIENTS_CPP_AUTH_CREDENTIAL_STORE_H_
 
+#include <memory>
 #include <string>
 using std::string;
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
@@ -62,7 +62,7 @@ class DataReader;
  * The library does not currently provide encryption. However, for security
  * you are encouraged to encrypt the data streams if possible. This will
  * prevent authorization and refresh tokens from being readable should the
- * persisted store become compramised. The refresh token still requires the
+ * persisted store become compromised. The refresh token still requires the
  * client secret to turn into an access token.
  *
  * Although no encryption mechanism is provided at this time, the
@@ -143,8 +143,8 @@ class CredentialStore {
    *
    * @param[in] reader The caller passes ownership to the reader.
    * @param[out] status Success if the reader could be decoded.
-   * @return The decoded stream. Ownerhsip is passed back to the caller.
-   *         This will always return a reader, though may be an
+   * @return The decoded stream. Ownership is passed back to the caller.
+   *         This will always return a reader, though it may be an
    *         InvalidDataReader if there is an error.
    */
   DataReader* DecodedToEncodingReader(
@@ -155,15 +155,15 @@ class CredentialStore {
    *
    * @param[in] reader The caller passes ownership to the reader.
    * @param[out] status Success if the reader could be encoded.
-   * @return The encoded stream. Ownerhsip is passed back to the caller.
-   *         This will always return a reader, though may be an
+   * @return The encoded stream. Ownership is passed back to the caller.
+   *         This will always return a reader, though it may be an
    *         InvalidDataReader if there is an error.
    */
   DataReader* EncodedToDecodingReader(
       DataReader* reader, util::Status* status);
 
  private:
-  scoped_ptr<Codec> codec_;
+  std::unique_ptr<Codec> codec_;
 
   DISALLOW_COPY_AND_ASSIGN(CredentialStore);
 };
@@ -208,19 +208,19 @@ class CredentialStoreFactory {
    * Creates a new CredentialStore instance.
    *
    * @param[in] client_id The client ID to scope the store to.
-   * @param[out] status The reason for failrue if NULL is returned.
+   * @param[out] status The reason for failure if NULL is returned.
    * @return new store instance on success or NULL on failure.
    */
   virtual CredentialStore* NewCredentialStore(
       const string& client_id, util::Status* status) const = 0;
 
  private:
-  scoped_ptr<CodecFactory> codec_factory_;
+  std::unique_ptr<CodecFactory> codec_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(CredentialStoreFactory);
 };
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_AUTH_CREDENTIAL_STORE_H_

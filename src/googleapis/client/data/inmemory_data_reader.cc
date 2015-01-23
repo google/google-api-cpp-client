@@ -21,8 +21,8 @@
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/integral_types.h"
-#include <glog/logging.h>
 #include "googleapis/strings/stringpiece.h"
+#include "googleapis/strings/strcat.h"
 
 namespace googleapis {
 
@@ -54,7 +54,7 @@ class InMemoryDataReader : public DataReader {
       set_done(true);
       return 0;
     }
-    int64 read = min(max_bytes, remaining);
+    int64 read = std::min(max_bytes, remaining);
     if (read > 0) {
       memcpy(storage, data_.data() + offset(), read);
       if (read == remaining) {
@@ -64,6 +64,15 @@ class InMemoryDataReader : public DataReader {
       }
     }
     return read;
+  }
+
+  virtual bool DoAppendUntilPatternInclusive(
+      const string& pattern, string* consumed) {
+    int64 start = offset();
+    int64 found = data_.find(pattern, start);
+    int64 end = found == string::npos ? data_.size() : found + pattern.size();
+    StrAppend(consumed, data_.substr(start, end - start));
+    return found != StringPiece::npos;
   }
 
  private:
@@ -86,4 +95,4 @@ DataReader* NewManagedInMemoryDataReader(string* str) {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

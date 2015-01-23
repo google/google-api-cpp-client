@@ -38,7 +38,7 @@ struct uint128_pod;
 
 // An unsigned 128-bit integer type. Thread-compatible.
 class uint128 {
-public:
+ public:
   UINT128_CONSTEXPR uint128();  // Sets to 0, but don't trust on this behavior.
   UINT128_CONSTEXPR uint128(uint64 top, uint64 bottom);
 #ifndef SWIG
@@ -46,18 +46,17 @@ public:
   UINT128_CONSTEXPR uint128(uint32 bottom);   // Top 96 bits = 0
 #endif
   UINT128_CONSTEXPR uint128(uint64 bottom);   // hi_ = 0
-  UINT128_CONSTEXPR uint128(const uint128 &val);
   UINT128_CONSTEXPR uint128(const uint128_pod &val);
 
-  void Initialize(uint64 top, uint64 bottom);
+  // Trivial copy constructor, assignment operator and destructor.
 
-  uint128& operator=(const uint128& b);
+  void Initialize(uint64 top, uint64 bottom);
 
   // Arithmetic operators.
   uint128& operator+=(const uint128& b);
   uint128& operator-=(const uint128& b);
   uint128& operator*=(const uint128& b);
-  // Long division/modulo for uint128. Simple, but probably slow.
+  // Long division/modulo for uint128.
   uint128& operator/=(const uint128& b);
   uint128& operator%=(const uint128& b);
   uint128 operator++(int);
@@ -72,13 +71,14 @@ public:
 
   friend uint64 Uint128Low64(const uint128& v);
   friend uint64 Uint128High64(const uint128& v);
-  friend void div_mod_impl(const uint128& dividend, const uint128& divisor,
-                           uint128* quotient_ret, uint128* remainder_ret);
 
   // We add "std::" to avoid including all of port.h.
   friend std::ostream& operator<<(std::ostream& o, const uint128& b);
 
-private:
+ private:
+  static void DivModImpl(uint128 dividend, uint128 divisor,
+                         uint128* quotient_ret, uint128* remainder_ret);
+
   // Little-endian memory order optimizations can benefit from
   // having lo_ first, hi_ last.
   // See util/endian/endian.h and Load128/Store128 for storing a uint128.
@@ -115,10 +115,6 @@ extern std::ostream& operator<<(std::ostream& o, const uint128& b);
 inline uint64 Uint128Low64(const uint128& v) { return v.lo_; }
 inline uint64 Uint128High64(const uint128& v) { return v.hi_; }
 
-// Helper function for operator/=(), operator%=().
-void div_mod_impl(const uint128& dividend, const uint128& divisor,
-                  uint128* quotient_ret, uint128* remainder_ret);
-
 // TODO: perhaps it would be nice to have int128, a signed 128-bit type?
 
 // --------------------------------------------------------------------------
@@ -131,17 +127,10 @@ inline bool operator==(const uint128& lhs, const uint128& rhs) {
 inline bool operator!=(const uint128& lhs, const uint128& rhs) {
   return !(lhs == rhs);
 }
-inline uint128& uint128::operator=(const uint128& b) {
-  lo_ = b.lo_;
-  hi_ = b.hi_;
-  return *this;
-}
 
 inline UINT128_CONSTEXPR uint128::uint128() : lo_(0), hi_(0) {}
 inline UINT128_CONSTEXPR uint128::uint128(uint64 top, uint64 bottom)
     : lo_(bottom), hi_(top) {}
-inline UINT128_CONSTEXPR uint128::uint128(const uint128& v)
-    : lo_(v.lo_), hi_(v.hi_) {}
 inline UINT128_CONSTEXPR uint128::uint128(const uint128_pod& v)
     : lo_(v.lo), hi_(v.hi) {}
 inline UINT128_CONSTEXPR uint128::uint128(uint64 bottom)
@@ -284,11 +273,11 @@ inline uint128& uint128::operator>>=(int amount) {
       hi_ = hi_ >> amount;
     }
   } else if (amount < 128) {
-    hi_ = 0;
     lo_ = hi_ >> (amount - 64);
-  } else {
     hi_ = 0;
+  } else {
     lo_ = 0;
+    hi_ = 0;
   }
   return *this;
 }
@@ -375,5 +364,5 @@ inline uint128& uint128::operator--() {
   return *this;
 }
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // BASE_INT128_H_

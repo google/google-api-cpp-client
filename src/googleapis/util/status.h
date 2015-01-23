@@ -180,5 +180,5 @@ class Status {
 
 }  // namespace util
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // UTIL_TASK_STATUS_H_

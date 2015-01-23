@@ -21,10 +21,10 @@
 #ifndef APISERVING_CLIENTS_CPP_TRANSPORT_JSON_PLAYBACK_TRANSPORT_H_
 #define APISERVING_CLIENTS_CPP_TRANSPORT_JSON_PLAYBACK_TRANSPORT_H_
 
+#include <memory>
+
 #include "googleapis/client/transport/http_transport.h"
-#include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 namespace googleapis {
 
 namespace util {
@@ -160,7 +160,7 @@ class JsonPlaybackTransport : public HttpTransport {
   static const StringPiece kTransportIdentifier;
 
  private:
-  scoped_ptr<JsonPlaybackTranscript> transcript_storage_;
+  std::unique_ptr<JsonPlaybackTranscript> transcript_storage_;
   JsonPlaybackTranscript* transcript_;
   HttpScribeCensor* censor_;
   DISALLOW_COPY_AND_ASSIGN(JsonPlaybackTransport);
@@ -235,12 +235,12 @@ class JsonPlaybackTransportFactory : public HttpTransportFactory {
   virtual HttpTransport* DoAlloc(const HttpTransportOptions& options);
 
  private:
-  scoped_ptr<JsonPlaybackTranscript> transcript_;
-  scoped_ptr<HttpScribeCensor> censor_;
+  std::unique_ptr<JsonPlaybackTranscript> transcript_;
+  std::unique_ptr<HttpScribeCensor> censor_;
   DISALLOW_COPY_AND_ASSIGN(JsonPlaybackTransportFactory);
 };
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_JSON_PLAYBACK_TRANSPORT_H_

@@ -42,6 +42,7 @@ using std::vector;
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/port.h"
+#include "googleapis/base/type_traits.h"
 #include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/stringpiece.h"
@@ -51,6 +52,105 @@ namespace googleapis {
 /* @defgroup NumbersFunctions
  * @{ */
 
+// Convert strings to numeric values, with strict error checking.
+// Leading and trailing spaces are allowed.
+// Negative inputs are not allowed for unsigned ints (unlike strtoul).
+//
+// Base must be [0, 2-36].
+// Base 0:
+//   auto-select base from first two chars:
+//    "0x" -> hex
+//    "0" -> octal
+//    else -> decimal
+// Base 16:
+//   Number can start with "0x"
+//
+// On error, returns false, and sets *value to:
+//   std::numeric_limits<T>::max() on overflow
+//   std::numeric_limits<T>::min() on underflow
+//   conversion of leading substring if available ("123@@@" -> 123)
+//   0 if no leading substring available
+// The effect on errno is unspecified.
+// Do not depend on testing errno.
+bool safe_strto32_base(StringPiece text, int32* value, int base);
+bool safe_strto64_base(StringPiece text, int64* value, int base);
+bool safe_strtou32_base(StringPiece text, uint32* value, int base);
+bool safe_strtou64_base(StringPiece text, uint64* value, int base);
+bool safe_strtosize_t_base(StringPiece text, size_t* value, int base);
+
+// Convenience functions with base == 10.
+inline bool safe_strto32(StringPiece text, int32* value) {
+  return safe_strto32_base(text, value, 10);
+}
+
+inline bool safe_strto64(StringPiece text, int64* value) {
+  return safe_strto64_base(text, value, 10);
+}
+
+inline bool safe_strtou32(StringPiece text, uint32* value) {
+  return safe_strtou32_base(text, value, 10);
+}
+
+inline bool safe_strtou64(StringPiece text, uint64* value) {
+  return safe_strtou64_base(text, value, 10);
+}
+
+inline bool safe_strtosize_t(StringPiece text, size_t* value) {
+  return safe_strtosize_t_base(text, value, 10);
+}
+
+// 8 obsolete functions.
+// I would like to deprecate these functions but there are technical
+// problems with SplitStringAndParse callbacks.
+//
+//  4  safe_strtofoo(const char*, ...);
+//  4  safe_strtofoo(const string&, ...);
+//
+// If you want to see the technical problems, delete these overloads
+// and build strings:strings.
+
+// ---
+
+inline bool safe_strto32(const char* str, int32* value) {
+  return safe_strto32(StringPiece(str), value);
+}
+
+inline bool safe_strto32(const string& str, int32* value) {
+  return safe_strto32(StringPiece(str), value);
+}
+
+// ---
+
+inline bool safe_strto64(const char* str, int64* value) {
+  return safe_strto64(StringPiece(str), value);
+}
+
+inline bool safe_strto64(const string& str, int64* value) {
+  return safe_strto64(StringPiece(str), value);
+}
+
+// ---
+
+inline bool safe_strtou32(const char* str, uint32* value) {
+  return safe_strtou32(StringPiece(str), value);
+}
+
+inline bool safe_strtou32(const string& str, uint32* value) {
+  return safe_strtou32(StringPiece(str), value);
+}
+
+// ---
+
+inline bool safe_strtou64(const char* str, uint64* value) {
+  return safe_strtou64(StringPiece(str), value);
+}
+
+inline bool safe_strtou64(const string& str, uint64* value) {
+  return safe_strtou64(StringPiece(str), value);
+}
+
+// ---
+
 // Convert a fingerprint to 16 hex digits.
 string FpToString(Fprint fp);
 // Convert between uint128 and 32-digit hex string (sans leading 0x).
@@ -58,27 +158,26 @@ string Uint128ToHexString(uint128 ui128);
 // Returns true on successful conversion; false on invalid input.
 bool HexStringToUint128(StringPiece hex, uint128* value);
 
-// Convert strings to numeric values, with strict error checking.
-// Leading and trailing spaces are allowed.
-// Negative inputs are not allowed for unsigned ints (unlike strtoul).
-// Numbers must be in base 10; see the _base variants below for other bases.
-// Returns false on errors (including overflow/underflow).
-bool safe_strto32(const char* str, int32* value);
-bool safe_strto64(const char* str, int64* value);
-bool safe_strtou32(const char* str, uint32* value);
-bool safe_strtou64(const char* str, uint64* value);
 // Convert strings to floating point values.
 // Leading and trailing spaces are allowed.
 // Values may be rounded on over- and underflow.
+bool safe_strtof(StringPiece str, float* value);
 bool safe_strtof(const char* str, float* value);
-bool safe_strtod(const char* str, double* value);
-
-bool safe_strto32(const string& str, int32* value);
-bool safe_strto64(const string& str, int64* value);
-bool safe_strtou32(const string& str, uint32* value);
-bool safe_strtou64(const string& str, uint64* value);
+#if defined(HAS_GLOBAL_STRING)
 bool safe_strtof(const string& str, float* value);
+#endif
+// In order to avoid ambiguity between conversion to string and
+// StringPiece, define a specialization for std::string.
+bool safe_strtof(const std::string& str, float* value);
+
+bool safe_strtod(StringPiece str, double* value);
+bool safe_strtod(const char* str, double* value);
+#if defined(HAS_GLOBAL_STRING)
 bool safe_strtod(const string& str, double* value);
+#endif
+// In order to avoid ambiguity between conversion to string and
+// StringPiece, define a specialization for std::string.
+bool safe_strtod(const std::string& str, double* value);
 
 // Parses text (case insensitive) into a boolean. The following strings are
 // interpreted to boolean true: "true", "t", "yes", "y", "1". The following
@@ -86,62 +185,6 @@ bool safe_strtod(const string& str, double* value);
 // Returns true on success. On failure the boolean value will not have been
 // changed.
 bool safe_strtob(StringPiece str, bool* value);
-
-// Parses text into value.
-bool safe_strto32(StringPiece text, int32* value);
-bool safe_strto64(StringPiece text, int64* value);
-bool safe_strtou32(StringPiece text, uint32* value);
-bool safe_strtou64(StringPiece text, uint64* value);
-bool safe_strtosize_t(StringPiece text, size_t* value);
-
-// Parses buffer_size many characters from startptr into value.
-inline bool safe_strto32(const char* startptr, int buffer_size, int32* value) {
-  return safe_strto32(StringPiece(startptr, buffer_size), value);
-}
-inline bool safe_strto64(const char* startptr, int buffer_size, int64* value) {
-  return safe_strto64(StringPiece(startptr, buffer_size), value);
-}
-
-// Parses with a fixed base between 2 and 36. For base 16, leading "0x" is ok.
-// If base is set to 0, its value is inferred from the beginning of str:
-// "0x" means base 16, "0" means base 8, otherwise base 10 is used.
-bool safe_strto32_base(const char* str, int32* value, int base);
-bool safe_strto64_base(const char* str, int64* value, int base);
-bool safe_strtou32_base(const char* str, uint32* value, int base);
-bool safe_strtou64_base(const char* str, uint64* value, int base);
-
-bool safe_strto32_base(const string& str, int32* value, int base);
-bool safe_strto64_base(const string& str, int64* value, int base);
-bool safe_strtou32_base(const string& str, uint32* value, int base);
-bool safe_strtou64_base(const string& str, uint64* value, int base);
-
-// Parses text with base between 2 and 36 into value.
-bool safe_strto32_base(StringPiece text, int32* value, int base);
-bool safe_strto64_base(StringPiece text, int64* value, int base);
-
-bool safe_strtou32_base(StringPiece text, uint32* value, int base);
-bool safe_strtou64_base(StringPiece text, uint64* value, int base);
-bool safe_strtosize_t_base(StringPiece text, size_t* value, int base);
-
-// Parses buffer_size many characters from startptr with base between 2 and
-// 36 into value.
-inline bool safe_strto32_base(const char* startptr, int buffer_size,
-                              int32* value, int base) {
-  return safe_strto32_base(StringPiece(startptr, buffer_size), value, base);
-}
-inline bool safe_strto64_base(const char* startptr, int buffer_size,
-                              int64* value, int base) {
-  return safe_strto64_base(StringPiece(startptr, buffer_size), value, base);
-}
-
-inline bool safe_strtou32_base(const char* startptr, int buffer_size,
-                               uint32* value, int base) {
-  return safe_strtou32_base(StringPiece(startptr, buffer_size), value, base);
-}
-inline bool safe_strtou64_base(const char* startptr, int buffer_size,
-                               uint64* value, int base) {
-  return safe_strtou64_base(StringPiece(startptr, buffer_size), value, base);
-}
 
 // u64tostr_base36()
 //    The inverse of safe_strtou64_base, converts the number agument to
@@ -158,26 +201,14 @@ inline uint64 atoi_kmgt(const string& s) { return atoi_kmgt(s.c_str()); }
 
 // ----------------------------------------------------------------------
 // FastIntToBuffer()
-// FastHexToBuffer()
-// FastHex64ToBuffer()
-// FastHex32ToBuffer()
 // FastTimeToBuffer()
-//    These are intended for speed.  FastIntToBuffer() assumes the
-//    integer is non-negative.  FastHexToBuffer() puts output in
-//    hex rather than decimal.  FastTimeToBuffer() puts the output
+//    These are intended for speed.  FastTimeToBuffer() puts the output
 //    into RFC822 format.
-//
-//    FastHex64ToBuffer() puts a 64-bit unsigned value in hex-format,
-//    padded to exactly 16 bytes (plus one byte for '\0')
-//
-//    FastHex32ToBuffer() puts a 32-bit unsigned value in hex-format,
-//    padded to exactly 8 bytes (plus one byte for '\0')
 //
 //    All functions take the output buffer as an arg.  FastInt() uses
 //    at most 22 bytes, FastTime() uses exactly 30 bytes.  They all
-//    return a pointer to the beginning of the output, which for
-//    FastHex() may not be the beginning of the input buffer.  (For
-//    all others, we guarantee that it is.)
+//    return a pointer to the beginning of the output, which is the same as
+//    the beginning of the input buffer.
 //
 //    NOTE: In 64-bit land, sizeof(time_t) is 8, so it is possible
 //    to pass to FastTimeToBuffer() a time whose year cannot be
@@ -188,17 +219,17 @@ inline uint64 atoi_kmgt(const string& s) { return atoi_kmgt(s.c_str()); }
 // Previously documented minimums -- the buffers provided must be at least this
 // long, though these numbers are subject to change:
 //     Int32, UInt32:                   12 bytes
-//     Int64, UInt64, Hex, Int, Uint:   22 bytes
+//     Int64, UInt64, Int, Uint:        22 bytes
 //     Time:                            30 bytes
-//     Hex32:                            9 bytes
-//     Hex64:                           17 bytes
 // Use kFastToBufferSize rather than hardcoding constants.
 static const int kFastToBufferSize = 32;
 
 char* FastUInt32ToBuffer(uint32 i, char* buffer);
 char* FastUInt64ToBuffer(uint64 i, char* buffer);
-char* FastHexToBuffer(int i, char* buffer) MUST_USE_RESULT;
 char* FastTimeToBuffer(time_t t, char* buffer);
+
+// These are deprecated.  Use StrCat instead.
+char* FastHexToBuffer(int i, char* buffer) MUST_USE_RESULT;
 char* FastHex64ToBuffer(uint64 i, char* buffer);
 char* FastHex32ToBuffer(uint32 i, char* buffer);
 
@@ -485,22 +516,36 @@ inline string SimpleItoa(unsigned long i) {  // NOLINT long is OK here
 // Returns true if parsing was successful.
 template <typename int_type>
 bool MUST_USE_RESULT SimpleAtoi(const char* s, int_type* out) {
-  // Must be of integer type (not pointer type), with more than 16-bitwidth.
-  COMPILE_ASSERT(sizeof(*out) == 4 || sizeof(*out) == 8,
-                 SimpleAtoiWorksWith32Or64BitInts);
-  if (std::numeric_limits<int_type>::is_signed) {  // Signed
+  static_assert(sizeof(*out) == 4 || sizeof(*out) == 8,
+                "SimpleAtoi works only with 32-bit or 64-bit integers.");
+  static_assert(!base::is_floating_point<int_type>::value,
+                "Use safe_strtof or safe_strtod instead.");
+  bool parsed;
+  // TODO(user): This signed-ness check is used because it works correctly
+  // with enums, and it also serves to check that int_type is not a pointer.
+  // If one day something like std::is_signed<enum E> works, switch to it.
+  if (static_cast<int_type>(0) > -1) {  // Signed
     if (sizeof(*out) == 64 / 8) {  // 64-bit
-      return safe_strto64(s, reinterpret_cast<int64*>(out));
+      int64 val;
+      parsed = safe_strto64(s, &val);
+      *out = static_cast<int_type>(val);
     } else {  // 32-bit
-      return safe_strto32(s, reinterpret_cast<int32*>(out));
+      int32 val;
+      parsed = safe_strto32(s, &val);
+      *out = static_cast<int_type>(val);
     }
   } else {  // Unsigned
     if (sizeof(*out) == 64 / 8) {  // 64-bit
-      return safe_strtou64(s, reinterpret_cast<uint64*>(out));
+      uint64 val;
+      parsed = safe_strtou64(s, &val);
+      *out = static_cast<int_type>(val);
     } else {  // 32-bit
-      return safe_strtou32(s, reinterpret_cast<uint32*>(out));
+      uint32 val;
+      parsed = safe_strtou32(s, &val);
+      *out = static_cast<int_type>(val);
     }
   }
+  return parsed;
 }
 
 template <typename int_type>
@@ -638,5 +683,31 @@ bool ParseDoubleRange(const char* text, int len, const char** end,
 // END DOXYGEN SplitFunctions grouping
 /* @} */
 
-} // namespace googleapis
+// Functions in strings::internal are internal functions.
+// As usual, we may break your build if you cheat on strings::internal.
+// DO NOT USE INTERNAL FUNCTIONS OUTSIDE OF //STRINGS.
+
+namespace strings {
+
+namespace internal {
+
+// Convert a float or a double to a NUL-terminated char buffer.
+// buffer_length must be >= kFastToBufferSize.
+// Returns buffer for convenience in chaining calls.
+//
+// On IEEE-754 machines: strtof(FloatToCharBuffer(value)) and
+// strtod(DoubleToCharBuffer(value)) return a value equal to the original
+// value.  Exception: if value is NaN, then the round-trip value may be the
+// same NaN or a different NaN.
+//
+// The output char-buffer is not guaranteed to be as short as possible.
+
+char* FloatToCharBuffer(float value, char* buffer, size_t buffer_length);
+char* DoubleToCharBuffer(double value, char* buffer, size_t buffer_length);
+
+}  // namespace internal
+
+}  // namespace strings
+
+}  // namespace googleapis
 #endif  // STRINGS_NUMBERS_H_

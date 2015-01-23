@@ -39,7 +39,6 @@ using std::vector;
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
@@ -271,6 +270,17 @@ class DataReader {
    */
   int64 TotalLengthIfKnown() const { return total_length_; }
 
+  /*
+   * Reads until the pattern is found or end of stream is hit.
+   *
+   * @param[in] pattern  The string to search for is null terminated
+   * @param[out] consuemed The consumed bytes are copied here. It will end
+   *                       with the pattern if found. If the pattern is not
+   *                       found then it will be the remainder of the stream.
+   * @return true if the pattern was found, false otherwise.
+   */
+  bool ReadUntilPatternInclusive(const string& pattern, string* consumed);
+
  protected:
   /*
    * Standard reader constructor.
@@ -342,6 +352,16 @@ class DataReader {
    * seek should not exceed the length of the bytestream.
    */
   virtual int64 DoSetOffset(int64 position);
+
+  /*
+   * Appends to the consumed string until the pattern is found or done.
+   *
+   * @param[in] pattern A null-terminated string pattern to search for.
+   * @param[in, out] consumed The string to append to.
+   * @return true if the pattern is found, false otherwise.
+   */
+  virtual bool DoAppendUntilPatternInclusive(
+      const string& pattern, string* consumed);
 
   /*
    * Sets the status as a means to pass error details back to the caller.
@@ -694,5 +714,5 @@ DataReader* NewUnmanagedIstreamDataReaderWithLength(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_DATA_DATA_READER_H_

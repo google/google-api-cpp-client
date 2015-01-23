@@ -74,6 +74,23 @@ void StringPiece::AppendToString(string* target) const {
   STLAppendToString(target, ptr_, length_);
 }
 
+bool StringPiece::Consume(StringPiece x) {
+  if (starts_with(x)) {
+    ptr_ += x.length_;
+    length_ -= x.length_;
+    return true;
+  }
+  return false;
+}
+
+bool StringPiece::ConsumeFromEnd(StringPiece x) {
+  if (ends_with(x)) {
+    length_ -= x.length_;
+    return true;
+  }
+  return false;
+}
+
 stringpiece_ssize_type StringPiece::copy(char* buf,
                                          size_type n,
                                          size_type pos) const {
@@ -251,4 +268,4 @@ StringPiece StringPiece::substr(size_type pos, size_type n) const {
 
 const StringPiece::size_type StringPiece::npos = size_type(-1);
 
-} // namespace googleapis
+}  // namespace googleapis

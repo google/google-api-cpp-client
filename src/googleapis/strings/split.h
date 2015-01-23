@@ -31,5 +31,5 @@ namespace strings {
 vector<StringPiece> Split(const StringPiece& source, const StringPiece& delim);
 }  // namespace strings
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // GOOGLEAPIS_SPLIT_H_

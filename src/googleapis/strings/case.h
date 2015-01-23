@@ -125,7 +125,7 @@ inline bool CaseEqual(StringPiece s1, StringPiece s2) {
 // Useful as a template parameter for STL set/map of StringPiece-compatible
 // types, if uniqueness of keys is case-insensitive.
 struct CaseLess {
-  bool operator()(StringPiece s1, StringPiece s2) {
+  bool operator()(StringPiece s1, StringPiece s2) const {
     return CaseCompare(s1, s2) < 0;
   }
 };
@@ -187,5 +187,5 @@ inline string ToUpper(StringPiece s) {
 // ---------------------------------------------------------------------
 void TitlecaseString(string* s, StringPiece delimiters);
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // STRINGS_CASE_H_

@@ -117,5 +117,5 @@ struct StringCaseEqualTo {
   }
 };
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // UTIL_HASH_CASE_INSENSITIVE_HASH_H_

@@ -19,12 +19,13 @@
 // A service request pager acts as a high level iterator for paging
 // through results. Each page involves a round-trip request the the server.
 
-#ifndef APISERVING_CLIENTSCPP_SERVICE_SERVICE_REQUEST_PAGER_H_
-#define APISERVING_CLIENTSCPP_SERVICE_SERVICE_REQUEST_PAGER_H_
+#ifndef APISERVING_CLIENTS_CPP_SERVICE_SERVICE_REQUEST_PAGER_H_
+#define APISERVING_CLIENTS_CPP_SERVICE_SERVICE_REQUEST_PAGER_H_
+
+#include <memory>
 
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
-#include "googleapis/client/transport/http_response.h"
+#include "googleapis/client/service/client_service.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
@@ -35,6 +36,7 @@ namespace client {
 
 class ClientServiceRequest;
 class HttpRequest;
+class HttpResponse;
 
 /*
  * Base class for component that pages through REST results.
@@ -72,7 +74,7 @@ class BaseServiceRequestPager {
    *
    * @return Ownership is retained by this instance.
    */
-  HttpResponse* http_response()   { return &http_response_; }
+  HttpResponse* http_response()   { return request_->http_response(); }
 
   /*
    * Determine if this was the last known page.
@@ -140,7 +142,6 @@ class BaseServiceRequestPager {
   }
 
  private:
-  HttpResponse http_response_;
   ClientServiceRequest* request_;
   string next_page_token_;
 
@@ -153,16 +154,16 @@ class BaseServiceRequestPager {
  * A pager over referenced REST APIs having a standard paging interface.
  * @ingroup ClientServiceLayer
  *
- * This template relies on the existence of REQUEST.set_pageToken and
- * RESPONSE.get_nextPageToken methods to control the page iteration.
+ * This template relies on the existence of REQUEST.set_page_token and
+ * RESPONSE.get_next_page_token methods to control the page iteration.
  *
  * This class does not own the request or data objects. See the
  * EncapsulatedServiceRequestPager as a variant that adds memory management.
  *
  * @tparam REQUEST must be a subclass of ClientServiceRequest
- *                  and have a set_pageToken method.
+ *                  and have a set_page_token method.
  * @tparam DATA must be a subclass of SerializableJson and have a
- *               get_nextPageToken method.
+ *               get_next_page_token method.
  */
 template<class REQUEST, class DATA>
 class ServiceRequestPager : public BaseServiceRequestPager {
@@ -219,9 +220,9 @@ class ServiceRequestPager : public BaseServiceRequestPager {
     }
 
     if (next_page_token().empty()) {
-      request()->clear_pageToken();
+      request()->clear_page_token();
     } else {
-      request()->set_pageToken(next_page_token());
+      request()->set_page_token(next_page_token());
     }
 
     util::Status status =
@@ -231,7 +232,7 @@ class ServiceRequestPager : public BaseServiceRequestPager {
     status = request()->ExecuteAndParseResponse(page_data_storage_);
     if (!status.ok()) return status;
 
-    set_next_page_token(page_data_storage_->get_nextPageToken());
+    set_next_page_token(page_data_storage_->get_next_page_token());
     return status;
   }
 
@@ -269,13 +270,13 @@ class EncapsulatedServiceRequestPager
   virtual ~EncapsulatedServiceRequestPager() {}
 
  private:
-  scoped_ptr<REQUEST> request_;    // access through base class
-  scoped_ptr<DATA> data_storage_;  // access through base class
+  std::unique_ptr<REQUEST> request_;    // access through base class
+  std::unique_ptr<DATA> data_storage_;  // access through base class
 
   DISALLOW_COPY_AND_ASSIGN(EncapsulatedServiceRequestPager);
 };
 
 }  // namespace client
 
-} // namespace googleapis
-#endif  // APISERVING_CLIENTSCPP_SERVICE_SERVICE_REQUEST_PAGER_H_
+}  // namespace googleapis
+#endif  // APISERVING_CLIENTS_CPP_SERVICE_SERVICE_REQUEST_PAGER_H_

@@ -18,6 +18,13 @@
  */
 
 
+#include <memory>
+#include <algorithm>
+using std::copy;
+using std::max;
+using std::min;
+using std::reverse;
+using std::swap;
 #include <string>
 using std::string;
 
@@ -26,9 +33,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
-#include "googleapis/util/file.h"
-#include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 
 namespace googleapis {
@@ -72,6 +76,41 @@ util::Status DataWriter::Write(int64 bytes, const char* data) {
   return status_;
 }
 
+util::Status DataWriter::Write(DataReader* reader, int64 max_bytes) {
+  if (!ok()) return status();  // Writer is in an error state
+
+  if (!reader->done()) {
+    if (max_bytes < 0) {
+      max_bytes = kint64max;
+    }
+    int64 reader_remaining = reader->TotalLengthIfKnown() - reader->offset();
+    int64 remaining = reader_remaining < 0
+        ? max_bytes
+        : std::min(reader_remaining, max_bytes);
+    if (remaining) {
+      const int64 kDefaultChunkSize = 1 << 12;  // 4K max
+      int64 chunk_size = std::min(remaining, kDefaultChunkSize);
+      std::unique_ptr<char[]> buffer(new char[chunk_size]);
+
+      // Write chunks until we're done or hit an error somewhere
+      while (remaining && !reader->done() && ok()) {
+        int64 read = reader->ReadToBuffer(std::min(remaining, chunk_size),
+                                          buffer.get());
+        Write(read, buffer.get()).IgnoreError();
+        remaining -= read;
+      }
+    }
+  }
+
+  // If the reader finished in an error state then propagate it to the writer.
+  if (reader->error()) {
+    set_status(reader->status());
+  }
+
+  // Return the writer status.
+  return status();
+}
+
 DataReader* DataWriter::NewManagedDataReader(Closure* deleter) {
   if (!status_.ok()) {
     LOG(ERROR) << "Error from bad writer";
@@ -85,102 +124,36 @@ util::Status DataWriter::DoBegin() { return StatusOk(); }
 util::Status DataWriter::DoEnd() { return StatusOk(); }
 
 
-// TODO(ewiseblatt): 20120306
-// Move this to another file
-class FileDataWriter : public DataWriter {
- public:
-  FileDataWriter(const StringPiece& path, const FileOpenOptions& options)
-      : path_(path.as_string()), options_(options), file_(NULL) {
-  }
-
-  util::Status DoBegin() {
-    if (file_) file_->Close();
-
-    file_ = File::OpenWithOptions(path_.c_str(), "w", options_);
-    if (!file_) {
-      util::Status status =
-          StatusInvalidArgument(StrCat("Could not open ", path_));
-      LOG(WARNING) << status.error_message();
-      return status;
-    }
-    return StatusOk();
-  }
-
-  util::Status DoEnd() {
-    if (file_) {
-      bool ok = file_->Close();
-      file_ = NULL;
-      if (!ok) {
-        return StatusUnknown("Error closing file");
-      }
-    }
-    return StatusOk();
-  }
-
-  ~FileDataWriter() {
-    if (file_) {
-      file_->Flush();
-      file_->Close();
-    }
-  }
-
-  virtual util::Status DoWrite(int64 bytes, const char* buffer) {
-return file_->Write(buffer, bytes);
-  }
-
-  virtual DataReader* DoNewDataReader(Closure* deleter) {
-    if (file_) file_->Flush();
-    return NewManagedFileDataReader(path_, deleter);
-  }
-
- private:
-  string path_;
-  FileOpenOptions options_;
-  File* file_;
-};
-
-
-// TODO(ewiseblatt): 20120306
+// TODO(user): 20120306
 // Move this to another file
 class StringDataWriter : public DataWriter {
  public:
   StringDataWriter() : storage_(&local_storage_) {}
   explicit StringDataWriter(string* storage) : storage_(storage) {}
-  ~StringDataWriter() {}
+  ~StringDataWriter() override {}
 
-  virtual util::Status DoClear() {
+  util::Status DoClear() override {
     storage_->clear();
     return StatusOk();
   }
 
-  virtual util::Status DoBegin() {
+  util::Status DoBegin() override {
     return DoClear();
   }
 
-  virtual util::Status DoWrite(int64 bytes, const char* buffer) {
+  util::Status DoWrite(int64 bytes, const char* buffer) override {
     storage_->append(buffer, bytes);
     return StatusOk();
   }
 
-  virtual DataReader* DoNewDataReader(Closure* deleter) {
-    return NewUnmanagedInMemoryDataReader(*storage_);
+  DataReader* DoNewDataReader(Closure* deleter) override {
+    return NewManagedInMemoryDataReader(*storage_, deleter);
   }
 
  private:
   string local_storage_;
   string* storage_;
 };
-
-DataWriter* NewFileDataWriter(const StringPiece& path) {
-  FileOpenOptions options;
-  options.set_permissions(S_IRUSR | S_IWUSR);
-  return new FileDataWriter(path, options);
-}
-
-DataWriter* NewFileDataWriter(
-    const StringPiece& path, const FileOpenOptions& options) {
-  return new FileDataWriter(path, options);
-}
 
 DataWriter* NewStringDataWriter(string* s) {
   return new StringDataWriter(s);
@@ -191,4 +164,4 @@ DataWriter* NewStringDataWriter() {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

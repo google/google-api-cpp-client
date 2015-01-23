@@ -167,4 +167,4 @@ Codec* Base64CodecFactory::New(googleapis::util::Status* status) {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

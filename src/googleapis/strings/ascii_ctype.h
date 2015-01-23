@@ -91,5 +91,5 @@ static inline char ascii_tolower(unsigned char c) { return kAsciiToLower[c]; }
 extern const char kAsciiToUpper[256];
 static inline char ascii_toupper(unsigned char c) { return kAsciiToUpper[c]; }
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // STRINGS_ASCII_CTYPE_H_

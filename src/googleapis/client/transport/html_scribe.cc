@@ -25,25 +25,20 @@
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/util/date_time.h"
 #include "googleapis/client/util/uri_utils.h"
-#include "googleapis/strings/ascii_ctype.h"
-#include "googleapis/strings/numbers.h"
 #include "googleapis/base/stringprintf.h"
+#include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/strcat.h"
 
 namespace googleapis {
 
+namespace client {
 namespace {
 
-using client::DataReader;
-using client::DataWriter;
-using client::DateTime;
-using client::HtmlScribe;
-using client::HttpEntryScribe;
-using client::HttpHeaderMap;
-using client::HttpHeaderMultiMap;
-using client::HttpRequest;
-using client::HttpResponse;
-using client::ParsedUrl;
+// forward declaration
+string BuildBatchRequestDetail(
+    HtmlScribe* scribe,
+    const HttpRequestBatch* batch,
+    const string& id);
 
 const StringPiece kToggleControl("");
 const StringPiece kBinarySymbol(".");
@@ -93,7 +88,7 @@ void InitializeHtml(const StringPiece& title, DataWriter* writer) {
       "border-width:1px;border-color:#F8F8F8;border-style:solid; }\n"
       " th { font-weight:bold;text-align:left;font-family:times;"
       "background:#F8F8F8;color:#202020 }\n"
-      " td { color:#000000; }\n"
+      " td { color:#000000; background-color:#FFFFFF }\n"
       " td.meta, th.meta { background-color:#F8F8F8 }\n"
       " td.request, th.request { background-color:#FEFEFE }\n"
       " td.response_err, th.response_err { background-color:#FF99CC }\n"
@@ -116,17 +111,76 @@ void InitializeHtml(const StringPiece& title, DataWriter* writer) {
              "</head><body>")).IgnoreError();
 }
 
+int64 ComputePayloadSize(DataReader* reader) {
+  if (!reader) return 0;
+  int64 size = reader->TotalLengthIfKnown();
+  if (size < 0) {
+    size = reader->SetOffset(kint64max);
+    reader->SetOffset(0);
+  }
+  return size;
+}
+
+// An html entry contains separate HTML strings for the request information and
+// for batch abstraction if it is a batch request. If there is a batch request
+// then the HTML request will render inside it as an attribute.
 class HtmlEntry : public HttpEntryScribe::Entry {
  public:
+  // Start the request HTML by opening a toggle table so the whole thing
+  // can collapse down. We'll close the table at the end when we write out
+  // the final HTML.
+  void InitRequestHtml(HtmlScribe* scribe) {
+    bool censored;
+    string url = scribe->censor()->GetCensoredUrl(*request(), &censored);
+    ParsedUrl parsed_url(url);
+    AppendStartToggleTable(
+        &request_html_, scribe->expand_request(), request_id_, "request",
+        StrCat(parsed_url.netloc(), parsed_url.path()));
+    StrAppend(&request_html_, "<tr><th class='meta'>Time<td class='meta'>",
+              DateTime(timeval()).ToString());
+    AppendRequest(&request_html_, scribe, request(), url, request_id_);
+  }
+
+  // Start the batch HTML by rendering all the individual requests.
+  // We'll also render a toggle table start but keep it separate. We'll
+  // use it at the end when we write the results out so that we can inject
+  // the request HTML as the initial attribute under the toggle, followed
+  // by the batch_html we start here.
+  void InitBatchHtml(HtmlScribe* scribe) {
+    bool censored;
+    string url = scribe->censor()->GetCensoredUrl(*request(), &censored);
+    ParsedUrl parsed_url(url);
+    AppendStartToggleTable(
+        &begin_batch_html_, scribe->expand_request(), batch_id_, "request",
+        StrCat("Batch to ", parsed_url.netloc(), parsed_url.path()));
+  }
+
   HtmlEntry(
       HtmlScribe* scribe,
       const HttpRequest* request,
       DataWriter* writer,
       int64 id)
       : HttpEntryScribe::Entry(scribe, request),
-        scribe_(scribe), writer_(writer), id_(id),
+        scribe_(scribe), writer_(writer),
+        request_id_(StringPrintf("%llx", id)),
         title_code_("UNK") {
+    InitRequestHtml(scribe);
   }
+
+  HtmlEntry(
+      HtmlScribe* scribe,
+      const HttpRequestBatch* batch,
+      DataWriter* writer,
+      int64 id)
+      : HttpEntryScribe::Entry(scribe, batch),
+        scribe_(scribe), writer_(writer),
+        request_id_(StringPrintf("%llx", id)),
+        batch_id_(StringPrintf("b%llx", id)),  // just to be distinct
+        title_code_("UNK") {
+    InitRequestHtml(scribe);
+    InitBatchHtml(scribe);
+  }
+
   ~HtmlEntry() {}
 
   virtual void FlushAndDestroy() {
@@ -139,95 +193,148 @@ class HtmlEntry : public HttpEntryScribe::Entry {
         end_span = "</span>";
       }
     }
-    writer_->Write(StrCat(begin_span, title_code(), end_span, " "))
+    // Finish the toggle table we started in the Init method.
+    AppendEndToggleTable(&request_html_);
+
+    // Start the entry with the HTTP response code
+    writer_->Write(StrCat(begin_span, title_code_, end_span, " "))
         .IgnoreError();
-    AppendEndToggleTable();
-    writer_->Write(html_).IgnoreError();
+
+    // If this is a batch request, start the batch toggle over this whole entry
+    if (is_batch()) {
+      const char* detail_heading =
+          "<tr><td colspan='2'><b>HTTP Request Detail</b><br/>\n";
+      writer_->Write(begin_batch_html_).IgnoreError();
+      writer_->Write(detail_heading).IgnoreError();
+    }
+
+    // Write the request HTML. If this is batch then it will be at the start.
+    // Since this has a toggle, the attribute should be toggleable within the
+    // batch. Otherwise it is the entire entry.
+    writer_->Write(request_html_).IgnoreError();
+
+    if (is_batch()) {
+      AppendEndToggleTable(&batch_html_);
+      writer_->Write(batch_html_).IgnoreError();
+    }
     delete this;
   }
 
-  void ConstructRequestHtml() {
+  static void AppendRequest(
+      string* html, HtmlScribe* scribe,
+      const HttpRequest* request,
+      const string& url, const string& id) {
     bool censored;
-    const HttpRequest* request = this->request();
-    string url = scribe_->censor()->GetCensoredUrl(*request, &censored);
-    ParsedUrl parsed_url(url);
-    AppendStartToggleTable(
-        scribe_->expand_request(),
-        SimpleItoa(id_), "request",
-        StrCat(parsed_url.netloc(), parsed_url.path()));
-    StrAppend(&html_, "<tr><th class='meta'>Time<td class='meta'>",
-              DateTime(timeval()).ToString());
-    StrAppend(&html_, "<tr><th class='meta'>Method<td class='meta'>",
+    StrAppend(html, "<tr><th class='meta'>Method<td class='meta'>",
               request->http_method());
-    StrAppend(&html_, "<tr><th class='meta'>URL<td class='meta'>",
-              parsed_url.url());
-    StrAppend(&html_, "<tr><td colspan='2'>");
-    AppendRequestHeaders(request, StrCat("H", id_));
-    StrAppend(&html_, "<tr><td colspan='2'>");
+    StrAppend(html, "<tr><th class='meta'>URL<td class='meta'>", url);
+    StrAppend(html, "<tr><td colspan='2'>");
+    AppendRequestHeaders(html, scribe, request, true, StrCat("H", id));
+    StrAppend(html, "<tr><td colspan='2'>");
 
     int64 original_size;
-    string censored_decorator;
-    string snippet = scribe_->censor()->GetCensoredRequestContent(
-        *request, scribe_->max_snippet(), &original_size,  &censored);
-    if (censored) {
-      censored_decorator = "Censored ";
-    }
+    string payload_title;
+    string snippet;
+
+    snippet = scribe->censor()->GetCensoredRequestContent(
+        *request, scribe->max_snippet(), &original_size,  &censored);
+    payload_title = StrCat(censored ? "Censored " : "", "Content Payload");
 
     AppendPayloadData(
-        scribe_->expand_request_content(),
-        StrCat("C", id_),
-        StrCat(censored_decorator, "Content Payload"),
+        html,
+        scribe->expand_request_content(),
+        StrCat("C", id),
+        payload_title,
         original_size,
+        true,
         snippet);
   }
 
   virtual void Sent(const HttpRequest* request) {
-    ConstructRequestHtml();
-    StrAppend(&html_, "<tr><td>", TimeOffset(), "<td>sent\n");
+    StrAppend(&request_html_, "<tr><td>",
+              TimeOffsetToString(MicrosElapsed()), "<td>sent\n");
+  }
+  virtual void SentBatch(const HttpRequestBatch* batch) {
+    // log with request
   }
 
   void Received(const HttpRequest* request) {
     HttpResponse* response = request->response();
     title_code_ = StrCat("", response->http_code());
-    StrAppend(&html_, "<tr><td>", TimeOffset(), "<td>received HTTP ",
+    StrAppend(&request_html_, "<tr><td>",
+              TimeOffsetToString(MicrosElapsed()),
+              "<td>received HTTP ",
               response->http_code(), "\n");
-    StrAppend(&html_, "<tr><td colspan='2'>");
-    AppendResponseHeaders(request, StrCat("Z", id_));
-    StrAppend(&html_, "<tr><td colspan='2'>");
+    AppendResponse(&request_html_, scribe_, request, request_id_);
+  }
+
+  void ReceivedBatch(const HttpRequestBatch* batch) {
+    AppendResponseBatch(&batch_html_, scribe_, batch, batch_id_);
+  }
+
+  static void AppendResponse(
+      string* html, HtmlScribe* scribe,
+      const HttpRequest* request, const string& id) {
+    StrAppend(html, "<tr><td colspan='2'>");
+    AppendResponseHeaders(html, scribe, request, true, StrCat("Z", id));
+    StrAppend(html, "<tr><td colspan='2'>");
 
     bool censored;
     int64 original_size;
-    string censored_decorator;
-    string snippet = scribe_->censor()->GetCensoredResponseBody(
-        *request, scribe_->max_snippet(), &original_size, &censored);
-    if (censored) {
-      censored_decorator = "Censored ";
-    }
+    string payload_title;
+    string snippet;
+
+    snippet = scribe->censor()->GetCensoredResponseBody(
+        *request, scribe->max_snippet(), &original_size, &censored);
+    payload_title = StrCat(censored ? "Censored " : "", "Response Body");
 
     AppendPayloadData(
-        scribe_->expand_response_body(),
-        StrCat("B", id_),
-        StrCat(censored_decorator, "Response Body"),
+        html,
+        scribe->expand_response_body(),
+        StrCat("B", id),
+        payload_title,
         original_size,
+        true,
         snippet);
   }
 
-  void Failed(const HttpRequest*, const util::Status& status) {
-    if (html_.empty()) {
-      ConstructRequestHtml();
-    }
-    StrAppend(&html_,
-              "<tr><td class='error'>", TimeOffset(),
+  static void AppendResponseBatch(
+      string* html, HtmlScribe* scribe,
+      const HttpRequestBatch* batch, const string& id) {
+    string snippet = BuildRequestBatchDetail(scribe, batch, id);
+    StrAppend(html, "<tr><td colspan='2'>");
+    AppendPayloadDataWithoutSize(
+        html,
+        scribe->expand_response_body(),
+        StrCat("B", id),
+        "Batched Requests",
+        false,
+        snippet);
+  }
+
+  void Failed(const HttpRequest* request, const util::Status& status) {
+    StrAppend(&request_html_,
+              "<tr><td class='error'>",
+              TimeOffsetToString(MicrosElapsed()),
               "<td class='error'>failure: ");
-    EscapeAndAppendString(status.error_message(), &html_);
+    EscapeAndAppendString(status.error_message(), &request_html_);
     title_code_ = "Err";
   }
 
-  const string& title_code() const  { return title_code_; }
-  const string& html() const        { return html_; }
+  void FailedBatch(const HttpRequestBatch* batch, const util::Status& status) {
+    string snippet = BuildRequestBatchDetail(scribe_, batch, batch_id_);
+    StrAppend(&batch_html_, "<tr><td colspan=2>", snippet);
+    StrAppend(&batch_html_,
+              "<tr><td class='error'>",
+              TimeOffsetToString(MicrosElapsed()),
+              "<td class='error'>failure: ");
+    EscapeAndAppendString(status.error_message(), &batch_html_);
+    title_code_ = "Err";
+  }
 
  private:
-  void AppendStartToggleTable(
+  static void AppendStartToggleTable(
+      string* html,
       bool can_toggle,
       const StringPiece& id,
       const StringPiece& css,
@@ -235,76 +342,100 @@ class HtmlEntry : public HttpEntryScribe::Entry {
     // No href. We are just using it as a toggle with mouse over styles.
     string display;
     if (can_toggle) {
-      StrAppend(&html_,
+      StrAppend(html,
                 "<a class='toggle' onclick='toggle_visibility(\"",
                 id, "\");'>");
-      StrAppend(&html_, kToggleControl, title);
-      StrAppend(&html_, "</a><br/>");
+      StrAppend(html, kToggleControl, title);
+      StrAppend(html, "</a><br/>");
     } else {
       display = " style='display:block'";
-      StrAppend(&html_, "<b>", title, "</b><br/>\n");
+      StrAppend(html, "<b>", title, "</b><br/>\n");
     }
-    StrAppend(&html_, "<div class='", css, "' id='", id, "'", display, ">");
-    StrAppend(&html_, "<table>\n");
+    StrAppend(html, "<div class='", css, "' id='", id, "'", display, ">");
+    StrAppend(html, "<table>\n");
   }
 
-  void AppendEndToggleTable() {
-    StrAppend(&html_, "</table></div>\n");
+  static void AppendEndToggleTable(string* html) {
+    StrAppend(html, "</table></div>\n");
   }
 
-  void AppendRequestHeaders(
-      const HttpRequest* request, const StringPiece& id) {
+  static void AppendRequestHeaders(
+      string* html,
+      HtmlScribe* scribe,
+      const HttpRequest* request,
+      bool respect_restrictions,
+      const StringPiece& id) {
+    if (respect_restrictions &&
+        (request->scribe_restrictions()
+         & HttpScribe::FLAG_NO_REQUEST_HEADERS)) {
+      html->append("<i>Request is hiding request headers</i><br/>\n");
+      return;
+    }
+
     const HttpHeaderMap& headers = request->headers();
     const StringPiece css = "request";
     AppendStartToggleTable(
-        scribe_->expand_headers(),
+        html, scribe->expand_headers(),
         id, css, StrCat(headers.size(), " Request Headers"));
     for (HttpHeaderMap::const_iterator
              it = headers.begin();
          it != headers.end();
          ++it) {
       bool censored;
-      StrAppend(&html_, "\n<tr><th>");
-      EscapeAndAppendString(it->first, &html_);
-      StrAppend(&html_, "<td>");
+      StrAppend(html, "\n<tr><th>");
+      EscapeAndAppendString(it->first, html);
+      StrAppend(html, "<td>");
       EscapeAndAppendString(
-          scribe_->censor()->GetCensoredRequestHeaderValue(
+          scribe->censor()->GetCensoredRequestHeaderValue(
               *request, it->first, it->second, &censored),
-          &html_);
+          html);
       if (censored) {
-        html_.append(" <i>(censored)</i>");
+        html->append(" <i>(censored)</i>");
       }
     }
-    AppendEndToggleTable();
+    AppendEndToggleTable(html);
   }
 
-  void AppendResponseHeaders(
-      const HttpRequest* request, const StringPiece& id) {
+  static void AppendResponseHeaders(
+      string* html, HtmlScribe* scribe,
+      const HttpRequest* request,
+      bool respect_restrictions,
+      const StringPiece& id) {
+    if (respect_restrictions &&
+        (request->scribe_restrictions()
+         & HttpScribe::FLAG_NO_RESPONSE_HEADERS)) {
+      html->append("<i>Request is hiding response headers</i><br/>\n");
+      return;
+    }
     StringPiece css =
         request->response()->ok() ? "response_ok" : "response_err";
     const HttpHeaderMultiMap& headers = request->response()->headers();
     AppendStartToggleTable(
-        scribe_->expand_headers(),
+        html,
+        scribe->expand_headers(),
         id, css, StrCat(headers.size(), " Response Headers"));
     for (HttpHeaderMultiMap::const_iterator it =
-           headers.begin();
+             headers.begin();
          it != headers.end();
          ++it) {
-      StrAppend(&html_, "\n<tr><th>");
-      EscapeAndAppendString(it->first, &html_);
-      StrAppend(&html_, "<td>");
-      EscapeAndAppendString(it->second, &html_);
+      StrAppend(html, "\n<tr><th>");
+      EscapeAndAppendString(it->first, html);
+      StrAppend(html, "<td>");
+      EscapeAndAppendString(it->second, html);
     }
-    AppendEndToggleTable();
+    AppendEndToggleTable(html);
   }
 
-  void AppendPayloadData(bool can_toggle,
-                         const StringPiece& id,
-                         const StringPiece& thing_name,
-                         int64 original_size,
-                         const StringPiece& snippet) {
+#if 0
+  static void AppendPayloadData(string* html,
+                                bool can_toggle,
+                                const StringPiece& id,
+                                const StringPiece& thing_name,
+                                int64 original_size,
+                                bool escape_snippet,
+                                const StringPiece& snippet) {
     if (original_size == 0) {
-      StrAppend(&html_, "<i>Empty ", thing_name, "</i><br/>\n");
+      StrAppend(html, "<i>Empty ", thing_name, "</i><br/>\n");
       return;
     }
 
@@ -325,7 +456,7 @@ class HtmlEntry : public HttpEntryScribe::Entry {
       payload_size = StrCat(Magnitude(original_size, kGiB), "GiB");
     }
     if (snippet.empty()) {
-      StrAppend(&html_,
+      StrAppend(html,
                 "<i>Stripped all ", payload_size, " from ", thing_name,
                 "</i><br/>\n");
       return;
@@ -334,26 +465,95 @@ class HtmlEntry : public HttpEntryScribe::Entry {
     // No href. We are just using it as a toggle with mouse over styles.
     string display;
     if (can_toggle) {
-      StrAppend(&html_,
+      StrAppend(html,
                 "<a class='toggle' onclick='toggle_visibility(\"",
                 id, "\");'>");
-      StrAppend(&html_,
+      StrAppend(html,
                 kToggleControl, payload_size, " ", thing_name,
                 "</a><br/>\n");
     } else {
       display = " style='display:block'";
-      StrAppend(&html_, "<b>", payload_size, " ", thing_name, "</b>\n");
+      StrAppend(html, "<b>", payload_size, " ", thing_name, "</b>\n");
     }
-    StrAppend(&html_, "<div id=\"", id, "\" class='data'", display, ">\n");
-    EscapeAndAppendString(snippet, &html_);
-    StrAppend(&html_, "</div>\n");
+    StrAppend(html, "<div id=\"", id, "\" class='data'", display, ">\n");
+    if (escape_snippet) {
+      EscapeAndAppendString(snippet, html);
+    } else {
+      StrAppend(html, snippet);
+    }
+    StrAppend(html, "</div>\n");
+  }
+#endif
+  static void AppendPayloadData(string* html,
+                                bool can_toggle,
+                                const StringPiece& id,
+                                const StringPiece& thing_name,
+                                int64 original_size,
+                                bool escape_snippet,
+                                const StringPiece& snippet) {
+    if (original_size == 0) {
+      StrAppend(html, "<i>Empty ", thing_name, "</i><br/>\n");
+      return;
+    }
+
+    string payload_size;
+    const int64 kKiB = 1 * 1000;
+    const int64 kMiB = kKiB * 1000;
+    const int64 kGiB = kMiB * 1000;
+
+    if (original_size < 0) {
+      payload_size = "UNKNOWN";
+    } else if (original_size < kKiB) {
+      payload_size = StrCat(original_size, "b");
+    } else if (original_size < kMiB) {
+      payload_size = StrCat(Magnitude(original_size, kKiB), "kiB");
+    } else if (original_size < kGiB) {
+      payload_size = StrCat(Magnitude(original_size, kMiB), "MiB");
+    } else {
+      payload_size = StrCat(Magnitude(original_size, kGiB), "GiB");
+    }
+    if (snippet.empty()) {
+      StrAppend(html,
+                "<i>Stripped all ", payload_size, " from ", thing_name,
+                "</i><br/>\n");
+      return;
+    }
+
+    AppendPayloadDataWithoutSize(
+        html, can_toggle, id, StrCat(payload_size, " ", thing_name),
+        escape_snippet, snippet);
   }
 
-  string TimeOffset() {
+  static void AppendPayloadDataWithoutSize(
+      string* html,
+      bool can_toggle,
+      const StringPiece& id,
+      const StringPiece& title,
+      bool escape_snippet,
+      const StringPiece& snippet) {
+    // No href. We are just using it as a toggle with mouse over styles.
+    string display;
+    if (can_toggle) {
+      StrAppend(html,
+                "<a class='toggle' onclick='toggle_visibility(\"",
+                id, "\");'>", kToggleControl, title, "</a><br/>\n");
+    } else {
+      display = " style='display:block'";
+      StrAppend(html, "<b>", title, "</b>\n");
+    }
+    StrAppend(html, "<div id=\"", id, "\" class='data'", display, ">\n");
+    if (escape_snippet) {
+      EscapeAndAppendString(snippet, html);
+    } else {
+      StrAppend(html, snippet);
+    }
+    StrAppend(html, "</div>\n");
+  }
+
+  static string TimeOffsetToString(int64 delta_us) {
     DateTime now;
     struct timeval now_timeval;
     now.GetTimeval(&now_timeval);
-    int64 delta_us = MicrosElapsed();
 
     double secs = delta_us * 0.0000001;
     if (secs >= 1.0) {
@@ -365,23 +565,53 @@ class HtmlEntry : public HttpEntryScribe::Entry {
     }
   }
 
+  static string BuildRequestBatchDetail(
+      HtmlScribe* scribe,
+      const HttpRequestBatch* batch,
+      const string& id) {
+    const HttpRequestBatch::BatchedRequestList& list = batch->requests();
+    string html = "<table>\n";
+    int i = 0;
+    for (HttpRequestBatch::BatchedRequestList::const_iterator it
+             = list.begin();
+         it != list.end();
+         ++it, ++i) {
+      const string sub_id = StrCat(id, ".", i);
+      const HttpRequest* sub_request = *it;
+      bool censored;
+      string url = scribe->censor()->GetCensoredUrl(*sub_request, &censored);
+      ParsedUrl parsed_url(url);
+      html.append("<tr><td colspan=2>");
+      AppendStartToggleTable(
+          &html, scribe->expand_request(), sub_id, "request",
+          StrCat("# ", i, ": ", parsed_url.netloc(), parsed_url.path()));
+      AppendRequest(&html, scribe, sub_request, url, sub_id);
+      AppendResponse(&html, scribe, sub_request, sub_id);
+      AppendEndToggleTable(&html);
+      html.append("\n");
+    }
+    html.append("</table>\n");
+    return html;
+  }
+
   HtmlScribe* scribe_;
   DataWriter* writer_;
-  int64 id_;
-  string html_;
+  string request_id_;
+  string request_html_;
+  string batch_id_;
+  string batch_html_;
+  string begin_batch_html_;
   string title_code_;
 };
 
 }  // anonymous namespace
-
-namespace client {
 
 HtmlScribe::HtmlScribe(
     HttpScribeCensor* censor, const StringPiece& title, DataWriter* writer)
     : HttpEntryScribe(censor), sequence_number_(0), writer_(writer),
       presentation_(EXPANDABLE_REQUEST | COLORIZE) {
   InitializeHtml(title, writer);
-  writer->Write(StrCat("Starting at ", DateTime().ToString(), "<br/>"))
+  writer->Write(StrCat("Starting at ", DateTime().ToString(), "<br/>\n"))
       .IgnoreError();
 }
 
@@ -393,7 +623,14 @@ HtmlScribe::~HtmlScribe() {
 }
 
 HttpEntryScribe::Entry* HtmlScribe::NewEntry(const HttpRequest* request) {
-  return new HtmlEntry(this, request, writer_.get(), ++sequence_number_);
+  ++sequence_number_;
+  return new HtmlEntry(this, request, writer_.get(), sequence_number_);
+}
+
+HttpEntryScribe::Entry* HtmlScribe::NewBatchEntry(
+    const HttpRequestBatch* batch) {
+  ++sequence_number_;
+  return new HtmlEntry(this, batch, writer_.get(), sequence_number_);
 }
 
 void HtmlScribe::Checkpoint() {
@@ -402,4 +639,4 @@ void HtmlScribe::Checkpoint() {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

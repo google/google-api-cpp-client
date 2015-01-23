@@ -66,4 +66,4 @@ uint32 strtou32_adapter(const char *nptr, char **endptr, int base) {
   return static_cast<uint32>(result);
 }
 
-} // namespace googleapis
+}  // namespace googleapis

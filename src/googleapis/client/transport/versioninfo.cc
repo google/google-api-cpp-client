@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <string>
 using std::string;
@@ -72,4 +71,4 @@ const string VersionInfo::GetPlatformString() {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

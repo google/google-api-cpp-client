@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #ifndef APISERVING_CLIENTS_CPP_TRANSPORT_VERSIONINFO_H_
 #define APISERVING_CLIENTS_CPP_TRANSPORT_VERSIONINFO_H_
@@ -67,5 +66,5 @@ class VersionInfo {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_VERSIONINFO_H_

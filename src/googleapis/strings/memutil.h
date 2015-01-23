@@ -19,19 +19,15 @@
 //
 // Copyright (C) 2001 and onwards Google, Inc.
 //
-// (Please see comments in strutil.h near the include of <asm/string.h>
-//  if you feel compelled to try to provide more efficient implementations
-//  of these routines.)
-//
 // These routines provide mem versions of standard C string routines,
-// such a strpbrk.  They function exactly the same as the str version,
+// such as strpbrk.  They function exactly the same as the str versions,
 // so if you wonder what they are, replace the word "mem" by
 // "str" and check out the man page.  I could return void*, as the
 // strutil.h mem*() routines tend to do, but I return char* instead
 // since this is by far the most common way these functions are called.
 //
 // The difference between the mem and str versions is the mem version
-// takes a pointer and a length, rather than a NULL-terminated string.
+// takes a pointer and a length, rather than a '\0'-terminated string.
 // The memcase* routines defined here assume the locale is "C"
 // (they use ascii_tolower instead of tolower).
 //
@@ -169,5 +165,5 @@ inline int memcount(const char* buf, size_t len, char c) {
   return num;
 }
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // STRINGS_MEMUTIL_H_

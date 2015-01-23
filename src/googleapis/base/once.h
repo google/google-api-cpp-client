@@ -46,5 +46,5 @@ void GoogleOnceInit(GoogleOnceType* once, void (*initializer)());
 
 #endif
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // GOOGLEAPIS_ONCE_H_

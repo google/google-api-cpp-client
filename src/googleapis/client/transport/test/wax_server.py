@@ -376,7 +376,7 @@ class WaxHandler(BaseHTTPRequestHandler):
     """
     request_json = self._GetJson()
 
-    # TODO(ewiseblatt): 20130624
+    # TODO(user): 20130624
     # Distinguish {} from no payload.
     if not request_json:
       return self._SendJsonErrorResponse('Invalid JSON', 400)
@@ -581,7 +581,7 @@ class WaxHandler(BaseHTTPRequestHandler):
     if method == 'DELETE':
       return self._ProcessDeleteItemCommand(session_data, item_id)
 
-    # TODO(ewiseblatt): 20130624
+    # TODO(user): 20130624
     # Distinguish {} from no payload.
     request_json = self._GetJson()
     if not request_json:

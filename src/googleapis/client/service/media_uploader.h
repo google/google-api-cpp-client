@@ -17,17 +17,16 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
-#ifndef APISERVING_CLIENTSCPP_SERVICE_MEDIA_UPLOADER_H_
-#define APISERVING_CLIENTSCPP_SERVICE_MEDIA_UPLOADER_H_
+#ifndef APISERVING_CLIENTS_CPP_SERVICE_MEDIA_UPLOADER_H_
+#define APISERVING_CLIENTS_CPP_SERVICE_MEDIA_UPLOADER_H_
 
+#include <memory>
 #include <string>
 using std::string;
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/callback.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
@@ -129,11 +128,11 @@ class MediaUploadSpec {
  * when the method (acting as the factory) executes.
  *
  * <pre>
- *    scoped_ptr<drive_api::File> file(drive_api::File::New());
+ *    std::unique_ptr<drive_api::File> file(drive_api::File::New());
  *    file->set_title(StrCat("Uploaded from ", path));
  *
  *    const DriveService::FilesResource& ops = app_->service()->get_files();
- *    scoped_ptr<FilesResource_InsertMethod> insert(
+ *    std::unique_ptr<FilesResource_InsertMethod> insert(
  *        ops.NewInsertMethod(app_->credential()));
  *    client::MediaUploader* uploader = insert->media_uploader();
  *    uploader->set_metadata(*file);
@@ -148,13 +147,13 @@ class MediaUploadSpec {
  *
  * The media uploader is not reusable at this time.
  *
- * TODO(ewiseblatt): Only a synchronous Upload is provided at this time
+ * TODO(user): Only a synchronous Upload is provided at this time
  * but eventually this will support asynchronous uploads. Even so, the
  * underlying HttpRequest and its HttpResponse attribute are threadsafe and
  * support condition variables so you can Upload in a thread and synchronize
  * on the response in another.
  *
- * TODO(ewiseblatt): The interface does not yet support
+ * TODO(user): The interface does not yet support
  *   -- streaming content
  *   -- resumable uploads
  *-- auto protocol selection
@@ -183,7 +182,7 @@ class MediaUploader {
    * @param[in] non_media_upload_path The path to send metadata to when
    *            there is no media content (i.e. the non-media upload case).
    *
-   * TODO(ewiseblatt): In the future this will also be used if multipart is
+   * TODO(user): In the future this will also be used if multipart is
    * not supported.
    */
   explicit MediaUploader(
@@ -246,8 +245,8 @@ class MediaUploader {
    * @param[in] content_type The media payload content type.
    * @param[in] media Takes ownership of the mdeia payload byte stream.
    *
-   * If the reader is known to be empty then no content will be uploaded
-   * allowing the uploader to just send the metadata (if any).
+   * If the reader and content_type is empty then the uploader will just
+   * send the metadata (if any) and ignore the content entirely.
    */
   void set_media_content_reader(const string& content_type, DataReader* media);
 
@@ -277,6 +276,20 @@ class MediaUploader {
   util::Status Upload(HttpRequest* http_request);
 
   /*
+   * Asynchronously perform the upload protocol using the given request.
+   *
+   * This method requires BuildRequest was called to fill out the request.
+   * If authorization is needed, the credentials should be set on the request.
+   * If the request preparation fails request->WillNotExecute() will be called.
+   *
+   * @param[in,out] http_request The request used to perform the upload.
+   *                Error detail can be retrieved with http_request->status().
+   * @param[in] http_callback The Callback to be invoked when the operation
+   *            is complete.
+   */
+  void UploadAsync(HttpRequest* request, HttpRequestCallback* callback);
+
+  /*
    * prepares the uploader and builds the HttpRequest.
    *
    * This fills out the request body and any critical headers that the
@@ -302,11 +315,11 @@ class MediaUploader {
   string base_url_;
   string non_media_upload_path_;
 
-  // TODO(ewiseblatt): change this to a reader after adding reader to Json.
+  // TODO(user): change this to a reader after adding reader to Json.
   string metadata_content_;
   string metadata_content_type_;
 
-  scoped_ptr<DataReader> media_content_reader_;
+  std::unique_ptr<DataReader> media_content_reader_;
   string media_content_type_;
 
   bool ready_;  // Set true within BuildRequest
@@ -323,5 +336,5 @@ class MediaUploader {
 
 }  // namespace client
 
-} // namespace googleapis
-#endif  // APISERVING_CLIENTSCPP_SERVICE_MEDIA_UPLOADER_H_
+}  // namespace googleapis
+#endif  // APISERVING_CLIENTS_CPP_SERVICE_MEDIA_UPLOADER_H_

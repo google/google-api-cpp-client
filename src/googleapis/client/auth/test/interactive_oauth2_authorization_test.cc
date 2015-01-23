@@ -22,15 +22,16 @@
 // so it isnt really being unit tested in isolation.
 //
 // WARNING this test requires human interaction so is not applicable for TAP
-#include <string>
-using std::string;
 #include <iostream>
 using std::cout;
 using std::endl;
 using std::ostream;
+#include <memory>
+#include <string>
+using std::string;
+
 #include <gflags/gflags.h>
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/client/auth/oauth2_authorization.h"
 
 #include "googleapis/client/auth/webserver_authorization_getter.h"
@@ -43,9 +44,11 @@ using std::ostream;
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/util/file.h"
+#include "googleapis/util/filesystem.h"
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/util.h"
 #include <gtest/gtest.h>
+#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -90,22 +93,23 @@ const char kScope[] = "https://www.googleapis.com/auth/userinfo.profile"
 
 const char kProtectedUrl[] = "https://www.googleapis.com/userinfo/v2/me";
 
-static scoped_ptr<HttpTransportLayerConfig> config_;
-static scoped_ptr<OAuth2AuthorizationFlow> installed_flow_;
-static scoped_ptr<OAuth2AuthorizationFlow> web_flow_;
-static scoped_ptr<OAuth2Credential> credential_;
+static std::unique_ptr<HttpTransportLayerConfig> config_;
+static std::unique_ptr<OAuth2AuthorizationFlow> installed_flow_;
+static std::unique_ptr<OAuth2AuthorizationFlow> web_flow_;
+static std::unique_ptr<OAuth2Credential> credential_;
 
 class OAuth2TestFixture : public testing::Test {
  public:
   static void SetUpTestCase() {
     CHECK(!FLAGS_installed_client_secrets_path.empty());
     CHECK(!FLAGS_web_client_secrets_path.empty());
-    CHECK(File::Exists(FLAGS_installed_client_secrets_path))
+    CHECK_OK(
+        file::Exists(FLAGS_installed_client_secrets_path, file::Defaults()))
         << "To run this test you must register an installed client with the "
         << "Google APIs Console then download the client secrets and set the "
         << "--installed_client_secrets_path. The current path is: "
         << FLAGS_installed_client_secrets_path;
-    CHECK(File::Exists(FLAGS_web_client_secrets_path))
+    CHECK_OK(file::Exists(FLAGS_web_client_secrets_path, file::Defaults()))
         << "To run this test you must register an web client with the "
         << "Google APIs Console then download the client secrets and set the "
         << "--web_client_secrets_path. The current path is: "
@@ -147,8 +151,9 @@ class OAuth2TestFixture : public testing::Test {
   }
 
   void VerifyCredential(OAuth2Credential* credential) {
-    scoped_ptr<HttpTransport> transport(config_->NewDefaultTransportOrDie());
-    scoped_ptr<HttpRequest> http_request(
+    std::unique_ptr<HttpTransport> transport(
+        config_->NewDefaultTransportOrDie());
+    std::unique_ptr<HttpRequest> http_request(
         transport->NewHttpRequest(HttpRequest::GET));
     http_request->set_url("https://www.googleapis.com/userinfo/v2/me");
 
@@ -178,8 +183,8 @@ class OAuth2TestFixture : public testing::Test {
 TEST_F(OAuth2TestFixture, VerifyProtectedUrl) {
   // Just make sure the url we are using to verify the credential really
   // does require a credential.
-  scoped_ptr<HttpTransport> transport(config_->NewDefaultTransportOrDie());
-  scoped_ptr<HttpRequest> http_request(
+  std::unique_ptr<HttpTransport> transport(config_->NewDefaultTransportOrDie());
+  std::unique_ptr<HttpRequest> http_request(
       transport->NewHttpRequest(HttpRequest::GET));
   http_request->set_url(kProtectedUrl);
   EXPECT_FALSE(http_request->Execute().ok());
@@ -189,7 +194,7 @@ TEST_F(OAuth2TestFixture, VerifyProtectedUrl) {
 
 TEST_F(OAuth2TestFixture, TestRedirectToOutOfBand) {
   util::Status status;
-  scoped_ptr<OAuth2AuthorizationFlow> flow(
+  std::unique_ptr<OAuth2AuthorizationFlow> flow(
       OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
           FLAGS_installed_client_secrets_path,
           config_->NewDefaultTransportOrDie(),
@@ -244,4 +249,4 @@ TEST_F(OAuth2TestFixture, TestRefreshWebFlowCredential) {
   httpd.Shutdown();
 }
 
-} // namespace googleapis
+}  // namespace googleapis

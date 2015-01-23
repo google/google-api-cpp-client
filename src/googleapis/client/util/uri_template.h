@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #ifndef APISERVING_CLIENTS_CPP_UTIL_URI_TEMPLATE_H_
 #define APISERVING_CLIENTS_CPP_UTIL_URI_TEMPLATE_H_
@@ -27,6 +26,7 @@ using std::set;
 #include <string>
 using std::string;
 #include "googleapis/base/callback.h"
+#include "googleapis/strings/numbers.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
@@ -179,12 +179,58 @@ class UriTemplate {
       const UriTemplateConfig& config,
       string* target);
 
+  /*
+   * Appends a value to a string
+   *
+   * This method is intended to support AppendVariableCallback.
+   *
+   * @param[in] value The value.
+   * @param[in] config The opaque passthrough parameter from the
+   *            AppendVariableCallback.
+   * @param[in,out] target The string to append the value to.
+   */
+  template<typename T>
+  static void AppendValue(
+      const T& value,
+      const UriTemplateConfig& config,
+      string* target);
+
  private:
   UriTemplate();  // Is never instantiated.
   ~UriTemplate();
+
+  // Implements AppendValue for a StringPiece.
+  static void AppendValueStringPiece(
+      const StringPiece& value,
+      const UriTemplateConfig& config,
+      string* target);
 };
+
+template<typename T>
+inline void UriTemplate::AppendValue(
+    const T& value,
+    const UriTemplateConfig& config,
+    string* target) {
+  AppendValue(SimpleItoa(value), config, target);
+}
+
+template<>
+inline void UriTemplate::AppendValue<string>(
+    const string& value,
+    const UriTemplateConfig& config,
+    string* target) {
+  AppendValueStringPiece(value, config, target);
+}
+
+template<>
+inline void UriTemplate::AppendValue<StringPiece>(
+    const StringPiece& value,
+    const UriTemplateConfig& config,
+    string* target) {
+  AppendValueStringPiece(value, config, target);
+}
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_UTIL_URI_TEMPLATE_H_

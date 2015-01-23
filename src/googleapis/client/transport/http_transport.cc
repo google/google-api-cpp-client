@@ -18,20 +18,24 @@
  */
 
 
+#include "googleapis/client/data/data_reader.h"
+#include "googleapis/client/data/data_writer.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/transport/http_scribe.h"
+#include "googleapis/client/transport/http_types.h"
 #include "googleapis/client/transport/versioninfo.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/once.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/util/file.h"
-
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
+#include "googleapis/strings/strip.h"
+#include "googleapis/strings/numbers.h"
+#include "googleapis/strings/util.h"
 #include "googleapis/util/stl_util.h"
 #include "googleapis/util/executor.h"
 
@@ -60,6 +64,11 @@ string BuildStandardUserAgentString(const string& application) {
 }  // anonymous namespace
 
 namespace client {
+
+// These global constants are declared in http_types.h
+const StringPiece kCRLF("\r\n");
+const StringPiece kCRLFCRLF("\r\n\r\n");
+
 
 HttpTransportLayerConfig::HttpTransportLayerConfig() {
   ResetDefaultErrorHandler(new HttpTransportErrorHandler);
@@ -96,6 +105,14 @@ void HttpTransportOptions::set_cacerts_path(const StringPiece& path) {
     LOG(WARNING) << "Disabled SSL verification";
 }
 
+void HttpTransportOptions::set_connect_timeout_ms(int64 connect_timeout_ms) {
+  VLOG(1) << "Initializing connect_timeout_ms=" << connect_timeout_ms;
+  if (connect_timeout_ms < 0) {
+    connect_timeout_ms = 0;
+  }
+  connect_timeout_ms_ = connect_timeout_ms;
+}
+
 void HttpTransportOptions::set_nonstandard_user_agent(const string& agent) {
   VLOG(1) << "Setting user_agent = " << agent;
   user_agent_ = agent;
@@ -108,8 +125,7 @@ void HttpTransportOptions::SetApplicationName(const StringPiece& name) {
 
 /* static */
 string HttpTransportOptions::DetermineDefaultCaCertsPath() {
-const string program_path = File::GetCurrentProgramFilenamePath();
-  StringPiece basename = File::Basename(program_path);
+  const string program_path = File::GetCurrentProgramFilenamePath();
   StringPiece dirname = File::StripBasename(program_path);
   return StrCat(dirname, "roots.pem");  // dirname has ending slash.
 }
@@ -154,6 +170,11 @@ bool HttpTransportErrorHandler::HandleTransportError(
   return false;
 }
 
+void HttpTransportErrorHandler::HandleTransportErrorAsync(
+    int num_retries, HttpRequest* request, Callback1<bool>* callback) const {
+  callback->Run(false);
+}
+
 bool HttpTransportErrorHandler::HandleHttpError(
     int num_retries_so_far, HttpRequest* request) const {
   int http_code = request->response()->http_code();
@@ -188,7 +209,7 @@ bool HttpTransportErrorHandler::HandleHttpError(
         VLOG(2) << "No credential provided where one was expected.";
       }
     } else {
-      // TODO(ewiseblatt): 20130616
+      // TODO(user): 20130616
       // Here a retry is a retry. So a 503 retry that results in a 401
       // would fail even though we never retried the 401 error.
       VLOG(2) << "Already retried with a http_code="
@@ -201,7 +222,81 @@ bool HttpTransportErrorHandler::HandleHttpError(
   return false;
 }
 
+void HttpTransportErrorHandler::HandleHttpErrorAsync(
+    int num_retries_so_far,
+    HttpRequest* request,
+    Callback1<bool>* callback) const {
+  int http_code = request->response()->http_code();
+  map<int, HttpCodeHandler*>::const_iterator found =
+      specialized_http_code_handlers_.find(http_code);
+  if (found != specialized_http_code_handlers_.end()) {
+    VLOG(2) << "Using overriden error handler for http_code=" << http_code;
+    callback->Run(found->second->Run(num_retries_so_far, request));
+    return;
+  }
+
+  if (http_code == HttpStatusCode::UNAUTHORIZED) {
+    if (!num_retries_so_far) {
+      // Only try unauthorized once.
+      AuthorizationCredential* credential = request->credential();
+      if (credential) {
+        Callback1<util::Status>* cb =
+            NewCallback(this, &HttpTransportErrorHandler::HandleRefreshAsync,
+                        callback, request);
+        credential->RefreshAsync(cb);
+        return;
+      } else {
+        VLOG(2) << "No credential provided where one was expected.";
+      }
+    } else {
+      // TODO(user): 20130616
+      // Here a retry is a retry. So a 503 retry that results in a 401
+      // would fail even though we never retried the 401 error.
+      VLOG(2) << "Already retried with a http_code="
+              << HttpStatusCode::UNAUTHORIZED;
+    }
+  } else {
+    // This isnt to say that the caller wont be handling the error later.
+    VLOG(2) << "No configured error handler for http_code=" << http_code;
+  }
+  callback->Run(false);
+}
+
+void HttpTransportErrorHandler::HandleRefreshAsync(
+    Callback1<bool>* callback,
+    HttpRequest* request,
+    util::Status status) const {
+  if (status.ok()) {
+    VLOG(2) << "Refreshed credential";
+    status = request->credential()->AuthorizeRequest(request);
+    if (status.ok()) {
+      VLOG(1) << "Re-authorized credential";
+      callback->Run(true);
+      return;
+    } else {
+      LOG(ERROR) << "Failed reauthorizing request: "
+                 << status.error_message();
+    }
+  } else {
+    LOG(ERROR)
+        << "Failed refreshing credential: " << status.error_message();
+  }
+  callback->Run(false);
+}
+
 bool HttpTransportErrorHandler::HandleRedirect(
+    int num_redirects, HttpRequest* request) const {
+  return ShouldRetryRedirect_(num_redirects, request);
+}
+
+void HttpTransportErrorHandler::HandleRedirectAsync(
+    int num_redirects,
+    HttpRequest* request,
+    Callback1<bool>* callback) const {
+  callback->Run(ShouldRetryRedirect_(num_redirects, request));
+}
+
+bool HttpTransportErrorHandler::ShouldRetryRedirect_(
     int num_redirects, HttpRequest* request) const {
   int http_code = request->response()->http_code();
   map<int, HttpCodeHandler*>::const_iterator found =
@@ -223,7 +318,11 @@ bool HttpTransportErrorHandler::HandleRedirect(
 }
 
 HttpTransportOptions::HttpTransportOptions()
-    : executor_(NULL), error_handler_(NULL) {
+    : proxy_port_(0),
+      connect_timeout_ms_(0L),
+      executor_(NULL),
+      callback_executor_(NULL),
+      error_handler_(NULL) {
   string app_name = DetermineDefaultApplicationName();
   user_agent_ = BuildStandardUserAgentString(app_name);
 
@@ -239,6 +338,13 @@ thread::Executor* HttpTransportOptions::executor() const {
     return thread::Executor::DefaultExecutor();
   }
   return executor_;
+}
+
+thread::Executor* HttpTransportOptions::callback_executor() const {
+  if (!callback_executor_) {
+    return thread::SingletonInlineExecutor();
+  }
+  return callback_executor_;
 }
 
 const StringPiece HttpTransportOptions::kGoogleApisUserAgent =
@@ -267,12 +373,103 @@ HttpTransport* HttpTransportLayerConfig::NewDefaultTransport(
   return factory->NewWithOptions(default_options_);
 }
 
+/* static */
+void HttpTransport::WriteRequestPreamble(
+    const HttpRequest* request, DataWriter* writer) {
+  // Write start-line
+  if (!writer->Write(StrCat(request->http_method(), " ",
+                            request->url(), " HTTP/1.1", kCRLF)).ok()) {
+    return;  // error in status()
+  }
+
+  // Write headers
+  const HttpHeaderMap& header_map = request->headers();
+  for (HttpHeaderMap::const_iterator it = header_map.begin();
+       it != header_map.end();
+       ++it) {
+    // Dont bother checking for errors since we're probably good at this point.
+    // They'll be in the status, which is sticky, so wont get lost anyway.
+    writer->Write(StrCat(it->first, ": ", it->second, kCRLF)).IgnoreError();
+  }
+  writer->Write(kCRLF).IgnoreError();
+}
+
+/* static */
+void HttpTransport::WriteRequest(
+    const HttpRequest* request, DataWriter* writer) {
+  WriteRequestPreamble(request, writer);
+  DataReader* content = request->content_reader();
+  if (content) {
+    // TODO(user): 20130820
+    // Check for chunked transfer encoding and, if so, write chunks
+    // by iterating Write's using some chunk size.
+    writer->Write(content).IgnoreError();
+  }
+}
+
+/* static */
+void HttpTransport::ReadResponse(DataReader* reader, HttpResponse* response) {
+  response->Clear();
+  const StringPiece kHttpIdentifier("HTTP/1.1 ");
+  HttpRequestState* state = response->mutable_request_state();
+  string first_line;
+  bool found = reader->ReadUntilPatternInclusive(
+      kCRLF.as_string(), &first_line);
+  if (!found || !StringPiece(first_line).starts_with(kHttpIdentifier)) {
+    state->set_transport_status(StatusUnknown("Expected leading 'HTTP/1.1'"));
+    return;
+  }
+  int space = first_line.find(' ');
+  int http_code = 0;
+  if (space != StringPiece::npos) {
+    safe_strto32(first_line.c_str() + space + 1, &http_code);
+  }
+  if (!http_code) {
+    state->set_transport_status(
+        StatusUnknown("Expected HTTP response code on first line"));
+    return;
+  }
+  state->set_http_code(http_code);
+  do {
+    string header_line;
+    if (!reader->ReadUntilPatternInclusive(kCRLF.as_string(), &header_line)) {
+      util::Status error;
+      if (reader->done()) {
+        error = StatusUnknown("Expected headers to end with an empty CRLF");
+      } else {
+        error = StatusUnknown("Expected header to end with CRLF");
+      }
+      state->set_transport_status(error);
+      return;
+    }
+    if (header_line == kCRLF) break;
+
+    int colon = header_line.find(':');
+    if (colon == string::npos) {
+      util::Status error = StatusUnknown(
+          StrCat("Expected ':' in header #", response->headers().size()));
+      state->set_transport_status(error);
+      return;
+    }
+    StringPiece line_piece(header_line);
+    StringPiece name = line_piece.substr(0, colon);
+    StringPiece value = line_piece.substr(
+        colon + 1, header_line.size() - colon - 1 - kCRLF.size());
+    StripWhitespace(&name);
+    StripWhitespace(&value);
+    response->AddHeader(name, value);
+  } while (true);  // break above when header_line is empty
+
+  // Remainder of reader is the response payload.
+  response->body_writer()->Write(reader).IgnoreError();
+}
+
 HttpTransport*
 HttpTransportLayerConfig::NewDefaultTransportOrDie() const {
   util::Status status;
   HttpTransport* result = NewDefaultTransport(&status);
   if (!result) {
-    LOG(FATAL) << status.ToString();
+    LOG(FATAL) << "Could not create transport.";
   }
 
   return result;
@@ -305,4 +502,4 @@ HttpTransportFactory::~HttpTransportFactory() {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

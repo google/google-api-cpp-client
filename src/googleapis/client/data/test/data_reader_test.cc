@@ -59,7 +59,7 @@ class MockDataReader : public DataReader {
   MOCK_METHOD1(DoSetOffset, int64(int64 offset));
   MOCK_METHOD2(
       DoReadToBuffer,
-      int64(int64 max_bytes, char* append_to));  // NOLINT
+      int64(int64 max_bytes, char* append_to));
 
   void poke_done(bool done)               { set_done(done); }
   void poke_status(util::Status status) { set_status(status); }
@@ -82,6 +82,15 @@ TEST_F(DataReaderTestFixture, TestCallback) {
     MockDataReader reader(NewCallback(&Raise, &called));
   }
   EXPECT_TRUE(called);
+}
+
+static void ReadNextCharToBuffer(
+    const char** from, int64 count, char* buffer) {
+  EXPECT_EQ(1, count);
+  if (*from) {
+    *buffer = **from;
+    ++*from;  // consume char
+  }
 }
 
 TEST_F(DataReaderTestFixture, TestAttributes) {
@@ -146,7 +155,7 @@ TEST_F(DataReaderTestFixture, ReadEmptyToString) {
   string s = kPrefix;
   const int64 kInternalBufferSize = 1 << 13;  // Defined in data_reader.cc
 
-  scoped_ptr<Closure> poke_done(
+  std::unique_ptr<Closure> poke_done(
       NewPermanentCallback(&reader, &MockDataReader::poke_done, true));
   EXPECT_CALL(reader, DoReadToBuffer(kInternalBufferSize, _))
       .WillOnce(
@@ -166,9 +175,9 @@ TEST_F(DataReaderTestFixture, ReadToBufer) {
   MockDataReader reader;
   const string kExpect = "Hello, World!\n";
 
-  scoped_ptr<Closure> poke_done(
+  std::unique_ptr<Closure> poke_done(
       NewPermanentCallback(&reader, &MockDataReader::poke_done, true));
-  scoped_ptr<ReadCallback> read_helper(
+  std::unique_ptr<ReadCallback> read_helper(
       NewPermanentCallback(this, &DataReaderTestFixture::ReadToBufferHelper,
                            kExpect));
   EXPECT_CALL(reader, DoReadToBuffer(100, _))
@@ -195,12 +204,12 @@ TEST_F(DataReaderTestFixture, ReadToStringFragmented) {
   const string kWorld = "World!";
 
   // Return buffer in two parts
-  scoped_ptr<Closure> poke_done(
+  std::unique_ptr<Closure> poke_done(
       NewPermanentCallback(&reader, &MockDataReader::poke_done, true));
-  scoped_ptr<ReadCallback> hello_helper(
+  std::unique_ptr<ReadCallback> hello_helper(
       NewPermanentCallback(this, &DataReaderTestFixture::ReadToBufferHelper,
                            kHello));
-  scoped_ptr<ReadCallback> world_helper(
+  std::unique_ptr<ReadCallback> world_helper(
       NewPermanentCallback(this, &DataReaderTestFixture::ReadToBufferHelper,
                            kWorld));
   EXPECT_CALL(reader, DoReadToBuffer(20, _))
@@ -231,12 +240,12 @@ TEST_F(DataReaderTestFixture, ReadToBufferFragmented) {
   const string kHello = "Hello, ";
   const string kWorld = "World!";
 
-  scoped_ptr<Closure> poke_done(
+  std::unique_ptr<Closure> poke_done(
       NewPermanentCallback(&reader, &MockDataReader::poke_done, true));
-  scoped_ptr<ReadCallback> hello_helper(
+  std::unique_ptr<ReadCallback> hello_helper(
       NewPermanentCallback(this, &DataReaderTestFixture::ReadToBufferHelper,
                            kHello));
-  scoped_ptr<ReadCallback> world_helper(
+  std::unique_ptr<ReadCallback> world_helper(
       NewPermanentCallback(this, &DataReaderTestFixture::ReadToBufferHelper,
                            kWorld));
   EXPECT_CALL(reader, DoReadToBuffer(sizeof(buffer), _))
@@ -264,7 +273,7 @@ TEST_F(DataReaderTestFixture, ReadToBufferFragmented) {
 
 TEST_F(DataReaderTestFixture, TestInvalidReader) {
   util::Status status = StatusInternalError("test");
-  scoped_ptr<DataReader> reader(NewUnmanagedInvalidDataReader(status));
+  std::unique_ptr<DataReader> reader(NewUnmanagedInvalidDataReader(status));
   EXPECT_FALSE(reader->ok());
   EXPECT_TRUE(reader->done());
   EXPECT_GT(0, reader->TotalLengthIfKnown());
@@ -275,4 +284,62 @@ TEST_F(DataReaderTestFixture, TestInvalidReader) {
   EXPECT_EQ(status, reader->status());
 }
 
-} // namespace googleapis
+TEST_F(DataReaderTestFixture, TestReadUntilPattern) {
+  const string input = "ababacXabac";
+  pair<const string, const string> tests[] = {
+    make_pair("aba", "aba"),
+    make_pair("abac", "ababac"),
+    make_pair("cXa", "ababacXa"),
+    make_pair("Z", input),
+    make_pair("", "")
+  };
+
+  for (int i = 0; i < ARRAYSIZE(tests); ++i) {
+    const string& pattern = tests[i].first;
+    const string& expect = tests[i].second;
+    const char* remaining = input.c_str();
+    MockDataReader reader;
+    string found = "ERASE ME";
+
+    int64 expect_start_offset = pattern.empty() ? 0 : input.find(pattern);
+    int64 expect_end_offset = (expect_start_offset == string::npos)
+        ? input.size()
+        : (expect_start_offset + pattern.size());
+
+    if (expect_start_offset == string::npos) {
+      // after returning all the chars, return 0 to indicate EOF.
+      Closure* poke_done(
+          NewCallback(&reader, &MockDataReader::poke_done, true));
+      // NOTE(user): 20130813
+      // This seems to cause the later EXPECT_CALL to complain in gmock
+      // about it never getting called, but it does. Once the second call
+      // retires then it will call this once, which will poke_done to
+      // terminate the internal loop.
+      EXPECT_CALL(reader, DoReadToBuffer(1, _))
+          .WillOnce(
+              DoAll(
+                  InvokeWithoutArgs(poke_done, &Closure::Run),
+                  Return(0)));
+    }
+    std::unique_ptr<ReadCallback> read_callback(
+        NewPermanentCallback(&ReadNextCharToBuffer, &remaining));
+    EXPECT_CALL(reader, DoReadToBuffer(1, _))
+        .Times(expect_end_offset)
+        .WillRepeatedly(
+            DoAll(Invoke(read_callback.get(), &ReadCallback::Run),
+                  Return(1)))
+        .RetiresOnSaturation();  // So the Return(0) variant can kick in
+
+    string got;
+    EXPECT_EQ(expect_start_offset != string::npos,
+              reader.ReadUntilPatternInclusive(pattern, &got))
+        << " pattern=" << pattern;
+    EXPECT_EQ(expect_end_offset, reader.offset())
+        << " pattern=" << pattern;
+    EXPECT_EQ(input.substr(0, expect_end_offset), got)
+        << " pattern=" << pattern;
+    EXPECT_EQ(expect, got);
+  }
+}
+
+}  // namespace googleapis

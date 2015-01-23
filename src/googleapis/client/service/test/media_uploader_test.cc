@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include "googleapis/client/service/media_uploader.h"
 
@@ -140,10 +139,10 @@ TEST_F(MediaUploaderFixture, TestJustMetadataNoMultipart) {
   request_.CheckHeader(HttpRequest::HttpHeader_CONTENT_TYPE, "metadata_type");
 
   const string kResponseBody = "Upload Response";
-  scoped_ptr<Closure> poke_set_http(
+  std::unique_ptr<Closure> poke_set_http(
       NewPermanentCallback(
           &request_, &MockHttpRequest::poke_http_code, 200));
-  scoped_ptr<Closure> poke_set_response_body(
+  std::unique_ptr<Closure> poke_set_response_body(
       NewPermanentCallback(
           &request_, &MockHttpRequest::poke_response_body, kResponseBody));
   EXPECT_CALL(request_, DoExecute(request_.response())).WillOnce(
@@ -157,6 +156,33 @@ TEST_F(MediaUploaderFixture, TestJustMetadataNoMultipart) {
   EXPECT_TRUE(request_.state().ok());
 }
 
+TEST_F(MediaUploaderFixture, TestNullContentWithMimeType) {
+  const string kMimeType = "test/mime-type";
+  uploader_.set_media_content_reader(kMimeType, NULL);
+  uploader_.set_metadata("metadata_type", "METADATA");
+  util::Status got_status =
+        uploader_.BuildRequest(&request_, MakePreparer());
+  EXPECT_TRUE(got_status.ok()) << got_status.ToString();
+  EXPECT_TRUE(uploader_.is_ready());
+
+  EXPECT_EQ(
+      "BASE/SIMPLE/PATH?uploadType=multipart+RESOLVER", request_.url());
+
+  EXPECT_EQ(
+      StrCat("--", kBoundary, "\n"
+             "Content-Type: metadata_type\n"
+             "\n"
+             "METADATA\n",
+             "--", kBoundary, "\n"
+             "Content-Type: ", kMimeType, "\n"
+             "\n"
+             "\n"
+             "--", kBoundary, "--\n"),
+      request_.content_as_string());
+  request_.CheckHeader(HttpRequest::HttpHeader_CONTENT_TYPE,
+                       StrCat("multipart/related; boundary=", kBoundary));
+}
+
 TEST_F(MediaUploaderFixture, TestJustMetadata) {
   uploader_.set_metadata("metadata_type", "METADATA");
   util::Status got_status =
@@ -168,7 +194,7 @@ TEST_F(MediaUploaderFixture, TestJustMetadata) {
   EXPECT_EQ("METADATA", request_.content_as_string());
   request_.CheckHeader(HttpRequest::HttpHeader_CONTENT_TYPE, "metadata_type");
 
-  scoped_ptr<Closure> poke_set_http(
+  std::unique_ptr<Closure> poke_set_http(
       NewPermanentCallback(
           &request_, &MockHttpRequest::poke_http_code, 200));
   EXPECT_CALL(request_, DoExecute(request_.response())).WillOnce(
@@ -192,7 +218,7 @@ TEST_F(MediaUploaderFixture, TestJustMedia) {
   EXPECT_EQ("MEDIA", request_.content_as_string());
   request_.CheckHeader(HttpRequest::HttpHeader_CONTENT_TYPE, "media_type");
 
-  scoped_ptr<Closure> poke_set_http(
+  std::unique_ptr<Closure> poke_set_http(
       NewPermanentCallback(
           &request_, &MockHttpRequest::poke_http_code, 200));
   EXPECT_CALL(request_, DoExecute(request_.response())).WillOnce(
@@ -216,7 +242,7 @@ TEST_F(MediaUploaderFixture, TestBinaryMedia) {
   EXPECT_EQ(binary_data, request_.content_as_string());
   request_.CheckHeader(HttpRequest::HttpHeader_CONTENT_TYPE, "media_type");
 
-  scoped_ptr<Closure> poke_set_http(
+  std::unique_ptr<Closure> poke_set_http(
       NewPermanentCallback(
           &request_, &MockHttpRequest::poke_http_code, 200));
   EXPECT_CALL(request_, DoExecute(request_.response())).WillOnce(
@@ -286,7 +312,7 @@ TEST_F(MediaUploaderFixture, TestBinaryMultipart) {
   request_.CheckHeader(HttpRequest::HttpHeader_CONTENT_TYPE,
                        StrCat("multipart/related; boundary=", kBoundary));
 
-  scoped_ptr<Closure> poke_set_http(
+  std::unique_ptr<Closure> poke_set_http(
       NewPermanentCallback(
           &request_, &MockHttpRequest::poke_http_code, 200));
   EXPECT_CALL(request_, DoExecute(request_.response())).WillOnce(
@@ -321,4 +347,4 @@ TEST_F(MediaUploaderFixture, TestPrepareFailure) {
   EXPECT_FALSE(request_.state().transport_status().ok());
 }
 
-} // namespace googleapis
+}  // namespace googleapis

@@ -44,5 +44,5 @@ HttpTransportLayerConfig* GetGlobalHttpTransportLayerConfiguration();
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TRANSPORT_GLOBAL_STATE_H_

@@ -24,6 +24,7 @@
 # include <winbase.h>
 # include <condition_variable>
 #else
+# include <errno.h>
 # include <pthread.h>
 # include <sys/time.h>
 #endif
@@ -152,5 +153,5 @@ using base::CondVar;
 using base::Mutex;
 using base::MutexLock;
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // GOOGLEAPIS_MUTEX_H_

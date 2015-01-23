@@ -18,6 +18,7 @@
  */
 
 
+#include <memory>
 #include <string>
 using std::string;
 #include <vector>
@@ -27,7 +28,6 @@ using std::vector;
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/stringpiece.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -63,7 +63,7 @@ class MockDataReader : public DataReader {
 
   MOCK_METHOD1(DoSetOffset, int64(int64 offset));
   MOCK_METHOD2(
-      DoReadToBuffer, int64(int64 max_bytes, char* storage));  // NOLINT
+      DoReadToBuffer, int64(int64 max_bytes, char* storage));
 
   void poke_status(util::Status status) { set_status(status); }
   void poke_done(bool done) { set_done(done); }
@@ -95,7 +95,7 @@ class CompositeDataReaderTestFixture : public testing::Test {
 TEST_F(CompositeDataReaderTestFixture, Unmanaged) {
   vector<DataReader*>* list(MakeReaderList());
   {
-    scoped_ptr<DataReader> reader(NewUnmanagedCompositeDataReader(*list));
+    std::unique_ptr<DataReader> reader(NewUnmanagedCompositeDataReader(*list));
 
     EXPECT_EQ(kExpect.size(), reader->TotalLengthIfKnown());
     EXPECT_FALSE(reader->done());
@@ -113,7 +113,7 @@ TEST_F(CompositeDataReaderTestFixture, Unmanaged) {
 }
 
 TEST_F(CompositeDataReaderTestFixture, CompositeStringAttributes) {
-  scoped_ptr<DataReader> reader(MakeManagedTestReader());
+  std::unique_ptr<DataReader> reader(MakeManagedTestReader());
 
   EXPECT_EQ(kExpect.size(), reader->TotalLengthIfKnown());
   EXPECT_FALSE(reader->done());
@@ -122,7 +122,7 @@ TEST_F(CompositeDataReaderTestFixture, CompositeStringAttributes) {
 }
 
 TEST_F(CompositeDataReaderTestFixture, CompositeStringToBuffer) {
-  scoped_ptr<DataReader> reader(MakeManagedTestReader());
+  std::unique_ptr<DataReader> reader(MakeManagedTestReader());
 
   char got[100];
   EXPECT_EQ(kExpect.size(),
@@ -135,7 +135,7 @@ TEST_F(CompositeDataReaderTestFixture, CompositeStringToBuffer) {
 }
 
 TEST_F(CompositeDataReaderTestFixture, CompositeStringReset) {
-  scoped_ptr<DataReader> reader(MakeManagedTestReader());
+  std::unique_ptr<DataReader> reader(MakeManagedTestReader());
 
   string s;
   EXPECT_EQ(kExpect.size(), reader->ReadToString(kExpect.size(), &s));
@@ -157,10 +157,10 @@ TEST_F(CompositeDataReaderTestFixture, CompositeResetFailure) {
   list->at(1)->ReadToString(kint64max, &str);
 
   MockDataReader* mock_reader(new MockDataReader());
-  scoped_ptr<ReadToBufferClosure> read_closure(
+  std::unique_ptr<ReadToBufferClosure> read_closure(
       NewPermanentCallback(mock_reader, &MockDataReader::ReadToBufferHelper,
                            str));
-  scoped_ptr<Closure> poke_done(
+  std::unique_ptr<Closure> poke_done(
       NewPermanentCallback(mock_reader, &MockDataReader::poke_done, true));
 
   EXPECT_CALL(*mock_reader, DoReadToBuffer(_, _))
@@ -173,7 +173,7 @@ TEST_F(CompositeDataReaderTestFixture, CompositeResetFailure) {
   delete list->at(1);
   list->at(1) = mock_reader;
 
-  scoped_ptr<DataReader> reader(NewManagedCompositeDataReader(
+  std::unique_ptr<DataReader> reader(NewManagedCompositeDataReader(
       *list, NewCompositeReaderListAndContainerDeleter(list)));
   string s;
   EXPECT_EQ(kExpect.size(), reader->ReadToString(kExpect.size(), &s));
@@ -181,7 +181,7 @@ TEST_F(CompositeDataReaderTestFixture, CompositeResetFailure) {
 
   // Test Reset
   util::Status failure_status = StatusUnknown("Test Reset Failure");
-  scoped_ptr<Closure> poke_status(
+  std::unique_ptr<Closure> poke_status(
       NewPermanentCallback(mock_reader,
                            &MockDataReader::poke_status, failure_status));
   EXPECT_CALL(*mock_reader, DoSetOffset(0)).WillOnce(
@@ -216,7 +216,7 @@ TEST_F(CompositeDataReaderTestFixture, CompositeResetFailure) {
 }
 
 TEST_F(CompositeDataReaderTestFixture, CompositeFragmentedString) {
-  scoped_ptr<DataReader> reader(MakeManagedTestReader());
+  std::unique_ptr<DataReader> reader(MakeManagedTestReader());
 
   // Test ReadToBuffer across fragments
   char buffer[100];
@@ -249,10 +249,10 @@ TEST_F(CompositeDataReaderTestFixture, CompositeStringErrors) {
   vector<DataReader*>* list = MakeReaderList();
   list->push_back(mock_reader);
   util::Status status(StatusUnknown("Test Error"));
-  scoped_ptr<DataReader> reader(
+  std::unique_ptr<DataReader> reader(
       NewManagedCompositeDataReader(
           *list, NewCompositeReaderListAndContainerDeleter(list)));
-  scoped_ptr<Closure> poke_status(
+  std::unique_ptr<Closure> poke_status(
       NewPermanentCallback(mock_reader, &MockDataReader::poke_status, status));
   EXPECT_CALL(*mock_reader, DoReadToBuffer(_, _))
       .WillOnce(
@@ -271,4 +271,4 @@ TEST_F(CompositeDataReaderTestFixture, CompositeStringErrors) {
   EXPECT_EQ(status.ToString(), reader->status().ToString());
 }
 
-} // namespace googleapis
+}  // namespace googleapis

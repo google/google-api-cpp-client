@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include "googleapis/client/service/service_request_pager.h"
 
@@ -34,8 +33,6 @@ BaseServiceRequestPager::~BaseServiceRequestPager() {
 }
 
 bool BaseServiceRequestPager::NextPage() {
-  http_response_.Clear();
-
   if (done_) return false;
 
   if (!ExecuteNextPage().ok()) {
@@ -52,4 +49,4 @@ void BaseServiceRequestPager::Reset() {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis

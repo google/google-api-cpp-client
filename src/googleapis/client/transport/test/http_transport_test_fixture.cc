@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #ifndef _MSC_VER
 #include <signal.h>
@@ -27,6 +26,7 @@
 using std::cout;
 using std::endl;
 using std::ostream;  // NOLINT
+#include <memory>
 #include <string>
 using std::string;
 #include <vector>
@@ -34,6 +34,7 @@ using std::vector;
 
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
+#include "googleapis/client/data/file_data_writer.h"
 #include "googleapis/client/transport/html_scribe.h"
 #include "googleapis/client/transport/json_scribe.h"
 #include "googleapis/client/transport/test/http_transport_test_fixture.h"
@@ -44,7 +45,6 @@ using std::vector;
 #include "googleapis/client/util/status.h"
 #include <gflags/gflags.h>
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
 #include <gtest/gtest.h>
@@ -100,7 +100,7 @@ using client::JsonCppData;
 using client::JoinPath;
 
 
-static scoped_ptr<string> global_session_id_;
+static std::unique_ptr<string> global_session_id_;
 static WaxService* global_service_ = NULL;
 
 // This macro aborts out of the test early if we are ignoring 503's.
@@ -179,7 +179,7 @@ static void StartWindowsServer() {
   StringPiece test_dir = File::StripBasename(program_path);
   string wax_path = JoinPath(test_dir, "wax_server.py");
 
-  // TODO(ewiseblatt): 20130723
+  // TODO(user): 20130723
   // Shoudl find this on PATH.
   const StringPiece kPythonPath = "c:\\python_27\\files\\python.exe";
   string command_line = StrCat(kPythonPath, " ", wax_path);
@@ -187,7 +187,7 @@ static void StartWindowsServer() {
   STARTUPINFO startup_info = { sizeof(STARTUPINFO) };
   string windows_command_line;
   googleapis::ToWindowsString(command_line, &windows_command_line);
-  scoped_ptr<TCHAR[]> writeable_windows_command_line(new TCHAR[MAX_PATH + 1]);
+  std::unique_ptr<TCHAR[]> writeable_windows_command_line(new TCHAR[MAX_PATH + 1]);
   memcpy(writeable_windows_command_line.get(), windows_command_line.data(),
          (windows_command_line.size() + sizeof(TCHAR)));
 
@@ -205,7 +205,7 @@ static void StartWindowsServer() {
       &startup_info,
       &process_info_);
   CHECK(ok);
-  // TODO(ewiseblatt): 20130723
+  // TODO(user): 20130723
   // Use synchronization objects.
   Sleep(2 * 1000);
 }
@@ -232,7 +232,7 @@ void HttpTransportTestFixture::TearDownTestCase() {
   }
 
   HttpTransport* transport = GetConfig()->NewDefaultTransportOrDie();
-  scoped_ptr<HttpRequest> request(
+  std::unique_ptr<HttpRequest> request(
       transport->NewHttpRequest(HttpRequest::GET));
   request->set_url(
       JoinPath(
@@ -259,10 +259,11 @@ void HttpTransportTestFixture::SetTestConfiguration(
 void HttpTransportTestFixture::ResetGlobalSessionId() {
   WaxService* service = &GetGlobalWaxService();
   const WaxService::SessionsResource& rsrc = service->get_sessions();
-  scoped_ptr<WaxRemoveSessionRequest> request(WaxRemoveSessionRequest::New());
-  request->set_sessionId(GetGlobalSessionId());
+  std::unique_ptr<WaxRemoveSessionRequest> request(
+      WaxRemoveSessionRequest::New());
+  request->set_session_id(GetGlobalSessionId());
 
-  scoped_ptr<SessionsResource_RemoveSessionMethod> remove_method(
+  std::unique_ptr<SessionsResource_RemoveSessionMethod> remove_method(
       rsrc.NewRemoveSessionMethod(NULL, *request));
 
   util::Status got_status = remove_method->Execute();
@@ -296,16 +297,16 @@ WaxService& HttpTransportTestFixture::GetGlobalWaxService() {
     global_service_->ChangeServiceUrl(
         FLAGS_wax_root_url, FLAGS_wax_service_path);
 
-    scoped_ptr<WaxNewSessionRequest> request(WaxNewSessionRequest::New());
+    std::unique_ptr<WaxNewSessionRequest> request(WaxNewSessionRequest::New());
     const char* kPrototype = "HttpTransportTest";
-    request->set_sessionName(kPrototype);
+    request->set_session_name(kPrototype);
 
     WaxService* service = global_service_;
     const WaxService::SessionsResource& rsrc = service->get_sessions();
-    scoped_ptr<SessionsResource_NewSessionMethod> new_method(
+    std::unique_ptr<SessionsResource_NewSessionMethod> new_method(
         rsrc.NewNewSessionMethod(NULL, *request));
 
-    scoped_ptr<WaxNewSessionResponse> result(WaxNewSessionResponse::New());
+    std::unique_ptr<WaxNewSessionResponse> result(WaxNewSessionResponse::New());
     util::Status got_status =
           new_method->ExecuteAndParseResponse(result.get());
     HttpResponse* http_response = new_method->http_response();
@@ -315,14 +316,13 @@ WaxService& HttpTransportTestFixture::GetGlobalWaxService() {
     }
 
     // No point in continuing if we cannot get this far.
-    CHECK(got_status.ok())
-        << got_status.ToString()
-        <<  " / http_code=" << http_response->http_code();
+    CHECK(got_status.ok()) << got_status
+                           << " / http_code=" << http_response->http_code();
 
     EXPECT_EQ(200, http_response->http_code());
     if (http_response->ok()) {
       global_session_id_.reset(
-          new string(result->get_newSessionId().as_string()));
+          new string(result->get_new_session_id().as_string()));
       LOG(INFO) << "Wax Session ID=" << *global_session_id_;
     } else {
       LOG(ERROR) << "FAILED to create new wax session id";
@@ -356,7 +356,7 @@ HttpTransportTestFixture::HttpTransportTestFixture() {
     client::DataWriter* writer =
         client::NewFileDataWriter(path);
     LOG(INFO) << "Scribing HttpTransport activity to " << path;
-    CHECK(writer->status().ok()) << writer->status().ToString();
+    CHECK(writer->status().ok()) << writer->status();
 
     client::HttpScribe* scribe;
     client::HttpScribeCensor* censor =
@@ -385,10 +385,10 @@ HttpTransportTestFixture::~HttpTransportTestFixture() {
 TEST_F(HttpTransportTestFixture, TestList) {
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
-  scoped_ptr<ItemsResource_ListMethod> list_method(
+  std::unique_ptr<ItemsResource_ListMethod> list_method(
       rsrc.NewListMethod(NULL, GetGlobalSessionId()));
 
-  scoped_ptr<WaxListResponse> result(WaxListResponse::New());
+  std::unique_ptr<WaxListResponse> result(WaxListResponse::New());
   util::Status got_status =
         list_method->ExecuteAndParseResponse(result.get());
   HttpResponse* http_response = list_method->http_response();
@@ -417,7 +417,7 @@ TEST_F(HttpTransportTestFixture, TestList) {
 TEST_F(HttpTransportTestFixture, TestBadGet) {
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
-  scoped_ptr<ItemsResource_GetMethod> get_method(
+  std::unique_ptr<ItemsResource_GetMethod> get_method(
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "XXX"));
 
   JsonCppCapsule<WaxDataItem> result;
@@ -437,7 +437,7 @@ TEST_F(HttpTransportTestFixture, TestBadGet) {
 TEST_F(HttpTransportTestFixture, TestReuse) {
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
-  scoped_ptr<ItemsResource_GetMethod> get_method(
+  std::unique_ptr<ItemsResource_GetMethod> get_method(
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "A"));
 
   util::Status got_status = get_method->Execute();
@@ -460,7 +460,7 @@ TEST_F(HttpTransportTestFixture, TestReuse) {
 TEST_F(HttpTransportTestFixture, TestGoodGet) {
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
-  scoped_ptr<ItemsResource_GetMethod> get_method(
+  std::unique_ptr<ItemsResource_GetMethod> get_method(
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "A"));
 
   JsonCppCapsule<WaxDataItem> wax;
@@ -500,7 +500,7 @@ TEST_F(HttpTransportTestFixture, TestTimeout) {
   const int kInitialTimeoutMs = 1;
   bool saw_timeout = false;
   for (int i = 0; i < kTestAttempts; ++i) {
-    scoped_ptr<ItemsResource_InsertMethod> insert_method(
+    std::unique_ptr<ItemsResource_InsertMethod> insert_method(
         rsrc.NewInsertMethod(NULL, GetGlobalSessionId(), wax));
 
     HttpRequest* http_request = insert_method->mutable_http_request();
@@ -518,11 +518,10 @@ TEST_F(HttpTransportTestFixture, TestTimeout) {
       break;
     }
     if (i == 0) {
-      LOG(WARNING)
-          << "Expected timeout (ms=" << timeout_ms << ") but got"
-          << " state=" << http_response->request_state_code()
-          << " status=" << http_response->transport_status().ToString()
-          << ". This might be intermittent -- trying again.";
+      LOG(WARNING) << "Expected timeout (ms=" << timeout_ms << ") but got"
+                   << " state=" << http_response->request_state_code()
+                   << " status=" << http_response->transport_status()
+                   << ". This might be intermittent -- trying again.";
     }
   }
   EXPECT_TRUE(saw_timeout)
@@ -539,7 +538,7 @@ TEST_F(HttpTransportTestFixture, TestInsert) {
 
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
-  scoped_ptr<ItemsResource_InsertMethod> insert_method(
+  std::unique_ptr<ItemsResource_InsertMethod> insert_method(
       rsrc.NewInsertMethod(NULL, GetGlobalSessionId(), wax));
 
   JsonCppCapsule<WaxDataItem> wax_result;
@@ -557,7 +556,7 @@ TEST_F(HttpTransportTestFixture, TestInsert) {
   EXPECT_TRUE(http_response->transport_status().ok());
 
   JsonCppCapsule<WaxDataItem> check_wax;
-  scoped_ptr<ItemsResource_GetMethod> check_method(
+  std::unique_ptr<ItemsResource_GetMethod> check_method(
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "I"));
 
   got_status = check_method->ExecuteAndParseResponse(&check_wax);
@@ -581,7 +580,7 @@ TEST_F(HttpTransportTestFixture, TestBadInsert) {
 
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
-  scoped_ptr<ItemsResource_InsertMethod> insert_method(
+  std::unique_ptr<ItemsResource_InsertMethod> insert_method(
       rsrc.NewInsertMethod(NULL, GetGlobalSessionId(), wax));
 
   JsonCppCapsule<WaxDataItem> wax_result;
@@ -608,7 +607,7 @@ TEST_F(HttpTransportTestFixture, TestDelete) {
 
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
-  scoped_ptr<ItemsResource_InsertMethod> insert_method(
+  std::unique_ptr<ItemsResource_InsertMethod> insert_method(
       rsrc.NewInsertMethod(NULL, GetGlobalSessionId(), wax));
 
   util::Status got_status = insert_method->Execute();
@@ -617,14 +616,14 @@ TEST_F(HttpTransportTestFixture, TestDelete) {
   EXPECT_TRUE(got_status.ok());
   EXPECT_EQ(200, http_response->http_code());
 
-  scoped_ptr<ItemsResource_GetMethod> check_method(
+  std::unique_ptr<ItemsResource_GetMethod> check_method(
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "D"));
   got_status = check_method->Execute();
   MAYBE_CANCEL_TEST_ON_503(check_method->http_response()->http_code());
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
   EXPECT_EQ(200, check_method->http_response()->http_code());
 
-  scoped_ptr<ItemsResource_DeleteMethod> delete_method(
+  std::unique_ptr<ItemsResource_DeleteMethod> delete_method(
       rsrc.NewDeleteMethod(NULL, GetGlobalSessionId(), "D"));
   got_status = delete_method->Execute();
   MAYBE_CANCEL_TEST_ON_503(delete_method->http_response()->http_code());
@@ -650,13 +649,13 @@ TEST_F(HttpTransportTestFixture, TestPatch) {
 
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
-  scoped_ptr<ItemsResource_PatchMethod> patch_method(
+  std::unique_ptr<ItemsResource_PatchMethod> patch_method(
       rsrc.NewPatchMethod(NULL, GetGlobalSessionId(), "A", wax));
 
   util::Status got_status = patch_method->Execute();
   MAYBE_CANCEL_TEST_ON_503(patch_method->http_response()->http_code());
 
-  // TODO(ewiseblatt): 20130227
+  // TODO(user): 20130227
   // Need some kind of mechanism to ask a transport if it supports a method.
   // Probably need to give it the request also.
   if (got_status.error_code() == util::error::UNIMPLEMENTED) {
@@ -671,7 +670,7 @@ TEST_F(HttpTransportTestFixture, TestPatch) {
   EXPECT_TRUE(http_response->status().ok());
 
   JsonCppCapsule<WaxDataItem> check_wax;
-  scoped_ptr<ItemsResource_GetMethod> check_method(
+  std::unique_ptr<ItemsResource_GetMethod> check_method(
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "A"));
 
   got_status = check_method->ExecuteAndParseResponse(&check_wax);
@@ -691,7 +690,7 @@ TEST_F(HttpTransportTestFixture, TestUpdate) {
 
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
-  scoped_ptr<ItemsResource_UpdateMethod> update_method(
+  std::unique_ptr<ItemsResource_UpdateMethod> update_method(
       rsrc.NewUpdateMethod(NULL, GetGlobalSessionId(), "A", wax));
 
   util::Status got_status = update_method->Execute();
@@ -704,7 +703,7 @@ TEST_F(HttpTransportTestFixture, TestUpdate) {
   EXPECT_TRUE(http_response->status().ok());
 
   JsonCppCapsule<WaxDataItem> check_wax;
-  scoped_ptr<ItemsResource_GetMethod> check_method(
+  std::unique_ptr<ItemsResource_GetMethod> check_method(
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "A"));
   got_status = check_method->ExecuteAndParseResponse(&check_wax);
   MAYBE_CANCEL_TEST_ON_503(check_method->http_response()->http_code());
@@ -721,7 +720,7 @@ TEST_F(HttpTransportTestFixture, TestUpdate) {
 TEST_F(HttpTransportTestFixture, TestRemoveSessionId) {
   WaxService* service = &GetGlobalWaxService();
   string original_id = GetGlobalSessionId();
-  scoped_ptr<ItemsResource_GetMethod> check_method(
+  std::unique_ptr<ItemsResource_GetMethod> check_method(
       service->get_items().NewGetMethod(NULL, GetGlobalSessionId(), "A"));
 
   util::Status got_status = check_method->Execute();
@@ -746,7 +745,7 @@ TEST_F(HttpTransportTestFixture, TestRemoveSessionId) {
 TEST_F(HttpTransportTestFixture, TestResponseHeaders) {
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
-  scoped_ptr<ItemsResource_GetMethod> get_method(
+  std::unique_ptr<ItemsResource_GetMethod> get_method(
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "A"));
 
   util::Status got_status = get_method->Execute();
@@ -757,11 +756,10 @@ TEST_F(HttpTransportTestFixture, TestResponseHeaders) {
 }
 
 static void GatherAsyncResponse(
-    Mutex* mutex, vector<HttpRequest*>* got, int* remaining, int i,
+    int i, Mutex* mutex, vector<HttpRequest*>* got, int* remaining,
     HttpRequest* request) {
   HttpResponse* response = request->response();
-  VLOG(1) << "*** Got Response for i="
-          << i << " status=" << response->status().ToString();
+  VLOG(1) << "*** Got Response for i=" << i << " status=" << response->status();
   if (!response->ok()) {
     if (response->body_reader()) {
       LOG(ERROR) << "ERROR BODY\n\n"
@@ -773,21 +771,18 @@ static void GatherAsyncResponse(
     }
   }
 
-  {
-    MutexLock l(mutex);
-    (*got)[i] = request;
-    --*remaining;
-  }
+  MutexLock l(mutex);
+  (*got)[i] = request;
+  *remaining -= 1;
 }
 
 static void VerifyAsyncResponse(int i, int expect_len, HttpRequest* request) {
   HttpResponse* response = request->response();
-  VLOG(1) << "*** Got Response for i="
-          << i << " status=" << response->status().ToString();
+  VLOG(1) << "*** Got Response for i=" << i << " status=" << response->status();
   MAYBE_CANCEL_TEST_ON_503(response->http_code());
 
   ASSERT_TRUE(response->ok()) << "i=" << i;
-  scoped_ptr<WaxListResponse> list(WaxListResponse::New());
+  std::unique_ptr<WaxListResponse> list(WaxListResponse::New());
   DataReader* reader = response->body_reader();
   ASSERT_TRUE(reader != NULL);
 
@@ -847,7 +842,7 @@ TEST_F(HttpTransportTestFixture, TestAsynchronous) {
     requests.push_back(insert_method);
     VLOG(1) << "Adding " << i;
     insert_method->ExecuteAsync(
-        NewCallback(&GatherAsyncResponse, &mutex, &got, &remaining, i));
+        NewCallback(&GatherAsyncResponse, i, &mutex, &got, &remaining));
     util::Status status = insert_method->http_response()->transport_status();
     ASSERT_TRUE(status.ok()) << status.error_message();
   }
@@ -862,15 +857,15 @@ TEST_F(HttpTransportTestFixture, TestAsynchronous) {
     requests.push_back(delete_method);
     VLOG(1) << "Adding delete " << builtin_id;
     delete_method->ExecuteAsync(
-        NewCallback(&GatherAsyncResponse,
-                    &mutex, &got, &remaining, response_index));
+        NewCallback(&GatherAsyncResponse, response_index, &mutex, &got,
+                    &remaining));
     util::Status status = delete_method->http_response()->transport_status();
     ASSERT_TRUE(status.ok()) << status.error_message();
   }
 
   // Then wait for them to come back, (but with a timeout)
   // The + kNumBuiltins for the deletes
-  const int kWaitSecs = 60;
+  const int kWaitSecs = 20;
   bool saw_503 = false;
   for (int i = 0; i < kNumInserts + kNumBuiltins; ++i) {
     if (got[i]) {
@@ -891,12 +886,6 @@ TEST_F(HttpTransportTestFixture, TestAsynchronous) {
             << " state_code[" << i << "]="
             << requests[i]->http_response()->request_state_code();
         VLOG(1) << "   OK";
-        EXPECT_EQ(requests[i]->mutable_http_request(), got[i]);
-        if (requests[i]->http_response()->http_code() == 503) {
-          saw_503 = true;
-        }
-        requests[i]->DestroyWhenDone();
-        requests[i] = NULL;
       } else {
         VLOG(1) << "   NOT YET";
       }
@@ -948,4 +937,4 @@ TEST_F(HttpTransportTestFixture, TestAsynchronous) {
 
 }
 
-} // namespace googleapis
+}  // namespace googleapis

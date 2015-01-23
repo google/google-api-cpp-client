@@ -109,5 +109,5 @@ inline int64 atoi64(const string &s) {
   return atoi64(s.c_str());
 }
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // BASE_STRTOINT_H_

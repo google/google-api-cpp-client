@@ -157,4 +157,4 @@ const char *memmatch(const char *phaystack, size_t haylen,
   return NULL;
 }
 
-} // namespace googleapis
+}  // namespace googleapis

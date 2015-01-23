@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/transport/json_playback_transport.h"
@@ -40,13 +39,13 @@ using client::JsonPlaybackTransportFactory;
 
 // This runs the standard test suite defined by HttpTransportTestFixture
 // but using the HttpOverRpcTransport factory.
-} // namespace googleapis
+}  // namespace googleapis
 
 using namespace googleapis;
 int main(int argc, char** argv) {
   FLAGS_logtostderr = true;
   FLAGS_fork_wax = false;
-  testing::InitGoogleTest(&argc, argv);
+testing::InitGoogleTest(&argc, argv);
 
   client::HttpTransportLayerConfig config;
   JsonPlaybackTransportFactory* factory = new JsonPlaybackTransportFactory(
@@ -63,14 +62,15 @@ int main(int argc, char** argv) {
 
     string path = JoinPath(data_dir, "json_transport_playback.json");
 
-    scoped_ptr<DataReader> reader(
+    std::unique_ptr<DataReader> reader(
         client::NewUnmanagedFileDataReader(path));
     EXPECT_TRUE(factory->LoadTranscript(reader.get()).ok());
   }
 
   CHECK_EQ(client::JsonPlaybackTransport::kTransportIdentifier,
            factory->default_id());
-  scoped_ptr<client::HttpTransport> check_instance(factory->New());
+  std::unique_ptr<client::HttpTransport> check_instance(
+      factory->New());
   CHECK_EQ(client::JsonPlaybackTransport::kTransportIdentifier,
            check_instance->id());
 

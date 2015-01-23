@@ -61,6 +61,8 @@ using std::less;
 #include <iterator>
 using std::back_insert_iterator;
 using std::iterator_traits;
+#include <list>
+using std::list;
 #include <map>
 using std::map;
 #include <memory>
@@ -75,14 +77,78 @@ using std::vector;
 #include "googleapis/base/template_util.h"
 #include "googleapis/base/type_traits.h"
 #include "googleapis/util/algorithm.h"
-namespace googleapis {
 
-// Sorts and removes duplicates from a vector or deque.
-template<typename T>
-void STLSortAndRemoveDuplicates(T* v) {
-  sort(v->begin(), v->end());
-  v->erase(unique(v->begin(), v->end()), v->end());
+#ifdef LANG_CXX11  // must follow base/port.h
+#include <forward_list>
+namespace googleapis {
+#endif  // LANG_CXX11
+
+namespace util {
+namespace gtl {
+namespace internal {
+template <typename LessFunc>
+class Equiv {
+ public:
+  explicit Equiv(const LessFunc& f) : f_(f) {}
+  template <typename T>
+  bool operator()(const T& a, const T& b) const {
+    return !f_(b, a) && !f_(a, b);
+  }
+ private:
+  LessFunc f_;
+};
+}  // namespace internal
+}  // namespace gtl
+}  // namespace util
+
+// Sorts and removes duplicates from a sequence container.
+// If specified, the 'less_func' is used to compose an
+// equivalence comparator for the sorting and uniqueness tests.
+template<typename T, typename LessFunc>
+inline void STLSortAndRemoveDuplicates(T* v, const LessFunc& less_func) {
+  std::sort(v->begin(), v->end(), less_func);
+  v->erase(std::unique(v->begin(), v->end(),
+                       util::gtl::internal::Equiv<LessFunc>(less_func)),
+           v->end());
 }
+template<typename T>
+inline void STLSortAndRemoveDuplicates(T* v) {
+  std::sort(v->begin(), v->end());
+  v->erase(std::unique(v->begin(), v->end()), v->end());
+}
+
+// Remove every occurrence of element e in v. See
+//    http://en.wikipedia.org/wiki/Erase-remove_idiom.
+template<typename T, typename E>
+void STLEraseAllFromSequence(T* v, const E& e) {
+  v->erase(std::remove(v->begin(), v->end(), e), v->end());
+}
+template<typename T, typename A, typename E>
+void STLEraseAllFromSequence(std::list<T, A>* c, const E& e) {
+  c->remove(e);
+}
+#ifdef LANG_CXX11
+template<typename T, typename A, typename E>
+void STLEraseAllFromSequence(std::forward_list<T, A>* c, const E& e) {
+  c->remove(e);
+}
+#endif  // LANG_CXX11
+
+// Remove each element e in v satisfying pred(e).
+template<typename T, typename P>
+void STLEraseAllFromSequenceIf(T* v, P pred) {
+  v->erase(std::remove_if(v->begin(), v->end(), pred), v->end());
+}
+template<typename T, typename A, typename P>
+void STLEraseAllFromSequenceIf(std::list<T, A>* c, P pred) {
+  c->remove_if(pred);
+}
+#ifdef LANG_CXX11
+template<typename T, typename A, typename P>
+void STLEraseAllFromSequenceIf(std::forward_list<T, A>* c, P pred) {
+  c->remove_if(pred);
+}
+#endif  // LANG_CXX11
 
 // Clears internal memory of an STL object by swapping the argument with a new,
 // empty object. STL clear()/reserve(0) does not always free internal memory
@@ -96,9 +162,9 @@ void STLClearObject(T* obj) {
   obj->reserve(0);
 }
 // STLClearObject overload for deque, which is missing reserve().
-template<typename T, typename A>
-void STLClearObject(deque<T, A>* obj) {
-  deque<T, A> tmp;
+template <typename T, typename A>
+void STLClearObject(std::deque<T, A>* obj) {
+  std::deque<T, A> tmp;
   tmp.swap(*obj);
 }
 
@@ -118,8 +184,8 @@ inline void STLClearIfBig(T* obj, size_t limit = 1<<20) {
   }
 }
 // STLClearIfBig overload for deque, which is missing capacity().
-template<typename T, typename A>
-inline void STLClearIfBig(deque<T, A>* obj, size_t limit = 1<<20) {
+template <typename T, typename A>
+inline void STLClearIfBig(std::deque<T, A>* obj, size_t limit = 1 << 20) {
   if (obj->size() >= limit) {
     STLClearObject(obj);
   } else {
@@ -164,45 +230,16 @@ inline void STLStringReserveIfNeeded(string* s, size_t min_capacity) {
     s->reserve(min_capacity);
 }
 
-// A struct that mirrors the crosstool v16 implementation of a string
-// this file. It exists only to implement the following functions:
-//   - STLStringResizeUninitialized()
-//   - STLStringSupportsNontrashingResize()
-struct InternalStringRepGCC4 {
-  char*  _M_data;
-  size_t _M_string_length;
-  enum { _S_local_capacity = 15 };
-  union {
-    char             _M_local_data[_S_local_capacity + 1];
-    size_t           _M_allocated_capacity;
-  };
-};
-
 // Like str->resize(new_size), except any new characters added to "*str" as a
 // result of resizing may be left uninitialized, rather than being filled with
 // '0' bytes. Typically used when code is then going to overwrite the backing
-// store of the string with known data.
+// store of the string with known data. Uses a Google extension to ::string.
 inline void STLStringResizeUninitialized(string* s, size_t new_size) {
-  if (sizeof(*s) == sizeof(InternalStringRepGCC4)) {
-    if (new_size > s->capacity()) {
-      s->reserve(new_size);
-    }
-    // The line below depends on the layout of 'string'. THIS IS NON-PORTABLE
-    // CODE. If our STL implementation changes, we will need to change this as
-    // well.
-    InternalStringRepGCC4* rep = reinterpret_cast<InternalStringRepGCC4*>(s);
-    assert(rep->_M_data == s->data());
-    assert(rep->_M_string_length == s->size());
-
-    // We have to null-terminate the string for c_str() to work properly.
-    // So we leave the actual contents of the string uninitialized, but
-    // we set the byte one past the new end of the string to '\0'
-    const_cast<char*>(s->data())[new_size] = '\0';
-    rep->_M_string_length = new_size;
-  } else {
-    // Slow path: have to reallocate stuff, or an unknown string rep
-    s->resize(new_size);
-  }
+#if __google_stl_resize_uninitialized_string
+  s->resize_uninitialized(new_size);
+#else
+  s->resize(new_size);
+#endif
 }
 
 // Returns true if the string implementation supports a resize where
@@ -211,7 +248,11 @@ inline void STLStringResizeUninitialized(string* s, size_t new_size) {
 // (A better name might be "STLStringSupportsUninitializedResize", alluding to
 // the previous function.)
 inline bool STLStringSupportsNontrashingResize(const string& s) {
-  return (sizeof(s) == sizeof(InternalStringRepGCC4));
+#if __google_stl_resize_uninitialized_string
+  return true;
+#else
+  return false;
+#endif
 }
 
 // Assigns the n bytes starting at ptr to the given string. This is intended to
@@ -246,7 +287,7 @@ inline void STLAppendToString(string* str, const char* ptr, size_t n) {
 // Note: If you know the array will never be empty, you can use &*v.begin()
 // directly, but that is may dump core if v is empty. This function is the most
 // efficient code that will work, taking into account how our STL is actually
-// implemented. THIS IS NON-PORTABLE CODE, so use this function this instead of
+// implemented. THIS IS NON-PORTABLE CODE, so use this function instead of
 // repeating the nonportable code everywhere. If our STL implementation changes,
 // we will need to change this as well.
 template<typename T, typename Allocator>
@@ -423,7 +464,7 @@ class BaseDeleter {
   BaseDeleter() {}
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(BaseDeleter);
+  DISALLOW_COPY_AND_ASSIGN(BaseDeleter);
 };
 
 // Given a pointer to an STL container, this class will delete all the element
@@ -444,7 +485,7 @@ class TemplatedElementDeleter : public BaseDeleter {
  private:
   STLContainer* container_ptr_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TemplatedElementDeleter);
+  DISALLOW_COPY_AND_ASSIGN(TemplatedElementDeleter);
 };
 
 // ElementDeleter is an RAII (go/raii) object that deletes the elements in the
@@ -474,7 +515,7 @@ class ElementDeleter {
  private:
   BaseDeleter* deleter_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ElementDeleter);
+  DISALLOW_COPY_AND_ASSIGN(ElementDeleter);
 };
 
 // Given a pointer to an STL container this class will delete all the value
@@ -495,7 +536,7 @@ class TemplatedValueDeleter : public BaseDeleter {
  private:
   STLContainer* container_ptr_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TemplatedValueDeleter);
+  DISALLOW_COPY_AND_ASSIGN(TemplatedValueDeleter);
 };
 
 // ValueDeleter is an RAII (go/raii) object that deletes the 'second' member in
@@ -521,7 +562,7 @@ class ValueDeleter {
  private:
   BaseDeleter* deleter_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ValueDeleter);
+  DISALLOW_COPY_AND_ASSIGN(ValueDeleter);
 };
 
 // RAII (go/raii) object that deletes elements in the given container when it
@@ -908,138 +949,20 @@ bool SortedRangesHaveIntersection(InputIterator1 begin1, InputIterator1 end1,
       util::gtl::stl_util_internal::TransparentLess());
 }
 
-// A unary functor wrapper that takes a std::pair as its argument and passes the
-// .first member to the wrapped functor.
-template<typename Pair, typename UnaryOp>
-class UnaryOperateOnFirst
-    : public std::unary_function<Pair, typename UnaryOp::result_type> {
- public:
-  UnaryOperateOnFirst() {}
-  UnaryOperateOnFirst(const UnaryOp& f) : f_(f) {}
-  typename UnaryOp::result_type operator()(const Pair& p) const {
-    return f_(p.first);
-  }
-
- private:
-  UnaryOp f_;
-};
-
-// A factory for creating UnaryOperateOnFirst<> objects.
-template<typename Pair, typename UnaryOp>
-UnaryOperateOnFirst<Pair, UnaryOp> UnaryOperate1st(const UnaryOp& f) {
-  return UnaryOperateOnFirst<Pair, UnaryOp>(f);
+// Returns true iff the ordered containers 'in1' and 'in2' have a non-empty
+// intersection. The container elements do not have to be the same type, but the
+// elements must be sorted either by the specified comparator, or by '<' if no
+// comparator is given.
+template <typename In1, typename In2, typename Comp>
+bool SortedContainersHaveIntersection(const In1& in1, const In2& in2,
+                                      Comp comparator) {
+  return SortedRangesHaveIntersection(in1.begin(), in1.end(), in2.begin(),
+                                      in2.end(), comparator);
 }
-
-// A unary functor wrapper that takes a std::pair as its argument and passes the
-// .second member to the wrapped functor.
-template<typename Pair, typename UnaryOp>
-class UnaryOperateOnSecond
-    : public std::unary_function<Pair, typename UnaryOp::result_type> {
- public:
-  UnaryOperateOnSecond() {}
-  UnaryOperateOnSecond(const UnaryOp& f) : f_(f) {}
-  typename UnaryOp::result_type operator()(const Pair& p) const {
-    return f_(p.second);
-  }
-
- private:
-  UnaryOp f_;
-};
-
-// A factory for creating UnaryOperateOnSecond<> objects.
-template<typename Pair, typename UnaryOp>
-UnaryOperateOnSecond<Pair, UnaryOp> UnaryOperate2nd(const UnaryOp& f) {
-  return UnaryOperateOnSecond<Pair, UnaryOp>(f);
-}
-
-// A binary functor wrapper that takes two std::pair objects as arguments and
-// passes the .first members to the wrapped binary functor.
-template<typename Pair, typename BinaryOp>
-class BinaryOperateOnFirst
-    : public std::binary_function<Pair, Pair, typename BinaryOp::result_type> {
- public:
-  BinaryOperateOnFirst() {}
-  BinaryOperateOnFirst(const BinaryOp& f) : f_(f) {}
-  typename BinaryOp::result_type operator()(const Pair& p1,
-                                            const Pair& p2) const {
-    return f_(p1.first, p2.first);
-  }
-
- private:
-  BinaryOp f_;
-};
-
-// A factory for creating BinaryOperateOnFirst<> objects.
-template<typename Pair, typename BinaryOp>
-BinaryOperateOnFirst<Pair, BinaryOp> BinaryOperate1st(const BinaryOp& f) {
-  return BinaryOperateOnFirst<Pair, BinaryOp>(f);
-}
-
-// A binary functor wrapper that takes two std::pair objects as arguments and
-// passes the .second members to the wrapped binary functor.
-template<typename Pair, typename BinaryOp>
-class BinaryOperateOnSecond
-    : public std::binary_function<Pair, Pair, typename BinaryOp::result_type> {
- public:
-  BinaryOperateOnSecond() {}
-  BinaryOperateOnSecond(const BinaryOp& f) : f_(f) {}
-  typename BinaryOp::result_type operator()(const Pair& p1,
-                                            const Pair& p2) const {
-    return f_(p1.second, p2.second);
-  }
-
- private:
-  BinaryOp f_;
-};
-
-// A factory for creating BinaryOperateOnSecond<> objects.
-template<typename Pair, typename BinaryOp>
-BinaryOperateOnSecond<Pair, BinaryOp> BinaryOperate2nd(const BinaryOp& f) {
-  return BinaryOperateOnSecond<Pair, BinaryOp>(f);
-}
-
-// A binary functor that wraps another arbitrary binary functor f and two unary
-// functors g1, g2, such that:
-//
-// BinaryCompose1(f, g) returns function(x, y) -> f(g(x), g(y))
-// BinaryCompose2(f, g1, g2) returns function(x, y) -> f(g1(x), g2(y))
-//
-// This is a generalization of the BinaryOperate* functors above for types other
-// than pairs.
-//
-// For sample usage, see the unittest.
-//
-// F has to be a model of AdaptableBinaryFunction.
-// G1 and G2 have to be models of AdabtableUnaryFunction.
-template<typename F, typename G1, typename G2>
-class BinaryComposeBinary : public binary_function<typename G1::argument_type,
-                                                   typename G2::argument_type,
-                                                   typename F::result_type> {
- public:
-  BinaryComposeBinary(F f, G1 g1, G2 g2) : f_(f), g1_(g1), g2_(g2) { }
-
-  typename F::result_type operator()(typename G1::argument_type x,
-                                     typename G2::argument_type y) const {
-    return f_(g1_(x), g2_(y));
-  }
-
- private:
-  F f_;
-  G1 g1_;
-  G2 g2_;
-};
-
-// A factory for creating BinaryComposeBinary<> objects where G1 and G2 are the
-// same.
-template<typename F, typename G>
-BinaryComposeBinary<F, G, G> BinaryCompose1(F f, G g) {
-  return BinaryComposeBinary<F, G, G>(f, g, g);
-}
-
-// A factory for creating BinaryComposeBinary<> objects.
-template<typename F, typename G1, typename G2>
-BinaryComposeBinary<F, G1, G2> BinaryCompose2(F f, G1 g1, G2 g2) {
-  return BinaryComposeBinary<F, G1, G2>(f, g1, g2);
+template <typename In1, typename In2>
+bool SortedContainersHaveIntersection(const In1& in1, const In2& in2) {
+  return SortedContainersHaveIntersection(
+      in1, in2, util::gtl::stl_util_internal::TransparentLess());
 }
 
 // An std::allocator<T> subclass that keeps count of the active bytes allocated
@@ -1062,11 +985,11 @@ class STLCountingAllocator : public Alloc {
   typedef typename Alloc::size_type size_type;
 
   STLCountingAllocator() : bytes_used_(NULL) { }
-  STLCountingAllocator(int64* b) : bytes_used_(b) {}
+  explicit STLCountingAllocator(int64* b) : bytes_used_(b) {}
 
   // Constructor used for rebinding
-  template<typename U>
-  STLCountingAllocator(const STLCountingAllocator<U>& x)
+  template<typename U, typename B>
+  STLCountingAllocator(const STLCountingAllocator<U, B>& x)
       : Alloc(x),
         bytes_used_(x.bytes_used()) {
   }
@@ -1085,13 +1008,36 @@ class STLCountingAllocator : public Alloc {
 
   // Rebind allows an allocator<T> to be used for a different type
   template<typename U>
-  struct rebind {
-    typedef STLCountingAllocator<U, typename Alloc::template rebind<U>::other>
-        other;
+  class rebind {
+    typedef typename Alloc::template rebind<U>::other OtherA;
+   public:
+    typedef STLCountingAllocator<U, OtherA> other;
   };
 
   int64* bytes_used() const { return bytes_used_; }
 
+ private:
+  int64* bytes_used_;
+};
+
+template<typename A>
+class STLCountingAllocator<void, A> : public A {
+ public:
+  STLCountingAllocator() : bytes_used_(NULL) {}
+  explicit STLCountingAllocator(int64* b) : bytes_used_(b) {}
+
+  // Constructor used for rebinding
+  template<typename U, typename B>
+  STLCountingAllocator(const STLCountingAllocator<U, B>& x)
+      : A(x), bytes_used_(x.bytes_used()) {}
+
+  template<typename U>
+  class rebind {
+    typedef typename A::template rebind<U>::other OtherA;
+   public:
+    typedef STLCountingAllocator<U, OtherA> other;
+  };
+  int64* bytes_used() const { return bytes_used_; }
  private:
   int64* bytes_used_;
 };
@@ -1110,5 +1056,5 @@ bool operator!=(const STLCountingAllocator<T, A>& a,
   return !(a == b);
 }
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // UTIL_GTL_STL_UTIL_H_

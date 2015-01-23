@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 /*
  * @defgroup PlatformLayerUri Platform Layer - URI Support Module
@@ -227,6 +226,15 @@ string EscapeForUrl(const StringPiece& s);
 bool UnescapeFromUrl(const StringPiece& s, string* to);
 
 /*
+ * Escape a string according to URI Template reserved expansion rules.
+ * @ingroup PlatformLayerUri
+ *
+ * @param[in] s The string to escape.
+ * @return the escaped string.
+ */
+string EscapeForReservedExpansion(const StringPiece& s);
+
+/*
  * Templated function that encodes a primitive C++ value for use in a URL.
  * @ingroup PlatformLayerUri
  *
@@ -305,6 +313,14 @@ inline string CppValueToEscapedUrlValue<string>(const string& value) {
 }
 
 /*
+ * Implements append a Date value into a URL.
+ */
+template<>
+inline string CppValueToEscapedUrlValue<Date>(const Date& value) {
+  return EscapeForUrl(value.ToYYYYMMDD());
+}
+
+/*
  * Implements append a DateTime value into a URL.
  */
 template<>
@@ -328,5 +344,5 @@ void AppendIteratorToUrl(
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_UTIL_URI_UTILS_H_

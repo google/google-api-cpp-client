@@ -87,4 +87,4 @@ Executor* SingletonInlineExecutor() {
 
 }  // namespace thread
 
-} // namespace googleapis
+}  // namespace googleapis

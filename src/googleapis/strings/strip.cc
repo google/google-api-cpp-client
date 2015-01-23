@@ -101,9 +101,9 @@ void StripString(string* s, StringPiece remove, char replacewith) {
 }
 
 // ----------------------------------------------------------------------
-// StripWhiteSpace
+// StripWhitespace
 // ----------------------------------------------------------------------
-void StripWhiteSpace(const char** str, int* len) {
+void StripWhitespace(const char** str, int* len) {
   // strip off trailing whitespace
   while ((*len) > 0 && ascii_isspace((*str)[(*len)-1])) {
     (*len)--;
@@ -127,7 +127,7 @@ bool StripTrailingNewline(string* s) {
   return false;
 }
 
-void StripWhiteSpace(string* str) {
+void StripWhitespace(string* str) {
   int str_length = str->length();
 
   // Strip off leading whitespace.
@@ -341,8 +341,8 @@ void RemoveExtraWhitespace(string* s) {
 //------------------------------------------------------------------------
 // See comment in header file for a complete description.
 //------------------------------------------------------------------------
-void StripLeadingWhiteSpace(string* str) {
-  char const* const leading = StripLeadingWhiteSpace(
+void StripLeadingWhitespace(string* str) {
+  char const* const leading = StripLeadingWhitespace(
       const_cast<char*>(str->c_str()));
   if (leading != NULL) {
     string const tmp(leading);
@@ -403,4 +403,4 @@ void RemoveNullsInString(string* s) {
   s->erase(remove(s->begin(), s->end(), '\0'), s->end());
 }
 
-} // namespace googleapis
+}  // namespace googleapis

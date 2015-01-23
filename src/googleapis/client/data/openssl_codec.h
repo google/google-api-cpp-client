@@ -24,7 +24,6 @@
 #include <string>
 using std::string;
 #include "googleapis/client/data/codec.h"
-#include <glog/logging.h>
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
 #include <openssl/ossl_typ.h>
@@ -199,5 +198,5 @@ class OpenSslCodecFactory : public CodecFactory {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_DATA_OPENSSL_CODEC_H_

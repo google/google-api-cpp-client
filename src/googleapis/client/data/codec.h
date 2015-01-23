@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 /*
  * @defgroup DataLayerCodec Data Layer - Data Encoder/Decoders
  *
@@ -30,11 +29,11 @@
 #ifndef APISERVING_CLIENTS_CPP_DATA_CODEC_H_
 #define APISERVING_CLIENTS_CPP_DATA_CODEC_H_
 
+#include <memory>
 #include <string>
 using std::string;
 
 #include "googleapis/client/data/data_reader.h"
-#include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
@@ -289,8 +288,8 @@ class CodecReader : public DataReader {
   struct Buffer;
   DataReader* source_;
   int64 chunk_size_;
-  scoped_ptr<char[]> chunk_;
-  scoped_ptr<Buffer> buffer_;  // Waiting to read
+  std::unique_ptr<char[]> chunk_;
+  std::unique_ptr<Buffer> buffer_;  // Waiting to read
   bool encoding_;
   bool read_final_;
 
@@ -303,5 +302,5 @@ class CodecReader : public DataReader {
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_DATA_CODEC_H_

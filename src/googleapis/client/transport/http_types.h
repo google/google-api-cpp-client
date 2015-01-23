@@ -147,7 +147,7 @@ class HttpRequestOptions {
   /*
    * Get specified max permissable retries.
    */
-  int max_reries() const            { return max_retries_; }
+  int max_retries() const            { return max_retries_; }
 
   /*
    * Get specified maximum permissable redirects.
@@ -398,6 +398,24 @@ class HttpRequestState {
     return callback_ != NULL;
   }
 
+  // This is only here for use by HttpRequest::SwapToRequestThenDestroy
+  HttpRequestCallback* callback() const LOCKS_EXCLUDED(mutex_) {
+    MutexLock l(&mutex_);
+    return callback_;
+  }
+
+  /*
+   * Replaces callback to be called when request finishes executing.
+   *
+   * This method is only exposed for internal usage when composing objects
+   * using HttpRequests. Application code should use the Async APIs on the
+   * higher level objects, such as HttpRequest::ExecuteAsync.
+   *
+   * @param[in] request The request owning the state instance
+   * @param[in] callabck The callback to invoke when done will eventually be
+   *                     called exactly once. The caller retains ownership but
+   *                     can use a single-use self-destructing callback.
+   */
   void set_notify_callback(
       HttpRequest* request, HttpRequestCallback* callback)
       LOCKS_EXCLUDED(mutex_);
@@ -458,6 +476,7 @@ class HttpStatusCode {
     NOT_ALLOWED = 405,
     NOT_ACCEPTABLE = 406,
     REQUEST_TIMEOUT = 408,
+    CONFLICT = 409,
     SERVER_ERROR = 500,
     SERVICE_UNAVAILABLE = 503,
   };
@@ -501,7 +520,19 @@ class HttpStatusCode {
   ~HttpStatusCode();   //!< Not instantiatable.
 };
 
+/*
+ * Denotes an end of line within an HTTP message.
+ *
+ * This is a \r\n sequence.
+ */
+extern const StringPiece kCRLF;
+
+/*
+ * Denotes an end of line followed by a blank line within an HTTP message.
+ */
+extern const StringPiece kCRLFCRLF;
+
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TYPES_H_

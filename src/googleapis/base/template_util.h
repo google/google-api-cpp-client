@@ -149,5 +149,5 @@ struct or_ : public integral_constant<bool, (A::value || B::value)> {
 
 }  // namespace base
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // BASE_TEMPLATE_UTIL_H_

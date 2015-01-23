@@ -17,7 +17,7 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
+#include <memory>
 #include <string>
 using std::string;
 #include <utility>
@@ -33,7 +33,6 @@ using std::pair;
 #include "googleapis/client/util/uri_template.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 #include <gtest/gtest.h>
@@ -115,12 +114,6 @@ class TestServiceRequest : public ClientServiceRequest {
   util::Status ExecuteAndParseResponse(SerializableJson* data) {
     // Expose protected method.
     return ClientServiceRequest::ExecuteAndParseResponse(data);
-  }
-
-  static util::Status ParseResponse(
-      HttpResponse* response, SerializableJson* data) {
-    // Expose protected method.
-    return ClientServiceRequest::ParseResponse(response, data);
   }
 
   void set_use_media_download(bool use) {
@@ -215,6 +208,49 @@ TEST_F(ClientServiceTestFixture, TestPrepare) {
       request.DetermineFinalUrl());
 }
 
+TEST_F(ClientServiceTestFixture, TestConvertToHttpRequest) {
+  EXPECT_EQ(kServiceRootUri, service_.url_root());
+  EXPECT_EQ(kServicePath, service_.url_path());
+
+  string uri = StrCat(kServiceRootUri, kServicePath, "{var}/method{?list*}");
+
+  SetupMockedRequest(false, "");
+
+  ClientServiceRequest* request =
+      new TestServiceRequest(&service_, NULL, HttpRequest::GET, uri);
+  std::unique_ptr<HttpRequest> http_request(
+      request->ConvertToHttpRequestAndDestroy());
+  EXPECT_TRUE(http_request->response()->transport_status().ok());
+
+  EXPECT_EQ(
+      StrCat(kServiceRootUri, kServicePath,
+             "value/method?list=red&list=green&list=blue&optional"),
+      http_request->url());
+}
+
+TEST_F(ClientServiceTestFixture, TestConvertToUnresolvedHttpRequest) {
+  EXPECT_EQ(kServiceRootUri, service_.url_root());
+  EXPECT_EQ(kServicePath, service_.url_path());
+
+  // Use an unresolvable variable (unknown)
+  string uri = StrCat(kServiceRootUri,
+                      kServicePath, "{unknown}/method{?list*}");
+
+  SetupMockedRequest(false, "");
+  ClientServiceRequest* request =
+      new TestServiceRequest(&service_, NULL, HttpRequest::GET, uri);
+
+  std::unique_ptr<HttpRequest> http_request(
+      request->ConvertToHttpRequestAndDestroy());
+  EXPECT_FALSE(http_request->response()->transport_status().ok());
+
+  // We only partially resolved the url.
+  EXPECT_EQ(
+      StrCat(kServiceRootUri, kServicePath,
+             "{unknown}/method?list=red&list=green&list=blue&optional"),
+      http_request->url());
+}
+
 TEST_F(ClientServiceTestFixture, TestPrepareWithMediaDownload) {
   const string method_url = StrCat(service_.service_url(), "/method");
 
@@ -284,4 +320,22 @@ TEST_F(ClientServiceTestFixture, TestParseResponse) {
   EXPECT_TRUE(request->ExecuteAndParseResponse(&data).ok());
 }
 
-} // namespace googleapis
+static void IncCalled(int* call_count, HttpRequest* request) {
+  ++*call_count;
+}
+
+TEST_F(ClientServiceTestFixture, TestAsyncPrepareFailure) {
+  string method_url = StrCat(service_.service_url(), "/{invalid");
+  SetupMockedRequest(false, "");
+  TestServiceRequest* request(
+      new TestServiceRequest(&service_, NULL, HttpRequest::GET, method_url));
+
+  int call_count = 0;
+  client::HttpRequestCallback* callback =
+      NewCallback(&IncCalled, &call_count);
+  request->ExecuteAsync(callback);
+  EXPECT_EQ(1, call_count);
+  delete request;
+}
+
+}  // namespace googleapis

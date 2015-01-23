@@ -17,15 +17,10 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
+
 
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <errno.h>
-#ifndef _MSC_VER
-#include <unistd.h>
-#endif
 
 #include <algorithm>
 using std::copy;
@@ -33,13 +28,20 @@ using std::max;
 using std::min;
 using std::reverse;
 using std::swap;
+#include <memory>
+#include <sys/types.h>
+#include <errno.h>
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
+
 
 #include "googleapis/client/util/file_utils.h"
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
+#include "googleapis/util/canonical_errors.h"
 #include "googleapis/util/status.h"
 
 namespace googleapis {
@@ -52,7 +54,7 @@ using client::StatusOk;
 util::Status CheckPermissions(
      const string& path, bool expect_file, bool allow_writable) {
   const mode_t kPermissionMask = S_IRWXU | S_IRWXG | S_IRWXO;
-struct stat info;
+  struct stat info;
   if (stat(path.c_str(), &info) < 0) {
     return StatusInvalidArgument(StrCat("Could not read from path=", path));
   }
@@ -110,7 +112,7 @@ util::Status SensitiveFileUtils::VerifyIsSecureDirectory(
 
 util::Status SensitiveFileUtils::WriteSensitiveStringToFile(
      const StringPiece& data, const string& path, bool overwrite) {
-  if (File::Exists(path)) {
+  if (googleapis::File::Exists(path)) {
     if (!overwrite) {
       return StatusInvalidArgument(StrCat(path, " already exists"));
     }
@@ -122,7 +124,7 @@ util::Status SensitiveFileUtils::WriteSensitiveStringToFile(
   FileOpenOptions options;
   options.set_permissions(S_IRUSR | S_IWUSR);
 
-  File* file = File::OpenWithOptions(path.c_str(), "w", options);
+  File* file = File::OpenWithOptions(path, "w", options);
   if (!file) {
     return StatusUnknown(StrCat("Could not write to ", path));
   }
@@ -135,16 +137,14 @@ util::Status SensitiveFileUtils::WriteSensitiveStringToFile(
 
 util::Status SensitiveFileUtils::CreateSecureDirectoryRecursively(
      const string& path) {
-  if (File::Exists(path)) {
+  if (googleapis::File::Exists(path)) {
     return VerifyIsSecureDirectory(path);
   }
-return File::RecursivelyCreateDirWithPermissions(
+  return File::RecursivelyCreateDirWithPermissions(
       path, S_IRUSR | S_IWUSR | S_IXUSR);
 }
 
 util::Status SensitiveFileUtils::DeleteSensitiveFile(const string& path) {
-  if (!File::Exists(path)) return StatusOk();
-
   struct stat info;
   if (stat(path.c_str(), &info) < 0) {
     if (errno == ENOENT) return StatusOk();
@@ -154,19 +154,19 @@ util::Status SensitiveFileUtils::DeleteSensitiveFile(const string& path) {
   if (remaining > 0) {
     FileOpenOptions options;
     options.set_permissions(S_IRUSR | S_IWUSR);
-    File* file = File::OpenWithOptions(path.c_str(), "r+", options);
+    File* file = File::OpenWithOptions(path, "r+", options);
     if (!file) {
       return StatusUnknown(StrCat("Could not write to ", path));
     }
 
     const int64 kMaxWriteChunk = 1 << 13;  // 8K;
     int64 buffer_length = min(remaining, kMaxWriteChunk);
-    scoped_ptr<char[]> buffer(new char[buffer_length]);
+    std::unique_ptr<char[]> buffer(new char[buffer_length]);
     memset(buffer.get(), 0xff, buffer_length);
 
     for (int64 wrote = 0; remaining > 0; remaining -= wrote) {
       int64 this_write = min(remaining, buffer_length);
-util::Status status = file->Write(buffer.get(), this_write);
+      util::Status status = file->Write(buffer.get(), this_write);
       if (!status.ok()) {
         LOG(ERROR) << "Error overwriting secure path=" << path
                    << ": " << status.error_message();
@@ -191,4 +191,4 @@ util::Status status = file->Write(buffer.get(), this_write);
 
 }  // namespace client
 
-} // namespace googleapis
+}  // namespace googleapis
