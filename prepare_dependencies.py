@@ -55,6 +55,7 @@ COMPILED_MARKER = '_built'
 INSTALLED_MARKER = '_installed'
 CONFIGURED_MARKER = '_configured'
 
+CYGWIN_PLATFORM = 'cygwin'
 WINDOWS_PLATFORM = 'windows'
 OSX_PLATFORM = 'osx'
 LINUX_PLATFORM = 'Linux'
@@ -90,6 +91,8 @@ class ConfigInfo(object):
     if os.name == 'nt':
       self._port_name = WINDOWS_PLATFORM
       self._compiler = VS_COMPILER
+    elif platform.system().startswith('CYGWIN'):
+      self._port_name = CYGWIN_PLATFORM
     elif platform.system() == 'Darwin':
       self._port_name = OSX_PLATFORM
     elif platform.system() == 'Linux':
@@ -123,7 +126,7 @@ class ConfigInfo(object):
       elif opt == '--download_dir':
         self._download_dir = arg
       elif opt == '--install_dir':
-        if arg.starts_with('/'):
+        if arg.startswith('/'):
           self._abs_install_dir = '%s' % arg
         else:
           self._abs_install_dir = os.path.join('%s' % os.getcwd(), arg)
@@ -192,9 +195,12 @@ class ConfigInfo(object):
   @property
   def cmake_command(self):
     """A tuple of (cmake_program_path, cmake_argument_list) for using CMake."""
-    if os.name == 'nt':
+    if self._port_name == WINDOWS_PLATFORM:
       program = 'cmake'
       args = '-G "NMake Makefiles"'
+    elif self._port_name == CYGWIN_PLATFORM:
+      program = 'cmake'
+      args = '-G "Unix Makefiles"'
     else:
       program = os.path.join(self._abs_install_dir, 'bin', 'cmake')
       args = ''
@@ -363,9 +369,16 @@ class PackageInstaller(object):
         print 'Failed to unpack %s' % archive_filename
         sys.exit(-1)
     else:
-      tar = tarfile.open(archive_filename)
-      tar.extractall()
-      tar.close()
+      try:
+        tar = tarfile.open(archive_filename)
+        tar.extractall()
+        tar.close()
+      except IOError:
+        try:
+          subprocess.call('tar -xf %s' % archive_filename, shell=True)
+        except OSError:
+          print 'Failed to unpack %s' % archive_filename
+          sys.exit(-1)
 
     self.MaybeTweakAfterUnpackage()
     print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
@@ -811,7 +824,7 @@ class OpenSslPackageInstaller(PackageInstaller):
       self._extra_configure_flags = 'gcc'
 
   def Configure(self):
-    # TODO(ewiseblatt): 20130626
+    # TODO(user): 20130626
     # These artifacts are probably not even needed. Investigate for a
     # future release.
     print 'NOTE for Google APIs Client Library for C++ Installer:'
@@ -891,6 +904,19 @@ class GMockPackageInstaller(PackageInstaller):
         with open(cmake_utils_path, 'w') as f:
           f.write(text)
 
+    gtest_port_h = os.path.join(
+        self._package_path, 'gtest', 'include',
+        'gtest', 'internal', 'gtest-port.h')
+    with open(gtest_port_h, 'r') as f:
+      text = f.read()
+    text = text.replace(
+        '# define GTEST_HAS_PTHREAD ('
+        'GTEST_OS_LINUX || GTEST_OS_MAC || GTEST_OS_HPUX)',
+        '# define GTEST_HAS_PTHREAD ('
+        'GTEST_OS_LINUX || GTEST_OS_MAC || GTEST_OS_HPUX || GTEST_OS_CYGWIN)')
+    with open(gtest_port_h, 'w') as f:
+      f.write(text)
+
   def Configure(self):
     return
 
@@ -929,8 +955,27 @@ class GLogPackageInstaller(PackageInstaller):
   def MaybeTweakAfterUnpackage(self):
     """Tweaks a header file declaration under windows so it compiles."""
     super(GLogPackageInstaller, self).MaybeTweakAfterUnpackage()
-    if self._config.compiler != VS_COMPILER:
-      return
+
+    remove_cygwin_paths = [
+        os.path.join(self._package_path, 'src', 'googletest.h'),
+        os.path.join(self._package_path, 'src', 'utilities.cc')
+    ]
+    for change_path in remove_cygwin_paths:
+      changed = False
+      with open(change_path, 'r') as f:
+        old_text = f.read()
+        # The source couple windows and cygwin together for some reason,
+        # but that doesnt compile. CYGWIN appears to work if you take these
+        # out (it will use pthreads instead of the windows API).
+        text = old_text.replace('defined(OS_WINDOWS) || defined(OS_CYGWIN)',
+                                'defined(OS_WINDOWS)')
+        text = text.replace('defined OS_WINDOWS || defined OS_CYGWIN',
+                            'defined(OS_WINDOWS)')
+        changed = old_text != text
+      if changed:
+        with open(change_path, 'w') as f:
+          f.write(text)
+        print 'Hacked %s' % change_path
 
     logging_h_path = os.path.join(
         self._package_path, 'src', 'windows', 'glog', 'logging.h')
@@ -998,7 +1043,7 @@ class Installer(object):
     self._restricted_packages = restricted_package_names
 
     self._url_map = {}
-    if config.port == WINDOWS_PLATFORM:
+    if config.port == WINDOWS_PLATFORM or config.port == CYGWIN_PLATFORM:
       self._url_map.update({
           # Use CMake as our build system for the libraries and some deps
           'cmake': (CMakeExeInstaller(
@@ -1049,10 +1094,16 @@ class Installer(object):
             'http://downloads.sourceforge.net/project/jsoncpp'
             '/jsoncpp/0.5.0/jsoncpp-src-0.5.0.tar.gz')),
 
-        # Mongoose is used as webserver for samples
+        # Mongoose is used as webserver for samples.
+        # Note that valenok no longer maintains mongoose, it has moved to
+        # https://github.com/cesanta/mongoose
+        # who maintains it under a GPLv2 license.  The date of tarball
+        # download was 6/6/2013, in case ownership changes again and we need
+        # a new tarball URL.
         'mongoose': (MongoosePackageInstaller(
             config,
-            'https://mongoose.googlecode.com/files/mongoose-3.7.tgz')),
+            'https://github.com/cesanta/mongoose/tarball'
+            '/a0e54945695118340545f676c95713ce8aec655f')),
 
         'curl': (CurlPackageInstaller(
             config, 'http://curl.haxx.se/download/curl-7.30.0.tar.gz')),
@@ -1061,7 +1112,7 @@ class Installer(object):
     # make sure cmake occurs first since others may depend on it
     if not self._restricted_packages:
       self._restricted_packages = self._url_map.keys()
-      ordered_packages = ['cmake', 'openssl']
+      ordered_packages = ['cmake', 'openssl', 'glog']
       for p in ordered_packages:
         self._restricted_packages.remove(p)
       self._restricted_packages = ordered_packages + self._restricted_packages

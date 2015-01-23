@@ -27,10 +27,11 @@ the source code given only:
 
   Bootstrap Steps:
     ./prepare_dependencies.py
-    ./external_dependencies/install/bin/cmake .
+    mkdir build && cd build
+    ../external_dependencies/install/bin/cmake ..
     make all
     make test
-    make export
+    make install
 
 To download additional APIs specialized for individual Google Services see:
 http://google.github.io/google-api-cpp-client/latest/available_service_apis.html
@@ -41,12 +42,30 @@ support simplicity we download and build all the dependencies in the
 prepare_dependencies.py script for the time being as a one-time brute
 force preparation.
 
-If you have problems, questions, suggestions, or accoldtes, contact:
+If you have problems, questions or suggestions, contact:
   The Google group at https://groups.google.com/group/google-api-cpp-client
 
 Or you may also ask questions on StackOverflow at:
    http://stackoverflow.com with the tag google-api-cpp-client
 
+About the branches
 
+  The master branch is were development is done and usually matches the
+  generated libraries available from from google.developers.com. For breaking
+  changes in this SDK (when it gets ahead of the library generator), we will
+  first make a tag matching the compatible version of the library generator.
 
+  For example, the current generated surface is at version '0.1.2'. If the
+  master branch gets incompatibly ahead of the generator, we will first leave
+  a '0.1.2' tag here to retrieve the compatible version.
 
+  We use tags rather than branches because the library generator should soon
+  catch up. All fixes will be done in the master branch, so a tag is
+  sufficient.
+
+  The latest generated libraries for any Google API is available automatically
+  from
+  https://developers.google.com/resources/api-libraries/download/<API>/<VERSION>/cpp
+
+  For example, for Drive/v2, you would use
+  https://developers.google.com/resources/api-libraries/download/drive/v2/cpp

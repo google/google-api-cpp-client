@@ -1,17 +1,21 @@
 cmake_minimum_required (VERSION 2.6)
 project (GoogleApis_C++)
 
+if(EXISTS "./local.cmake")
+include("local.cmake")
+endif()
+
 set(googleapis_VERSION_MAJOR 0)
-set(googleapis_VERSION_MINOR 1)
+set(googleapis_VERSION_MINOR 2)
 set(googleapis_VERSION_PATCH 0)
-set(googleapis_VERSION_DECORATOR "")
+set(googleapis_VERSION_DECORATOR "devel")
 
 enable_testing()
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_INSTALL_PREFIX "export")
-set(GOOGLEAPIS_INSTALL_BASE_DIR ".")
+set(GOOGLEAPIS_INSTALL_BASE_DIR ${CMAKE_BINARY_DIR})
 set(GOOGLEAPIS_INSTALL_LIB_DIR ${GOOGLEAPIS_INSTALL_BASE_DIR}/lib)
 set(GOOGLEAPIS_INSTALL_INCLUDE_DIR
     ${GOOGLEAPIS_INSTALL_BASE_DIR}/include/googleapis)
@@ -25,7 +29,9 @@ option(googleapis_build_tests "Build all of googleapis' own tests." ON)
 option(googleapis_build_samples "Build googleapis sample programs." ON)
 option(googleapis_build_service_apis "Build specialized service APIs." ON)
 
-set(GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR ${CMAKE_BINARY_DIR}/external_dependencies/install CACHE STRING "Root directory where external dependencies are located")
+set(GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/external_dependencies/install CACHE STRING "Root directory where external dependencies are located")
+
+FIND_PACKAGE(Threads)
 
 if (MSVC)
   option(gtest_force_shared_crt "Force Gmock to use standard compiler flags" ON)
@@ -43,9 +49,20 @@ else()
   set(CURL_LIBRARY curl)
 endif()
 
+# This may not work on windows.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+if (CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
+endif()
+
 include_directories(
-	"${GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR}/include"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src")
+    "${GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    ${GLOG_INCLUDES}
+    ${CURL_INCLUDES}
+    ${GTEST_INCLUDES}
+    ${OTHER_INCLUDES}
+    )
 
 link_directories("${GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR}/lib"
                  "${GOOGLEAPIS_INSTALL_LIB_DIR}")
@@ -54,7 +71,8 @@ set(CMAKE_REQUIRED_INCLUDES "${GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR}/include")
 include("introspect.cmake")
 configure_file(
   "${PROJECT_SOURCE_DIR}/src/googleapis/config.h.in"
-  "${PROJECT_SOURCE_DIR}/src/googleapis/config.h")
+  "${CMAKE_BINARY_DIR}/src/googleapis/config.h")
+include_directories("${CMAKE_BINARY_DIR}/src")
 
 
 # This environment is set up such that bundles can be downloaded as
@@ -66,7 +84,7 @@ configure_file(
 #
 # For a list of available APIs, see:
 # http://google.github.io/google-api-cpp-client/latest/available_service_apis.html
-set(GOOGLEAPIS_SERVICE_REPOSITORY_DIR ${CMAKE_BINARY_DIR}/service_apis)
+set(GOOGLEAPIS_SERVICE_REPOSITORY_DIR ${CMAKE_SOURCE_DIR}/service_apis)
 
 add_subdirectory(src)
 
