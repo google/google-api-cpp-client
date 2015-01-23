@@ -289,13 +289,13 @@ class DriveCommandProcessor : public sample::CommandProcessor {
         cout << "*** HIDDEN ***  ";  // continue ID on this line
       }
       cout << "ID: " << file.get_id() << endl;
-      cout << "  Size: " << file.get_fileSize() << endl;
-      cout << "  MimeType: " << file.get_mimeType() << endl;
-      cout << "  Created: " << file.get_createdDate().ToString() << endl;
+      cout << "  Size: " << file.get_file_size() << endl;
+      cout << "  MimeType: " << file.get_mime_type() << endl;
+      cout << "  Created: " << file.get_created_date().ToString() << endl;
       cout << "  Description: " << file.get_description() << endl;
-      cout << "  Download Url: " << file.get_downloadUrl() << endl;
-      cout << "  Original Name: " << file.get_originalFilename() << endl;
-      cout << "  Modified By: " << file.get_lastModifyingUserName() << endl;
+      cout << "  Download Url: " << file.get_download_url() << endl;
+      cout << "  Original Name: " << file.get_original_filename() << endl;
+      cout << "  Modified By: " << file.get_last_modifying_user_name() << endl;
       sep = "\n";
     }
   }
@@ -307,7 +307,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     // a pager so that we can play with it. Reset the old one (if any).
     // The 'next' command will advance the pager.
     list_pager_.reset(rsrc.NewListMethodPager(app_->credential()));
-    list_pager_->request()->set_maxResults(FLAGS_max_results);
+    list_pager_->request()->set_max_results(FLAGS_max_results);
 
     cout << "Getting (partial) file list..." << endl;
     bool ok = list_pager_->NextPage();
@@ -354,7 +354,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     scoped_ptr<google_drive_api::File> file(google_drive_api::File::New());
     file->set_title(StrCat("Uploaded from ", File::Basename(path)));
     file->set_editable(true);
-    file->set_originalFilename(File::Basename(path));
+    file->set_original_filename(File::Basename(path));
 
     const DriveService::FilesResource& rsrc = app_->service()->get_files();
     scoped_ptr<FilesResource_InsertMethod> insert(
@@ -456,16 +456,16 @@ class DriveCommandProcessor : public sample::CommandProcessor {
            ++it) {
         const google_drive_api::Revision& revision = *it;
         cout << "ID: " << revision.get_id() << endl;
-        cout << "  FileSize: " << revision.get_fileSize() << endl;
-        cout << "  Modified on " << revision.get_modifiedDate().ToString()
-             << " by " << revision.get_lastModifyingUserName() << endl;
+        cout << "  FileSize: " << revision.get_file_size() << endl;
+        cout << "  Modified on " << revision.get_modified_date().ToString()
+             << " by " << revision.get_last_modifying_user_name() << endl;
         if (revision.get_published()) {
-          cout << "  Published URL: " << revision.get_publishedLink() << endl;
+          cout << "  Published URL: " << revision.get_published_link() << endl;
         }
 
         cout << "  Export Links:" << endl;
         const JsonCppAssociativeArray<string>& export_links =
-            revision.get_exportLinks();
+            revision.get_export_links();
         for (JsonCppAssociativeArray<string>::const_iterator it =
                  export_links.begin();
              it != export_links.end();

@@ -211,6 +211,8 @@ class DateTime {
   explicit DateTime(const struct tm& local);
 };
 
+typedef DateTime Date;
+
 }  // namespace client
 
 } // namespace googleapis

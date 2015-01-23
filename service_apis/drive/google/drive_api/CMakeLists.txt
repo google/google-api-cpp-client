@@ -27,6 +27,7 @@ add_library(google_drive_api STATIC
             parent_list.cc
             parent_reference.cc
             permission.cc
+            permission_id.cc
             permission_list.cc
             property.cc
             property_list.cc

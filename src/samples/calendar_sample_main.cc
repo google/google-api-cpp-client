@@ -176,13 +176,13 @@ void Display(const string& prefix, const Event& event) {
   if (event.has_summary()) {
     cout << prefix << "  Summary: " << event.get_summary() << endl;
   }
-  if (event.get_start().has_dateTime()) {
+  if (event.get_start().has_date_time()) {
     cout << prefix << "  Start Time: "
-         << event.get_start().get_dateTime().ToString() << endl;
+         << event.get_start().get_date_time().ToString() << endl;
   }
-  if (event.get_end().has_dateTime()) {
+  if (event.get_end().has_date_time()) {
     cout << prefix << "  End Time: "
-         << event.get_end().get_dateTime().ToString() << endl;
+         << event.get_end().get_date_time().ToString() << endl;
   }
 }
 
@@ -370,7 +370,7 @@ util::Status CalendarSample::Authorize() {
 
 void CalendarSample::ShowCalendars() {
   scoped_ptr<CalendarListResource_ListMethod> method(
-      service_->get_calendarList().NewListMethod(&credential_));
+      service_->get_calendar_list().NewListMethod(&credential_));
 
   scoped_ptr<CalendarList> calendar_list(CalendarList::New());
   if (!method->ExecuteAndParseResponse(calendar_list.get()).ok()) {
@@ -422,7 +422,7 @@ void CalendarSample::PageThroughAllEvents(
   cout << "All Events" << endl;
   scoped_ptr<EventsResource_ListMethodPager> pager(
       service_->get_events().NewListMethodPager(&credential_, calendar_id));
-  pager->request()->set_maxResults(num_per_page);
+  pager->request()->set_max_results(num_per_page);
   while (pager->NextPage()) {
     DisplayList<Events, Event>("  ", "EventList", *pager->data());
   }
@@ -519,8 +519,8 @@ void CalendarSample::Run() {
   DateTime now;
   scoped_ptr<Event> event(Event::New());
   event->set_summary("Calendar event added by CalendarSample");
-  event->mutable_start().set_dateTime(now);
-  event->mutable_end().set_dateTime(DateTime(now.ToEpochTime() + 60 * 60));
+  event->mutable_start().set_date_time(now);
+  event->mutable_end().set_date_time(DateTime(now.ToEpochTime() + 60 * 60));
 
   cout << endl << kSampleStepPrefix << "Add Calendar Event" << endl;
   AddEvent(calendar_id, event.get());
@@ -534,9 +534,9 @@ void CalendarSample::Run() {
   cout << endl << kSampleStepPrefix << "Update Calendar Event" << endl;
   // An update requires a time.
   // Go back a year and one day to distinguish it from the old value.
-  event->mutable_start().set_dateTime(
+  event->mutable_start().set_date_time(
       DateTime(now.ToEpochTime() - 60 * 60 * 24 * 367));
-  event->mutable_end().set_dateTime(
+  event->mutable_end().set_date_time(
       DateTime(now.ToEpochTime() - 60 * 60 * 24 * 366));
   event->clear_summary();
   UpdateEvent(calendar_id, *event);
@@ -547,9 +547,9 @@ void CalendarSample::Run() {
 
     // Space the events at hour intervals with 15 minute durations.
     the_event->set_summary(StrCat("Extra event ", i));
-    the_event->mutable_start().set_dateTime(
+    the_event->mutable_start().set_date_time(
         DateTime(now.ToEpochTime() + i * 60 * 60));
-    the_event->mutable_end().set_dateTime(
+    the_event->mutable_end().set_date_time(
         DateTime(now.ToEpochTime() + i * 60 * 60 + 15 * 60));
 
     scoped_ptr<EventsResource_InsertMethod> method(

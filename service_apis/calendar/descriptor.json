@@ -13,21 +13,23 @@
   "documentationLink": "https://developers.google.com/google-apps/calendar/firstapp", 
   "id": "calendar:v3", 
   "name": "calendar", 
+  "packagePath": null, 
+  "canonicalName": null, 
   "files": [
     {
-      "downloadUrl": "/downloads/calendar/v3/55/cpp/0.1/google-calendar-v3-rev55-cpp-0.1-doc.zip", 
-      "path": "google-calendar-v3-rev55-cpp-0.1-doc.zip", 
+      "downloadUrl": "/downloads/calendar/v3/111/cpp/0.1.2/google-calendar-v3-rev111-cpp-0.1.2-doc.zip", 
+      "path": "google-calendar-v3-rev111-cpp-0.1.2-doc.zip", 
       "type": "documentation", 
-      "timestamp": "2013-08-13 01:30"
+      "timestamp": "2014-12-19 09:56"
     }, 
     {
-      "downloadUrl": "/downloads/calendar/v3/55/cpp/0.1/google-calendar-v3-rev55-cpp-0.1-src.zip", 
+      "downloadUrl": "/downloads/calendar/v3/111/cpp/0.1.2/google-calendar-v3-rev111-cpp-0.1.2-src.zip", 
       "path": "", 
       "type": "source", 
-      "timestamp": "2013-08-13 01:30"
+      "timestamp": "2014-12-19 09:55"
     }
   ], 
-  "revision": 55, 
+  "revision": 111, 
   "language": "cpp", 
-  "language_version": "0.1"
+  "language_version": "0.1.2"
 }
