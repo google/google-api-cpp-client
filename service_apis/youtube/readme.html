@@ -1,0 +1,43 @@
+<html>
+<head>
+  <title>YouTube Data API v3 Client Library for C++</title>
+</head>
+<body>
+  <h2>YouTube Data API v3 Client Library for C++</h2>
+
+<p>
+  If you are using a default build environment as documented in the
+  <a href='http://google.github.io/google-api-cpp-client/latest/start/installation'>Google APIs Client Library for C++ Installation Guide</a> then:
+  <ol>
+    <li> Move this directory to the <code>service_apis</code> directory in
+      the build root.
+    <li> Run <code>make</code> from the root directory
+  </ol>
+</p>
+<p>
+  To use the specialized service library, consumers may either:
+  <ol>
+    <li> Add this directory to your <code>INCLUDE</code> path.
+      <ul>
+        <li> In your <code>CMakeLists.txt</code> file, add the following:<br/>
+          <code>INCLUDE_DIRECTORIES(${GOOGLEAPIS_SERVICE_REPOSITORY_DIR}/{{ api.module.name })</code>
+        <li> Add the following <code>target_link_libraries</code> for your
+          build target <var>my_build_target</var>:<br/>
+          <code>target_link_libraries(<var>my_build_target</var> </code>
+      </ul>
+    <li> Either include the single monolithic header file<br>
+         <code>#include "/.h"</code>
+    <li> Or include only the individual header files explicitly needed.
+  </ul>
+<p>
+
+The provided <code>CMakeLists.txt</code> file is a CMake file compatible with
+those in the Google APIs Client Library for C++ SDK.
+<p/>
+
+<p>
+See <a href='http://google.github.io/google-api-cpp-client/latest/start/get_started'>Getting Started with the Google APIs Client Library for C++</a> for more
+information on how to use these service API libraries.
+</p>
+</body>
+</html>
