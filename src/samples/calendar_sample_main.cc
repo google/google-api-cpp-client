@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 //
 // This is a sample application illustrating the use of the GoogleApis C++
 // Client. The application makes calls into the Google Calendar service.
@@ -56,6 +55,7 @@
 using std::cout;
 using std::endl;
 using std::ostream;  // NOLINT
+#include <memory>
 #include "googleapis/client/auth/file_credential_store.h"
 #include "googleapis/client/auth/oauth2_authorization.h"
 #include "googleapis/client/data/data_reader.h"
@@ -65,8 +65,8 @@ using std::ostream;  // NOLINT
 #include "googleapis/client/transport/curl_http_transport.h"
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/client/transport/http_transport.h"
+#include "googleapis/client/transport/http_request_batch.h"
 #include "googleapis/client/util/status.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/strcat.h"
 
 #include "google/calendar_api/calendar_api.h"  // NOLINT
@@ -97,6 +97,7 @@ using google_calendar_api::EventsResource_UpdateMethod;
 using client::ClientServiceRequest;
 using client::DateTime;
 using client::FileCredentialStoreFactory;
+using client::HttpRequestBatch;
 using client::HttpResponse;
 using client::HttpTransport;
 using client::HttpTransportLayerConfig;
@@ -176,13 +177,13 @@ void Display(const string& prefix, const Event& event) {
   if (event.has_summary()) {
     cout << prefix << "  Summary: " << event.get_summary() << endl;
   }
-  if (event.get_start().has_dateTime()) {
+  if (event.get_start().has_date_time()) {
     cout << prefix << "  Start Time: "
-         << event.get_start().get_dateTime().ToString() << endl;
+         << event.get_start().get_date_time().ToString() << endl;
   }
-  if (event.get_end().has_dateTime()) {
+  if (event.get_end().has_date_time()) {
     cout << prefix << "  End Time: "
-         << event.get_end().get_dateTime().ToString() << endl;
+         << event.get_end().get_date_time().ToString() << endl;
   }
 }
 
@@ -261,15 +262,15 @@ class CalendarSample {
   void UpdateEvent(const string& calendar_id, const Event& event);
 
   OAuth2Credential credential_;
-  static scoped_ptr<CalendarService> service_;
-  static scoped_ptr<OAuth2AuthorizationFlow> flow_;
-  static scoped_ptr<HttpTransportLayerConfig> config_;
+  static std::unique_ptr<CalendarService> service_;
+  static std::unique_ptr<OAuth2AuthorizationFlow> flow_;
+  static std::unique_ptr<HttpTransportLayerConfig> config_;
 };
 
 // static
-scoped_ptr<CalendarService> CalendarSample::service_;
-scoped_ptr<OAuth2AuthorizationFlow> CalendarSample::flow_;
-scoped_ptr<HttpTransportLayerConfig> CalendarSample::config_;
+std::unique_ptr<CalendarService> CalendarSample::service_;
+std::unique_ptr<OAuth2AuthorizationFlow> CalendarSample::flow_;
+std::unique_ptr<HttpTransportLayerConfig> CalendarSample::config_;
 
 
 /* static */
@@ -341,21 +342,21 @@ util::Status CalendarSample::Authorize() {
     << "Welcome to the Google APIs for C++ CalendarSample.\n"
     << "  You will need to authorize this program to look at your calendar.\n"
     << "  If you would like to save these credentials between runs\n"
-    << "  (or restore from an earlier run) then enter a User ID.\n"
+    << "  (or restore from an earlier run) then enter a Google Email Address.\n"
     << "  Otherwise just press return.\n"
     << endl
-    << "  ID: ";
-  string id;
-  std::getline(cin, id);
-  if (!id.empty()) {
-    util::Status status = ValidateUserName(id);
+    << "  Address: ";
+  string email;
+  std::getline(cin, email);
+  if (!email.empty()) {
+    util::Status status = ValidateUserName(email);
     if (!status.ok()) {
       return status;
     }
   }
 
   OAuth2RequestOptions options;
-  options.user_id = id;
+  options.email = email;
   util::Status status =
         flow_->RefreshCredentialWithOptions(options, &credential_);
   if (!status.ok()) {
@@ -363,16 +364,16 @@ util::Status CalendarSample::Authorize() {
   }
 
   credential_.set_flow(flow_.get());
-  cout << "Authorized " << id << endl;
+  cout << "Authorized " << email << endl;
   return StatusOk();
 }
 
 
 void CalendarSample::ShowCalendars() {
-  scoped_ptr<CalendarListResource_ListMethod> method(
-      service_->get_calendarList().NewListMethod(&credential_));
+  std::unique_ptr<CalendarListResource_ListMethod> method(
+      service_->get_calendar_list().NewListMethod(&credential_));
 
-  scoped_ptr<CalendarList> calendar_list(CalendarList::New());
+  std::unique_ptr<CalendarList> calendar_list(CalendarList::New());
   if (!method->ExecuteAndParseResponse(calendar_list.get()).ok()) {
     DisplayError(method.get());
     return;
@@ -383,10 +384,10 @@ void CalendarSample::ShowCalendars() {
 }
 
 string CalendarSample::AddCalendar() {
-  scoped_ptr<Calendar> calendar(Calendar::New());
+  std::unique_ptr<Calendar> calendar(Calendar::New());
   calendar->set_summary("Calendar added by CalendarSample");
 
-  scoped_ptr<CalendarsResource_InsertMethod> method(
+  std::unique_ptr<CalendarsResource_InsertMethod> method(
       service_->get_calendars().NewInsertMethod(&credential_, *calendar));
 
   if (!method->ExecuteAndParseResponse(calendar.get()).ok()) {
@@ -403,7 +404,7 @@ string CalendarSample::AddCalendar() {
 }
 
 void CalendarSample::AddEvent(const string& calendar_id, Event* event) {
-  scoped_ptr<EventsResource_InsertMethod> method(
+  std::unique_ptr<EventsResource_InsertMethod> method(
       service_->get_events().NewInsertMethod(
           &credential_, calendar_id, *event));
 
@@ -420,9 +421,9 @@ void CalendarSample::AddEvent(const string& calendar_id, Event* event) {
 void CalendarSample::PageThroughAllEvents(
     const string& calendar_id, int num_per_page) {
   cout << "All Events" << endl;
-  scoped_ptr<EventsResource_ListMethodPager> pager(
+  std::unique_ptr<EventsResource_ListMethodPager> pager(
       service_->get_events().NewListMethodPager(&credential_, calendar_id));
-  pager->request()->set_maxResults(num_per_page);
+  pager->request()->set_max_results(num_per_page);
   while (pager->NextPage()) {
     DisplayList<Events, Event>("  ", "EventList", *pager->data());
   }
@@ -431,7 +432,7 @@ void CalendarSample::PageThroughAllEvents(
 
 util::Status CalendarSample::GetEvent(
     const string& calendar_id, const StringPiece& event_id, Event* event) {
-  scoped_ptr<EventsResource_GetMethod> method(
+  std::unique_ptr<EventsResource_GetMethod> method(
       service_->get_events().NewGetMethod(
           &credential_, calendar_id, event_id));
 
@@ -440,7 +441,7 @@ util::Status CalendarSample::GetEvent(
 
 void CalendarSample::PatchEvent(
     const string& calendar_id, const Event& event) {
-  scoped_ptr<EventsResource_PatchMethod> method(
+  std::unique_ptr<EventsResource_PatchMethod> method(
       service_->get_events().NewPatchMethod(
           &credential_, calendar_id, event.get_id(), event));
 
@@ -449,7 +450,7 @@ void CalendarSample::PatchEvent(
     return;
   }
 
-  scoped_ptr<Event> cloud_event(Event::New());
+  std::unique_ptr<Event> cloud_event(Event::New());
   util::Status status =
         GetEvent(calendar_id, event.get_id(), cloud_event.get());
   if (status.ok()) {
@@ -464,7 +465,7 @@ void CalendarSample::PatchEvent(
 
 void CalendarSample::UpdateEvent(
     const string& calendar_id, const Event& event) {
-  scoped_ptr<EventsResource_UpdateMethod> method(
+  std::unique_ptr<EventsResource_UpdateMethod> method(
       service_->get_events().NewUpdateMethod(
           &credential_, calendar_id, event.get_id(), event));
 
@@ -473,7 +474,7 @@ void CalendarSample::UpdateEvent(
     return;
   }
 
-  scoped_ptr<Event> cloud_event(Event::New());
+  std::unique_ptr<Event> cloud_event(Event::New());
   util::Status status =
         GetEvent(calendar_id, event.get_id(), cloud_event.get());
   if (status.ok()) {
@@ -487,7 +488,7 @@ void CalendarSample::UpdateEvent(
 }
 
 void CalendarSample::DeleteCalendar(const string& id) {
-  scoped_ptr<CalendarsResource_DeleteMethod> method(
+  std::unique_ptr<CalendarsResource_DeleteMethod> method(
       service_->get_calendars().NewDeleteMethod(&credential_, id));
 
   if (!method->Execute().ok()) {
@@ -517,10 +518,10 @@ void CalendarSample::Run() {
   ShowCalendars();
 
   DateTime now;
-  scoped_ptr<Event> event(Event::New());
+  std::unique_ptr<Event> event(Event::New());
   event->set_summary("Calendar event added by CalendarSample");
-  event->mutable_start().set_dateTime(now);
-  event->mutable_end().set_dateTime(DateTime(now.ToEpochTime() + 60 * 60));
+  event->mutable_start().set_date_time(now);
+  event->mutable_end().set_date_time(DateTime(now.ToEpochTime() + 60 * 60));
 
   cout << endl << kSampleStepPrefix << "Add Calendar Event" << endl;
   AddEvent(calendar_id, event.get());
@@ -534,33 +535,51 @@ void CalendarSample::Run() {
   cout << endl << kSampleStepPrefix << "Update Calendar Event" << endl;
   // An update requires a time.
   // Go back a year and one day to distinguish it from the old value.
-  event->mutable_start().set_dateTime(
+  event->mutable_start().set_date_time(
       DateTime(now.ToEpochTime() - 60 * 60 * 24 * 367));
-  event->mutable_end().set_dateTime(
+  event->mutable_end().set_date_time(
       DateTime(now.ToEpochTime() - 60 * 60 * 24 * 366));
   event->clear_summary();
   UpdateEvent(calendar_id, *event);
 
-  cout << endl << "Adding bulk events" << endl;
+  cout << endl << "Adding bulk events using a batch request" << endl;
+  HttpRequestBatch batch(service_->transport());
+  batch.mutable_http_request()->set_credential(&credential_);
+
   for (int i = 0; i < 10; ++i) {
-    scoped_ptr<Event> the_event(Event::New());
+    std::unique_ptr<Event> the_event(Event::New());
 
     // Space the events at hour intervals with 15 minute durations.
     the_event->set_summary(StrCat("Extra event ", i));
-    the_event->mutable_start().set_dateTime(
+    the_event->mutable_start().set_date_time(
         DateTime(now.ToEpochTime() + i * 60 * 60));
-    the_event->mutable_end().set_dateTime(
+    the_event->mutable_end().set_date_time(
         DateTime(now.ToEpochTime() + i * 60 * 60 + 15 * 60));
 
-    scoped_ptr<EventsResource_InsertMethod> method(
+    EventsResource_InsertMethod* method(
         service_->get_events().NewInsertMethod(
             &credential_, calendar_id, *the_event));
 
-    if (!method->Execute().ok()) {
-      cout << "Error adding event " << i << endl
-           << method->http_response()->body_reader()->RemainderToString()
-           << endl;
-      break;
+    method->ConvertIntoHttpRequestBatchAndDestroy(&batch);
+  }
+
+  status = batch.Execute();
+  if (!status.ok()) {
+    cout << "Entire batch execution failed: "
+         << status.error_message() << endl;
+  }
+  for (int i = 0; i < 10; ++i) {
+    HttpResponse* response = batch.requests()[i]->response();
+    if (!response->ok()) {
+      string detail;
+      if (response->body_reader()) {
+        detail = response->body_reader()->RemainderToString();
+      } else {
+        detail = "No response data available.";
+      }
+      cout << "Error adding batched event " << i << endl
+           << response->status().ToString() << endl
+           << detail << endl;
     }
   }
 
@@ -573,7 +592,7 @@ void CalendarSample::Run() {
 }
 
 
-} // namespace googleapis
+}  // namespace googleapis
 
 using namespace googleapis;
 int main(int argc, char* argv[]) {

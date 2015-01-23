@@ -106,7 +106,7 @@ util::Status AbstractLoginFlow::ReceiveAuthorizationCode(
   if (status.ok()) {
     LOG(INFO) << "Received AuthorizationCode for cookie=" << cookie_id;
     OAuth2RequestOptions options;
-    scoped_ptr<OAuth2Credential> credential(flow_->NewCredential());
+    std::unique_ptr<OAuth2Credential> credential(flow_->NewCredential());
     status = flow_->PerformExchangeAuthorizationCode(
         code, options, credential.get());
     if (status.ok()) {
@@ -265,4 +265,4 @@ string AbstractLoginFlow::GetCookieId(WebServerRequest* request) {
 
 }  // namespace sample
 
-} // namespace googleapis
+}  // namespace googleapis

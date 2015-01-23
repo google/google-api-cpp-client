@@ -21,13 +21,13 @@
 #ifndef APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_WEBSERVER_LOGIN_FLOW_H_
 #define APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_WEBSERVER_LOGIN_FLOW_H_
 
+#include <memory>
 #include <string>
 using std::string;
 #include "samples/abstract_login_flow.h"
 #include "googleapis/client/auth/oauth2_pending_authorizations.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
@@ -106,7 +106,7 @@ class AbstractWebServerLoginFlow : public AbstractLoginFlow {
    * Store of pending authorizations so we can correlate the tokens back
    * to their credentials.
    */
-  scoped_ptr<client::OAuth2PendingAuthorizations<
+  std::unique_ptr<client::OAuth2PendingAuthorizations<
                PendingAuthorizationHandler> >
     pending_;
 
@@ -135,5 +135,5 @@ class AbstractWebServerLoginFlow : public AbstractLoginFlow {
 
 }  // namespace sample
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_WEBSERVER_LOGIN_FLOW_H_

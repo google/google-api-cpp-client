@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -26,11 +25,15 @@
 using std::cout;
 using std::endl;
 using std::ostream;  // NOLINT
+#include "googleapis/config.h"
+
 #include "samples/installed_application.h"
 
 #include "googleapis/client/auth/file_credential_store.h"
 #include "googleapis/client/auth/oauth2_authorization.h"
+#ifdef googleapis_HAVE_OPENSSL
 #include "googleapis/client/data/openssl_codec.h"
+#endif
 #include "googleapis/client/transport/curl_http_transport.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/util/mongoose_webserver.h"
@@ -38,7 +41,6 @@ using std::ostream;  // NOLINT
 
 #include <glog/logging.h>
 #include "googleapis/base/stringprintf.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/strcat.h"
 
 namespace googleapis {
@@ -54,8 +56,9 @@ using client::OAuth2AuthorizationFlow;
 using client::OAuth2ClientSpec;
 using client::OAuth2Credential;
 using client::OAuth2RequestOptions;
-using client::OAuth2TokenRequest;
+#ifdef googleapis_HAVE_OPENSSL
 using client::OpenSslCodecFactory;
+#endif
 using client::StatusCanceled;
 using client::StatusInvalidArgument;
 using client::StatusOk;
@@ -66,7 +69,7 @@ static util::Status PromptShellForAuthorizationCode(
     OAuth2AuthorizationFlow* flow,
     const client::OAuth2RequestOptions& options,
     string* authorization_code) {
-  // TODO(ewiseblatt): Normally one would not get from the commandline,
+  // TODO(user): Normally one would not get from the commandline,
   // rather you would do something interactive within their browser/display.
   string url = flow->GenerateAuthorizationCodeRequestUrlWithOptions(options);
 
@@ -105,9 +108,10 @@ InstalledApplication::InstalledApplication(const string& name)
 InstalledApplication::~InstalledApplication() {
   if (revoke_on_exit_) {
     VLOG(1) << "Revoking access on exit";
-    scoped_ptr<OAuth2TokenRequest>
-        request(flow_->NewRevokeAccessTokenRequest(credential_.get()));
-    request->Execute().IgnoreError();
+    util::Status status = flow_->PerformRevokeToken(true, credential_.get());
+    if (!status.ok()) {
+      LOG(ERROR) << "Error revoking access token: " << status.error_message();
+    }
   }
 }
 
@@ -171,7 +175,9 @@ util::Status InstalledApplication::Init(const StringPiece& secrets_path) {
        OAuth2AuthorizationFlow::kOutOfBandUrl);
   flow_->set_authorization_code_callback(
       NewPermanentCallback(&PromptShellForAuthorizationCode, flow_.get()));
+  flow_->set_check_email(true);
 
+#ifdef googleapis_HAVE_OPENSSL
   OpenSslCodecFactory* openssl_factory = new OpenSslCodecFactory;
   status = openssl_factory->SetPassphrase(
       flow_->client_spec().client_secret());
@@ -190,6 +196,7 @@ util::Status InstalledApplication::Init(const StringPiece& secrets_path) {
     LOG(ERROR) << "Could not use credential store: "
                << status.error_message() << endl;
   }
+#endif
 
   status = InitHelper();
   if (!status.ok()) {
@@ -202,7 +209,7 @@ util::Status InstalledApplication::Init(const StringPiece& secrets_path) {
 util::Status InstalledApplication::AuthorizeClient() {
   OAuth2RequestOptions options;
   options.scopes = OAuth2AuthorizationFlow::JoinScopes(default_oauth2_scopes());
-  options.user_id = user_name_;
+  options.email = user_name_;
   util::Status status =
         flow_->RefreshCredentialWithOptions(options, credential());
   if (!status.ok()) {
@@ -212,9 +219,7 @@ util::Status InstalledApplication::AuthorizeClient() {
 }
 
 util::Status InstalledApplication::RevokeClient() {
-  scoped_ptr<OAuth2TokenRequest>
-      request(flow_->NewRevokeAccessTokenRequest(credential_.get()));
-  return request->Execute();
+  return flow_->PerformRevokeToken(true, credential_.get());
 }
 
 util::Status InstalledApplication::StartupHttpd(
@@ -267,4 +272,4 @@ void InstalledApplication::ShutdownHttpd() {
 
 }  // namespace sample
 
-} // namespace googleapis
+}  // namespace googleapis

@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 //
 // Command Processor class provides a basic shell interpreter for writing apps.
 // It might be useful for writing experimental code that makes API calls.
@@ -27,6 +26,7 @@
 
 #include <map>
 using std::map;
+#include <memory>
 #include <utility>
 using std::make_pair;
 using std::pair;
@@ -34,7 +34,6 @@ using std::pair;
 using std::vector;
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/strings/stringpiece.h"
 namespace googleapis {
@@ -85,7 +84,7 @@ class CommandProcessor {
 
     const StringPiece args;
     const StringPiece help;
-    scoped_ptr<CommandRunner> runner;
+    std::unique_ptr<CommandRunner> runner;
 
    private:
     DISALLOW_COPY_AND_ASSIGN(CommandEntry);
@@ -130,5 +129,5 @@ class CommandProcessor {
 
 }  // namespace sample
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_SAMPLES_COMMAND_PROCESSOR_H_

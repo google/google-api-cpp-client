@@ -54,6 +54,7 @@
 #include <stdlib.h>
 #include <map>
 using std::map;
+#include <memory>
 #include <vector>
 using std::vector;
 #include <string>
@@ -74,7 +75,6 @@ using std::string;
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include "googleapis/base/mutex.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/split.h"
 #include "googleapis/strings/strip.h"
@@ -228,7 +228,7 @@ class UserData {
   string user_name_;  //< Real user name (for confirming login).
   string gid_;        //< Google account id (for confirmation).
 
-  scoped_ptr<OAuth2Credential> credential_;  //< NULL when not logged in.
+  std::unique_ptr<OAuth2Credential> credential_;  //< NULL when not logged in.
 };
 
 /*
@@ -253,7 +253,7 @@ class UserRepository {
    *                        fetch Google Account id and comparing it to
    *                        previous.
    *
-   * TODO(ewiseblatt): 20130608
+   * TODO(user): 20130608
    * The means of verifying the user hers is not quite right. I think one
    * would normally use the id_token already returned from the g+ button
    * but I dont have support for the JWT decoding yet. I'm not sure how to
@@ -316,7 +316,7 @@ class UserRepository {
   util::Status GetPersonalUserData(
        OAuth2Credential* cred, client::JsonCppDictionary* dict) {
     CHECK(cred != NULL);
-    scoped_ptr<HttpRequest> request(
+    std::unique_ptr<HttpRequest> request(
         transport_->NewHttpRequest(HttpRequest::GET));
     request->set_credential(cred);
     request->set_url(kMeUrl);
@@ -351,7 +351,7 @@ class UserRepository {
       const string& cookie_id,
       const util::Status& status,
       OAuth2Credential* credential) {
-    scoped_ptr<OAuth2Credential> credential_deleter(credential);
+    std::unique_ptr<OAuth2Credential> credential_deleter(credential);
     if (!status.ok()) {
       LOG(WARNING) << "Did not get credential for cookie="
                    << cookie_id << ": " << status.error_message();
@@ -423,7 +423,7 @@ class UserRepository {
   }
 
  private:
-  scoped_ptr<HttpTransport> transport_;   //< For getting user info.
+  std::unique_ptr<HttpTransport> transport_;   //< For getting user info.
   bool verify_gid_;         //< Whether to verify gid
   Mutex mutex_;            //< Protects repository
   map<string, UserData*> repository_ GUARDED_BY(mutex_);
@@ -800,7 +800,7 @@ class SampleWebApplication {
     WebServerResponse* response = request->response();
     util::Status status =
         response->AddCookie(kCookieName, user_data->cookie_id());
-    if (!status.ok()){
+    if (!status.ok()) {
       LOG(ERROR) << "Embedded webserver coudlnt add a cookie when redirecting:"
                  << status.error_message();
       // We'll still do the redirect though.
@@ -823,7 +823,7 @@ class SampleWebApplication {
    */
   util::Status RespondWithHtml(
       UserData* user_data, int http_code, const StringPiece& html_body,
-      WebServerRequest* request, string redirect_success="") {
+      WebServerRequest* request, string redirect_success = "") {
     string html = gplus_login_.get()
         ? MakeGplusPageTemplate(user_data, request, redirect_success)
         : MakeWebServerLoginPageTemplate(user_data, request);
@@ -877,7 +877,7 @@ class SampleWebApplication {
    */
   util::Status ProcessMeCommand(
       UserData* user_data, WebServerRequest* request) {
-    scoped_ptr<HttpRequest> http_request(
+    std::unique_ptr<HttpRequest> http_request(
         transport_->NewHttpRequest(HttpRequest::GET));
     http_request->set_url(kMeUrl);
     http_request->set_credential(user_data->credential());
@@ -933,16 +933,16 @@ class SampleWebApplication {
         user_data, HttpStatusCode::NOT_FOUND, msg, request);
   }
 
-  scoped_ptr<MongooseWebServer> httpd_;
-  scoped_ptr<HttpTransport> transport_;
-  scoped_ptr<OAuth2AuthorizationFlow> flow_;
-  scoped_ptr<client::HttpTransportLayerConfig> config_;
-  scoped_ptr<UserRepository> user_repository_;
+  std::unique_ptr<MongooseWebServer> httpd_;
+  std::unique_ptr<HttpTransport> transport_;
+  std::unique_ptr<OAuth2AuthorizationFlow> flow_;
+  std::unique_ptr<client::HttpTransportLayerConfig> config_;
+  std::unique_ptr<UserRepository> user_repository_;
 
   // We'll be using one or the other of these depending on
   // FLAGS_gplus_login.
-  scoped_ptr<SampleMicroLoginFlow> login_;
-  scoped_ptr<SampleGplusLoginFlow> gplus_login_;
+  std::unique_ptr<SampleMicroLoginFlow> login_;
+  std::unique_ptr<SampleGplusLoginFlow> gplus_login_;
 
   Mutex mutex_;
   CondVar condvar_ GUARDED_BY(mutex_);
@@ -977,7 +977,7 @@ util::Status SampleWebApplicationLoginFlow<C>::DoRespondWithLoginErrorPage(
   return sample_app()->RespondWithLoginErrorPage(user_data, status, request);
 }
 
-} // namespace googleapis
+}  // namespace googleapis
 
 using namespace googleapis;
 int main(int argc, char* argv[]) {

@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <algorithm>
 using std::copy;
@@ -36,6 +35,7 @@ using std::map;
 #include <vector>
 using std::vector;
 
+#include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/transport/http_response.h"
 #include "samples/command_processor.h"
 #include <glog/logging.h>
@@ -94,6 +94,11 @@ void CommandProcessor::AddCommand(StringPiece name, CommandEntry* details) {
 
 bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
   util::Status transport_status = response->transport_status();
+
+  // Rewind the stream before we dump it since this could get called after
+  // ExecuteAndParseResponse which will have read the result.
+  response->body_reader()->SetOffset(0);
+  bool response_was_ok;
   if (!transport_status.ok()) {
     cerr << "ERROR: " << transport_status.error_message() << endl;
     return false;
@@ -106,7 +111,7 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
     }
     cerr << "ERROR(" << response->http_code() << "): "
          << body << endl;
-    return false;
+    response_was_ok = false;
   } else {
     cout << "OK(" << response->http_code() << ")" << endl;
     if (log_success_bodies_) {
@@ -120,8 +125,15 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
       cout << body << endl;
       cout << "-----------  [end response body]  -----------" << endl;
     }
-    return true;
+    response_was_ok = true;
   }
+
+  // Restore offset in case someone downstream wants to read the body again.
+  if (response->body_reader()->SetOffset(0) != 0) {
+    LOG(WARNING)
+        << "Could not reset body offset so future reads (if any) will fail.";
+  }
+  return response_was_ok;
 }
 
 void CommandProcessor::VerboseHandler(
@@ -242,4 +254,4 @@ bool CommandProcessor::SplitArgs(
 
 }  // namespace sample
 
-} // namespace googleapis
+}  // namespace googleapis

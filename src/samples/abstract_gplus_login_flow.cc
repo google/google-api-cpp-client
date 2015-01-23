@@ -277,4 +277,4 @@ util::Status AbstractGplusLoginFlow::DoHandleAccessTokenUrl(
 
 }  // namespace sample
 
-} // namespace googleapis
+}  // namespace googleapis

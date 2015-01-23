@@ -2,6 +2,7 @@ project (GoogleApis_C++_Samples)
 
 INCLUDE_DIRECTORIES(${GOOGLEAPIS_SERVICE_REPOSITORY_DIR}/calendar)
 INCLUDE_DIRECTORIES(${GOOGLEAPIS_SERVICE_REPOSITORY_DIR}/drive)
+INCLUDE_DIRECTORIES(${GOOGLEAPIS_SERVICE_REPOSITORY_DIR}/youtube)
 
 # This is the basic sample from the tutorial
 add_executable(calendar_sample calendar_sample_main.cc)
@@ -40,6 +41,17 @@ target_link_libraries(gdrive_sample googleapis_http)
 target_link_libraries(gdrive_sample googleapis_oauth2)
 target_link_libraries(gdrive_sample googleapis_utils)
 target_link_libraries(gdrive_sample ${GFLAGS_LIBRARY})
+
+# A sample that interacts with the YouTube Service for Live Broadcasts.
+add_executable(youtube_broadcast_sample youtube_broadcast_main.cc)
+target_link_libraries(youtube_broadcast_sample youtube_api)
+target_link_libraries(youtube_broadcast_sample sample_contrib)
+target_link_libraries(youtube_broadcast_sample googleapis_jsoncpp)
+target_link_libraries(youtube_broadcast_sample googleapis_curl_http)
+target_link_libraries(youtube_broadcast_sample googleapis_http)
+target_link_libraries(youtube_broadcast_sample googleapis_oauth2)
+target_link_libraries(youtube_broadcast_sample googleapis_utils)
+target_link_libraries(youtube_broadcast_sample ${GFLAGS_LIBRARY})
 
 add_executable(webflow_sample
                webflow_sample_main.cc

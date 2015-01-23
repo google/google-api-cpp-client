@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 //
 // An InstalledApplication handles boiler-plate framework code
 // for the sample applications. It is responsible for managing
@@ -27,7 +26,7 @@
 // What makes this an installed application is that it assumes
 // there is only one user so credentials are not scoped to users.
 //
-// TODO(ewiseblatt): 20130110
+// TODO(user): 20130110
 // It's probably worth folding this into the SDK but I want to
 // explore it a bit more first. Especially to generalize it
 // so that it has a sibling class WebApplication.
@@ -39,6 +38,7 @@
 using std::cout;
 using std::endl;
 using std::ostream;  // NOLINT
+#include <memory>
 #include <string>
 using std::string;
 #include <vector>
@@ -50,7 +50,6 @@ using std::vector;
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
@@ -66,7 +65,7 @@ using client::HttpTransportFactory;
 // for installed applications. What makes it specific for installed
 // applications is that it assumes one user for everything.
 //
-// TODO(ewiseblatt): 20130118
+// TODO(user): 20130118
 // Eventually need way to convey errors back to application so they can
 // choose how to communicate them.
 class InstalledApplication {
@@ -148,13 +147,14 @@ class InstalledApplication {
  private:
   string name_;                                // Only for logging and tracing
   string user_name_;                           // User owning credential.
-  scoped_ptr<OAuth2Credential> credential_;    // Credentials for implied user
-  scoped_ptr<OAuth2AuthorizationFlow> flow_;   // The OAuth2 flow
+  // Credentials for implied user.
+  std::unique_ptr<OAuth2Credential> credential_;
+  std::unique_ptr<OAuth2AuthorizationFlow> flow_;   // The OAuth2 flow
   vector<StringPiece> default_scopes_;         // When creating credentials
-  scoped_ptr<client::HttpTransportLayerConfig> config_;
+  std::unique_ptr<client::HttpTransportLayerConfig> config_;
 
-  scoped_ptr<AbstractWebServer> httpd_;        // Webserver for getter_
-  scoped_ptr<client::WebServerAuthorizationCodeGetter>
+  std::unique_ptr<AbstractWebServer> httpd_;        // Webserver for getter_
+  std::unique_ptr<client::WebServerAuthorizationCodeGetter>
     authorization_code_getter_;
   bool revoke_on_exit_;
 
@@ -199,12 +199,12 @@ class InstalledServiceApplication : public InstalledApplication {
   }
 
  private:
-  scoped_ptr<SERVICE> service_;
+  std::unique_ptr<SERVICE> service_;
 
   DISALLOW_COPY_AND_ASSIGN(InstalledServiceApplication);
 };
 
 }  // namespace sample
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_SAMPLES_INSTALLED_APPLICATION_H_

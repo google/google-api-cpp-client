@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 //
 // Note that in this example we often IgnoreError when Executing.
 // This is because we look at the status in the response and detect errors
@@ -33,6 +32,7 @@
 using std::cout;
 using std::endl;
 using std::ostream;  // NOLINT
+#include <memory>
 #include <string>
 using std::string;
 #include <vector>
@@ -42,6 +42,8 @@ using std::vector;
 #include "samples/installed_application.h"
 
 #include "googleapis/client/data/data_reader.h"
+#include "googleapis/client/data/data_writer.h"
+#include "googleapis/client/data/file_data_writer.h"
 #include "googleapis/client/transport/curl_http_transport.h"
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_response.h"
@@ -51,7 +53,6 @@ using std::vector;
 #include "googleapis/base/macros.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
@@ -94,6 +95,30 @@ using google_drive_api::RevisionsResource_ListMethod;
 
 using sample::InstalledServiceApplication;
 using sample::CommandProcessor;
+
+
+/**
+ * Example of a writer which could provide download progress.
+ */
+class ProgressMeterDataWriter : public client::FileDataWriter {
+ public:
+  explicit ProgressMeterDataWriter(const string& path)
+      : client::FileDataWriter(path, FileOpenOptions()) {
+  }
+
+  ~ProgressMeterDataWriter() override {
+    cout << "~ProgressMeterDataWriter" << endl;
+  }
+
+  util::Status DoWrite(int64 bytes, const char* buffer) override {
+    // In a real application, we might callback to the UI to display here.
+    cout << "*** Got another " << bytes << " bytes." << endl;
+    return client::FileDataWriter::DoWrite(bytes, buffer);
+  }
+
+  std::unique_ptr<client::DataWriter> file_writer_;
+};
+
 
 class DriveUtilApplication : public InstalledServiceApplication<DriveService> {
  public:
@@ -207,10 +232,10 @@ class DriveCommandProcessor : public sample::CommandProcessor {
 
     AddCommand("download",
        new CommandEntry(
-           "<fileid> [<mime_type>] [<revisionid>]",
+           "<fileid> <path|-> [<mime_type>] [<revisionid>]",
            "Download the specified fileid."
            " If a mime_type is provided, download that version."
-           " If a revision is supposed then download that particular revision."
+           " If a revision is supplied then download that particular one."
            " Otherwise download whatever is on the GDrive.",
            NewPermanentCallback(
                this, &DriveCommandProcessor::DownloadRevisionHandler)));
@@ -219,11 +244,12 @@ class DriveCommandProcessor : public sample::CommandProcessor {
  private:
   void AboutHandler(const string&, const vector<string>&) {
     const DriveService::AboutResource& rsrc = app_->service()->get_about();
-    scoped_ptr<AboutResource_GetMethod> get(
+    std::unique_ptr<AboutResource_GetMethod> get(
        rsrc.NewGetMethod(app_->credential()));
 
     cout << "Finding out about you..." << endl;
-    scoped_ptr<google_drive_api::About> about(google_drive_api::About::New());
+    std::unique_ptr<google_drive_api::About> about(
+        google_drive_api::About::New());
     get->ExecuteAndParseResponse(about.get()).IgnoreError();
     if (CheckAndLogResponse(get->http_response())) {
       cout << "  Name: " << about->get_name();
@@ -235,22 +261,6 @@ class DriveCommandProcessor : public sample::CommandProcessor {
       cout << "no user_name provided." << endl;
       return;
     }
-
-    // TODO(ewiseblatt): This is dangerous. There's no real connection between
-    // this user and the user we authorized as. So we could easily authorize
-    // one user but save it as another. When we look up the other we'll
-    // actually be this user. The assumption is that normal flows will know
-    // the user inherently. But here we dont have a real flow since we're
-    // using copy/paste from the browser. We could hardcode the user to
-    // "default" and not give a choice. But I want a choice so I can use this
-    // in different accounts for testing.
-    //
-    // Pursue thomasvl's suggestion:
-    // on objc we have support in our OAuth2 classes to
-    // auto fetch the user info during signin, since most developers want to
-    // be able to display an account name, etc. it makes sense.  That might
-    // give you an account you can just use here.
-    // https://code.google.com/p/gtm-oauth2/source/browse/trunk/Source/GTMOAuth2SignIn.h#104
     util::Status status = app_->ChangeUser(args[0]);
     if (status.ok()) {
       status = app_->AuthorizeClient();
@@ -278,9 +288,10 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     //   for (google_drive_api::File file : list.get_items())
     // But for the sake of broader compilers we'll be traditional.
     const char* sep = "";
-    for (JsonCppArray<google_drive_api::File>::const_iterator it = items.begin();
-         it != items.end();
-         ++it) {
+    for (
+        JsonCppArray<google_drive_api::File>::const_iterator it = items.begin();
+        it != items.end();
+        ++it) {
       const google_drive_api::File& file = *it;
       cout << sep;
       if (file.get_labels().get_trashed()) {
@@ -289,13 +300,13 @@ class DriveCommandProcessor : public sample::CommandProcessor {
         cout << "*** HIDDEN ***  ";  // continue ID on this line
       }
       cout << "ID: " << file.get_id() << endl;
-      cout << "  Size: " << file.get_fileSize() << endl;
-      cout << "  MimeType: " << file.get_mimeType() << endl;
-      cout << "  Created: " << file.get_createdDate().ToString() << endl;
+      cout << "  Size: " << file.get_file_size() << endl;
+      cout << "  MimeType: " << file.get_mime_type() << endl;
+      cout << "  Created: " << file.get_created_date().ToString() << endl;
       cout << "  Description: " << file.get_description() << endl;
-      cout << "  Download Url: " << file.get_downloadUrl() << endl;
-      cout << "  Original Name: " << file.get_originalFilename() << endl;
-      cout << "  Modified By: " << file.get_lastModifyingUserName() << endl;
+      cout << "  Download Url: " << file.get_download_url() << endl;
+      cout << "  Original Name: " << file.get_original_filename() << endl;
+      cout << "  Modified By: " << file.get_last_modifying_user_name() << endl;
       sep = "\n";
     }
   }
@@ -307,7 +318,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     // a pager so that we can play with it. Reset the old one (if any).
     // The 'next' command will advance the pager.
     list_pager_.reset(rsrc.NewListMethodPager(app_->credential()));
-    list_pager_->request()->set_maxResults(FLAGS_max_results);
+    list_pager_->request()->set_max_results(FLAGS_max_results);
 
     cout << "Getting (partial) file list..." << endl;
     bool ok = list_pager_->NextPage();
@@ -351,23 +362,20 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     const string& path = args[0];
     const string& mime_type = args.size() > 1 ? args[1] : "text/plain";
 
-    scoped_ptr<google_drive_api::File> file(google_drive_api::File::New());
-    file->set_title(StrCat("Uploaded from ", File::Basename(path)));
+    std::unique_ptr<google_drive_api::File> file(google_drive_api::File::New());
+    file->set_title(StrCat("Uploaded from ", file::Basename(path)));
     file->set_editable(true);
-    file->set_originalFilename(File::Basename(path));
-
-    const DriveService::FilesResource& rsrc = app_->service()->get_files();
-    scoped_ptr<FilesResource_InsertMethod> insert(
-        rsrc.NewInsertMethod(app_->credential()));
-    insert->set_convert(false);
+    file->set_original_filename(file::Basename(path));
 
     DataReader* reader = NewUnmanagedFileDataReader(path);
     cout << "Uploading "<< reader->TotalLengthIfKnown()
          << " bytes from type=" << mime_type << " path=" << path << endl;
 
-    client::MediaUploader* uploader = insert->media_uploader();
-    uploader->set_metadata(*file);
-    uploader->set_media_content_reader(mime_type, reader);
+    const DriveService::FilesResource& rsrc = app_->service()->get_files();
+    std::unique_ptr<FilesResource_InsertMethod> insert(
+        rsrc.NewInsertMethod(
+            app_->credential(), file.get(), mime_type, reader));
+    insert->set_convert(false);
 
     insert->Execute().IgnoreError();
     CheckAndLogResponse(insert->http_response());
@@ -382,17 +390,20 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     const string& path = args[1];
     const string& mime_type = args.size() > 2 ? args[2] : "text/plain";
 
-    const DriveService::FilesResource& rsrc = app_->service()->get_files();
-    scoped_ptr<FilesResource_UpdateMethod> update(
-        rsrc.NewUpdateMethod(app_->credential(), fileid));
-
     DataReader* reader = NewUnmanagedFileDataReader(path);
     cout << "Updating fileid=" << fileid
          << " with " << reader->TotalLengthIfKnown()
          << " bytes from type=" << mime_type << " path=" << path << endl;
 
-    client::MediaUploader* uploader = update->media_uploader();
-    uploader->set_media_content_reader(mime_type, reader);
+    const DriveService::FilesResource& rsrc = app_->service()->get_files();
+
+    std::unique_ptr<google_drive_api::File> file(google_drive_api::File::New());
+    file->set_title(StrCat("Updated from ", file::Basename(path)));
+    file->set_original_filename(file::Basename(path));
+    std::unique_ptr<FilesResource_UpdateMethod> update(
+        rsrc.NewUpdateMethod(
+            app_->credential(), fileid, file.get(), mime_type, reader));
+
     update->Execute().IgnoreError();
     CheckAndLogResponse(update->http_response());
   }
@@ -406,7 +417,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
 
     const DriveService::FilesResource& rsrc =
         app_->service()->get_files();
-    scoped_ptr<FilesResource_DeleteMethod> remove(
+    std::unique_ptr<FilesResource_DeleteMethod> remove(
         rsrc.NewDeleteMethod(app_->credential(), fileid));
 
     cout << "Deleting fileid=" << fileid << "..." << endl;
@@ -423,7 +434,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
 
     const DriveService::FilesResource& rsrc =
         app_->service()->get_files();
-    scoped_ptr<FilesResource_TrashMethod> trash(
+    std::unique_ptr<FilesResource_TrashMethod> trash(
         rsrc.NewTrashMethod(app_->credential(), fileid));
 
     cout << "Trashing fileid=" << fileid << "..." << endl;
@@ -440,11 +451,11 @@ class DriveCommandProcessor : public sample::CommandProcessor {
 
     const DriveService::RevisionsResource& rsrc =
         app_->service()->get_revisions();
-    scoped_ptr<RevisionsResource_ListMethod> list(
+    std::unique_ptr<RevisionsResource_ListMethod> list(
         rsrc.NewListMethod(app_->credential(), fileid));
 
     cout << "Getting evisions for " << fileid << "..." << endl;
-    scoped_ptr<google_drive_api::RevisionList> revision_list(
+    std::unique_ptr<google_drive_api::RevisionList> revision_list(
         google_drive_api::RevisionList::New());
     list->ExecuteAndParseResponse(revision_list.get()).IgnoreError();
     if (CheckAndLogResponse(list->http_response())) {
@@ -456,16 +467,16 @@ class DriveCommandProcessor : public sample::CommandProcessor {
            ++it) {
         const google_drive_api::Revision& revision = *it;
         cout << "ID: " << revision.get_id() << endl;
-        cout << "  FileSize: " << revision.get_fileSize() << endl;
-        cout << "  Modified on " << revision.get_modifiedDate().ToString()
-             << " by " << revision.get_lastModifyingUserName() << endl;
+        cout << "  FileSize: " << revision.get_file_size() << endl;
+        cout << "  Modified on " << revision.get_modified_date().ToString()
+             << " by " << revision.get_last_modifying_user_name() << endl;
         if (revision.get_published()) {
-          cout << "  Published URL: " << revision.get_publishedLink() << endl;
+          cout << "  Published URL: " << revision.get_published_link() << endl;
         }
 
         cout << "  Export Links:" << endl;
         const JsonCppAssociativeArray<string>& export_links =
-            revision.get_exportLinks();
+            revision.get_export_links();
         for (JsonCppAssociativeArray<string>::const_iterator it =
                  export_links.begin();
              it != export_links.end();
@@ -477,23 +488,25 @@ class DriveCommandProcessor : public sample::CommandProcessor {
   }
 
   void DownloadRevisionHandler(const string& cmd, const vector<string>& args) {
-    if ((args.size() < 1) || args.size() > 3) {
-      cout << "Usage: " << cmd << " <fileid> [<mime-type>] [<revisionid>]"
-           << endl;
+    if ((args.size() < 2) || args.size() > 4) {
+      cout << "Usage: " << cmd << " <fileid> <path|->"
+           << "[<mime-type>] [<revisionid>]" << endl;
       return;
     }
 
     string url;
     const string kNone;
     const string& fileid = args[0];
-    const string& mime_type = args.size() > 1 ? args[1] : kNone;
-    const string& revisionid = args.size() > 2 ? args[2] : kNone;
-    scoped_ptr<client::JsonCppData> client_response;
+    const string& path = args[1];
+    const string& mime_type = args.size() > 2 ? args[2] : kNone;
+    const string& revisionid = args.size() > 3 ? args[3] : kNone;
+    std::unique_ptr<client::JsonCppData> client_response;
     if (revisionid.empty()) {
       const DriveService::FilesResource& rsrc = app_->service()->get_files();
-      scoped_ptr<FilesResource_GetMethod> get(
+      std::unique_ptr<FilesResource_GetMethod> get(
           rsrc.NewGetMethod(app_->credential(), fileid));
-      scoped_ptr<google_drive_api::File> file(google_drive_api::File::New());
+      std::unique_ptr<google_drive_api::File> file(
+          google_drive_api::File::New());
       cout << "Downloading file_id=" << fileid << endl;
       get->ExecuteAndParseResponse(file.get()).IgnoreError();
       if (!CheckAndLogResponse(get->http_response())) {
@@ -503,9 +516,9 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     } else {
       const DriveService::RevisionsResource& rsrc =
         app_->service()->get_revisions();
-      scoped_ptr<RevisionsResource_GetMethod> get(
+      std::unique_ptr<RevisionsResource_GetMethod> get(
         rsrc.NewGetMethod(app_->credential(), fileid, revisionid));
-      scoped_ptr<google_drive_api::Revision>
+      std::unique_ptr<google_drive_api::Revision>
           revision(google_drive_api::Revision::New());
       cout << "Downloading revision " <<  revisionid << " of file_id"
            << fileid << endl;
@@ -531,29 +544,41 @@ class DriveCommandProcessor : public sample::CommandProcessor {
         return;
       }
     }
-    scoped_ptr<HttpRequest> request(
+
+    std::unique_ptr<HttpRequest> request(
             app_->service()->transport()->NewHttpRequest(HttpRequest::GET));
     request->set_url(url);
     request->set_credential(app_->credential());
+
+    bool to_file = path != "-";
+    if (to_file) {
+      client::DataWriter* writer =
+          new ProgressMeterDataWriter(path);
+      request->set_content_writer(writer);
+    }
     request->Execute().IgnoreError();
     HttpResponse* download_response = request->response();
     if (download_response->ok()) {
-      string body;
-      util::Status status = download_response->GetBodyString(&body);
-      cout << "*** Here's what I downloaded:" << endl;
-      cout << body << endl;
+      if (to_file) {
+        cout << "*** Downloaded to: " << path << endl;
+      } else {
+        string body;
+        util::Status status = download_response->GetBodyString(&body);
+        cout << "*** Here's what I downloaded:" << endl;
+        cout << body << endl;
+      }
     } else {
       cout << download_response->status().error_message() << endl;
     }
   }
 
-  scoped_ptr<FilesResource_ListMethodPager> list_pager_;
+  std::unique_ptr<FilesResource_ListMethodPager> list_pager_;
   DriveUtilApplication* app_;
   DISALLOW_COPY_AND_ASSIGN(DriveCommandProcessor);
 };
 
 
-} // namespace googleapis
+}  // namespace googleapis
 
 using namespace googleapis;
 int main(int argc, char* argv[]) {

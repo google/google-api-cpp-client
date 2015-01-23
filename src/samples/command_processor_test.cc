@@ -17,7 +17,6 @@
  * @}
  */
 
-// Author: ewiseblatt@google.com (Eric Wiseblatt)
 
 #include <string>
 using std::string;
@@ -68,4 +67,4 @@ TEST(Test, SplitArgs) {
   EXPECT_EQ("b", list[1]);
 }
 
-} // namespace googleapis
+}  // namespace googleapis

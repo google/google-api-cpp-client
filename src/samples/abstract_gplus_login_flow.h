@@ -125,5 +125,5 @@ class AbstractGplusLoginFlow : public AbstractLoginFlow {
 
 }  // namespace sample
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_GPLUS_LOGIN_FLOW_H_

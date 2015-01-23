@@ -26,7 +26,6 @@ using std::string;
 #include "googleapis/client/util/abstract_webserver.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
@@ -315,5 +314,5 @@ class AbstractLoginFlow {
 
 }  // namespace sample
 
-} // namespace googleapis
+}  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_LOGIN_FLOW_H_
