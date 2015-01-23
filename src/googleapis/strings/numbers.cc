@@ -34,13 +34,13 @@
 #include <string.h>
 #include <limits>
 using std::numeric_limits;
+#include <memory>
 #include <string>
 using std::string;
 
 #include "googleapis/base/int128.h"
 #include "googleapis/base/integral_types.h"
 #include <glog/logging.h>
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/base/stringprintf.h"
 #include "googleapis/base/strtoint.h"
 #include "googleapis/strings/ascii_ctype.h"
@@ -99,7 +99,7 @@ static inline bool EatADouble(const char** text, int* len, bool allow_question,
     retval = strtod(pos, &end_nonconst);
   } else {
     // not '\0'-terminated & no obvious terminator found. must copy.
-    scoped_ptr<char[]> buf(new char[rem + 1]);
+    std::unique_ptr<char[]> buf(new char[rem + 1]);
     memcpy(buf.get(), pos, rem);
     buf[rem] = '\0';
     retval = strtod(buf.get(), &end_nonconst);
