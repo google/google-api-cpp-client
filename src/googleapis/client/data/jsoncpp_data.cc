@@ -24,8 +24,8 @@ using std::string;
 #include "googleapis/client/data/jsoncpp_data.h"
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
-#include <jsoncpp/reader.h>
-#include <jsoncpp/writer.h>
+#include <json/reader.h>
+#include <json/writer.h>
 
 namespace googleapis {
 

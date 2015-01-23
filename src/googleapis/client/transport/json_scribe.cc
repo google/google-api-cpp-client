@@ -26,8 +26,8 @@
 #include "googleapis/client/transport/json_scribe.h"
 #include "googleapis/client/util/date_time.h"
 #include "googleapis/strings/numbers.h"
-#include <jsoncpp/value.h>
-#include <jsoncpp/writer.h>
+#include <json/value.h>
+#include <json/writer.h>
 
 namespace googleapis {
 

@@ -41,8 +41,8 @@ using std::vector;
 #include "googleapis/base/mutex.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include <jsoncpp/reader.h>
-#include <jsoncpp/value.h>
+#include <json/reader.h>
+#include <json/value.h>
 #include "googleapis/util/stl_util.h"
 #include "googleapis/util/status.h"
 

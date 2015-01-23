@@ -47,7 +47,7 @@ using std::vector;
 #include "googleapis/client/data/serializable_json.h"
 #include "googleapis/client/data/jsoncpp_data_helpers.h"
 #include "googleapis/base/macros.h"
-#include <jsoncpp/json.h>
+#include <json/json.h>
 namespace googleapis {
 
 namespace client {

@@ -37,8 +37,8 @@ using std::string;
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/strip.h"
 #include <gtest/gtest.h>
-#include <jsoncpp/value.h>
-#include <jsoncpp/writer.h>
+#include <json/value.h>
+#include <json/writer.h>
 
 namespace googleapis {
 

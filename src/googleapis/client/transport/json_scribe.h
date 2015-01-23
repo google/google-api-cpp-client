@@ -30,8 +30,8 @@ using std::string;
 #include "googleapis/base/integral_types.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include <jsoncpp/value.h>
-#include <jsoncpp/writer.h>
+#include <json/value.h>
+#include <json/writer.h>
 namespace googleapis {
 
 namespace client {

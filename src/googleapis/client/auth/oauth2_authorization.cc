@@ -48,8 +48,8 @@ using std::vector;
 //   2) I want to keep JsonCppData decoupled so I can easily replace the
 //      data model. Currently JsonCppData is introduced by the code generator
 //      and not by the core runtime library.
-#include <jsoncpp/reader.h>
-#include <jsoncpp/value.h>
+#include <json/reader.h>
+#include <json/value.h>
 
 #include "googleapis/strings/case.h"
 #include "googleapis/strings/escaping.h"
