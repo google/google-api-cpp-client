@@ -1102,8 +1102,7 @@ class Installer(object):
         # a new tarball URL.
         'mongoose': (MongoosePackageInstaller(
             config,
-            'https://github.com/cesanta/mongoose/tarball'
-            '/a0e54945695118340545f676c95713ce8aec655f')),
+            'https://github.com/cesanta/mongoose/archive/5.5_20140120.zip')),
 
         'curl': (CurlPackageInstaller(
             config, 'http://curl.haxx.se/download/curl-7.30.0.tar.gz')),
