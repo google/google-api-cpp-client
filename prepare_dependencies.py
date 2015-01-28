@@ -664,7 +664,7 @@ class MongoosePackageInstaller(PackageInstaller):
     """Standard PackageInstaller initializer."""
     super(MongoosePackageInstaller, self).__init__(config, url)
     self._config_type = CMAKE_CONFIG
-    self._package_path = os.path.join(self._config.download_dir, 'mongoose-master')
+    self._package_path = os.path.join(self._config.download_dir, 'mongoose-cpp-master')
 
   def MaybeTweakAfterUnpackage(self):
     """Creates a CMakeLists.txt file for building the package."""
@@ -1102,7 +1102,7 @@ class Installer(object):
         # a new tarball URL.
         'mongoose': (MongoosePackageInstaller(
             config,
-            'https://github.com/cagdasc/mongoose-cpp/archive/master.zip')),
+            'https://github.com/Gregwar/mongoose-cpp/archive/master.zip')),
 
         'curl': (CurlPackageInstaller(
             config, 'http://curl.haxx.se/download/curl-7.30.0.tar.gz')),
