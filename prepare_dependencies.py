@@ -664,7 +664,7 @@ class MongoosePackageInstaller(PackageInstaller):
     """Standard PackageInstaller initializer."""
     super(MongoosePackageInstaller, self).__init__(config, url)
     self._config_type = CMAKE_CONFIG
-    self._package_path = os.path.join(self._config.download_dir, 'mongoose')
+    self._package_path = os.path.join(self._config.download_dir, 'mongoose-master')
 
   def MaybeTweakAfterUnpackage(self):
     """Creates a CMakeLists.txt file for building the package."""
@@ -1057,7 +1057,7 @@ class Installer(object):
           # Use CMake as our build system for the libraries and some deps
           'cmake': (PackageInstaller(
               config,
-              'http://www.cmake.org/files/v2.8/cmake-2.8.10.2.tar.gz',
+              'http://www.cmake.org/files/v3.1/cmake-3.1.1.tar.gz',
               config_type=CONFIGURE_CONFIG)),
 
           # This is used both for curl https support and
@@ -1102,8 +1102,7 @@ class Installer(object):
         # a new tarball URL.
         'mongoose': (MongoosePackageInstaller(
             config,
-            'https://github.com/cesanta/mongoose/tarball'
-            '/a0e54945695118340545f676c95713ce8aec655f')),
+            'https://github.com/cesanta/mongoose/archive/master.zip')),
 
         'curl': (CurlPackageInstaller(
             config, 'http://curl.haxx.se/download/curl-7.30.0.tar.gz')),
