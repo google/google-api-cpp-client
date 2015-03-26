@@ -22,8 +22,6 @@
 //   java/com/google/api/client/http/UriTemplate.java
 // The URI Template spec is at http://tools.ietf.org/html/rfc6570
 #include <set>
-using std::multiset;
-using std::set;
 #include <string>
 using std::string;
 #include "googleapis/client/util/status.h"

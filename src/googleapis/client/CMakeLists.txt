@@ -181,21 +181,8 @@ install(FILES transport/curl_http_transport.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/transport)
 
 
-# TODO(ewiseblatt): 20130405
-# This wax library is not public but for the time being I need it for testing.
-FILE(GLOB WaxSources test/google/wax_api/*.cc)
-add_library(google_wax_api STATIC ${WaxSources})
-target_link_libraries(google_wax_api googleapis_json)
-target_link_libraries(google_wax_api googleapis_jsoncpp)
-target_link_libraries(google_wax_api googleapis_http)
-target_link_libraries(google_wax_api googleapis_internal)
-target_link_libraries(google_wax_api ${GLOG_LIBRARY})
-
-
-file(COPY transport/test/wax_server.py DESTINATION ${EXECUTABLE_OUTPUT_PATH})
 add_library(googleapis_http_transport_test_fixture STATIC
             transport/test/http_transport_test_fixture.cc)
-target_link_libraries(googleapis_http_transport_test_fixture google_wax_api)
 target_link_libraries(googleapis_http_transport_test_fixture googleapis_json)
 target_link_libraries(googleapis_http_transport_test_fixture googleapis_jsoncpp)
 target_link_libraries(googleapis_http_transport_test_fixture googleapis_http)

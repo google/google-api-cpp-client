@@ -23,8 +23,7 @@
 
 #include <map>
 using std::map;
-#include <vector>
-using std::vector;
+
 #include "googleapis/client/util/abstract_webserver.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
@@ -85,14 +84,14 @@ class MongooseWebServer : public AbstractWebServer {
    * @param[in] options The options will be copied. They must be set
    *            before the server is started.
    */
-  void set_mongoose_options(const map<string, string>& options) {
+  void set_mongoose_options(const std::map<string, string>& options) {
     options_ = options;
   }
 
   /*
    * Returns Mongoose options that were overriden.
    */
-  const map<string, string>& mongoose_options() const { return options_; }
+  const std::map<string, string>& mongoose_options() const { return options_; }
 
   /*
    * Clears Mongoose option overrides.
@@ -114,7 +113,7 @@ class MongooseWebServer : public AbstractWebServer {
    * Returns value for individual option, or empty if not set.
    */
   const string mongoose_option(const string& name) const {
-    map<string, string>::const_iterator it = options_.find(name);
+    std::map<string, string>::const_iterator it = options_.find(name);
     if (it == options_.end()) return "";
     return it->second;
   }
@@ -123,7 +122,7 @@ class MongooseWebServer : public AbstractWebServer {
    * Clears an overiden Mongoose options back to the default value.
    */
   void clear_mongoose_option(const StringPiece& name) {
-    map<string, string>::iterator it = options_.find(name.as_string());
+    std::map<string, string>::iterator it = options_.find(name.as_string());
     if (it != options_.end()) {
       options_.erase(it);
     }

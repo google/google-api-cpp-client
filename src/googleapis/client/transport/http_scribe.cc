@@ -19,10 +19,7 @@
 
 
 #include <deque>
-using std::deque;
 #include <set>
-using std::multiset;
-using std::set;
 #include <string>
 using std::string;
 #include <vector>

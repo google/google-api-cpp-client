@@ -21,8 +21,6 @@
 #include <float.h>
 #include <cmath>
 #include <set>
-using std::multiset;
-using std::set;
 #include <map>
 using std::map;
 #include <memory>

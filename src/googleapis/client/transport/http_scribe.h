@@ -21,13 +21,10 @@
 #define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_SCRIBE_H_
 
 #include <deque>
-using std::deque;
 #include <map>
 using std::map;
 #include <memory>
 #include <set>
-using std::multiset;
-using std::set;
 #include <string>
 using std::string;
 #include <vector>
@@ -40,12 +37,13 @@ using std::vector;
 #include "googleapis/base/thread_annotations.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
-namespace googleapis {
 
 namespace client {
 class HttpRequestBatch;
 class HttpRequest;
 class ParsedUrl;
+
+using googleapis::StringPiece;
 
 /*
  * Determines what is appropriate for scribes to record.
@@ -640,7 +638,8 @@ class HttpEntryScribe : public HttpScribe {
       = 0;
   virtual Entry* NewBatchEntry(const HttpRequestBatch* batch)
       EXCLUSIVE_LOCKS_REQUIRED(mutex_) {
-    LOG(FATAL) << "Not Implemented";  // Remove base/logging.h with this.
+    LOG(FATAL) << "Not Implemented";  // Remove #include logging.h with this.
+namespace googleapis {
     return NULL;
   }
 

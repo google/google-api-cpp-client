@@ -18,8 +18,13 @@
  */
 
 
+#include <map>
+using std::map;
 #include <string>
 using std::string;
+#include <vector>
+using std::vector;
+
 #include "googleapis/client/util/mongoose_webserver.h"
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/client/util/status.h"
@@ -60,13 +65,14 @@ class MongooseResponse : public WebServerResponse {
     StrAppend(&headers,
               "Content-Type: ", content_type, "\r\n",
               "Content-Length: ", payload.size(), "\r\n");
-    for (vector<pair<string, string> >::const_iterator it = headers_.begin();
+    for (std::vector<pair<string, string> >::const_iterator it =
+             headers_.begin();
          it != headers_.end();
          ++it) {
       StrAppend(&headers, it->first, ": ", it->second, "\r\n");
     }
 
-    for (vector<string>::const_iterator it = cookies_.begin();
+    for (std::vector<string>::const_iterator it = cookies_.begin();
          it != cookies_.end();
          ++it) {
       StrAppend(&headers, "Set-Cookie:", *it, "\r\n");
@@ -105,8 +111,8 @@ class MongooseResponse : public WebServerResponse {
 
  private:
   struct mg_connection* connection_;
-  vector<pair<string, string> > headers_;
-  vector<string> cookies_;
+  std::vector<std::pair<string, string> > headers_;
+  std::vector<string> cookies_;
 };
 
 // TODO(user): 20130626
@@ -224,7 +230,7 @@ util::Status MongooseWebServer::DoStartup() {
   std::unique_ptr<const char* []> options(
       new const char*[2 * options_.size() + 1]);
   const char** next_option_ptr = options.get();
-  for (map<string, string>::const_iterator it = options_.begin();
+  for (std::map<string, string>::const_iterator it = options_.begin();
        it != options_.end();
        ++it, next_option_ptr += 2) {
     next_option_ptr[0] = it->first.c_str();

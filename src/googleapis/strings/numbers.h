@@ -56,9 +56,6 @@ using std::numeric_limits;
 #include <string>
 using std::string;
 using std::string;
-#include <vector>
-using std::vector;
-using std::vector;
 
 #if defined(HAVE_INT_128)
 #include "googleapis/base/int128.h"

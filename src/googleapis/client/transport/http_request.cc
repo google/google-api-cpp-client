@@ -848,7 +848,7 @@ HttpRequest::HttpRequest(
       // If for some reason we didnt trust the censor then we can use this
       // attribute to hide parts of the request. This is used for batch
       // requests since the HttpCensor interface does not know about batching.
-      scribe_restrictions_(HttpScribe::ALLOW_EVERYTHING),
+      scribe_restrictions_(client::HttpScribe::ALLOW_EVERYTHING),
       busy_(false) {
   CHECK_NOTNULL(transport);
 

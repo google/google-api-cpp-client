@@ -54,7 +54,6 @@ using std::reverse;
 using std::swap;
 #include <cassert>
 #include <deque>
-using std::deque;
 #include <functional>
 using std::binary_function;
 using std::less;

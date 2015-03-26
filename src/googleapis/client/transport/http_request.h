@@ -37,7 +37,6 @@ class AuthorizationCredential;
 class DataReader;
 class HttpRequest;
 class HttpResponse;
-class HttpScribe;
 class HttpTransport;
 
 /*

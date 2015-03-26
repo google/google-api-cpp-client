@@ -22,8 +22,6 @@
 #define APISERVING_CLIENTS_CPP_UTIL_URI_TEMPLATE_H_
 
 #include <set>
-using std::multiset;
-using std::set;
 #include <string>
 using std::string;
 
