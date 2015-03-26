@@ -223,7 +223,7 @@ class HttpTransportErrorHandler {
   /*
    * Maps HTTP status code to specific handler for it.
    */
-  map<int, HttpCodeHandler*>  specialized_http_code_handlers_;
+  std::map<int, HttpCodeHandler*>  specialized_http_code_handlers_;
 
   /*
    * Handles HTTP redirects (HTTP 3xx series results).

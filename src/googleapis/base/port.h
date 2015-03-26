@@ -1097,7 +1097,7 @@ typedef short int16_t;
 #endif  // COMPILER_MSVC
 
 #ifdef STL_MSVC  // not always the same as COMPILER_MSVC
-#include "googleapis/base/port_hash.h"
+#include "googleapis/base/port_hash.inc"
 #else
 struct PortableHashBase { };
 #endif

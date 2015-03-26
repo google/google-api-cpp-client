@@ -36,7 +36,7 @@ namespace strings {
 AlphaNum gEmptyAlphaNum("");
 
 AlphaNum::AlphaNum(strings::Hex hex) {
-  char *const end = &digits[kFastToBufferSize];
+  char *const end = &digits_[kFastToBufferSize];
   char *writer = end;
   uint64 value = hex.value;
   uint64 width = hex.spec;
@@ -50,7 +50,7 @@ AlphaNum::AlphaNum(strings::Hex hex) {
     value >>= 4;
     mask >>= 4;
   } while (mask != 0);
-  piece.set(writer, end - writer);
+  piece_.set(writer, end - writer);
 }
 
 }  // namespace strings

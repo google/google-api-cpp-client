@@ -34,18 +34,19 @@
 #include <string.h>
 #include <limits>
 using std::numeric_limits;
-#include <memory>
 #include <string>
 using std::string;
 
 #include "googleapis/base/int128.h"
 #include "googleapis/base/integral_types.h"
 #include <glog/logging.h>
+#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/base/stringprintf.h"
 #include "googleapis/base/strtoint.h"
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/case.h"
 #include "googleapis/strings/strcat.h"
+#include "googleapis/strings/stringpiece_utils.h"
 
 namespace googleapis {
 
@@ -99,7 +100,7 @@ static inline bool EatADouble(const char** text, int* len, bool allow_question,
     retval = strtod(pos, &end_nonconst);
   } else {
     // not '\0'-terminated & no obvious terminator found. must copy.
-    std::unique_ptr<char[]> buf(new char[rem + 1]);
+    scoped_ptr<char[]> buf(new char[rem + 1]);
     memcpy(buf.get(), pos, rem);
     buf[rem] = '\0';
     retval = strtod(buf.get(), &end_nonconst);
@@ -472,41 +473,33 @@ double ParseLeadingDoubleValue(const char *str, double deflt) {
 //    whitespace, is case insensitive, and recognizes these forms:
 //    0/1, false/true, no/yes, n/y
 // --------------------------------------------------------------------
-bool ParseLeadingBoolValue(const char *str, bool deflt) {
-  static const int kMaxLen = 5;
-  char value[kMaxLen + 1];
-  // Skip whitespace
-  while (ascii_isspace(*str)) {
-    ++str;
+bool ParseLeadingBoolValue(StringPiece input, bool deflt) {
+  strings::RemoveLeadingWhitespace(&input);
+  // Keep alphanumeric
+  const char* const start = input.data();
+  const char* alpha_num_end = start;
+  const char* end = alpha_num_end + input.size();
+  while (alpha_num_end < end && ascii_isalnum(*alpha_num_end)) {
+    ++alpha_num_end;
   }
-  int len = 0;
-  for (; len <= kMaxLen && ascii_isalnum(*str); ++str)
-    value[len++] = ascii_tolower(*str);
-  if (len == 0 || len > kMaxLen)
-    return deflt;
-  value[len] = '\0';
-  switch (len) {
-    case 1:
-      if (value[0] == '0' || value[0] == 'n')
-        return false;
-      if (value[0] == '1' || value[0] == 'y')
-        return true;
-      break;
+  const StringPiece value(start, alpha_num_end - start);
+  switch (value.size()) {
+    case 1: {
+      const char c = value[0];
+      if (c == '0' || c == 'n' || c == 'N') return false;
+      if (c == '1' || c == 'y' || c == 'Y') return true;
+    } break;
     case 2:
-      if (!strcmp(value, "no"))
-        return false;
+      if (strings::EqualIgnoreCase(value, "no")) return false;
       break;
     case 3:
-      if (!strcmp(value, "yes"))
-        return true;
+      if (strings::EqualIgnoreCase(value, "yes")) return true;
       break;
     case 4:
-      if (!strcmp(value, "true"))
-        return true;
+      if (strings::EqualIgnoreCase(value, "true")) return true;
       break;
     case 5:
-      if (!strcmp(value, "false"))
-        return false;
+      if (strings::EqualIgnoreCase(value, "false")) return false;
       break;
   }
   return deflt;
@@ -918,40 +911,19 @@ uint64 atoi_kmgt(const char* s) {
 }
 
 // ----------------------------------------------------------------------
-// FastHexToBuffer()
 // FastHex64ToBuffer()
 // FastHex32ToBuffer()
-// FastTimeToBuffer()
-//    These are intended for speed.  FastHexToBuffer() assumes the
-//    integer is non-negative.  FastHexToBuffer() puts output in
-//    hex rather than decimal.  FastTimeToBuffer() puts the output
-//    into RFC822 format.  If time is 0, uses the current time.
-//
 //    FastHex64ToBuffer() puts a 64-bit unsigned value in hex-format,
 //    padded to exactly 16 bytes (plus one byte for '\0')
 //
 //    FastHex32ToBuffer() puts a 32-bit unsigned value in hex-format,
 //    padded to exactly 8 bytes (plus one byte for '\0')
 //
-//       All functions take the output buffer as an arg.  FastInt()
+//    All functions take the output buffer as an arg.  FastInt()
 //    uses at most 22 bytes, FastTime() uses exactly 30 bytes.
 //    They all return a pointer to the beginning of the output,
-//    which may not be the beginning of the input buffer.  (Though
-//    for FastTimeToBuffer(), we guarantee that it is.)
+//    which may not be the beginning of the input buffer.
 // ----------------------------------------------------------------------
-
-char *FastHexToBuffer(int i, char* buffer) {
-  CHECK_GE(i, 0) << "FastHexToBuffer() wants non-negative integers, not " << i;
-
-  static const char *hexdigits = "0123456789abcdef";
-  char *p = buffer + 21;
-  *p-- = '\0';
-  do {
-    *p-- = hexdigits[i & 15];   // mod by 16
-    i >>= 4;                    // divide by 16
-  } while (i > 0);
-  return p + 1;
-}
 
 char *InternalFastHexToBuffer(uint64 value, char* buffer, int num_byte) {
   static const char *hexdigits = "0123456789abcdef";
@@ -1143,11 +1115,11 @@ int HexDigitsPrefix(const char* buf, int num_digits) {
 //    strict mode, but "01" == "1" otherwise.
 // ----------------------------------------------------------------------
 
-int AutoDigitStrCmp(const char* a, int alen,
-                    const char* b, int blen,
+int AutoDigitStrCmp(const char* a, size_t alen,
+                    const char* b, size_t blen,
                     bool strict) {
-  int aindex = 0;
-  int bindex = 0;
+  size_t aindex = 0;
+  size_t bindex = 0;
   while ((aindex < alen) && (bindex < blen)) {
     if (ascii_isdigit(a[aindex]) && ascii_isdigit(b[bindex])) {
       // Compare runs of digits.  Instead of extracting numbers, we
@@ -1157,16 +1129,16 @@ int AutoDigitStrCmp(const char* a, int alen,
       // "1" and "01" in strict mode.
 
       // Skip leading zeroes, but remember how many we found
-      int azeroes = aindex;
-      int bzeroes = bindex;
+      size_t azeroes = aindex;
+      size_t bzeroes = bindex;
       while ((aindex < alen) && (a[aindex] == '0')) aindex++;
       while ((bindex < blen) && (b[bindex] == '0')) bindex++;
       azeroes = aindex - azeroes;
       bzeroes = bindex - bzeroes;
 
       // Count digit lengths
-      int astart = aindex;
-      int bstart = bindex;
+      size_t astart = aindex;
+      size_t bstart = bindex;
       while ((aindex < alen) && ascii_isdigit(a[aindex])) aindex++;
       while ((bindex < blen) && ascii_isdigit(b[bindex])) bindex++;
       if (aindex - astart < bindex - bstart) {
@@ -1177,7 +1149,7 @@ int AutoDigitStrCmp(const char* a, int alen,
         return 1;
       } else {
         // Same lengths, so compare digit by digit
-        for (int i = 0; i < aindex-astart; i++) {
+        for (size_t i = 0; i < aindex-astart; i++) {
           if (a[astart+i] < b[bstart+i]) {
             return -1;
           } else if (a[astart+i] > b[bstart+i]) {
@@ -1218,12 +1190,12 @@ int AutoDigitStrCmp(const char* a, int alen,
   }
 }
 
-bool AutoDigitLessThan(const char* a, int alen, const char* b, int blen) {
+bool AutoDigitLessThan(const char* a, size_t alen, const char* b, size_t blen) {
   return AutoDigitStrCmp(a, alen, b, blen, false) < 0;
 }
 
-bool StrictAutoDigitLessThan(const char* a, int alen,
-                             const char* b, int blen) {
+bool StrictAutoDigitLessThan(const char* a, size_t alen,
+                             const char* b, size_t blen) {
   return AutoDigitStrCmp(a, alen, b, blen, true) < 0;
 }
 
@@ -1380,80 +1352,5 @@ string ItoaKMGT(int64 i) {
 
   return StringPrintf("%s%" GG_LL_FORMAT "d%s", sign, val, suffix);
 }
-
-namespace strings {
-
-namespace internal {
-
-// Helper function for creating log messages.
-// We cannot log bad floating-point values directly.
-// If we need to log in the first place,
-// the value might be poisonous (unformattable somehow).
-
-static string ValueToPrettyString(const void* value_ptr, size_t value_length) {
-  static const char hex[] = "0123456789abcdef";
-  string pretty_string;
-  const unsigned char* value = static_cast<const unsigned char*>(value_ptr);
-  for (size_t i = 0; i < value_length; ++i) {
-    if (i > 0) {
-      pretty_string.append(" ");
-    }
-    pretty_string.append("0x");
-    pretty_string.push_back(hex[value[i] >> 8]);
-    pretty_string.push_back(hex[value[i] & 0x0f]);
-  }
-  return pretty_string;
-}
-
-char* FloatToCharBuffer(float value, char* buffer, size_t buffer_length) {
-  CHECK_GE(buffer_length, kFastToBufferSize);
-  // Try precisions: 6, 8, 9.  We are constrained by compatibility:
-  // some developers have stored previous outputs as data keys.
-  int rc = snprintf(buffer, buffer_length, "%.6g", value);
-  if (rc >= 0 && strtof(buffer, NULL) == value) {
-    return buffer;
-  }
-  rc = snprintf(buffer, buffer_length, "%.8g", value);
-  if (rc >= 0 && strtof(buffer, NULL) == value) {
-    return buffer;
-  }
-  rc = snprintf(buffer, buffer_length, "%.9g", value);
-  if (rc >= 0) {
-    return buffer;
-  }
-  // We cannot succeed.
-  // Log and give up.
-  LOG(DFATAL) << "snprintf failed: value: "
-              << ValueToPrettyString(&value, sizeof(value))
-              << " last rc: " << rc;
-  snprintf(buffer, buffer_length, "nan");
-  return buffer;
-}
-
-char* DoubleToCharBuffer(double value, char* buffer, size_t buffer_length) {
-  CHECK_GE(buffer_length, kFastToBufferSize);
-  // Try precisions: 15, 17.  Again, constrained by compatibility.
-  if (std::abs(value) <= kDoublePrecisionCheckMax) {
-    int rc = snprintf(buffer, buffer_length, "%.15g", value);
-    if (rc >= 0 && strtod(buffer, NULL) == value) {
-      return buffer;
-    }
-  }
-  int rc = snprintf(buffer, buffer_length, "%.17g", value);
-  if (rc >= 0) {
-    return buffer;
-  }
-  // We cannot succeed.
-  // Log and give up.
-  LOG(DFATAL) << "snprintf failed: value: "
-              << ValueToPrettyString(&value, sizeof(value))
-              << " last rc: " << rc;
-  snprintf(buffer, buffer_length, "nan");
-  return buffer;
-}
-
-}  // namespace internal
-
-}  // namespace strings
 
 }  // namespace googleapis

@@ -29,6 +29,7 @@ using std::map;
 #include <string>
 using std::string;
 #include <sstream>
+
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/jsoncpp_data.h"
 #include "googleapis/client/data/jsoncpp_data_helpers.h"
@@ -101,13 +102,13 @@ class JsonCppAdapterFixture : public testing::Test {
   }
 
   static void InitDictionary(
-      Json::Value* obj, map<string, Json::Value>* dict) {
+      Json::Value* obj, std::map<string, Json::Value>* dict) {
     dict->clear();
     (*dict)["1"] = 1;
     (*dict)["2"] = "two";
     (*dict)["3"] = 3.14169;
 
-    for (map<string, Json::Value>::const_iterator it = dict->begin();
+    for (std::map<string, Json::Value>::const_iterator it = dict->begin();
          it != dict->end();
          ++it) {
       (*obj)[it->first] = it->second;
@@ -308,7 +309,7 @@ TEST_F(JsonCppAdapterFixture, TestExamplePointers) {
 // Test we can read from a read-only dictionary (and not modify it).
 TEST_F(JsonCppAdapterFixture, TestReadDict) {
   Json::Value storage;
-  map<string, Json::Value> expect;
+  std::map<string, Json::Value> expect;
   InitDictionary(&storage, &expect);
 
   JsonCppAssociativeArray<JsonCppData> dict(storage);
@@ -354,7 +355,7 @@ TEST_F(JsonCppAdapterFixture, TestAssociativeArrays) {
 
   // Test iterating over primtives
   // Use the basic iterator to test that
-  set<string> foundInt;
+  std::set<string> foundInt;
   for (JsonCppAssociativeArray<int>::const_iterator it = dictInt.begin();
        it != dictInt.end();
        ++it) {
@@ -366,7 +367,7 @@ TEST_F(JsonCppAdapterFixture, TestAssociativeArrays) {
 
   // Test iterating over strings
   // Use C++11 style iteration to test that
-  set<string> foundString;
+  std::set<string> foundString;
   for (JsonCppAssociativeArray<string>::const_iterator elem =
            dictString.begin();
        elem != dictString.end();

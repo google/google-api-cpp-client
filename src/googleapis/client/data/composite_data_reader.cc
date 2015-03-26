@@ -20,6 +20,7 @@
 
 #include <vector>
 using std::vector;
+
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/integral_types.h"
@@ -34,7 +35,7 @@ namespace client {
 class CompositeDataReader : public DataReader {
  public:
   CompositeDataReader(
-      const vector<DataReader*>& readers, Closure* deleter)
+      const std::vector<DataReader*>& readers, Closure* deleter)
       : DataReader(deleter),
         readers_(readers), reader_index_(0), seekable_(true) {
     int64 sum = 0;
@@ -120,8 +121,8 @@ class CompositeDataReader : public DataReader {
   }
 
  private:
-  vector<DataReader*> readers_;
-  vector<int64> start_offset_;
+  std::vector<DataReader*> readers_;
+  std::vector<int64> start_offset_;
   int reader_index_;
   bool seekable_;
 
@@ -218,17 +219,18 @@ class CompositeDataReader : public DataReader {
 };
 
 DataReader* NewUnmanagedCompositeDataReader(
-    const vector<DataReader*>& readers) {
+    const std::vector<DataReader*>& readers) {
   return new CompositeDataReader(readers, NULL);
 }
 
 DataReader* NewManagedCompositeDataReader(
-    const vector<DataReader*>& readers, Closure* deleter) {
+    const std::vector<DataReader*>& readers, Closure* deleter) {
   return new CompositeDataReader(readers, deleter);
 }
 
-static void DeleteCompositeReadersAndContainer(vector<DataReader*>* readers) {
-  for (vector<DataReader*>::iterator it = readers->begin();
+static void DeleteCompositeReadersAndContainer(
+    std::vector<DataReader*>* readers) {
+  for (std::vector<DataReader*>::iterator it = readers->begin();
        it != readers->end();
        ++it) {
     delete *it;
@@ -237,7 +239,7 @@ static void DeleteCompositeReadersAndContainer(vector<DataReader*>* readers) {
 }
 
 Closure* NewCompositeReaderListAndContainerDeleter(
-    vector<DataReader*>* readers) {
+    std::vector<DataReader*>* readers) {
   return NewCallback(&DeleteCompositeReadersAndContainer, readers);
 }
 

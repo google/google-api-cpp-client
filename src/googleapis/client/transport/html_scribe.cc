@@ -34,12 +34,6 @@ namespace googleapis {
 namespace client {
 namespace {
 
-// forward declaration
-string BuildBatchRequestDetail(
-    HtmlScribe* scribe,
-    const HttpRequestBatch* batch,
-    const string& id);
-
 const StringPiece kToggleControl("");
 const StringPiece kBinarySymbol(".");
 
@@ -109,16 +103,6 @@ void InitializeHtml(const StringPiece& title, DataWriter* writer) {
       StrCat("<html><head>", javascript, css,
              "<title>", html, "</title>",
              "</head><body>")).IgnoreError();
-}
-
-int64 ComputePayloadSize(DataReader* reader) {
-  if (!reader) return 0;
-  int64 size = reader->TotalLengthIfKnown();
-  if (size < 0) {
-    size = reader->SetOffset(kint64max);
-    reader->SetOffset(0);
-  }
-  return size;
 }
 
 // An html entry contains separate HTML strings for the request information and
@@ -426,64 +410,6 @@ class HtmlEntry : public HttpEntryScribe::Entry {
     AppendEndToggleTable(html);
   }
 
-#if 0
-  static void AppendPayloadData(string* html,
-                                bool can_toggle,
-                                const StringPiece& id,
-                                const StringPiece& thing_name,
-                                int64 original_size,
-                                bool escape_snippet,
-                                const StringPiece& snippet) {
-    if (original_size == 0) {
-      StrAppend(html, "<i>Empty ", thing_name, "</i><br/>\n");
-      return;
-    }
-
-    string payload_size;
-    const int64 kKiB = 1 * 1000;
-    const int64 kMiB = kKiB * 1000;
-    const int64 kGiB = kMiB * 1000;
-
-    if (original_size < 0) {
-      payload_size = "UNKNOWN";
-    } else if (original_size < kKiB) {
-      payload_size = StrCat(original_size, "b");
-    } else if (original_size < kMiB) {
-      payload_size = StrCat(Magnitude(original_size, kKiB), "kiB");
-    } else if (original_size < kGiB) {
-      payload_size = StrCat(Magnitude(original_size, kMiB), "MiB");
-    } else {
-      payload_size = StrCat(Magnitude(original_size, kGiB), "GiB");
-    }
-    if (snippet.empty()) {
-      StrAppend(html,
-                "<i>Stripped all ", payload_size, " from ", thing_name,
-                "</i><br/>\n");
-      return;
-    }
-
-    // No href. We are just using it as a toggle with mouse over styles.
-    string display;
-    if (can_toggle) {
-      StrAppend(html,
-                "<a class='toggle' onclick='toggle_visibility(\"",
-                id, "\");'>");
-      StrAppend(html,
-                kToggleControl, payload_size, " ", thing_name,
-                "</a><br/>\n");
-    } else {
-      display = " style='display:block'";
-      StrAppend(html, "<b>", payload_size, " ", thing_name, "</b>\n");
-    }
-    StrAppend(html, "<div id=\"", id, "\" class='data'", display, ">\n");
-    if (escape_snippet) {
-      EscapeAndAppendString(snippet, html);
-    } else {
-      StrAppend(html, snippet);
-    }
-    StrAppend(html, "</div>\n");
-  }
-#endif
   static void AppendPayloadData(string* html,
                                 bool can_toggle,
                                 const StringPiece& id,

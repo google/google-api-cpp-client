@@ -34,6 +34,7 @@ using std::make_pair;
 using std::pair;
 #include <vector>
 using std::vector;
+
 #include "googleapis/client/util/date_time.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/strcat.h"
@@ -72,7 +73,7 @@ class ParsedUrl {
    * Type used for getting individual query parameter bindings.
    * The values will be unescaped.
    */
-  typedef pair<StringPiece, string> QueryParameterAssignment;
+  typedef std::pair<StringPiece, string> QueryParameterAssignment;
 
   /*
    * Construct the parsed url from a URL.
@@ -145,7 +146,8 @@ class ParsedUrl {
    *
    * This method is not thread-safe for the first invocation.
    */
-  const vector<QueryParameterAssignment>& GetQueryParameterAssignments() const;
+  const std::vector<
+      QueryParameterAssignment>& GetQueryParameterAssignments() const;
 
   /*
    * Looks up value of query paraemter if it is there.
@@ -184,7 +186,7 @@ class ParsedUrl {
 
   // Constructed on first request, not thread-safe but not typically
   // used in a multi-threaded context and not typically used at all.
-  mutable vector<QueryParameterAssignment> query_param_assignments_;
+  mutable std::vector<QueryParameterAssignment> query_param_assignments_;
 
   // Indicates whether the url is valid or not.
   mutable bool valid_;

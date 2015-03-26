@@ -309,7 +309,7 @@ class UserRepository {
       VLOG(1) << "Creating new UserData. cookie=" << user_data->cookie_id();
     }
 
-    repository_.insert(make_pair(user_data->cookie_id(), user_data));
+    repository_.insert(std::make_pair(user_data->cookie_id(), user_data));
     return user_data;
   }
 

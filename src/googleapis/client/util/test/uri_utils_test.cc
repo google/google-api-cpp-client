@@ -91,10 +91,8 @@ TEST(Test, TestParsedUrl) {
 
 TEST(Test, TestParseQueryParameters) {
   const ParsedUrl::QueryParameterAssignment tests[] = {
-    make_pair("A", "a"),
-    make_pair("Number", "23"),
-    make_pair("Escaped", "This&That=25%"),
-    make_pair("Empty", ""),
+      std::make_pair("A", "a"), std::make_pair("Number", "23"),
+      std::make_pair("Escaped", "This&That=25%"), std::make_pair("Empty", ""),
   };
 
   string query;
@@ -140,13 +138,12 @@ TEST(Test, TestEscapeForUrl) {
   const char kBinaryString[] = { 'B', 1, '1', 0 };
 
   pair<const char*, const char*> tests[] = {
-    make_pair("simple", "simple"),
-    make_pair("a long phrase", "a%20long%20phrase"),
-    make_pair("!#$&'()*+,/:;=?@[]",
-              "%21%23%24%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D"),
-    make_pair(" 9:<=>{}~", "%209%3A<%3D>{}~"),
-    make_pair(kBinaryString, "B%011"),
-    make_pair("%", "%25"),
+      std::make_pair("simple", "simple"),
+      std::make_pair("a long phrase", "a%20long%20phrase"),
+      std::make_pair("!#$&'()*+,/:;=?@[]",
+                     "%21%23%24%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D"),
+      std::make_pair(" 9:<=>{}~", "%209%3A<%3D>{}~"),
+      std::make_pair(kBinaryString, "B%011"), std::make_pair("%", "%25"),
   };
 
   for (int i = 0; i < ARRAYSIZE(tests); ++i) {
@@ -188,7 +185,7 @@ TEST(Test, TestValueToEscapedUrlValue) {
   EXPECT_EQ("3.1415", CppValueToEscapedUrlValue(3.1415f));
   EXPECT_EQ("3.14159265359", CppValueToEscapedUrlValue(3.14159265359));
   EXPECT_EQ("1998-09-04", CppValueToEscapedUrlValue(Date("1998-09-04")));
-  EXPECT_EQ("1998-09-04T18%3A00%3A00Z",
+  EXPECT_EQ("1998-09-04T18%3A00%3A00.000Z",
             CppValueToEscapedUrlValue(DateTime("1998-09-04T10:00:00-08:00")));
 }
 
@@ -218,30 +215,27 @@ TEST(Test, TestResolveUrl) {
   StringPiece original_url = "http://a/b/c/d;p?q#f";
 
   pair<StringPiece, StringPiece> tests[] = {
-    make_pair("g:h", "g:h"),
-    make_pair("g", "http://a/b/c/g"),
-    make_pair("./g", "http://a/b/c/g"),
-    make_pair("g/", "http://a/b/c/g/"),
-    make_pair("/g", "http://a/g"),
-    make_pair("//g", "http://g"),
-    make_pair("?y", "http://a/b/c/d;p?y"),
-    make_pair("g?y", "http://a/b/c/g?y"),
-    make_pair("g?y/./x", "http://a/b/c/g?y/./x"),
-    make_pair("#s", "http://a/b/c/d;p?q#s"),
-    make_pair("g#s", "http://a/b/c/g#s"),
-    make_pair("g#s/./x", "http://a/b/c/g#s/./x"),
-    make_pair("g?y#s", "http://a/b/c/g?y#s"),
-    make_pair(";x", "http://a/b/c/d;x"),
-    make_pair("g;x", "http://a/b/c/g;x"),
-    make_pair("g;x?y#s", "http://a/b/c/g;x?y#s"),
-    make_pair(".", "http://a/b/c/"),
-    make_pair("./", "http://a/b/c/"),
-    make_pair("..", "http://a/b/"),
-    make_pair("../", "http://a/b/"),
-    make_pair("../g", "http://a/b/g"),
-    make_pair("../..", "http://a/"),
-    make_pair("../../", "http://a/"),
-    make_pair("../../g", "http://a/g"),
+      std::make_pair("g:h", "g:h"), std::make_pair("g", "http://a/b/c/g"),
+      std::make_pair("./g", "http://a/b/c/g"),
+      std::make_pair("g/", "http://a/b/c/g/"),
+      std::make_pair("/g", "http://a/g"), std::make_pair("//g", "http://g"),
+      std::make_pair("?y", "http://a/b/c/d;p?y"),
+      std::make_pair("g?y", "http://a/b/c/g?y"),
+      std::make_pair("g?y/./x", "http://a/b/c/g?y/./x"),
+      std::make_pair("#s", "http://a/b/c/d;p?q#s"),
+      std::make_pair("g#s", "http://a/b/c/g#s"),
+      std::make_pair("g#s/./x", "http://a/b/c/g#s/./x"),
+      std::make_pair("g?y#s", "http://a/b/c/g?y#s"),
+      std::make_pair(";x", "http://a/b/c/d;x"),
+      std::make_pair("g;x", "http://a/b/c/g;x"),
+      std::make_pair("g;x?y#s", "http://a/b/c/g;x?y#s"),
+      std::make_pair(".", "http://a/b/c/"),
+      std::make_pair("./", "http://a/b/c/"),
+      std::make_pair("..", "http://a/b/"), std::make_pair("../", "http://a/b/"),
+      std::make_pair("../g", "http://a/b/g"),
+      std::make_pair("../..", "http://a/"),
+      std::make_pair("../../", "http://a/"),
+      std::make_pair("../../g", "http://a/g"),
   };
 
   for (int i = 0; i < arraysize(tests); ++i) {

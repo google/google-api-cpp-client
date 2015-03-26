@@ -107,7 +107,7 @@ class MongooseWebServer : public AbstractWebServer {
    */
   void set_mongoose_option(
       const StringPiece& name, const StringPiece& value) {
-    options_.insert(make_pair(name.as_string(), value.as_string()));
+    options_.insert(std::make_pair(name.as_string(), value.as_string()));
   }
 
   /*

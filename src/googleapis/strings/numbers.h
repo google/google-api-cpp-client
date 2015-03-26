@@ -229,7 +229,6 @@ char* FastUInt64ToBuffer(uint64 i, char* buffer);
 char* FastTimeToBuffer(time_t t, char* buffer);
 
 // These are deprecated.  Use StrCat instead.
-char* FastHexToBuffer(int i, char* buffer) MUST_USE_RESULT;
 char* FastHex64ToBuffer(uint64 i, char* buffer);
 char* FastHex32ToBuffer(uint32 i, char* buffer);
 
@@ -275,10 +274,6 @@ inline char* FastUInt64ToBuffer(uint64 i, char* buffer) {
 inline char* FastIntToBuffer(int i, char* buffer) {
   return (sizeof(i) == 4 ?
           FastInt32ToBuffer(i, buffer) : FastInt64ToBuffer(i, buffer));
-}
-inline char* FastUIntToBuffer(unsigned int i, char* buffer) {
-  return (sizeof(i) == 4 ?
-          FastUInt32ToBuffer(i, buffer) : FastUInt64ToBuffer(i, buffer));
 }
 
 // ----------------------------------------------------------------------
@@ -396,10 +391,7 @@ inline double ParseLeadingDoubleValue(const string& str, double deflt) {
 //    whitespace, is case insensitive, and recognizes these forms:
 //    0/1, false/true, no/yes, n/y
 // --------------------------------------------------------------------
-bool ParseLeadingBoolValue(const char* str, bool deflt);
-inline bool ParseLeadingBoolValue(const string& str, bool deflt) {
-  return ParseLeadingBoolValue(str.c_str(), deflt);
-}
+bool ParseLeadingBoolValue(StringPiece str, bool deflt);
 
 // ----------------------------------------------------------------------
 // AutoDigitStrCmp
@@ -424,15 +416,15 @@ inline bool ParseLeadingBoolValue(const string& str, bool deflt) {
 //    strict mode, but "01" == "1" otherwise.
 // ----------------------------------------------------------------------
 
-int AutoDigitStrCmp(const char* a, int alen,
-                    const char* b, int blen,
+int AutoDigitStrCmp(const char* a, size_t alen,
+                    const char* b, size_t blen,
                     bool strict);
 
-bool AutoDigitLessThan(const char* a, int alen,
-                       const char* b, int blen);
+bool AutoDigitLessThan(const char* a, size_t alen,
+                       const char* b, size_t blen);
 
-bool StrictAutoDigitLessThan(const char* a, int alen,
-                             const char* b, int blen);
+bool StrictAutoDigitLessThan(const char* a, size_t alen,
+                             const char* b, size_t blen);
 
 struct autodigit_less
   : public std::binary_function<const string&, const string&, bool> {
@@ -601,8 +593,8 @@ inline string SimpleItoaWithCommas(IntType ii) {
     sp1.remove_prefix(1);
   }
   // Copy rest of input characters.
-  for (size_t i = 0; i < sp1.size(); ++i) {
-    if (i > 0 && i < sp1.size() && (sp1.size() - i) % 3 == 0) {
+  for (stringpiece_ssize_type i = 0; i < sp1.size(); ++i) {
+    if (i > 0 && (sp1.size() - i) % 3 == 0) {
       output.push_back(',');
     }
     output.push_back(sp1[i]);
@@ -682,32 +674,6 @@ bool ParseDoubleRange(const char* text, int len, const char** end,
 
 // END DOXYGEN SplitFunctions grouping
 /* @} */
-
-// Functions in strings::internal are internal functions.
-// As usual, we may break your build if you cheat on strings::internal.
-// DO NOT USE INTERNAL FUNCTIONS OUTSIDE OF //STRINGS.
-
-namespace strings {
-
-namespace internal {
-
-// Convert a float or a double to a NUL-terminated char buffer.
-// buffer_length must be >= kFastToBufferSize.
-// Returns buffer for convenience in chaining calls.
-//
-// On IEEE-754 machines: strtof(FloatToCharBuffer(value)) and
-// strtod(DoubleToCharBuffer(value)) return a value equal to the original
-// value.  Exception: if value is NaN, then the round-trip value may be the
-// same NaN or a different NaN.
-//
-// The output char-buffer is not guaranteed to be as short as possible.
-
-char* FloatToCharBuffer(float value, char* buffer, size_t buffer_length);
-char* DoubleToCharBuffer(double value, char* buffer, size_t buffer_length);
-
-}  // namespace internal
-
-}  // namespace strings
 
 }  // namespace googleapis
 #endif  // STRINGS_NUMBERS_H_

@@ -222,8 +222,8 @@ bool File::DeleteDir(const string& path) {
 
 /* static */
 bool File::RecursivelyDeleteDir(const string& path) {
-  vector<string> subdirs;
-  vector<string> files;
+  std::vector<std::string> subdirs;
+  std::vector<std::string> files;
 #ifdef _MSC_VER
   string windows_path = ToNativePath(StrCat(path, "/*"));
   string dir_str;
@@ -272,12 +272,12 @@ bool File::RecursivelyDeleteDir(const string& path) {
     return true;
   }
 
-  for (vector<string>::const_iterator it = subdirs.begin();
+  for (std::vector<std::string>::const_iterator it = subdirs.begin();
        it != subdirs.end();
        ++it) {
     RecursivelyDeleteDir(StrCat(path, "/", *it));
   }
-  for (vector<string>::const_iterator it = files.begin();
+  for (std::vector<std::string>::const_iterator it = files.begin();
        it != files.end();
        ++it) {
     File::Delete(StrCat(path, "/", *it));
@@ -288,7 +288,7 @@ bool File::RecursivelyDeleteDir(const string& path) {
 /* static */
 util::Status File::RecursivelyCreateDirWithPermissions(
      const string& path, mode_t permissions) {
-  stack<StringPiece> to_do;
+  std::stack<StringPiece> to_do;
 
   int last_slash = path.size();
   while (last_slash > 0) {

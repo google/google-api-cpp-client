@@ -19,10 +19,10 @@
 
 
 #include "googleapis/client/transport/http_scribe.h"
+
 #include <memory>
 #include <string>
 using std::string;
-
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_response.h"

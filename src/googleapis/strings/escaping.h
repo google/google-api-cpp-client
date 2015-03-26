@@ -18,6 +18,7 @@
  */
 #ifndef GOOGLEAPIS_ESCAPING_H_  // NOLINT
 #define GOOGLEAPIS_ESCAPING_H_
+
 #include <string>
 namespace googleapis {
 using std::string;
@@ -25,21 +26,26 @@ using std::string;
 
 namespace strings {
 
+
 int WebSafeBase64Escape(const unsigned char *src, int szsrc, char *dest,
                         int szdest, bool do_padding);
+void WebSafeBase64Escape(const unsigned char *src, int szsrc,
+                         string *dest, bool do_padding);
 
 int Base64Escape(const unsigned char *src, int szsrc, char *dest, int szdest);
+void Base64Escape(const unsigned char *src, int szsrc,
+                  string* dest, bool do_padding);
+void Base64Escape(const string& src, string* dest);
 
 int CalculateBase64EscapedLen(int input_len, bool do_padding = true);
 
-int Base64Unescape(const char *src, int szsrc, char *dest, int szdest);
 bool Base64Unescape(const char *src, int szsrc, string* dest);
 inline int Base64Unescape(const string& src, string* dest) {
   return Base64Unescape(src.data(), src.size(), dest);
 }
 
-int WebSafeBase64Unescape(const char *src, int szsrc, char *dest, int szdest);
 bool WebSafeBase64Unescape(const char *src, int szsrc, string* dest);
+
 inline int WebSafeBase64Unescape(const string& src, string* dest) {
   return WebSafeBase64Unescape(src.data(), src.size(), dest);
 }

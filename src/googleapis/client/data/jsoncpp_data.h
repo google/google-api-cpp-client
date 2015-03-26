@@ -401,7 +401,7 @@ class JsonCppArray : public JsonCppData {
    *
    * @param[in] array The vector to import from.
    */
-  void Import(const vector<T>& array) {
+  void Import(const std::vector<T>& array) {
     Clear();
     MutableStorage()->resize(array.size());
     for (int i = 0; i < array.size(); ++i) {
@@ -429,7 +429,7 @@ class JsonCppArray : public JsonCppData {
    *
    * This will clear the array before exporting.
    */
-  void Export(vector<T>* array) const { Export(0, size(), array); }
+  void Export(std::vector<T>* array) const { Export(0, size(), array); }
 
   /*
    * Exports a range of data from this instance into a given C++ vector.
@@ -443,7 +443,7 @@ class JsonCppArray : public JsonCppData {
    * @return false if the existing bounds of this array are not consistent
    * with the arguments.
    */
-  bool Export(int offset, int count, vector<T>* array) const {
+  bool Export(int offset, int count, std::vector<T>* array) const {
     const Json::Value& json = Storage();
     if (offset + count > json.size()) return false;
 
@@ -673,12 +673,12 @@ class JsonCppConstIndexIterator
  */
 template<typename T>
 class JsonCppConstAssociativeIterator
-    : public JsonCppAbstractIterator<pair<const string, T>,
+    : public JsonCppAbstractIterator<std::pair<const string, T>,
                                      Json::Value::const_iterator> {
  public:
   typedef JsonCppConstAssociativeIterator<T> SelfType;
-  typedef pair<const string, T> reference;
-  typedef JsonCppAbstractIterator<pair<const string, T>,
+  typedef std::pair<const string, T> reference;
+  typedef JsonCppAbstractIterator<std::pair<const string, T>,
                                   Json::Value::const_iterator> SuperClass;
 
   JsonCppConstAssociativeIterator(
@@ -687,9 +687,7 @@ class JsonCppConstAssociativeIterator
   ~JsonCppConstAssociativeIterator() {}
 
   // If you only care about one part of the pair, consider key() or value().
-  reference operator*() const {
-    return make_pair(key(), value());
-  }
+  reference operator*() const { return std::make_pair(key(), value()); }
 
   // This returns a copy of the string, not a reference to the string.
   // Unfortunately this is an implementation detail caused by limitations

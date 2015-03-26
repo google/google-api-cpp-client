@@ -108,14 +108,19 @@ class Base64Reader : public CodecReader {
     if (*to_length > INT_MAX) {
       return StatusInvalidArgument("target size too big");
     }
-    int szdest = *to_length;
-
-    int len = chunk.size();
-    const char* source = chunk.data();
+    string decoded;
+    bool success;
     if (websafe_) {
-      *to_length = strings::WebSafeBase64Unescape(source, len, to, szdest);
+      success = strings::WebSafeBase64Unescape(chunk.data(), chunk.size(),
+                                               &decoded);
     } else {
-      *to_length = strings::Base64Unescape(source, len, to, szdest);
+#ifndef GOOGLECLIENT_SUBSET
+    }
+    if (success && decoded.size() <= *to_length) {
+      memcpy(to, decoded.data(), decoded.size());
+      *to_length = decoded.size();
+    } else {
+      *to_length = -1;
     }
     return StatusOk();
   }

@@ -163,22 +163,22 @@ void StripCurlyBraces(string* s) {
 }
 
 void StripBrackets(char left, char right, string* s) {
-  string::iterator opencurly = find(s->begin(), s->end(), left);
+  string::iterator opencurly = std::find(s->begin(), s->end(), left);
   while (opencurly != s->end()) {
-    string::iterator closecurly = find(opencurly, s->end(), right);
+    string::iterator closecurly = std::find(opencurly, s->end(), right);
     if (closecurly == s->end())
       return;
     opencurly = s->erase(opencurly, closecurly + 1);
-    opencurly = find(opencurly, s->end(), left);
+    opencurly = std::find(opencurly, s->end(), left);
   }
 }
 
 void StripMarkupTags(string* s) {
-  string::iterator output = find(s->begin(), s->end(), '<');
+  string::iterator output = std::find(s->begin(), s->end(), '<');
   string::iterator input = output;
   while (input != s->end()) {
     if (*input == '<') {
-      input = find(input, s->end(), '>');
+      input = std::find(input, s->end(), '>');
       if (input == s->end()) break;
       ++input;
     } else {
@@ -270,7 +270,7 @@ int strrmm(string* str, const string& chars) {
 
 // ----------------------------------------------------------------------
 // StripDupCharacters
-//    Replaces any repeated occurrence of the character 'repeat_char'
+//    Replaces any repeated occurrence of the character 'dup_char'
 //    with single occurrence.  e.g.,
 //       StripDupCharacters("a//b/c//d", '/', 0) => "a/b/c/d"
 //    Return the number of characters removed
@@ -400,7 +400,7 @@ void TrimRunsInString(string* s, StringPiece remove) {
 //    Removes any internal \0 characters from the string.
 // ----------------------------------------------------------------------
 void RemoveNullsInString(string* s) {
-  s->erase(remove(s->begin(), s->end(), '\0'), s->end());
+  s->erase(std::remove(s->begin(), s->end(), '\0'), s->end());
 }
 
 }  // namespace googleapis

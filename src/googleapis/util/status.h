@@ -18,8 +18,8 @@
  */
 
 
-#ifndef UTIL_TASK_STATUS_H_
-#define UTIL_TASK_STATUS_H_
+#ifndef GOOGLEAPIS_UTIL_TASK_STATUS_H_
+#define GOOGLEAPIS_UTIL_TASK_STATUS_H_
 #include <string>
 using std::string;
 #include "googleapis/strings/stringpiece.h"
@@ -181,4 +181,4 @@ class Status {
 }  // namespace util
 
 }  // namespace googleapis
-#endif  // UTIL_TASK_STATUS_H_
+#endif  // GOOGLEAPIS_UTIL_TASK_STATUS_H_

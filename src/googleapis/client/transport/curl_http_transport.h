@@ -32,10 +32,9 @@
 #ifndef APISERVING_CLIENTS_CPP_TRANSPORT_CURL_HTTP_TRANSPORT_H_
 #define APISERVING_CLIENTS_CPP_TRANSPORT_CURL_HTTP_TRANSPORT_H_
 
-#include <string>
-using std::string;
 #include <vector>
 using std::vector;
+
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/base/macros.h"
@@ -113,7 +112,7 @@ class CurlHttpTransport : public HttpTransport {
   void ReleaseProcessor(CurlProcessor* processor);
 
   Mutex mutex_;
-  vector<CurlProcessor*> processors_;
+  std::vector<CurlProcessor*> processors_;
 
   friend class CurlHttpRequest;
   DISALLOW_COPY_AND_ASSIGN(CurlHttpTransport);

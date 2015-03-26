@@ -336,12 +336,12 @@ util::Status OAuth2Credential::UpdateFromString(const StringPiece& json) {
     // this is coming from the OAuth2 server and is secure with https.
     // see https://developers.google.com/accounts/docs/OAuth2Login
     //     #validatinganidtoken
-    vector<StringPiece> parts = strings::Split(str_value, ".");
+    std::vector<StringPiece> parts = strings::Split(str_value, ".");
     if (parts.size() != 3) {
       return StatusUnknown("Invalid id_token attribute - not a JWT");
     }
     string claims;
-    if (!strings::Base64Unescape(parts[1], &claims)) {
+    if (!strings::Base64Unescape(parts[1].data(), parts[1].size(), &claims)) {
       return StatusUnknown("id_token claims not base-64 encoded");
     }
     return UpdateFromString(claims);
@@ -675,7 +675,8 @@ string OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrlWithOptions(
 }
 
 // static
-string OAuth2AuthorizationFlow::JoinScopes(const vector<StringPiece>& scopes) {
+string OAuth2AuthorizationFlow::JoinScopes(
+    const std::vector<StringPiece>& scopes) {
   return strings::Join(scopes, " ");
 }
 

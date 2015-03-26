@@ -103,61 +103,62 @@ struct Hex {
   }
 };
 
-struct AlphaNum {
-  StringPiece piece;
-  char digits[kFastToBufferSize];
-
+class AlphaNum {
+ public:
   // No bool ctor -- bools convert to an integral type.
   // A bool ctor would also convert incoming pointers (bletch).
 
   AlphaNum(int32 i32)  // NOLINT(runtime/explicit)
-      : piece(digits, FastInt32ToBufferLeft(i32, digits) - &digits[0]) {}
+      : piece_(digits_, FastInt32ToBufferLeft(i32, digits_) - &digits_[0]) {}
   AlphaNum(uint32 u32)  // NOLINT(runtime/explicit)
-      : piece(digits, FastUInt32ToBufferLeft(u32, digits) - &digits[0]) {}
+      : piece_(digits_, FastUInt32ToBufferLeft(u32, digits_) - &digits_[0]) {}
   AlphaNum(int64 i64)  // NOLINT(runtime/explicit)
-      : piece(digits, FastInt64ToBufferLeft(i64, digits) - &digits[0]) {}
+      : piece_(digits_, FastInt64ToBufferLeft(i64, digits_) - &digits_[0]) {}
   AlphaNum(uint64 u64)  // NOLINT(runtime/explicit)
-      : piece(digits, FastUInt64ToBufferLeft(u64, digits) - &digits[0]) {}
+      : piece_(digits_, FastUInt64ToBufferLeft(u64, digits_) - &digits_[0]) {}
 
 #ifdef _LP64
   AlphaNum(long x)  // NOLINT(runtime/explicit)
-    : piece(digits, FastInt64ToBufferLeft(x, digits) - &digits[0]) {}
+    : piece_(digits_, FastInt64ToBufferLeft(x, digits_) - &digits_[0]) {}
   AlphaNum(unsigned long x)  // NOLINT(runtime/explicit)
-    : piece(digits, FastUInt64ToBufferLeft(x, digits) - &digits[0]) {}
+    : piece_(digits_, FastUInt64ToBufferLeft(x, digits_) - &digits_[0]) {}
 #else
   AlphaNum(long x)  // NOLINT(runtime/explicit)
-    : piece(digits, FastInt32ToBufferLeft(x, digits) - &digits[0]) {}
+    : piece_(digits_, FastInt32ToBufferLeft(x, digits_) - &digits_[0]) {}
   AlphaNum(unsigned long x)  // NOLINT(runtime/explicit)
-    : piece(digits, FastUInt32ToBufferLeft(x, digits) - &digits[0]) {}
+    : piece_(digits_, FastUInt32ToBufferLeft(x, digits_) - &digits_[0]) {}
 #endif
 
   AlphaNum(float f)  // NOLINT(runtime/explicit)
-    : piece(digits, strlen(FloatToBuffer(f, digits))) {}
+    : piece_(digits_, strlen(FloatToBuffer(f, digits_))) {}
   AlphaNum(double f)  // NOLINT(runtime/explicit)
-    : piece(digits, strlen(DoubleToBuffer(f, digits))) {}
+    : piece_(digits_, strlen(DoubleToBuffer(f, digits_))) {}
 
   AlphaNum(Hex hex);  // NOLINT(runtime/explicit)
 
-  AlphaNum(const char *c_str) : piece(c_str) {}   // NOLINT(runtime/explicit)
-  AlphaNum(const StringPiece &pc) : piece(pc) {}  // NOLINT(runtime/explicit)
+  AlphaNum(const char *c_str) : piece_(c_str) {}   // NOLINT(runtime/explicit)
+  AlphaNum(const StringPiece &pc) : piece_(pc) {}  // NOLINT(runtime/explicit)
 
 #if defined(HAS_GLOBAL_STRING)
   template <class Allocator>
   AlphaNum(const basic_string<char, std::char_traits<char>,
                               Allocator> &str)
-      : piece(str) {}
+      : piece_(str) {}
 #endif
   template <class Allocator>
   AlphaNum(const std::basic_string<char, std::char_traits<char>,
                                    Allocator> &str)  // NOLINT(runtime/explicit)
-      : piece(str) {}
+      : piece_(str) {}
 
 
-  StringPiece::size_type size() const { return piece.size(); }
-  const char *data() const { return piece.data(); }
-  StringPiece Piece() const { return piece; }
+  StringPiece::size_type size() const { return piece_.size(); }
+  const char *data() const { return piece_.data(); }
+  StringPiece Piece() const { return piece_; }
 
  private:
+  StringPiece piece_;
+  char digits_[kFastToBufferSize];
+
   // Use ":" not ':'
   AlphaNum(char c);  // NOLINT(runtime/explicit)
 
@@ -569,7 +570,7 @@ inline string StrCat(
 //    string s = "foo";
 //    StrAppend(&s, s);
 //
-//    Note: while StrCat supports appending up to 12 arguments, StrAppend
+//    Note: while StrCat supports appending up to 26 arguments, StrAppend
 //    is currently limited to 9.  That's rarely an issue except when
 //    automatically transforming StrCat to StrAppend, and can easily be
 //    worked around as consecutive calls to StrAppend are quite efficient.

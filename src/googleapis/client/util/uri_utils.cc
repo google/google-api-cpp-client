@@ -98,9 +98,9 @@ ParsedUrl::~ParsedUrl() {
 
 bool
 ParsedUrl::GetQueryParameter(const StringPiece& name, string* value) const {
-  const vector<ParsedUrl::QueryParameterAssignment>& list =
+  const std::vector<ParsedUrl::QueryParameterAssignment>& list =
       GetQueryParameterAssignments();
-  for (vector<ParsedUrl::QueryParameterAssignment>::const_iterator
+  for (std::vector<ParsedUrl::QueryParameterAssignment>::const_iterator
            it = list.begin();
        it != list.end();
        ++it) {
@@ -121,26 +121,26 @@ bool ParsedUrl::IsValid() const {
   return valid_;
 }
 
-const vector<ParsedUrl::QueryParameterAssignment>&
+const std::vector<ParsedUrl::QueryParameterAssignment>&
 ParsedUrl::GetQueryParameterAssignments() const {
   if (!query_param_assignments_.empty() || query_.empty()) {
     return query_param_assignments_;
   }
 
-  vector<StringPiece> parts = strings::Split(query_, "&");
+  std::vector<StringPiece> parts = strings::Split(query_, "&");
   for (int i = 0; i < parts.size(); ++i) {
     int offset = parts[i].find('=');
 
     // Note that query_param_assignments_ is mutable.
     if (offset == StringPiece::npos) {
-      query_param_assignments_.push_back(make_pair(parts[i], ""));
+      query_param_assignments_.push_back(std::make_pair(parts[i], ""));
     } else {
       string unescaped;
       if (!UnescapeFromUrl(parts[i].substr(offset + 1), &unescaped)) {
         valid_ = false;
       }
       query_param_assignments_.push_back(
-          make_pair(parts[i].substr(0, offset), unescaped));
+          std::make_pair(parts[i].substr(0, offset), unescaped));
     }
   }
   return query_param_assignments_;

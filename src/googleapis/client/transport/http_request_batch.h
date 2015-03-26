@@ -26,6 +26,7 @@
 using std::string;
 #include <vector>
 using std::vector;
+
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/base/macros.h"
@@ -78,7 +79,7 @@ class HttpTransport;
  */
 class HttpRequestBatch {
  public:
-  typedef vector<HttpRequest*> BatchedRequestList;
+  typedef std::vector<HttpRequest*> BatchedRequestList;
 
   /*
    * Constructs a new HttpRequest that is a collection of requests to batch.

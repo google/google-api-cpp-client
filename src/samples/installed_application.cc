@@ -134,7 +134,7 @@ util::Status InstalledApplication::ChangeUser(
       return StatusUnknown(error);
     }
     user_name_ = proposed_name;
-    cout << "Changed to username=" << user_name_ << endl;
+    std::cout << "Changed to username=" << user_name_ << endl;
   }
   return StatusOk();
 }
@@ -213,7 +213,7 @@ util::Status InstalledApplication::AuthorizeClient() {
   util::Status status =
         flow_->RefreshCredentialWithOptions(options, credential());
   if (!status.ok()) {
-    cout << status.error_message() << endl;
+    std::cout << status.error_message() << endl;
   }
   return status;
 }

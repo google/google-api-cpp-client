@@ -119,12 +119,12 @@ static util::Status PromptShellForAuthorizationCode(
     const OAuth2RequestOptions& options,
     string* authorization_code) {
   string url = flow->GenerateAuthorizationCodeRequestUrlWithOptions(options);
-  cout << "Enter the following URL into a browser:\n" << url << endl;
-  cout << endl;
-  cout << "Enter the browser's response to confirm authorization: ";
+  std::cout << "Enter the following URL into a browser:\n" << url << std::endl;
+  std::cout << std::endl;
+  std::cout << "Enter the browser's response to confirm authorization: ";
 
   authorization_code->clear();
-  cin >> *authorization_code;
+  std::cin >> *authorization_code;
   if (authorization_code->empty()) {
     return StatusCanceled("Canceled");
   } else {
@@ -144,53 +144,57 @@ static util::Status ValidateUserName(const string& name) {
 
 void DisplayError(ClientServiceRequest* request) {
   const HttpResponse& response = *request->http_response();
-  cout << "====  ERROR  ====" << endl;
-  cout << "Status: " << response.status().error_message() << endl;
+  std::cout << "====  ERROR  ====" << std::endl;
+  std::cout << "Status: " << response.status().error_message() << std::endl;
   if (response.transport_status().ok()) {
-    cout << "HTTP Status Code = " << response.http_code() << endl;
-    cout << endl << response.body_reader()->RemainderToString() << endl;
+    std::cout << "HTTP Status Code = " << response.http_code() << std::endl;
+    std::cout << std::endl
+              << response.body_reader()->RemainderToString() << std::endl;
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 void Display(const string& prefix, const CalendarListEntry& entry) {
-  cout << prefix << "CalendarListEntry" << endl;
-  cout << prefix << "  ID: " << entry.get_id() << endl;
-  cout << prefix << "  Summary: " << entry.get_summary() << endl;
+  std::cout << prefix << "CalendarListEntry" << std::endl;
+  std::cout << prefix << "  ID: " << entry.get_id() << std::endl;
+  std::cout << prefix << "  Summary: " << entry.get_summary() << std::endl;
   if (entry.has_description()) {
-    cout << prefix << "  Description: " << entry.get_description() << endl;
+    std::cout << prefix << "  Description: " << entry.get_description()
+              << std::endl;
   }
 }
 
 void Display(const string& prefix, const Calendar& entry) {
-  cout << prefix << "Calendar" << endl;
-  cout << prefix << "  ID: " << entry.get_id() << endl;
-  cout << prefix << "  Summary: " << entry.get_summary() << endl;
+  std::cout << prefix << "Calendar" << std::endl;
+  std::cout << prefix << "  ID: " << entry.get_id() << std::endl;
+  std::cout << prefix << "  Summary: " << entry.get_summary() << std::endl;
   if (!entry.get_description().empty()) {
-    cout << prefix << "  Description: " << entry.get_description() << endl;
+    std::cout << prefix << "  Description: " << entry.get_description()
+              << std::endl;
   }
 }
 
 void Display(const string& prefix, const Event& event) {
-  cout << prefix << "Event" << endl;
-  cout << prefix << "  ID: " << event.get_id() << endl;
+  std::cout << prefix << "Event" << std::endl;
+  std::cout << prefix << "  ID: " << event.get_id() << std::endl;
   if (event.has_summary()) {
-    cout << prefix << "  Summary: " << event.get_summary() << endl;
+    std::cout << prefix << "  Summary: " << event.get_summary() << std::endl;
   }
   if (event.get_start().has_date_time()) {
-    cout << prefix << "  Start Time: "
-         << event.get_start().get_date_time().ToString() << endl;
+    std::cout << prefix << "  Start Time: "
+              << event.get_start().get_date_time().ToString() << std::endl;
   }
   if (event.get_end().has_date_time()) {
-    cout << prefix << "  End Time: "
-         << event.get_end().get_date_time().ToString() << endl;
+    std::cout << prefix
+              << "  End Time: " << event.get_end().get_date_time().ToString()
+              << std::endl;
   }
 }
 
 template <class LIST, typename ELEM>
 void DisplayList(
     const string& prefix, const StringPiece& title, const LIST& list) {
-  cout << prefix << "====  " << title << "  ====" << endl;
+  std::cout << prefix << "====  " << title << "  ====" << std::endl;
   string sub_prefix = StrCat(prefix, "  ");
   bool first = true;
   const JsonCppArray<ELEM>& items = list.get_items();
@@ -200,12 +204,12 @@ void DisplayList(
     if (first) {
       first = false;
     } else {
-      cout << endl;
+      std::cout << std::endl;
     }
     Display(sub_prefix, *it);
   }
   if (first) {
-    cout << sub_prefix << "<no items>" << endl;
+    std::cout << sub_prefix << "<no items>" << std::endl;
   }
 }
 
@@ -337,17 +341,17 @@ util::Status CalendarSample::Startup(int argc, char* argv[]) {
 
 
 util::Status CalendarSample::Authorize() {
-  cout
-    << endl
-    << "Welcome to the Google APIs for C++ CalendarSample.\n"
-    << "  You will need to authorize this program to look at your calendar.\n"
-    << "  If you would like to save these credentials between runs\n"
-    << "  (or restore from an earlier run) then enter a Google Email Address.\n"
-    << "  Otherwise just press return.\n"
-    << endl
-    << "  Address: ";
+  std::cout
+      << std::endl
+      << "Welcome to the Google APIs for C++ CalendarSample.\n"
+      << "  You will need to authorize this program to look at your calendar.\n"
+      << "  If you would like to save these credentials between runs\n"
+      << "  (or restore from an earlier run) then enter a Google Email "
+         "Address.\n"
+      << "  Otherwise just press return.\n" << std::endl
+      << "  Address: ";
   string email;
-  std::getline(cin, email);
+  std::getline(std::cin, email);
   if (!email.empty()) {
     util::Status status = ValidateUserName(email);
     if (!status.ok()) {
@@ -364,7 +368,7 @@ util::Status CalendarSample::Authorize() {
   }
 
   credential_.set_flow(flow_.get());
-  cout << "Authorized " << email << endl;
+  std::cout << "Authorized " << email << std::endl;
   return StatusOk();
 }
 
@@ -380,7 +384,7 @@ void CalendarSample::ShowCalendars() {
   }
   DisplayList<CalendarList, CalendarListEntry>(
       "", "CalendarList", *calendar_list);
-  cout << endl;
+  std::cout << std::endl;
 }
 
 string CalendarSample::AddCalendar() {
@@ -396,9 +400,9 @@ string CalendarSample::AddCalendar() {
   }
 
   string result = calendar->get_id().as_string();
-  cout << "Added new calendar ID=" << result << ":" << endl;
+  std::cout << "Added new calendar ID=" << result << ":" << std::endl;
   Display("  ", *calendar);
-  cout << endl;
+  std::cout << std::endl;
 
   return result;
 }
@@ -413,14 +417,14 @@ void CalendarSample::AddEvent(const string& calendar_id, Event* event) {
     return;
   }
 
-  cout << "Added new event ID=" << event->get_id() << ":" << endl;
+  std::cout << "Added new event ID=" << event->get_id() << ":" << std::endl;
   Display("  ", *event);
-  cout << endl;
+  std::cout << std::endl;
 }
 
 void CalendarSample::PageThroughAllEvents(
     const string& calendar_id, int num_per_page) {
-  cout << "All Events" << endl;
+  std::cout << "All Events" << std::endl;
   std::unique_ptr<EventsResource_ListMethodPager> pager(
       service_->get_events().NewListMethodPager(&credential_, calendar_id));
   pager->request()->set_max_results(num_per_page);
@@ -454,13 +458,13 @@ void CalendarSample::PatchEvent(
   util::Status status =
         GetEvent(calendar_id, event.get_id(), cloud_event.get());
   if (status.ok()) {
-    cout << "Patched event:" << endl;
+    std::cout << "Patched event:" << std::endl;
     Display("  ", *cloud_event);
   } else {
-    cout << "** Could not get patched event: "
-         << status.error_message() << endl;
+    std::cout << "** Could not get patched event: " << status.error_message()
+              << std::endl;
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 void CalendarSample::UpdateEvent(
@@ -478,13 +482,13 @@ void CalendarSample::UpdateEvent(
   util::Status status =
         GetEvent(calendar_id, event.get_id(), cloud_event.get());
   if (status.ok()) {
-    cout << "Updated event:" << endl;
+    std::cout << "Updated event:" << std::endl;
     Display("  ", *cloud_event);
   } else {
-    cout << "** Could not get updated event: "
-         << status.error_message() << endl;
+    std::cout << "** Could not get updated event: " << status.error_message()
+              << std::endl;
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 
 void CalendarSample::DeleteCalendar(const string& id) {
@@ -495,26 +499,29 @@ void CalendarSample::DeleteCalendar(const string& id) {
     DisplayError(method.get());
     return;
   }
-  cout << "Deleted ID=" << id << endl;
-  cout << endl;
+  std::cout << "Deleted ID=" << id << std::endl;
+  std::cout << std::endl;
 }
 
 
 void CalendarSample::Run() {
-  cout << kSampleStepPrefix << "Getting User Authorization" << endl;
+  std::cout << kSampleStepPrefix << "Getting User Authorization" << std::endl;
   util::Status status = Authorize();
   if (!status.ok()) {
-    cout << "Could not authorize: " << status.error_message() << endl;
+    std::cout << "Could not authorize: " << status.error_message() << std::endl;
     return;
   }
 
-  cout << endl << kSampleStepPrefix << "Showing Initial Calendars" << endl;
+  std::cout << std::endl
+            << kSampleStepPrefix << "Showing Initial Calendars" << std::endl;
   ShowCalendars();
 
-  cout << endl << kSampleStepPrefix << "Adding Calendar" << endl;
+  std::cout << std::endl
+            << kSampleStepPrefix << "Adding Calendar" << std::endl;
   string calendar_id =  AddCalendar();
 
-  cout << endl << kSampleStepPrefix << "Showing Updated Calendars" << endl;
+  std::cout << std::endl
+            << kSampleStepPrefix << "Showing Updated Calendars" << std::endl;
   ShowCalendars();
 
   DateTime now;
@@ -523,16 +530,19 @@ void CalendarSample::Run() {
   event->mutable_start().set_date_time(now);
   event->mutable_end().set_date_time(DateTime(now.ToEpochTime() + 60 * 60));
 
-  cout << endl << kSampleStepPrefix << "Add Calendar Event" << endl;
+  std::cout << std::endl
+            << kSampleStepPrefix << "Add Calendar Event" << std::endl;
   AddEvent(calendar_id, event.get());
 
-  cout << endl << kSampleStepPrefix << "Patch Calendar Event" << endl;
+  std::cout << std::endl
+            << kSampleStepPrefix << "Patch Calendar Event" << std::endl;
   event->clear_start();
   event->clear_end();
   event->set_summary("Event patched by CalendarSample");
   PatchEvent(calendar_id, *event);
 
-  cout << endl << kSampleStepPrefix << "Update Calendar Event" << endl;
+  std::cout << std::endl
+            << kSampleStepPrefix << "Update Calendar Event" << std::endl;
   // An update requires a time.
   // Go back a year and one day to distinguish it from the old value.
   event->mutable_start().set_date_time(
@@ -542,7 +552,8 @@ void CalendarSample::Run() {
   event->clear_summary();
   UpdateEvent(calendar_id, *event);
 
-  cout << endl << "Adding bulk events using a batch request" << endl;
+  std::cout << std::endl
+            << "Adding bulk events using a batch request" << std::endl;
   HttpRequestBatch batch(service_->transport());
   batch.mutable_http_request()->set_credential(&credential_);
 
@@ -565,8 +576,8 @@ void CalendarSample::Run() {
 
   status = batch.Execute();
   if (!status.ok()) {
-    cout << "Entire batch execution failed: "
-         << status.error_message() << endl;
+    std::cout << "Entire batch execution failed: " << status.error_message()
+              << std::endl;
   }
   for (int i = 0; i < 10; ++i) {
     HttpResponse* response = batch.requests()[i]->response();
@@ -577,17 +588,19 @@ void CalendarSample::Run() {
       } else {
         detail = "No response data available.";
       }
-      cout << "Error adding batched event " << i << endl
-           << response->status().ToString() << endl
-           << detail << endl;
+      std::cout << "Error adding batched event " << i << std::endl
+                << response->status().ToString() << std::endl
+                << detail << std::endl;
     }
   }
 
   PageThroughAllEvents(calendar_id, 7);
-  cout << endl << kSampleStepPrefix << "Deleting Calendar" << endl;
+  std::cout << std::endl
+            << kSampleStepPrefix << "Deleting Calendar" << std::endl;
   DeleteCalendar(calendar_id);
 
-  cout << endl << kSampleStepPrefix << "Showing Final Calendars" << endl;
+  std::cout << std::endl
+            << kSampleStepPrefix << "Showing Final Calendars" << std::endl;
   ShowCalendars();
 }
 
@@ -599,14 +612,14 @@ int main(int argc, char* argv[]) {
 
   util::Status status = CalendarSample::Startup(argc, argv);
   if (!status.ok()) {
-    cerr << "Could not initialize application." << endl;
-    cerr << status.error_message() << endl;
+    std::cerr << "Could not initialize application." << std::endl;
+    std::cerr << status.error_message() << std::endl;
     return -1;
   }
 
   CalendarSample sample;
   sample.Run();
-  cout << "Done!" << endl;
+  std::cout << "Done!" << std::endl;
 
   return 0;
 }

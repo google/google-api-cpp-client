@@ -19,8 +19,14 @@
 
 
 #include <time.h>
+
+#include <map>
+using std::map;
 #include <string>
 using std::string;
+#include <vector>
+using std::vector;
+
 #include <glog/logging.h>
 #include "googleapis/base/mutex.h"
 #include "googleapis/base/once.h"
@@ -61,7 +67,7 @@ GoogleOnceType once_init_ = GOOGLE_ONCE_INIT;
 // about and sorts them first. The underlying transport may still use some
 // other ordering when actually sending, but this will determine the
 // "default order" that we'll present headers in when iterating over the map.
-typedef map<StringPiece, int, CaseLess> HeaderSortOrderMap;
+typedef std::map<StringPiece, int, CaseLess> HeaderSortOrderMap;
 
 // This ordering is initialized in InitGlobalVariables when the comparator
 // is first used.
@@ -87,19 +93,19 @@ void InitGlobalVariables() {
   int order = 1;
 
   header_sort_order_->insert(
-      make_pair(HttpRequest::HttpHeader_HOST, order++));
+      std::make_pair(HttpRequest::HttpHeader_HOST, order++));
   header_sort_order_->insert(
-      make_pair(HttpRequest::HttpHeader_AUTHORIZATION, order++));
+      std::make_pair(HttpRequest::HttpHeader_AUTHORIZATION, order++));
   header_sort_order_->insert(
-      make_pair(HttpRequest::HttpHeader_CONTENT_LENGTH, order++));
+      std::make_pair(HttpRequest::HttpHeader_CONTENT_LENGTH, order++));
   header_sort_order_->insert(
-      make_pair(HttpRequest::HttpHeader_TRANSFER_ENCODING, order++));
+      std::make_pair(HttpRequest::HttpHeader_TRANSFER_ENCODING, order++));
   header_sort_order_->insert(
-      make_pair(HttpRequest::HttpHeader_CONTENT_TYPE, order++));
+      std::make_pair(HttpRequest::HttpHeader_CONTENT_TYPE, order++));
   header_sort_order_->insert(
-      make_pair(HttpRequest::HttpHeader_LOCATION, order++));
+      std::make_pair(HttpRequest::HttpHeader_LOCATION, order++));
   header_sort_order_->insert(
-      make_pair(HttpRequest::HttpHeader_USER_AGENT, order++));
+      std::make_pair(HttpRequest::HttpHeader_USER_AGENT, order++));
 }
 
 inline bool MethodImpliesContent(const HttpRequest::HttpMethod& method) {
@@ -1002,7 +1008,7 @@ util::Status HttpRequest::PrepareToReuse() {
   state->TransitionAndNotifyIfDone(HttpRequestState::UNSENT);
   response_->ClearHeaders();
 
-  vector<StringPiece> remove_headers;
+  std::vector<StringPiece> remove_headers;
   string trace;
   for (HttpHeaderMap::const_iterator it = header_map_.begin();
        it != header_map_.end();
@@ -1018,7 +1024,7 @@ util::Status HttpRequest::PrepareToReuse() {
     }
   }
   VLOG(1) << "Stripping headers on redirect: " << trace;
-  for (vector<StringPiece>::const_iterator it = remove_headers.begin();
+  for (std::vector<StringPiece>::const_iterator it = remove_headers.begin();
        it != remove_headers.end();
        ++it) {
     RemoveHeader(*it);

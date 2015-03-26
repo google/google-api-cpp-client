@@ -287,12 +287,9 @@ TEST_F(DataReaderTestFixture, TestInvalidReader) {
 TEST_F(DataReaderTestFixture, TestReadUntilPattern) {
   const string input = "ababacXabac";
   pair<const string, const string> tests[] = {
-    make_pair("aba", "aba"),
-    make_pair("abac", "ababac"),
-    make_pair("cXa", "ababacXa"),
-    make_pair("Z", input),
-    make_pair("", "")
-  };
+      std::make_pair("aba", "aba"), std::make_pair("abac", "ababac"),
+      std::make_pair("cXa", "ababacXa"), std::make_pair("Z", input),
+      std::make_pair("", "")};
 
   for (int i = 0; i < ARRAYSIZE(tests); ++i) {
     const string& pattern = tests[i].first;

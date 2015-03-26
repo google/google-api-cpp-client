@@ -33,7 +33,7 @@ namespace googleapis {
 
 namespace {
 
-typedef pair< util::error::Code, string> CodeNamePair;
+typedef std::pair< util::error::Code, string> CodeNamePair;
 
 CodeNamePair HttpCodeToPair(int http_status) {
   util::error::Code code;
@@ -141,7 +141,7 @@ CodeNamePair HttpCodeToPair(int http_status) {
         msg = "Unknown";
       }
   }
-  return make_pair(code, StrCat("Http(", http_status, ") ", msg));
+  return std::make_pair(code, StrCat("Http(", http_status, ") ", msg));
 }
 
 CodeNamePair ErrnoCodeToPair(int errno_code) {
@@ -154,25 +154,25 @@ CodeNamePair ErrnoCodeToPair(int errno_code) {
 
   switch (errno_code) {
     case 0:  // EOK
-      return make_pair(util::error::OK, "OK");
+      return std::make_pair(util::error::OK, "OK");
     case EPERM:
-      return make_pair(util::error::PERMISSION_DENIED, msg);
+      return std::make_pair(util::error::PERMISSION_DENIED, msg);
     case ENOENT:
-      return make_pair(util::error::NOT_FOUND, msg);
+      return std::make_pair(util::error::NOT_FOUND, msg);
     case EINVAL:
-      return make_pair(util::error::INVALID_ARGUMENT, msg);
+      return std::make_pair(util::error::INVALID_ARGUMENT, msg);
     case EEXIST:
-      return make_pair(util::error::ALREADY_EXISTS, msg);
+      return std::make_pair(util::error::ALREADY_EXISTS, msg);
     case ERANGE:
-      return make_pair(util::error::OUT_OF_RANGE, msg);
+      return std::make_pair(util::error::OUT_OF_RANGE, msg);
     case ENOMEM:
-      return make_pair(util::error::RESOURCE_EXHAUSTED, msg);
+      return std::make_pair(util::error::RESOURCE_EXHAUSTED, msg);
     case EINTR:
-      return make_pair(util::error::ABORTED, msg);
+      return std::make_pair(util::error::ABORTED, msg);
     case EIO:
-      return make_pair(util::error::DATA_LOSS, msg);
+      return std::make_pair(util::error::DATA_LOSS, msg);
     default:
-      return make_pair(util::error::UNKNOWN, msg);
+      return std::make_pair(util::error::UNKNOWN, msg);
   }
 }
 

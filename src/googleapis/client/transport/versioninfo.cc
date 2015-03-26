@@ -20,6 +20,7 @@
 
 #include <string>
 using std::string;
+
 #if !defined(WIN32) && !defined(_WIN32)
 # include <sys/utsname.h>
 #endif
@@ -31,6 +32,7 @@ using std::string;
 namespace googleapis {
 
 namespace client {
+using std::string;
 
 const int VersionInfo::kMajorVersionNumber = googleapis_VERSION_MAJOR;
 const int VersionInfo::kMinorVersionNumber = googleapis_VERSION_MINOR;

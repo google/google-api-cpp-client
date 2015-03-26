@@ -20,8 +20,8 @@
 //
 // Basic file IO support.
 
-#ifndef GOOGLEAPIS_FILE_H_
-#define GOOGLEAPIS_FILE_H_
+#ifndef GOOGLEAPIS_FILE_BASE_FILE_H_
+#define GOOGLEAPIS_FILE_BASE_FILE_H_
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -34,8 +34,8 @@
 # define S_IRWXU mode_t(_S_IREAD | _S_IWRITE | _S_IEXEC)
 # define S_IRWXG mode_t(0)
 # define S_IRWXO mode_t(0)
-# define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
-# define S_ISREG(mode) ((mode & _S_IFREG) != 0)
+# define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)  // NOLINT
+# define S_ISREG(mode) ((mode & _S_IFREG) != 0)  // NOLINT
 # define S_ISLNK(mode) 0
 
 # define O_NONBLOCK 0  /* ignore */
@@ -142,4 +142,4 @@ class File {
 };
 
 }  // namespace googleapis
-#endif  // GOOGLEAPIS_FILE_H_
+#endif  // GOOGLEAPIS_FILE_BASE_FILE_H_

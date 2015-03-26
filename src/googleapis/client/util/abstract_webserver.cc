@@ -97,7 +97,7 @@ void AbstractWebServer::AddPathHandler(
     const string& path, PathHandler* handler) {
   CHECK(handler != NULL);
   handler->CheckIsRepeatable();
-  hooks_.push_back(make_pair(path, handler));
+  hooks_.push_back(std::make_pair(path, handler));
 }
 
 AbstractWebServer::PathHandler* AbstractWebServer::FindPathHandler(

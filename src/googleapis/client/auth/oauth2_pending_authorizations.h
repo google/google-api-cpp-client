@@ -100,7 +100,7 @@ class OAuth2PendingAuthorizations {
     for (key = random(); map_.find(key) != map_.end(); key = random()) {
       // find unused key
     }
-    map_.insert(make_pair(key, handler));
+    map_.insert(std::make_pair(key, handler));
     return key;
   }
 

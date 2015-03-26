@@ -155,15 +155,5 @@ const char *memmatch(const char *phaystack, size_t haylen,
   ( (((len) == strliterallen(literal))                         \
      && memcasecmp(str, literal, strliterallen(literal)) == 0) )
 
-
-inline int memcount(const char* buf, size_t len, char c) {
-  int num = 0;
-  for (int i = 0; i < len; i++) {
-    if (buf[i] == c)
-      num++;
-  }
-  return num;
-}
-
 }  // namespace googleapis
 #endif  // STRINGS_MEMUTIL_H_

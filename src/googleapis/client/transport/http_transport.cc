@@ -18,6 +18,9 @@
  */
 
 
+#include <map>
+using std::map;
+
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
 #include "googleapis/client/transport/http_transport.h"
@@ -152,7 +155,7 @@ HttpTransportErrorHandler::~HttpTransportErrorHandler() {
 
 void HttpTransportErrorHandler::ResetHttpCodeHandler(
     int code, HttpTransportErrorHandler::HttpCodeHandler* handler) {
-  map<int, HttpCodeHandler*>::iterator found =
+  std::map<int, HttpCodeHandler*>::iterator found =
       specialized_http_code_handlers_.find(code);
   if (found != specialized_http_code_handlers_.end()) {
     delete found->second;
@@ -161,7 +164,7 @@ void HttpTransportErrorHandler::ResetHttpCodeHandler(
     }
   }
   if (handler) {
-    specialized_http_code_handlers_.insert(make_pair(code, handler));
+    specialized_http_code_handlers_.insert(std::make_pair(code, handler));
   }
 }
 
@@ -178,7 +181,7 @@ void HttpTransportErrorHandler::HandleTransportErrorAsync(
 bool HttpTransportErrorHandler::HandleHttpError(
     int num_retries_so_far, HttpRequest* request) const {
   int http_code = request->response()->http_code();
-  map<int, HttpCodeHandler*>::const_iterator found =
+  std::map<int, HttpCodeHandler*>::const_iterator found =
       specialized_http_code_handlers_.find(http_code);
   if (found != specialized_http_code_handlers_.end()) {
     VLOG(2) << "Using overriden error handler for http_code=" << http_code;
@@ -227,7 +230,7 @@ void HttpTransportErrorHandler::HandleHttpErrorAsync(
     HttpRequest* request,
     Callback1<bool>* callback) const {
   int http_code = request->response()->http_code();
-  map<int, HttpCodeHandler*>::const_iterator found =
+  std::map<int, HttpCodeHandler*>::const_iterator found =
       specialized_http_code_handlers_.find(http_code);
   if (found != specialized_http_code_handlers_.end()) {
     VLOG(2) << "Using overriden error handler for http_code=" << http_code;
@@ -299,7 +302,7 @@ void HttpTransportErrorHandler::HandleRedirectAsync(
 bool HttpTransportErrorHandler::ShouldRetryRedirect_(
     int num_redirects, HttpRequest* request) const {
   int http_code = request->response()->http_code();
-  map<int, HttpCodeHandler*>::const_iterator found =
+  std::map<int, HttpCodeHandler*>::const_iterator found =
       specialized_http_code_handlers_.find(http_code);
   if (found != specialized_http_code_handlers_.end()) {
     VLOG(2) << "Using overriden redirect handler for http_code=" << http_code;

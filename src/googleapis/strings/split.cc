@@ -27,9 +27,9 @@ namespace googleapis {
 
 namespace strings {
 
-vector<StringPiece> Split(
-    const StringPiece& source, const StringPiece& delim) {
-  vector<StringPiece> result;
+std::vector<StringPiece> Split(const StringPiece& source,
+                               const StringPiece& delim) {
+  std::vector<StringPiece> result;
 
   if (source.empty()) {
     return result;
@@ -63,6 +63,6 @@ vector<StringPiece> Split(
   return result;
 }
 
-} // namespace strings
+}  // namespace strings
 
 }  // namespace googleapis

@@ -56,12 +56,12 @@ class VersionInfo {
    *
    * @return string in the form major.minor-decorator
    */
-  static const string GetVersionString();
+  static const std::string GetVersionString();
 
   /*
    * Returns platform that we are running on
    */
-  static const string GetPlatformString();
+  static const std::string GetPlatformString();
 };
 
 }  // namespace client

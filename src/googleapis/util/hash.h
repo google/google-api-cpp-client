@@ -74,6 +74,8 @@ inline uint64 Hash64NumWithSeed(uint64 num, uint64 c) {
   return c;
 }
 
+uint64 Hash64StringWithSeed(const char *s, uint32 len, uint64 seed);
+
 // not implemented but referenced by stringpiece
 uint32 Hash32StringWithSeedReferenceImplementation(const char *s, uint32 len,
                                                    uint32 seed);
@@ -88,7 +90,6 @@ inline size_t HashStringThoroughly(const char* s, size_t len) {
 
 // MOE::strip_line   The rest of this file is a subset of hash.h
 // MOE::strip_line   But if it doesnt port, steal guts of protobuf's hash.h
-
 
 }  // namespace googleapis
 #endif  // UTILS_HASH_HASH_H_  NOLINT

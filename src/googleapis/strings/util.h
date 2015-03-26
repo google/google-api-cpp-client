@@ -392,7 +392,6 @@ char* gstrcasestr(const char* haystack, const char* needle);
 // in at most the first len bytes of haystack. Returns a pointer into haystack,
 // or NULL if needle wasn't found.
 const char* gstrncasestr(const char* haystack, const char* needle, size_t len);
-char* gstrncasestr(char* haystack, const char* needle, size_t len);
 
 // Finds (case insensitively), in str (which is a list of tokens separated by
 // non_alpha), a token prefix and a token suffix. Returns a pointer into str of
@@ -453,13 +452,6 @@ char* strndup_with_new(const char* the_string, int max_length);
 // Both these functions are DEPRECATED(mec).
 // Call strings::ScanForFirstWord below.
 const char* ScanForFirstWord(const char* the_string, const char** end_ptr);
-inline char* ScanForFirstWord(char* the_string, char** end_ptr) {
-  // implicit_cast<> would be more appropriate for casting to const,
-  // but we save the inclusion of "base/casts.h" here by using const_cast<>.
-  return const_cast<char*>(
-      ScanForFirstWord(const_cast<const char*>(the_string),
-                       const_cast<const char**>(end_ptr)));
-}
 
 namespace strings {
 
@@ -477,11 +469,6 @@ StringPiece ScanForFirstWord(StringPiece input);
 // Returns a pointer past the end of the "identifier" (see above) beginning at
 // str, or NULL if str doesn't start with an identifier.
 const char* AdvanceIdentifier(const char* str);
-inline char* AdvanceIdentifier(char* str) {
-  // implicit_cast<> would be more appropriate for casting to const,
-  // but we save the inclusion of "base/casts.h" here by using const_cast<>.
-  return const_cast<char*>(AdvanceIdentifier(const_cast<const char*>(str)));
-}
 
 // Returns whether str is an "identifier" (see above).
 bool IsIdentifier(const char* str);

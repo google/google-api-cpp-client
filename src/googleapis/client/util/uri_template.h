@@ -20,11 +20,13 @@
 
 #ifndef APISERVING_CLIENTS_CPP_UTIL_URI_TEMPLATE_H_
 #define APISERVING_CLIENTS_CPP_UTIL_URI_TEMPLATE_H_
+
 #include <set>
 using std::multiset;
 using std::set;
 #include <string>
 using std::string;
+
 #include "googleapis/base/callback.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/stringpiece.h"
@@ -113,7 +115,7 @@ class UriTemplate {
       const StringPiece& uri,
       AppendVariableCallback* supplier,
       string* target,
-      set<StringPiece>* found_parameters);
+      std::set<StringPiece>* found_parameters);
 
   /*
    * Appends the first value of a list.

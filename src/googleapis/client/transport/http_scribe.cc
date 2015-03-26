@@ -25,6 +25,9 @@ using std::multiset;
 using std::set;
 #include <string>
 using std::string;
+#include <vector>
+using std::vector;
+
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_request_batch.h"
@@ -315,10 +318,10 @@ string HttpScribeCensor::GetCensoredUrlQuery(
   const char* sep = "";
 
   // Check each query parameter for censoring.
-  const vector<ParsedUrl::QueryParameterAssignment>& params =
+  const std::vector<ParsedUrl::QueryParameterAssignment>& params =
       parsed_url.GetQueryParameterAssignments();
   string censored_query;
-  for (vector<ParsedUrl::QueryParameterAssignment>::const_iterator it =
+  for (std::vector<ParsedUrl::QueryParameterAssignment>::const_iterator it =
            params.begin();
        it != params.end();
        ++it) {
@@ -342,7 +345,7 @@ string HttpScribeCensor::GetCensoredUrlQuery(
 
 bool HttpScribeCensor::IsSensitiveContent(const string& url) const {
   StringPiece check(url);
-  for (set<string>::const_iterator it = censored_url_prefixes_.begin();
+  for (std::set<string>::const_iterator it = censored_url_prefixes_.begin();
        it != censored_url_prefixes_.end();
        ++it) {
     if (check.starts_with(*it)) return true;
@@ -425,7 +428,7 @@ class HttpEntryScribe::Internal {
         batch ? scribe->NewBatchEntry(batch) : scribe->NewEntry(request);
 
     VLOG(1) << "Adding " << entry;
-    scribe->map_.insert(make_pair(request, entry));
+    scribe->map_.insert(std::make_pair(request, entry));
     scribe->queue_.push_back(entry);
     VLOG(1) << "Added " << entry << " as " << scribe->queue_.size();
     return entry;

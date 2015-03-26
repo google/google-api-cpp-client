@@ -18,6 +18,12 @@
  */
 
 
+#include <set>
+using std::multiset;
+using std::set;
+#include <vector>
+using std::vector;
+
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
 #include "googleapis/client/transport/http_authorization.h"
@@ -64,8 +70,8 @@ class IndividualRequest : public HttpRequest {
   }
 
   // Adds multipart body for this individual request, minus the boundary.
-  void Encode(vector<DataReader*>* readers,
-              vector<DataReader*>* destroy_later) {
+  void Encode(std::vector<DataReader*>* readers,
+              std::vector<DataReader*>* destroy_later) {
     string* header_str = new string;
     std::unique_ptr<DataWriter> writer(NewStringDataWriter(header_str));
     HttpTransport::WriteRequestPreamble(this, writer.get());
@@ -120,7 +126,7 @@ static StringPiece GetMultipartBlock(
 // the original HttpRequest (our specialized IndividualRequest) that it is for.
 static util::Status ExtractPartResponse(
     const StringPiece& multipart_block,
-    set<HttpRequest*>* expected_requests,  // remove the one we find.
+    std::set<HttpRequest*>* expected_requests,  // remove the one we find.
     StringPiece* http_response_message,    // subset of multipart_block on out
     IndividualRequest** http_request) {    // request found or NULL
   http_response_message->clear();
@@ -164,7 +170,8 @@ static util::Status ExtractPartResponse(
   // The id is an HttpRequest which is really our internal IndividualRequest
   // since that's how we encapsulate it.
   *http_request = reinterpret_cast<IndividualRequest*>(id);
-  set<HttpRequest*>::iterator found = expected_requests->find(*http_request);
+  std::set<HttpRequest*>::iterator found = expected_requests->find(
+      *http_request);
   if (found == expected_requests->end()) {
     *http_request = NULL;
     return StatusUnknown("Got unexpected content-id in batch response");
@@ -176,7 +183,7 @@ static util::Status ExtractPartResponse(
 static util::Status ResolveResponses(
     const string& boundary_text,
     DataReader* reader,
-    vector<HttpRequest*>* requests) {
+    std::vector<HttpRequest*>* requests) {
   const string kBoundaryMarker = StrCat(kCRLF, "--", boundary_text, kCRLF);
   const string kLastBoundaryMarker =
       StrCat(kCRLF, "--", boundary_text, "--", kCRLF);
@@ -193,7 +200,7 @@ static util::Status ResolveResponses(
   }
 
   // Collect all the requests we expect to be in this batch.
-  set<HttpRequest*> expected_requests;
+  std::set<HttpRequest*> expected_requests;
   for (HttpRequestBatch::BatchedRequestList::iterator it = requests->begin();
        it != requests->end();
        ++it) {
@@ -263,7 +270,7 @@ static util::Status ResolveResponses(
   if (!expected_requests.empty()) {
     util::Status missing_error =
         StatusUnknown("Never received response for batched request");
-    for (set<HttpRequest*>::iterator it = expected_requests.begin();
+    for (std::set<HttpRequest*>::iterator it = expected_requests.begin();
          it != expected_requests.end();
          ++it) {
       HttpRequestState* state = (*it)->mutable_state();
@@ -309,7 +316,7 @@ HttpRequestBatch::~HttpRequestBatch() {
 void HttpRequestBatch::Clear() {
   // clear all the requests so they are notified, but then delete them all
   // so this batch request is empty again.
-  for (vector<HttpRequest*>::iterator it = requests_.begin();
+  for (std::vector<HttpRequest*>::iterator it = requests_.begin();
        it != requests_.end();
        ++it) {
     (*it)->Clear();
@@ -327,7 +334,7 @@ HttpRequest* HttpRequestBatch::NewHttpRequest(
 }
 
 util::Status HttpRequestBatch::RemoveAndDestroyRequest(HttpRequest* request) {
-  for (vector<HttpRequest*>::iterator it = requests_.begin();
+  for (std::vector<HttpRequest*>::iterator it = requests_.begin();
        it != requests_.end();
        ++it) {
     if (*it == request) {
@@ -373,9 +380,9 @@ void HttpRequestBatch::PrepareFinalHttpRequest() {
   // aggregated in this batch and copy all the top-level headers in that
   // were set on this. Then we'll execute the request and do similar copying
   // from the private response back into the response bound to this one.
-  vector<DataReader*> individual_readers;
-  vector<DataReader*>* readers_to_destroy = new vector<DataReader*>;
-  for (vector<HttpRequest*>::const_iterator it = requests_.begin();
+  std::vector<DataReader*> individual_readers;
+  std::vector<DataReader*>* readers_to_destroy = new std::vector<DataReader*>;
+  for (std::vector<HttpRequest*>::const_iterator it = requests_.begin();
        it != requests_.end();
        ++it) {
     IndividualRequest* part = static_cast<IndividualRequest*>(*it);

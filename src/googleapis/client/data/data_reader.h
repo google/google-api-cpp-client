@@ -36,12 +36,14 @@
 using std::string;
 #include <vector>
 using std::vector;
+
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 namespace googleapis {
+
 
 namespace client {
 
@@ -572,7 +574,7 @@ DataReader* NewManagedBufferedDataReader(
  *            then the compsite reader will be corrupted.
  */
 DataReader* NewUnmanagedCompositeDataReader(
-    const vector<DataReader*>& readers);
+    const std::vector<DataReader*>& readers);
 
 /*
  * Returns a managed composite DataReader that reads directly from one or
@@ -591,7 +593,7 @@ DataReader* NewUnmanagedCompositeDataReader(
  *            reader is destroyed.
  */
 DataReader* NewManagedCompositeDataReader(
-    const vector<DataReader*>& readers, Closure* deleter);
+    const std::vector<DataReader*>& readers, Closure* deleter);
 
 /*
  * Creates a managed closure that deletes an entire vector of readers when run.
@@ -605,7 +607,7 @@ DataReader* NewManagedCompositeDataReader(
  *            operator.
  */
 Closure* NewCompositeReaderListAndContainerDeleter(
-    vector<DataReader*>* readers);
+    std::vector<DataReader*>* readers);
 
 
 /*

@@ -743,7 +743,7 @@ class OAuth2AuthorizationFlow {
    * @see GenerateAuthorizationCodeRequestUrl
    */
   string GenerateAuthorizationCodeRequestUrl(
-      const vector<StringPiece>& scopes) const;
+      const std::vector<StringPiece>& scopes) const;
 
   /*
    * Returns a URL to the OAuth 2.0 server requesting a new Authorization Code.
@@ -890,7 +890,7 @@ class OAuth2AuthorizationFlow {
    * @param[in] scopes
    * @return scopes string for OAuth2RequestOptions
    */
-  static string JoinScopes(const vector<StringPiece>& scopes);
+  static string JoinScopes(const std::vector<StringPiece>& scopes);
 
   /*
    * Returns a new credential instance that will use this flow to refresh.

@@ -40,6 +40,7 @@ add_library(google_youtube_api STATIC
             channel_section.cc
             channel_section_content_details.cc
             channel_section_list_response.cc
+            channel_section_localization.cc
             channel_section_snippet.cc
             channel_settings.cc
             channel_snippet.cc
@@ -86,6 +87,7 @@ add_library(google_youtube_api STATIC
             playlist_item_snippet.cc
             playlist_item_status.cc
             playlist_list_response.cc
+            playlist_localization.cc
             playlist_player.cc
             playlist_snippet.cc
             playlist_status.cc
@@ -120,6 +122,7 @@ add_library(google_youtube_api STATIC
             video_get_rating_response.cc
             video_list_response.cc
             video_live_streaming_details.cc
+            video_localization.cc
             video_monetization_details.cc
             video_player.cc
             video_processing_details.cc

@@ -25,8 +25,17 @@
 using std::string;
 #include "googleapis/client/data/codec.h"
 #include "googleapis/base/macros.h"
+// MOE::begin_strip
+// TODO(user): Fix openssl gyp rules so that the include files can be
+// included with the 'third_party/'
+// MOE::end_strip
+#ifdef GOOGLECLIENT
+#include "openssl/ossl_typ.h"
+#endif
 #include "googleapis/strings/stringpiece.h"
+#ifndef GOOGLECLIENT
 #include <openssl/ossl_typ.h>
+#endif
 #include "googleapis/util/status.h"
 namespace googleapis {
 

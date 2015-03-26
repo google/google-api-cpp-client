@@ -173,10 +173,8 @@ class ClientServiceTestFixture : public testing::Test {
 
 TEST_F(ClientServiceTestFixture, TestConstruct) {
   pair<StringPiece, StringPiece> tests[] = {
-    make_pair("root", "path"),
-    make_pair("root/", "path"),
-    make_pair("root/", "/path"),
-    make_pair("root", "/path"),
+      std::make_pair("root", "path"), std::make_pair("root/", "path"),
+      std::make_pair("root/", "/path"), std::make_pair("root", "/path"),
   };
 
   for (int i = 0; i < ARRAYSIZE(tests); ++i) {
@@ -255,9 +253,10 @@ TEST_F(ClientServiceTestFixture, TestPrepareWithMediaDownload) {
   const string method_url = StrCat(service_.service_url(), "/method");
 
   pair<string, string> tests[] = {
-    make_pair("", StrCat(method_url, "?alt=media")),
-    make_pair("?param=value", StrCat(method_url, "?param=value&alt=media")),
-    make_pair("?{var}", StrCat(method_url, "?value&alt=media")),
+      std::make_pair("", StrCat(method_url, "?alt=media")),
+      std::make_pair("?param=value",
+                     StrCat(method_url, "?param=value&alt=media")),
+      std::make_pair("?{var}", StrCat(method_url, "?value&alt=media")),
   };
   for (int i = 0; i < ARRAYSIZE(tests); ++i) {
     SetupMockedRequest(false, "");

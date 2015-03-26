@@ -150,7 +150,7 @@ class HttpScribeCensor {
    *
    * These include the protocol (e.g. https://accounts.google.com)
    */
-  const set<string>& censored_url_prefixes() const {
+  const std::set<string>& censored_url_prefixes() const {
     return censored_url_prefixes_;
   }
 
@@ -160,14 +160,14 @@ class HttpScribeCensor {
    * These include the protocol (e.g. https://accounts.google.com).
    * You can add additional prefixes into the set.
    */
-  set<string>* mutable_censored_url_prefixes() {
+  std::set<string>* mutable_censored_url_prefixes() {
     return &censored_url_prefixes_;
   }
 
   /*
    * Returns a set of censored query parameter names.
    */
-  const set<string>& censored_query_param_names() const {
+  const std::set<string>& censored_query_param_names() const {
     return censored_query_param_names_;
   }
 
@@ -176,14 +176,14 @@ class HttpScribeCensor {
    *
    * You can add additional query parameter names into the set.
    */
-  set<string>* mutable_censored_query_param_names() {
+  std::set<string>* mutable_censored_query_param_names() {
     return &censored_query_param_names_;
   }
 
   /*
    * Returns a set of censored HTTP request header names.
    */
-  const set<string>& censored_request_header_names() const {
+  const std::set<string>& censored_request_header_names() const {
     return censored_request_header_names_;
   }
 
@@ -192,14 +192,14 @@ class HttpScribeCensor {
    *
    * You can add additional request header names into the set.
    */
-  set<string>* mutable_censored_request_header_names() {
+  std::set<string>* mutable_censored_request_header_names() {
     return &censored_request_header_names_;
   }
 
   /*
    * Returns a set of censored HTTP response header names.
    */
-  const set<string>& censored_response_header_names() const {
+  const std::set<string>& censored_response_header_names() const {
     return censored_response_header_names_;
   }
 
@@ -208,7 +208,7 @@ class HttpScribeCensor {
    *
    * You can add additional response header names into the set.
    */
-  set<string>* mutable_censored_response_header_names() {
+  std::set<string>* mutable_censored_response_header_names() {
     return &censored_response_header_names_;
   }
 
@@ -224,10 +224,10 @@ class HttpScribeCensor {
       const ParsedUrl& parsed_url, bool* censored) const;
 
  private:
-  set<string> censored_url_prefixes_;
-  set<string> censored_query_param_names_;
-  set<string> censored_request_header_names_;
-  set<string> censored_response_header_names_;
+  std::set<string> censored_url_prefixes_;
+  std::set<string> censored_query_param_names_;
+  std::set<string> censored_request_header_names_;
+  std::set<string> censored_response_header_names_;
 
   bool IsSensitiveContent(const string& url) const;
   DISALLOW_COPY_AND_ASSIGN(HttpScribeCensor);
@@ -618,7 +618,7 @@ class HttpEntryScribe : public HttpScribe {
    * These are in the order they were created, which is probably
    * the order in which they were sent (minus race conditions).
    */
-  deque<Entry*>* outstanding_queue() { return &queue_; }
+  std::deque<Entry*>* outstanding_queue() { return &queue_; }
 
  protected:
   friend class Internal;
@@ -647,8 +647,8 @@ class HttpEntryScribe : public HttpScribe {
  private:
   class Internal;
   friend class Internal;
-  typedef map<const HttpRequest*, Entry*> EntryMap;
-  typedef deque<Entry*> EntryQueue;
+  typedef std::map<const HttpRequest*, Entry*> EntryMap;
+  typedef std::deque<Entry*> EntryQueue;
 
   void UnsafeDiscardEntry(Entry* entry) EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 

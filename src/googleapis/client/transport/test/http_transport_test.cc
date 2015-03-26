@@ -708,23 +708,23 @@ TEST_F(HttpTransportFixture, TestRedirectFlow) {
   vector<pair<int, pair<HttpRequest::HttpMethod,
                         HttpRequest::HttpMethod> > > tests;
   tests.push_back(
-      make_pair(301, make_pair(HttpRequest::GET, HttpRequest::GET)));
+      std::make_pair(301, std::make_pair(HttpRequest::GET, HttpRequest::GET)));
+  tests.push_back(std::make_pair(
+      301, std::make_pair(HttpRequest::POST, HttpRequest::POST)));
+  tests.push_back(std::make_pair(
+      301, std::make_pair(HttpRequest::HEAD, HttpRequest::HEAD)));
+  tests.push_back(std::make_pair(
+      302, std::make_pair(HttpRequest::HEAD, HttpRequest::HEAD)));
   tests.push_back(
-      make_pair(301, make_pair(HttpRequest::POST, HttpRequest::POST)));
+      std::make_pair(302, std::make_pair(HttpRequest::GET, HttpRequest::GET)));
+  tests.push_back(std::make_pair(
+      302, std::make_pair(HttpRequest::POST, HttpRequest::POST)));
   tests.push_back(
-      make_pair(301, make_pair(HttpRequest::HEAD, HttpRequest::HEAD)));
+      std::make_pair(303, std::make_pair(HttpRequest::HEAD, HttpRequest::GET)));
   tests.push_back(
-      make_pair(302, make_pair(HttpRequest::HEAD, HttpRequest::HEAD)));
+      std::make_pair(303, std::make_pair(HttpRequest::GET, HttpRequest::GET)));
   tests.push_back(
-      make_pair(302, make_pair(HttpRequest::GET, HttpRequest::GET)));
-  tests.push_back(
-      make_pair(302, make_pair(HttpRequest::POST, HttpRequest::POST)));
-  tests.push_back(
-      make_pair(303, make_pair(HttpRequest::HEAD, HttpRequest::GET)));
-  tests.push_back(
-      make_pair(303, make_pair(HttpRequest::GET, HttpRequest::GET)));
-  tests.push_back(
-      make_pair(303, make_pair(HttpRequest::POST, HttpRequest::GET)));
+      std::make_pair(303, std::make_pair(HttpRequest::POST, HttpRequest::GET)));
 
   for (int i = 0; i < tests.size(); ++i) {
     MockHttpRequest mock_request(tests[i].second.first, &transport);

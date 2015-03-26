@@ -17,22 +17,40 @@
  * @}
  */
 
+
 #include <string>
 using std::string;
+
 #include <glog/logging.h>
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/escaping.h"
-#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 
 namespace strings {
 
+
+namespace {
+
+static const char kBase64Chars[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+static const char kWebSafeBase64Chars[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+// Taken from stl_util.h
+inline char* string_as_array(string* str) {
+  return str->empty() ? NULL : &*str->begin();
+}
+
+}  // namespace
+
 // ===========================================================================
 // Base64 encoding and decoding.
 
 static int Base64EscapeInternal(const unsigned char* src, int szsrc, char* dest,
-                             int szdest, const char* base64, bool do_padding) {
+                                int szdest, const char* base64,
+                                bool do_padding) {
   static const char kPad64 = '=';
 
   if (szsrc <= 0) return 0;
@@ -99,19 +117,44 @@ static int Base64EscapeInternal(const unsigned char* src, int szsrc, char* dest,
 
 int WebSafeBase64Escape(const unsigned char* src, int szsrc, char* dest,
                         int szdest, bool do_padding) {
-  static const char kWebSafeBase64Chars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
   return Base64EscapeInternal(src, szsrc, dest, szdest,
                               kWebSafeBase64Chars, do_padding);
 }
 
 
 int Base64Escape(const unsigned char* src, int szsrc, char* dest, int szdest) {
-  static const char kBase64Chars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   return Base64EscapeInternal(src, szsrc, dest, szdest, kBase64Chars, true);
 }
 
+void Base64EscapeInternal(const unsigned char* src, int szsrc,
+                          string* dest, bool do_padding,
+                          const char* base64_chars) {
+  const int calc_escaped_size =
+    CalculateBase64EscapedLen(szsrc, do_padding);
+  dest->clear();
+  dest->resize(calc_escaped_size, '\0');
+  const int escaped_len = Base64EscapeInternal(src, szsrc,
+                                               string_as_array(dest),
+                                               dest->size(),
+                                               base64_chars,
+                                               do_padding);
+  DCHECK_EQ(calc_escaped_size, escaped_len);
+}
+
+void Base64Escape(const unsigned char *src, int szsrc,
+                  string* dest, bool do_padding) {
+  Base64EscapeInternal(src, szsrc, dest, do_padding, kBase64Chars);
+}
+
+void Base64Escape(const string& src, string* dest) {
+  Base64Escape(reinterpret_cast<const unsigned char*>(src.data()),
+               src.size(), dest, true);
+}
+
+void WebSafeBase64Escape(const unsigned char *src, int szsrc,
+                         string *dest, bool do_padding) {
+  Base64EscapeInternal(src, szsrc, dest, do_padding, kWebSafeBase64Chars);
+}
 
 int CalculateBase64EscapedLen(int input_len, bool do_padding) {
   // Base64 encodes each three bytes of input into four bytes of output.
@@ -374,8 +417,9 @@ static int Base64UnescapeInternal(const char* src, int szsrc, char* dest,
   return (equals == 0 || equals == expected_equals) ? destidx : -1;
 }
 
-static bool Base64UnescapeInternal(
-    const char* src, int szsrc, string* dest, const signed char* unbase64) {
+static bool Base64UnescapeInternal(const char* src, int szsrc,
+                                   string* dest,
+                                   const signed char* unbase64) {
   // Determine the size of the output string.  Base64 encodes every 3 bytes into
   // 4 characters.  any leftover chars are added directly for good measure.
   // This is documented in the base64 RFC: http://www.ietf.org/rfc/rfc3548.txt
@@ -471,13 +515,6 @@ static const signed char kUnWebSafeBase64[] = {
   -1,      -1,      -1,      -1,      -1,      -1,      -1,      -1
 };
 
-int Base64Unescape(const char* src, int szsrc, char* dest, int szdest) {
-  return Base64UnescapeInternal(src, szsrc, dest, szdest, kUnBase64);
-}
-
-int WebSafeBase64Unescape(const char* src, int szsrc, char* dest, int szdest) {
-  return Base64UnescapeInternal(src, szsrc, dest, szdest, kUnWebSafeBase64);
-}
 
 bool Base64Unescape(const char* src, int szsrc, string* dest) {
   return Base64UnescapeInternal(src, szsrc, dest, kUnBase64);

@@ -20,16 +20,17 @@
 //
 // Simple routines for splitting strings.
 
-#ifndef GOOGLEAPIS_SPLIT_H_
-#define GOOGLEAPIS_SPLIT_H_
+#ifndef GOOGLEAPIS_STRINGS_SPLIT_H_
+#define GOOGLEAPIS_STRINGS_SPLIT_H_
 #include <vector>
 using std::vector;
 #include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 namespace strings {
-vector<StringPiece> Split(const StringPiece& source, const StringPiece& delim);
+std::vector<StringPiece> Split(const StringPiece& source,
+                               const StringPiece& delim);
 }  // namespace strings
 
 }  // namespace googleapis
-#endif  // GOOGLEAPIS_SPLIT_H_
+#endif  // GOOGLEAPIS_STRINGS_SPLIT_H_

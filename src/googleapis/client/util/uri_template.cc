@@ -34,6 +34,7 @@ using std::string;
 
 namespace googleapis {
 
+
 namespace {
 const char* kNonExplodeJoiner = ",";
 
@@ -145,7 +146,7 @@ static util::Status ProcessVariable(
 // static
 util::Status UriTemplate::Expand(
     const StringPiece& path_uri, AppendVariableCallback* provider,
-    string* target, set<StringPiece>* vars_found) {
+    string* target, std::set<StringPiece>* vars_found) {
   util::Status final_status = StatusOk();
   provider->CheckIsRepeatable();
   int cur = 0;

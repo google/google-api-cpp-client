@@ -28,15 +28,20 @@
 // Need to do a thorough scrubbing on TCHAR in the code.
 // And also the use of _MSC_VER is the appropriate guard in each
 // porting situation.
+
+#include "googleapis/client/opensource/src/base/windows_compatability.h"
+
 #include <memory>
 #include <string>
 using std::string;
+
 #include <glog/logging.h>
 #include "googleapis/base/port.h"
-#include "googleapis/base/windows_compatability.h"
 #include "googleapis/strings/util.h"
 
 namespace googleapis {
+
+using std::string;
 
 #ifdef _MSC_VER
 

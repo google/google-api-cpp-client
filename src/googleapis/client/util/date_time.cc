@@ -216,15 +216,14 @@ void DateTime::MarkInvalid() {
 string DateTime::ToString() const {
   struct tm utc;
   string frac;
-  if (t_.tv_usec) {
-    // add fraction as either millis or micros depending on resolution we need.
-    int micros = t_.tv_usec;
-    int millis = micros / 1000;
-    if (millis * 1000 == micros) {
-      frac = StringPrintf(".%03d", millis);
-    } else {
-      frac = StringPrintf(".%06d", micros);
-    }
+
+  // add fraction as either millis or micros depending on resolution we need.
+  int micros = t_.tv_usec;
+  int millis = micros / 1000;
+  if (millis * 1000 == micros) {
+    frac = StringPrintf(".%03d", millis);
+  } else {
+    frac = StringPrintf(".%06d", micros);
   }
 
   gmtime_r(&t_.tv_sec, &utc);

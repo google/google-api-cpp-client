@@ -212,29 +212,12 @@ bool IsPrint(StringPiece str) {
 
 }  // namespace strings
 
-// ----------------------------------------------------------------------
-// StringReplace()
-//    Give me a string and two patterns "old" and "new", and I replace
-//    the first instance of "old" in the string with "new", if it
-//    exists.  If "replace_all" is true then call this repeatedly until it
-//    fails.  RETURN a new string, regardless of whether the replacement
-//    happened or not.
-// ----------------------------------------------------------------------
-
 string StringReplace(StringPiece s, StringPiece oldsub,
                      StringPiece newsub, bool replace_all) {
   string ret;
   StringReplace(s, oldsub, newsub, replace_all, &ret);
   return ret;
 }
-
-
-// ----------------------------------------------------------------------
-// StringReplace()
-//    Replace the "old" pattern with the "new" pattern in a string,
-//    and append the result to "res".  If replace_all is false,
-//    it only replaces the first instance of "old."
-// ----------------------------------------------------------------------
 
 void StringReplace(StringPiece s, StringPiece oldsub,
                    StringPiece newsub, bool replace_all,
@@ -258,14 +241,6 @@ void StringReplace(StringPiece s, StringPiece oldsub,
   } while (replace_all);
   res->append(s.data() + start_pos, s.length() - start_pos);
 }
-
-// ----------------------------------------------------------------------
-// GlobalReplaceSubstring()
-//    Replaces all instances of a substring in a string.  Does nothing
-//    if 'substring' is empty.  Returns the number of replacements.
-//
-//    NOTE: The string pieces must not overlap s.
-// ----------------------------------------------------------------------
 
 int GlobalReplaceSubstring(StringPiece substring,
                            StringPiece replacement,
@@ -295,14 +270,6 @@ int GlobalReplaceSubstring(StringPiece substring,
   return num_replacements;
 }
 
-// ----------------------------------------------------------------------
-// gstrcasestr is a case-insensitive strstr. Eventually we should just
-// use the GNU libc version of strcasestr, but it isn't compiled into
-// RedHat Linux by default in version 6.1.
-//
-// This function uses ascii_tolower() instead of tolower(), for speed.
-// ----------------------------------------------------------------------
-
 char *gstrcasestr(const char* haystack, const char* needle) {
   char c, sc;
   size_t len;
@@ -322,14 +289,6 @@ char *gstrcasestr(const char* haystack, const char* needle) {
   return const_cast<char*>(haystack);
 }
 
-// ----------------------------------------------------------------------
-// gstrncasestr is a case-insensitive strnstr.
-//    Finds the occurence of the (null-terminated) needle in the
-//    haystack, where no more than len bytes of haystack is searched.
-//    Characters that appear after a '\0' in the haystack are not searched.
-//
-// This function uses ascii_tolower() instead of tolower(), for speed.
-// ----------------------------------------------------------------------
 const char *gstrncasestr(const char* haystack, const char* needle, size_t len) {
   char c, sc;
 
@@ -348,22 +307,6 @@ const char *gstrncasestr(const char* haystack, const char* needle, size_t len) {
   return haystack;
 }
 
-// ----------------------------------------------------------------------
-// gstrncasestr is a case-insensitive strnstr.
-//    Finds the occurence of the (null-terminated) needle in the
-//    haystack, where no more than len bytes of haystack is searched.
-//    Characters that appear after a '\0' in the haystack are not searched.
-//
-//    This function uses ascii_tolower() instead of tolower(), for speed.
-// ----------------------------------------------------------------------
-char *gstrncasestr(char* haystack, const char* needle, size_t len) {
-  return const_cast<char *>(gstrncasestr(static_cast<const char *>(haystack),
-                                         needle, len));
-}
-// ----------------------------------------------------------------------
-// gstrncasestr_split performs a case insensitive search
-// on (prefix, non_alpha, suffix).
-// ----------------------------------------------------------------------
 char *gstrncasestr_split(const char* str,
                          const char* prefix, char non_alpha,
                          const char* suffix,
@@ -397,17 +340,6 @@ char *gstrncasestr_split(const char* str,
   return NULL;
 }
 
-// ----------------------------------------------------------------------
-// strcasestr_alnum is like a case-insensitive strstr, except that it
-// ignores non-alphanumeric characters in both strings for the sake of
-// comparison.
-//
-// This function uses ascii_isalnum() instead of isalnum() and
-// ascii_tolower() instead of tolower(), for speed.
-//
-// E.g. strcasestr_alnum("i use google all the time", " !!Google!! ")
-// returns pointer to "google all the time"
-// ----------------------------------------------------------------------
 char *strcasestr_alnum(const char *haystack, const char *needle) {
   const char *haystack_ptr;
   const char *needle_ptr;
@@ -451,15 +383,6 @@ char *strcasestr_alnum(const char *haystack, const char *needle) {
   return const_cast<char *>(haystack);
 }
 
-
-// ----------------------------------------------------------------------
-// CountSubstring()
-//    Return the number times a "substring" appears in the "text"
-//    NOTE: this function's complexity is O(|text| * |substring|)
-//          It is meant for short "text" (such as to ensure the
-//          printf format string has the right number of arguments).
-//          DO NOT pass in long "text".
-// ----------------------------------------------------------------------
 int CountSubstring(StringPiece text, StringPiece substring) {
   CHECK_GT(substring.length(), 0);
 
@@ -472,15 +395,6 @@ int CountSubstring(StringPiece text, StringPiece substring) {
   return count;
 }
 
-// ----------------------------------------------------------------------
-// strstr_delimited()
-//    Just like strstr(), except it ensures that the needle appears as
-//    a complete item (or consecutive series of items) in a delimited
-//    list.
-//
-//    Like strstr(), returns haystack if needle is empty, or NULL if
-//    either needle/haystack is NULL.
-// ----------------------------------------------------------------------
 const char* strstr_delimited(const char* haystack,
                              const char* needle,
                              char delim) {
@@ -519,7 +433,6 @@ const char* strstr_delimited(const char* haystack,
   return NULL;
 }
 
-
 // ----------------------------------------------------------------------
 // Older versions of libc have a buggy strsep.
 // ----------------------------------------------------------------------
@@ -555,7 +468,6 @@ char* gstrsep(char** stringp, const char* delim) {
 void FastStringAppend(string* s, const char* data, int len) {
   STLAppendToString(s, data, len);
 }
-
 
 // TODO(user): add a microbenchmark and revisit
 // the optimizations done here.
@@ -677,19 +589,6 @@ char* FastTimeToBuffer(time_t s, char* buffer) {
   return buffer;
 }
 
-// ----------------------------------------------------------------------
-// strdup_with_new()
-// strndup_with_new()
-//
-//    strdup_with_new() is the same as strdup() except that the memory
-//    is allocated by new[] and hence an exception will be generated
-//    if out of memory.
-//
-//    strndup_with_new() is the same as strdup_with_new() except that it will
-//    copy up to the specified number of characters.  This function
-//    is useful when we want to copy a substring out of a string
-//    and didn't want to (or cannot) modify the string
-// ----------------------------------------------------------------------
 char* strdup_with_new(const char* the_string) {
   if (the_string == NULL)
     return NULL;
@@ -706,20 +605,6 @@ char* strndup_with_new(const char* the_string, int max_length) {
   return strncpy(result, the_string, max_length);
 }
 
-
-// ----------------------------------------------------------------------
-// ScanForFirstWord()
-//    This function finds the first word in the string "the_string" given.
-//    A word is defined by consecutive !ascii_isspace() characters.
-//    If no valid words are found,
-//        return NULL and *end_ptr will contain junk
-//    else
-//        return the beginning of the first word and
-//        *end_ptr will store the address of the first invalid character
-//        (ascii_isspace() or '\0').
-//
-//    Precondition: (end_ptr != NULL)
-// ----------------------------------------------------------------------
 const char* ScanForFirstWord(const char* the_string, const char** end_ptr) {
   CHECK(end_ptr != NULL) << ": precondition violated";
 
@@ -763,13 +648,6 @@ StringPiece ScanForFirstWord(StringPiece input) {
 
 }  // namespace strings
 
-// ----------------------------------------------------------------------
-// AdvanceIdentifier()
-//    This function returns a pointer past the end of the longest C-style
-//    identifier that is a prefix of str or NULL if str does not start with
-//    one.  A C-style identifier begins with an ASCII letter or underscore
-//    and continues with ASCII letters, digits, or underscores.
-// ----------------------------------------------------------------------
 const char *AdvanceIdentifier(const char *str) {
   // Not using isalpha and isalnum so as not to rely on the locale.
   // We could have used ascii_isalpha and ascii_isalnum.
@@ -785,12 +663,6 @@ const char *AdvanceIdentifier(const char *str) {
   }
 }
 
-// ----------------------------------------------------------------------
-// IsIdentifier()
-//    This function returns true if str is a C-style identifier.
-//    A C-style identifier begins with an ASCII letter or underscore
-//    and continues with ASCII letters, digits, or underscores.
-// ----------------------------------------------------------------------
 bool IsIdentifier(const char *str) {
   const char *end = AdvanceIdentifier(str);
   return end && *end == '\0';
@@ -862,12 +734,6 @@ void InsertString(string *const s,
   s->swap(tmp);
 }
 
-//------------------------------------------------------------------------
-// FindNth()
-//  return index of nth occurrence of c in the string,
-//  or string::npos if n > number of occurrences of c.
-//  (returns string::npos = -1 if n <= 0)
-//------------------------------------------------------------------------
 int FindNth(StringPiece s, char c, int n) {
   int pos = -1;
 
@@ -880,12 +746,6 @@ int FindNth(StringPiece s, char c, int n) {
   return pos;
 }
 
-//------------------------------------------------------------------------
-// ReverseFindNth()
-//  return index of nth-to-last occurrence of c in the string,
-//  or string::npos if n > number of occurrences of c.
-//  (returns string::npos if n <= 0)
-//------------------------------------------------------------------------
 int ReverseFindNth(StringPiece s, char c, int n) {
   if ( n <= 0 ) {
     return static_cast<int>(StringPiece::npos);
@@ -931,10 +791,6 @@ StringPiece FindEol(StringPiece s) {
 
 }  // namespace strings
 
-//------------------------------------------------------------------------
-// OnlyWhitespace()
-//  return true if string s contains only whitespace characters
-//------------------------------------------------------------------------
 bool OnlyWhitespace(StringPiece s) {
   for ( int i = 0; i < s.size(); ++i ) {
     if ( !ascii_isspace(s[i]) ) return false;

@@ -82,7 +82,7 @@ TEST_F(DateTimeTestFixture, TestConstructor) {
   DateTime date_utc = DateTime::DateTimeFromUtc(utc);
   EXPECT_EQ(now_epoch, date_utc.ToEpochTime());
 
-  string zulu = "2012-01-02T03:04:05Z";
+  string zulu = "2012-01-02T03:04:05.000Z";
   DateTime date_zulu(zulu);
   EXPECT_TRUE(date_zulu.is_valid());
   EXPECT_EQ(zulu, date_zulu.ToString());

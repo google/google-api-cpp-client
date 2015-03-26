@@ -16,7 +16,7 @@
  *
  * @}
  */
-#ifndef THREAD_EXECUTOR_H_
+#ifndef THREAD_EXECUTOR_H_  // NOLINT
 #define THREAD_EXECUTOR_H_
 
 #include "googleapis/base/macros.h"
@@ -36,7 +36,7 @@ class Executor {
   virtual bool TryAdd(Closure* closure) = 0;
 
   // Caller retains ownership.
-  void SetDefaultExecutor(Executor* executor);
+  static void SetDefaultExecutor(Executor* executor);
   static Executor* DefaultExecutor();
 
  private:
@@ -53,4 +53,4 @@ Executor* SingletonInlineExecutor();
 }  // namespace thread
 
 }  // namespace googleapis
-#endif  // THREAD_EXECUTOR_H_
+#endif  // THREAD_EXECUTOR_H_  NOLINT

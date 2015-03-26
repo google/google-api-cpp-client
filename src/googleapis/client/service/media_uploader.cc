@@ -21,6 +21,8 @@
 #include <string>
 using std::string;
 #include <sstream>
+#include <vector>
+using std::vector;
 
 #include "googleapis/base/macros.h"
 #include <glog/logging.h>
@@ -199,7 +201,7 @@ util::Status MediaUploader::BuildRequest(
 DataReader* MediaUploader::CreateMultipartPayloadReader(string* content_type) {
   const StringPiece kDash("--");
   const StringPiece kEoln("\n");
-  vector<DataReader*>* list(new vector<DataReader*>);
+  std::vector<DataReader*>* list(new std::vector<DataReader*>);
 
   string boundary = multipart_boundary_;
 

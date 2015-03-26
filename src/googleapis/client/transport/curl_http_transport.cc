@@ -42,10 +42,17 @@ using std::vector;
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
+#ifdef GOOGLECLIENT
+// Include without third_party so the ABI switching can happen. See curl.gyp.
+// TODO(user): When moving to FoM, we would not want to do this.
+#include "curl/curl.h"
+#endif
 #include "googleapis/strings/case.h"
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/strip.h"
+#ifndef GOOGLECLIENT
 #include <curl/curl.h>
+#endif
 #include "googleapis/util/status.h"
 
 namespace googleapis {

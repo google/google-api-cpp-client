@@ -41,7 +41,6 @@ using std::swap;
 #include <glog/logging.h>
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/util/canonical_errors.h"
 #include "googleapis/util/status.h"
 
 namespace googleapis {
@@ -160,12 +159,12 @@ util::Status SensitiveFileUtils::DeleteSensitiveFile(const string& path) {
     }
 
     const int64 kMaxWriteChunk = 1 << 13;  // 8K;
-    int64 buffer_length = min(remaining, kMaxWriteChunk);
+    int64 buffer_length = std::min(remaining, kMaxWriteChunk);
     std::unique_ptr<char[]> buffer(new char[buffer_length]);
     memset(buffer.get(), 0xff, buffer_length);
 
     for (int64 wrote = 0; remaining > 0; remaining -= wrote) {
-      int64 this_write = min(remaining, buffer_length);
+      int64 this_write = std::min(remaining, buffer_length);
       util::Status status = file->Write(buffer.get(), this_write);
       if (!status.ok()) {
         LOG(ERROR) << "Error overwriting secure path=" << path

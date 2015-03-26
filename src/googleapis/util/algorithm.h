@@ -146,7 +146,7 @@ bool all(InputIterator first, InputIterator last, Predicate pred) {
 // last). Complexity: at most last-first applications of pred.
 template <typename InputIterator, typename Predicate>
 bool none(InputIterator first, InputIterator last, Predicate pred) {
-  return find_if(first, last, pred) == last;
+  return std::find_if(first, last, pred) == last;
 }
 
 // OBSOLETE: Outside PG3, use std::any_of.
@@ -227,7 +227,7 @@ std::pair<ForwardIter, ForwardIter> minmax_element(ForwardIter first,
     ++first;
   }
 
-  return make_pair(min, max);
+  return std::make_pair(min, max);
 }
 
 // OBSOLETE: Outside PG3, use std::minmax_element.
@@ -295,7 +295,7 @@ template <typename ForwardIterator, typename Predicate>
 ForwardIterator partition_point(ForwardIterator first, ForwardIterator last,
                                 Predicate pred) {
   typedef typename std::iterator_traits<ForwardIterator>::difference_type diff;
-  diff n = distance(first, last);
+  diff n = std::distance(first, last);
 
   // Loop invariant: n == distance(first, last)
   while (first != last) {
@@ -334,7 +334,7 @@ partition_copy(InputIterator first, InputIterator last,
     else
       *out_false++ = *first;
   }
-  return make_pair(out_true, out_false);
+  return std::make_pair(out_true, out_false);
 }
 
 // Reorders elements in [first, last), so that for each consecutive group

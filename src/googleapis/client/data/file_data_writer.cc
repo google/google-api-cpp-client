@@ -49,7 +49,7 @@ FileDataWriter::FileDataWriter(
 
 // When clearing the writer, erase the underlying file.
 util::Status FileDataWriter::DoClear() {
-  if (googleapis::File::Exists(path_)) {
+  if (File::Exists(path_)) {
     if (!File::Delete(path_)) {
       return StatusUnknown("Could not delete file");
     }

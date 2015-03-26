@@ -93,7 +93,7 @@ class MongooseResponse : public WebServerResponse {
 
   virtual util::Status AddHeader(
       const StringPiece& name, const StringPiece& value) {
-    headers_.push_back(make_pair(name.as_string(), value.as_string()));
+    headers_.push_back(std::make_pair(name.as_string(), value.as_string()));
     return StatusOk();
   }
 
@@ -216,7 +216,7 @@ util::Status MongooseWebServer::DoStartup() {
   if (!port_option.empty() && port_option != port_str) {
     return StatusFailedPrecondition("Inconsistent port and LISTENING_PORTS");
   }
-  options_.insert(make_pair(kPortOption, port_str));
+  options_.insert(std::make_pair(kPortOption, port_str));
 
   if (!use_ssl()) {
     LOG(WARNING) << "Starting embedded MicroHttpd webserver without SSL";

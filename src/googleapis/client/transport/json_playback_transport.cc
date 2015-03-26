@@ -113,10 +113,11 @@ struct RequestRecord {
         }
         if (StringPiece(name) == HttpRequest::HttpHeader_USER_AGENT) {
           // Dont bother matching user agent headers.
-          request_headers.insert(make_pair(name, kFakeUserAgent.as_string()));
+          request_headers.insert(
+              std::make_pair(name, kFakeUserAgent.as_string()));
           continue;
         }
-        request_headers.insert(make_pair(name, (*it).asCString()));
+        request_headers.insert(std::make_pair(name, (*it).asCString()));
       }
     }
     if (response->isMember(JsonScribe::kHeaders)) {
@@ -129,7 +130,7 @@ struct RequestRecord {
           LOG(ERROR) << "Empty response header name";
           return false;
         }
-        response_headers.insert(make_pair(name, (*it).asCString()));
+        response_headers.insert(std::make_pair(name, (*it).asCString()));
       }
     }
     return true;
@@ -179,7 +180,7 @@ class JsonPlaybackTranscript {
       STLDeleteElements(&records);
     }
     int index;
-    vector<RequestRecord*> records;
+    std::vector<RequestRecord*> records;
   };
   typedef map<string, RequestRecordList*> RequestToListMap;
 
@@ -290,7 +291,7 @@ return StatusUnknown(json_reader.getFormatedErrorMessages());
     RequestRecordList* list;
     if (found == request_to_list_map_.end()) {
       list = new RequestRecordList;
-      request_to_list_map_.insert(make_pair(key, list));
+      request_to_list_map_.insert(std::make_pair(key, list));
     } else {
       list = found->second;
     }
@@ -339,17 +340,16 @@ RequestRecord* JsonPlaybackTranscript::GetNextRecord(
          it != request.headers().end();
          ++it) {
       if (it->first == HttpRequest::HttpHeader_USER_AGENT) {
-        headers.insert(make_pair(it->first, kFakeUserAgent.as_string()));
+        headers.insert(std::make_pair(it->first, kFakeUserAgent.as_string()));
         continue;
       }
-      headers.insert(
-          make_pair(it->first,
-                    censor_->GetCensoredRequestHeaderValue(
-                        request, it->first, it->second, &censored)));
+      headers.insert(std::make_pair(
+          it->first, censor_->GetCensoredRequestHeaderValue(
+                         request, it->first, it->second, &censored)));
     }
   }
 
-  for (vector<RequestRecord*>::iterator it = list->records.begin();
+  for (std::vector<RequestRecord*>::iterator it = list->records.begin();
        it != list->records.end();
        ++it) {
     RequestRecord* record = *it;

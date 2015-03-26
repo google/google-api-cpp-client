@@ -203,7 +203,7 @@ class HttpResponse {
    * @param[in] value The value for the header.
    */
   void AddHeader(const StringPiece& name, const StringPiece& value) {
-    headers_.insert(make_pair(name.as_string(), value.as_string()));
+    headers_.insert(std::make_pair(name.as_string(), value.as_string()));
   }
 
   /*

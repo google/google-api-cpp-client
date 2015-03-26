@@ -26,12 +26,19 @@ using std::string;
 #include "googleapis/client/data/openssl_codec.h"
 #include "googleapis/client/util/status.h"
 
+#ifdef GOOGLECLIENT
+#include "openssl/ossl_typ.h"
+#include "openssl/evp.h"
+#include "openssl/err.h"
+#endif
 #include "googleapis/strings/strcat.h"
+#ifndef GOOGLECLIENT
 #include <openssl/ossl_typ.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
 namespace googleapis {
+#endif
 
 namespace {
 using client::StatusOk;

@@ -18,7 +18,8 @@
  */
 
 
-#include "googleapis/util/status.h"
+#include "googleapis/client/opensource/src/util/task/status.h"
+
 #include "googleapis/strings/strcat.h"
 
 namespace googleapis {

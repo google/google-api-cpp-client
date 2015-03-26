@@ -103,9 +103,7 @@ namespace googleapis {
 
 
 // A macro to disallow the copy constructor and operator= functions
-// This should be used in the private: declarations for a class.
-// (Note: this is not required when building for C++11, but is still needed
-// for any portable, non-C++11 code.)
+// This must be placed in the private: declarations for a class.
 //
 // For disallowing only assign or copy, delete the relevant operator or
 // constructor, for example:

@@ -89,7 +89,7 @@ void CommandProcessor::AddBuiltinCommands() {
 }
 
 void CommandProcessor::AddCommand(StringPiece name, CommandEntry* details) {
-  commands_.insert(make_pair(name, details));
+  commands_.insert(std::make_pair(name, details));
 }
 
 bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
@@ -100,7 +100,7 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
   response->body_reader()->SetOffset(0);
   bool response_was_ok;
   if (!transport_status.ok()) {
-    cerr << "ERROR: " << transport_status.error_message() << endl;
+    cerr << "ERROR: " << transport_status.error_message() << std::endl;
     return false;
   } else if (!response->ok()) {
     string body;
@@ -109,11 +109,10 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
       StrAppend(&body, "ERROR reading HTTP response body: ",
                 status.error_message());
     }
-    cerr << "ERROR(" << response->http_code() << "): "
-         << body << endl;
+    cerr << "ERROR(" << response->http_code() << "): " << body << std::endl;
     response_was_ok = false;
   } else {
-    cout << "OK(" << response->http_code() << ")" << endl;
+    cout << "OK(" << response->http_code() << ")" << std::endl;
     if (log_success_bodies_) {
       string body;
       util::Status status = response->GetBodyString(&body);
@@ -121,9 +120,9 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
         StrAppend(&body, "ERROR reading HTTP response body: ",
                   status.error_message());
       }
-      cout << "----------  [begin response body]  ----------" << endl;
-      cout << body << endl;
-      cout << "-----------  [end response body]  -----------" << endl;
+      cout << "----------  [begin response body]  ----------" << std::endl;
+      cout << body << std::endl;
+      cout << "-----------  [end response body]  -----------" << std::endl;
     }
     response_was_ok = true;
   }
@@ -139,10 +138,10 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
 void CommandProcessor::VerboseHandler(
     int level, const string&, const vector<string>&) {
   if (level == 0) {
-    cout << "Being quiet." << endl;
+    cout << "Being quiet." << std::endl;
     log_success_bodies_ = false;
   } else {
-    cout << "Being verbose." << endl;
+    cout << "Being verbose." << std::endl;
     log_success_bodies_ = true;
   }
 }
@@ -173,7 +172,7 @@ void CommandProcessor::HelpHandler(const string&, const vector<string>&) {
     }
     StrAppend(&help, "\n   ", it->second->help, "\n");
   }
-  cout << help << endl;
+  cout << help << std::endl;
 }
 
 void CommandProcessor::RunShell() {
@@ -183,7 +182,8 @@ void CommandProcessor::RunShell() {
   }
   done_ = false;
   while (!done_) {
-    cout << endl << prompt_;
+    cout << std::endl
+         << prompt_;
     string input;
     std::getline(cin, input);
 
