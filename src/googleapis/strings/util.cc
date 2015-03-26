@@ -16,6 +16,23 @@
  *
  * @}
  */
+/*
+ * \license @{
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @}
+ */
 //
 // Copyright (C) 1999-2005 Google, Inc.
 //
@@ -30,6 +47,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>           // for FastTimeToBuffer()
+
 #include <algorithm>
 using std::copy;
 using std::max;
@@ -37,6 +55,7 @@ using std::min;
 using std::reverse;
 using std::swap;
 #include <string>
+using std::string;
 using std::string;
 #include <vector>
 using std::vector;
@@ -197,20 +216,14 @@ bool IsAscii(const char* str, int len) {
   return true;
 }
 
-namespace strings {
-
-bool IsPrint(StringPiece str) {
-  const char* strp = str.data();
-  const char* end = strp + str.size();
-  while (strp < end) {
-    if (!ascii_isprint(*strp++)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-}  // namespace strings
+// ----------------------------------------------------------------------
+// StringReplace()
+//    Give me a string and two patterns "old" and "new", and I replace
+//    the first instance of "old" in the string with "new", if it
+//    exists.  If "replace_all" is true then call this repeatedly until it
+//    fails.  RETURN a new string, regardless of whether the replacement
+//    happened or not.
+// ----------------------------------------------------------------------
 
 string StringReplace(StringPiece s, StringPiece oldsub,
                      StringPiece newsub, bool replace_all) {
@@ -218,6 +231,14 @@ string StringReplace(StringPiece s, StringPiece oldsub,
   StringReplace(s, oldsub, newsub, replace_all, &ret);
   return ret;
 }
+
+
+// ----------------------------------------------------------------------
+// StringReplace()
+//    Replace the "old" pattern with the "new" pattern in a string,
+//    and append the result to "res".  If replace_all is false,
+//    it only replaces the first instance of "old."
+// ----------------------------------------------------------------------
 
 void StringReplace(StringPiece s, StringPiece oldsub,
                    StringPiece newsub, bool replace_all,
@@ -241,6 +262,14 @@ void StringReplace(StringPiece s, StringPiece oldsub,
   } while (replace_all);
   res->append(s.data() + start_pos, s.length() - start_pos);
 }
+
+// ----------------------------------------------------------------------
+// GlobalReplaceSubstring()
+//    Replaces all instances of a substring in a string.  Does nothing
+//    if 'substring' is empty.  Returns the number of replacements.
+//
+//    NOTE: The string pieces must not overlap s.
+// ----------------------------------------------------------------------
 
 int GlobalReplaceSubstring(StringPiece substring,
                            StringPiece replacement,
@@ -270,6 +299,40 @@ int GlobalReplaceSubstring(StringPiece substring,
   return num_replacements;
 }
 
+//---------------------------------------------------------------------------
+// RemoveStrings()
+//   Remove the strings from v given by the (sorted least -> greatest)
+//   numbers in indices.
+//   Order of v is *not* preserved.
+//---------------------------------------------------------------------------
+void RemoveStrings(std::vector<string>* v, const std::vector<int>& indices) {
+  assert(v);
+  assert(indices.size() <= v->size());
+  // go from largest index to smallest so that smaller indices aren't
+  // invalidated
+  for (int lcv = indices.size() - 1; lcv >= 0; --lcv) {
+#ifndef NDEBUG
+    // verify that indices is sorted least->greatest
+    if (indices.size() >= 2 && lcv > 0) {
+      // use LT and not LE because we should never see repeat indices
+      CHECK_LT(indices[lcv-1], indices[lcv]);
+    }
+#endif
+    assert(indices[lcv] >= 0);
+    assert(indices[lcv] < v->size());
+    std::swap((*v)[indices[lcv]], v->back());
+    v->pop_back();
+  }
+}
+
+// ----------------------------------------------------------------------
+// gstrcasestr is a case-insensitive strstr. Eventually we should just
+// use the GNU libc version of strcasestr, but it isn't compiled into
+// RedHat Linux by default in version 6.1.
+//
+// This function uses ascii_tolower() instead of tolower(), for speed.
+// ----------------------------------------------------------------------
+
 char *gstrcasestr(const char* haystack, const char* needle) {
   char c, sc;
   size_t len;
@@ -289,6 +352,14 @@ char *gstrcasestr(const char* haystack, const char* needle) {
   return const_cast<char*>(haystack);
 }
 
+// ----------------------------------------------------------------------
+// gstrncasestr is a case-insensitive strnstr.
+//    Finds the occurence of the (null-terminated) needle in the
+//    haystack, where no more than len bytes of haystack is searched.
+//    Characters that appear after a '\0' in the haystack are not searched.
+//
+// This function uses ascii_tolower() instead of tolower(), for speed.
+// ----------------------------------------------------------------------
 const char *gstrncasestr(const char* haystack, const char* needle, size_t len) {
   char c, sc;
 
@@ -307,6 +378,22 @@ const char *gstrncasestr(const char* haystack, const char* needle, size_t len) {
   return haystack;
 }
 
+// ----------------------------------------------------------------------
+// gstrncasestr is a case-insensitive strnstr.
+//    Finds the occurence of the (null-terminated) needle in the
+//    haystack, where no more than len bytes of haystack is searched.
+//    Characters that appear after a '\0' in the haystack are not searched.
+//
+//    This function uses ascii_tolower() instead of tolower(), for speed.
+// ----------------------------------------------------------------------
+char *gstrncasestr(char* haystack, const char* needle, size_t len) {
+  return const_cast<char *>(gstrncasestr(static_cast<const char *>(haystack),
+                                         needle, len));
+}
+// ----------------------------------------------------------------------
+// gstrncasestr_split performs a case insensitive search
+// on (prefix, non_alpha, suffix).
+// ----------------------------------------------------------------------
 char *gstrncasestr_split(const char* str,
                          const char* prefix, char non_alpha,
                          const char* suffix,
@@ -340,6 +427,17 @@ char *gstrncasestr_split(const char* str,
   return NULL;
 }
 
+// ----------------------------------------------------------------------
+// strcasestr_alnum is like a case-insensitive strstr, except that it
+// ignores non-alphanumeric characters in both strings for the sake of
+// comparison.
+//
+// This function uses ascii_isalnum() instead of isalnum() and
+// ascii_tolower() instead of tolower(), for speed.
+//
+// E.g. strcasestr_alnum("i use google all the time", " !!Google!! ")
+// returns pointer to "google all the time"
+// ----------------------------------------------------------------------
 char *strcasestr_alnum(const char *haystack, const char *needle) {
   const char *haystack_ptr;
   const char *needle_ptr;
@@ -383,6 +481,15 @@ char *strcasestr_alnum(const char *haystack, const char *needle) {
   return const_cast<char *>(haystack);
 }
 
+
+// ----------------------------------------------------------------------
+// CountSubstring()
+//    Return the number times a "substring" appears in the "text"
+//    NOTE: this function's complexity is O(|text| * |substring|)
+//          It is meant for short "text" (such as to ensure the
+//          printf format string has the right number of arguments).
+//          DO NOT pass in long "text".
+// ----------------------------------------------------------------------
 int CountSubstring(StringPiece text, StringPiece substring) {
   CHECK_GT(substring.length(), 0);
 
@@ -395,6 +502,15 @@ int CountSubstring(StringPiece text, StringPiece substring) {
   return count;
 }
 
+// ----------------------------------------------------------------------
+// strstr_delimited()
+//    Just like strstr(), except it ensures that the needle appears as
+//    a complete item (or consecutive series of items) in a delimited
+//    list.
+//
+//    Like strstr(), returns haystack if needle is empty, or NULL if
+//    either needle/haystack is NULL.
+// ----------------------------------------------------------------------
 const char* strstr_delimited(const char* haystack,
                              const char* needle,
                              char delim) {
@@ -433,6 +549,7 @@ const char* strstr_delimited(const char* haystack,
   return NULL;
 }
 
+
 // ----------------------------------------------------------------------
 // Older versions of libc have a buggy strsep.
 // ----------------------------------------------------------------------
@@ -468,6 +585,7 @@ char* gstrsep(char** stringp, const char* delim) {
 void FastStringAppend(string* s, const char* data, int len) {
   STLAppendToString(s, data, len);
 }
+
 
 // TODO(user): add a microbenchmark and revisit
 // the optimizations done here.
@@ -589,6 +707,19 @@ char* FastTimeToBuffer(time_t s, char* buffer) {
   return buffer;
 }
 
+// ----------------------------------------------------------------------
+// strdup_with_new()
+// strndup_with_new()
+//
+//    strdup_with_new() is the same as strdup() except that the memory
+//    is allocated by new[] and hence an exception will be generated
+//    if out of memory.
+//
+//    strndup_with_new() is the same as strdup_with_new() except that it will
+//    copy up to the specified number of characters.  This function
+//    is useful when we want to copy a substring out of a string
+//    and didn't want to (or cannot) modify the string
+// ----------------------------------------------------------------------
 char* strdup_with_new(const char* the_string) {
   if (the_string == NULL)
     return NULL;
@@ -605,6 +736,22 @@ char* strndup_with_new(const char* the_string, int max_length) {
   return strncpy(result, the_string, max_length);
 }
 
+
+
+
+// ----------------------------------------------------------------------
+// ScanForFirstWord()
+//    This function finds the first word in the string "the_string" given.
+//    A word is defined by consecutive !ascii_isspace() characters.
+//    If no valid words are found,
+//        return NULL and *end_ptr will contain junk
+//    else
+//        return the beginning of the first word and
+//        *end_ptr will store the address of the first invalid character
+//        (ascii_isspace() or '\0').
+//
+//    Precondition: (end_ptr != NULL)
+// ----------------------------------------------------------------------
 const char* ScanForFirstWord(const char* the_string, const char** end_ptr) {
   CHECK(end_ptr != NULL) << ": precondition violated";
 
@@ -629,25 +776,13 @@ const char* ScanForFirstWord(const char* the_string, const char** end_ptr) {
   return first_word;
 }
 
-namespace strings {
-
-StringPiece ScanForFirstWord(StringPiece input) {
-  const char* curr = input.data();
-  const char* const end = curr + input.size();
-
-  // Skip initial spaces to locate the start of the word.
-  while ((curr < end) && ascii_isspace(*curr))
-    ++curr;
-  const char* const word = curr;
-
-  // Skip subsequent non-spaces to locate the end of the word.
-  while ((curr < end) && !ascii_isspace(*curr))
-    ++curr;
-  return StringPiece(word, curr - word);
-}
-
-}  // namespace strings
-
+// ----------------------------------------------------------------------
+// AdvanceIdentifier()
+//    This function returns a pointer past the end of the longest C-style
+//    identifier that is a prefix of str or NULL if str does not start with
+//    one.  A C-style identifier begins with an ASCII letter or underscore
+//    and continues with ASCII letters, digits, or underscores.
+// ----------------------------------------------------------------------
 const char *AdvanceIdentifier(const char *str) {
   // Not using isalpha and isalnum so as not to rely on the locale.
   // We could have used ascii_isalpha and ascii_isalnum.
@@ -663,6 +798,12 @@ const char *AdvanceIdentifier(const char *str) {
   }
 }
 
+// ----------------------------------------------------------------------
+// IsIdentifier()
+//    This function returns true if str is a C-style identifier.
+//    A C-style identifier begins with an ASCII letter or underscore
+//    and continues with ASCII letters, digits, or underscores.
+// ----------------------------------------------------------------------
 bool IsIdentifier(const char *str) {
   const char *end = AdvanceIdentifier(str);
   return end && *end == '\0';
@@ -698,7 +839,7 @@ void UniformInsertString(string* s, int interval, const char* separator) {
 }
 
 void InsertString(string *const s,
-                  const vector<uint32> &indices,
+                  const std::vector<uint32> &indices,
                   char const *const separator) {
   const unsigned num_indices(indices.size());
   if (num_indices == 0) {
@@ -714,8 +855,8 @@ void InsertString(string *const s,
   const unsigned s_len(s->size());
   tmp.reserve(s_len + separator_len * num_indices);
 
-  vector<uint32>::const_iterator const ind_end(indices.end());
-  vector<uint32>::const_iterator ind_pos(indices.begin());
+  std::vector<uint32>::const_iterator const ind_end(indices.end());
+  std::vector<uint32>::const_iterator ind_pos(indices.begin());
 
   uint32 last_pos(0);
   while (ind_pos != ind_end) {
@@ -734,6 +875,12 @@ void InsertString(string *const s,
   s->swap(tmp);
 }
 
+//------------------------------------------------------------------------
+// FindNth()
+//  return index of nth occurrence of c in the string,
+//  or string::npos if n > number of occurrences of c.
+//  (returns string::npos = -1 if n <= 0)
+//------------------------------------------------------------------------
 int FindNth(StringPiece s, char c, int n) {
   int pos = -1;
 
@@ -746,6 +893,12 @@ int FindNth(StringPiece s, char c, int n) {
   return pos;
 }
 
+//------------------------------------------------------------------------
+// ReverseFindNth()
+//  return index of nth-to-last occurrence of c in the string,
+//  or string::npos if n > number of occurrences of c.
+//  (returns string::npos if n <= 0)
+//------------------------------------------------------------------------
 int ReverseFindNth(StringPiece s, char c, int n) {
   if ( n <= 0 ) {
     return static_cast<int>(StringPiece::npos);
@@ -791,6 +944,10 @@ StringPiece FindEol(StringPiece s) {
 
 }  // namespace strings
 
+//------------------------------------------------------------------------
+// OnlyWhitespace()
+//  return true if string s contains only whitespace characters
+//------------------------------------------------------------------------
 bool OnlyWhitespace(StringPiece s) {
   for ( int i = 0; i < s.size(); ++i ) {
     if ( !ascii_isspace(s[i]) ) return false;
@@ -798,9 +955,13 @@ bool OnlyWhitespace(StringPiece s) {
   return true;
 }
 
+#if defined(ASSUMES_CHAR_IS_UNSIGNED)
+// TODO(user): Have this removed from this code during the transform phase.
+// It is left here now so that this comment is easy to see on the next
+// update, so we can turn this non-portable bit off again.
 string PrefixSuccessor(StringPiece prefix) {
   // We can increment the last character in the string and be done
-  // unless that character is 255 (0xff), in which case we have to erase the
+  // unless that character is 255, in which case we have to erase the
   // last character and increment the previous character, unless that
   // is 255, etc. If the string is empty or consists entirely of
   // 255's, we just return the empty string.
@@ -808,7 +969,7 @@ string PrefixSuccessor(StringPiece prefix) {
   string limit(prefix.data(), prefix.size());
   int index = limit.length() - 1;
   while (!done && index >= 0) {
-    if (limit[index] == '\xff') {  // char literal avoids signed/unsigned.
+    if (limit[index] == 255) {
       limit.erase(index);
       index--;
     } else {
@@ -822,6 +983,7 @@ string PrefixSuccessor(StringPiece prefix) {
     return limit;
   }
 }
+#endif  // ASSUMES_CHAR_IS_UNSIGNED
 
 string ImmediateSuccessor(StringPiece s) {
   // Return the input string, with an additional NUL byte appended.
@@ -858,7 +1020,7 @@ void FindShortestSeparator(StringPiece start,
     return;
   }
 
-  if (start[diff_index] == '\xff') {  // char literal avoids signed/unsigned.
+  if ((start[diff_index] & 0xff)== 0xff) {
     // Avoid overflow when incrementing start[diff_index]
     start.CopyToString(separator);
     return;

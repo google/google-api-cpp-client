@@ -23,7 +23,7 @@
 
 #include <glog/logging.h>
 #include "googleapis/base/integral_types.h"
-#include "googleapis/client/opensource/src/util/hash/hash.h"
+#include "googleapis/util/hash.h"
 
 namespace googleapis {
 

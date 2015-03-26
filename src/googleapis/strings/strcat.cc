@@ -16,6 +16,23 @@
  *
  * @}
  */
+/*
+ * \license @{
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @}
+ */
 // Copyright 2008 and onwards Google Inc.  All rights reserved.
 
 #include "googleapis/strings/strcat.h"
@@ -31,29 +48,8 @@
 
 namespace googleapis {
 
-namespace strings {
 
 AlphaNum gEmptyAlphaNum("");
-
-AlphaNum::AlphaNum(strings::Hex hex) {
-  char *const end = &digits_[kFastToBufferSize];
-  char *writer = end;
-  uint64 value = hex.value;
-  uint64 width = hex.spec;
-  // We accomplish minimum width by OR'ing in 0x10000 to the user's value,
-  // where 0x10000 is the smallest hex number that is as wide as the user
-  // asked for.
-  uint64 mask = ((static_cast<uint64>(1) << (width - 1) * 4)) | value;
-  static const char hexdigits[] = "0123456789abcdef";
-  do {
-    *--writer = hexdigits[value & 0xF];
-    value >>= 4;
-    mask >>= 4;
-  } while (mask != 0);
-  piece_.set(writer, end - writer);
-}
-
-}  // namespace strings
 
 // ----------------------------------------------------------------------
 // StrCat()

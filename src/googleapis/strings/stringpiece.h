@@ -16,6 +16,23 @@
  *
  * @}
  */
+/*
+ * \license @{
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @}
+ */
 // Copyright 2001, Google Inc.  All rights reserved.
 // Maintainer: mec@google.com (Michael Chastain)
 //
@@ -46,7 +63,7 @@
 //
 // This code is okay:
 //   string str = obj.MethodReturningString();  // str owns its contents
-//   StringPiece sp(str);  // GOOD, because str outlives sp
+//   StringPiece sp(str);  // GOOD, although you may not need sp at all
 //
 // StringPiece is sometimes a poor choice for a return value and usually a poor
 // choice for a data member.  If you do use a StringPiece this way, it is your
@@ -129,24 +146,27 @@
 // (3) A null StringPiece is empty.
 //     An empty StringPiece may or may not be a null StringPiece.
 
-#ifndef STRINGS_STRINGPIECE_H_
-#define STRINGS_STRINGPIECE_H_
+#ifndef GOOGLEAPIS_STRINGS_STRINGPIECE_H_
+#define GOOGLEAPIS_STRINGS_STRINGPIECE_H_
 
 #include <assert.h>
 #include <stddef.h>
 #include <string.h>
 #include <iosfwd>
 using std::ostream;
+using std::ostream;
 #include <limits>
+using std::numeric_limits;
 using std::numeric_limits;
 #include <string>
 using std::string;
+using std::string;
 
+#include "googleapis/util/hash.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/port.h"
 #include "googleapis/base/type_traits.h"
 #include "googleapis/strings/fastmem.h"
-#include "googleapis/util/hash.h"
 namespace googleapis {
 
 // StringPiece has *two* size types.
@@ -209,15 +229,15 @@ class StringPiece {
   }
 
   template <class Allocator>
-  StringPiece(  // NOLINT(runtime/explicit)
-      const std::basic_string<char, std::char_traits<char>, Allocator>& str)
+  StringPiece(const std::basic_string<char, std::char_traits<char>,
+              Allocator> &str)  // NOLINT(runtime/explicit)
       : ptr_(str.data()), length_(0) {
     length_ = CheckedSsizeTFromSizeT(str.size());
   }
 #if defined(HAS_GLOBAL_STRING)
   template <class Allocator>
-  StringPiece(  // NOLINT(runtime/explicit)
-      const basic_string<char, std::char_traits<char>, Allocator>& str)
+  StringPiece(const basic_string<char, std::char_traits<char>,
+              Allocator> &str)  // NOLINT(runtime/explicit)
       : ptr_(str.data()), length_(0) {
     length_ = CheckedSsizeTFromSizeT(str.size());
   }
@@ -325,13 +345,6 @@ class StringPiece {
             (memcmp(ptr_ + (length_-x.length_), x.ptr_, x.length_) == 0));
   }
 
-  // Checks whether StringPiece starts with x and if so advances the beginning
-  // of it to past the match.  It's basically a shortcut for starts_with
-  // followed by remove_prefix.
-  bool Consume(StringPiece x);
-  // Like above but for the end of the string.
-  bool ConsumeFromEnd(StringPiece x);
-
   // standard STL container boilerplate
   typedef char value_type;
   typedef const char* pointer;
@@ -384,6 +397,11 @@ class StringPiece {
   StringPiece substr(size_type pos, size_type n = npos) const;
 };
 
+#ifndef SWIG
+// Enable use of StringPiece in small_set and other google collections.
+DECLARE_POD(StringPiece);
+#endif
+
 // This large function is defined inline so that in a fairly common case where
 // one of the arguments is a literal, the compiler can elide a lot of the
 // following comparisons.
@@ -429,14 +447,6 @@ template <class X> struct GoodFastHash;
 //  cannot safely store a StringPiece into an STL container
 // ------------------------------------------------------------------
 
-namespace base {
-// Specializations of base:: traits enable the use of StringPiece in
-// compact_array, etc. Note that StringPiece is not being declared as POD.
-template <> struct has_trivial_copy<StringPiece> : base::true_type {};
-template <> struct has_trivial_assign<StringPiece> : base::true_type {};
-template <> struct has_trivial_destructor<StringPiece> : base::true_type {};
-}  // namespace base
-
 // SWIG doesn't know how to parse this stuff properly. Omit it.
 #ifndef SWIG
 
@@ -458,6 +468,5 @@ template<> struct GoodFastHash<StringPiece> {
 // allow StringPiece to be logged
 extern std::ostream& operator<<(std::ostream& o, StringPiece piece);
 
-
 }  // namespace googleapis
-#endif  // STRINGS_STRINGPIECE_H_
+#endif  // GOOGLEAPIS_STRINGS_STRINGPIECE_H_

@@ -16,6 +16,23 @@
  *
  * @}
  */
+/*
+ * \license @{
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @}
+ */
 //
 // Copyright 1999-2006 and onwards Google, Inc.
 //
@@ -41,8 +58,8 @@
 // or various forms of equivalence and normalization), take a look at
 // files in i18n/utf8.
 
-#ifndef STRINGS_UTIL_H_
-#define STRINGS_UTIL_H_
+#ifndef GOOGLEAPIS_STRINGS_UTIL_H_
+#define GOOGLEAPIS_STRINGS_UTIL_H_
 
 #include <stddef.h>
 #include <stdio.h>
@@ -55,9 +72,13 @@
 #include <functional>
 using std::binary_function;
 using std::less;
+using std::binary_function;
+using std::less;
 #include <string>
 using std::string;
+using std::string;
 #include <vector>
+using std::vector;
 using std::vector;
 
 #include "googleapis/base/integral_types.h"
@@ -121,8 +142,6 @@ char* strnstr(const char* haystack, const char* needle, size_t haystack_len);
 // str. Returns a pointer past the prefix, or NULL if the prefix wasn't matched.
 // (Like the standard strcasecmp(), but for efficiency doesn't call strlen() on
 // prefix, and returns a pointer rather than an int.)
-//
-// For a similar function that works on StringPiece, see StringPiece::Consume.
 //
 // The ""'s catch people who don't pass in a literal for "prefix"
 #ifndef strprefix
@@ -303,14 +322,6 @@ inline bool IsAscii(StringPiece str) {
   return IsAscii(str.data(), str.size());
 }
 
-namespace strings {
-
-// Returns whether str has only printable characters (as defined by
-// ascii_isprint() in strings/ascii_ctype.h).
-bool IsPrint(StringPiece str);
-
-}  // namespace strings
-
 // Returns the smallest lexicographically larger string of equal or smaller
 // length. Returns an empty string if there is no such successor (if the input
 // is empty or consists entirely of 0xff bytes).
@@ -367,11 +378,10 @@ inline char* safestrncpy(char* dest, const char* src, size_t n) {
 }
 
 // Replaces the first occurrence (if replace_all is false) or all occurrences
-// (if replace_all is true) of oldsub in s with newsub.
+// (if replace_all is true) of oldsub in s with newsub. In the second version,
+// *res must be distinct from all the other arguments.
 string StringReplace(StringPiece s, StringPiece oldsub,
                      StringPiece newsub, bool replace_all);
-// This version appends the output to *res, and *res must be distinct from all
-// the other arguments.
 void StringReplace(StringPiece s, StringPiece oldsub,
                    StringPiece newsub, bool replace_all,
                    string* res);
@@ -384,6 +394,11 @@ int GlobalReplaceSubstring(StringPiece substring,
                            StringPiece replacement,
                            string* s);
 
+// Removes v[i] for every element i in indices. Does *not* preserve the order of
+// v. indices must be sorted in strict increasing order (no duplicates). Runs in
+// O(indices.size()).
+void RemoveStrings(vector<string>* v, const vector<int>& indices);
+
 // Case-insensitive strstr(); use system strcasestr() instead.
 // WARNING: Removes const-ness of string argument!
 char* gstrcasestr(const char* haystack, const char* needle);
@@ -392,6 +407,7 @@ char* gstrcasestr(const char* haystack, const char* needle);
 // in at most the first len bytes of haystack. Returns a pointer into haystack,
 // or NULL if needle wasn't found.
 const char* gstrncasestr(const char* haystack, const char* needle, size_t len);
+char* gstrncasestr(char* haystack, const char* needle, size_t len);
 
 // Finds (case insensitively), in str (which is a list of tokens separated by
 // non_alpha), a token prefix and a token suffix. Returns a pointer into str of
@@ -415,16 +431,9 @@ char* strcasestr_alnum(const char* haystack, const char* needle);
 // strings.
 int CountSubstring(StringPiece text, StringPiece substring);
 
-// Returns a pointer to the start of needle in haystack.  The haystack is
-// interpreted as tokens separated by one or more of delim; to be found,
-// needle's occurrence must start and end on whole token boundaries.
-// If the needle is not found, or if either of the parameters is a null
-// pointer, the call returns a null pointer.
-// An empty string needle is found at the beginning of any non-null haystack,
-// including an empty string haystack.
-//
-// NOTE: Consider instead using strings::Split() (strings/split.h)
-//       and std::find().
+// Finds, in haystack (which is a list of tokens separated by delim), an token
+// equal to needle. Returns a pointer into haystack, or NULL if not found (or
+// either needle or haystack is empty).
 const char* strstr_delimited(const char* haystack,
                              const char* needle,
                              char delim);
@@ -448,20 +457,14 @@ char* strndup_with_new(const char* the_string, int max_length);
 // to the character after the word (which may be space or '\0'); returns NULL
 // (and *end_ptr is undefined) if no next word found.
 // end_ptr must not be NULL.
-//
-// Both these functions are DEPRECATED(mec).
-// Call strings::ScanForFirstWord below.
 const char* ScanForFirstWord(const char* the_string, const char** end_ptr);
-
-namespace strings {
-
-// A version with a StringPiece-based interface.  Returns the first "word"
-// (consecutive !ascii_isspace() characters, as above) in the input, or an
-// empty StringPiece otherwise.  When non-empty, the return value will alias
-// the array underlying the input.
-StringPiece ScanForFirstWord(StringPiece input);
-
-}  // namespace strings
+inline char* ScanForFirstWord(char* the_string, char** end_ptr) {
+  // implicit_cast<> would be more appropriate for casting to const,
+  // but we save the inclusion of "base/casts.h" here by using const_cast<>.
+  return const_cast<char*>(
+      ScanForFirstWord(const_cast<const char*>(the_string),
+                       const_cast<const char**>(end_ptr)));
+}
 
 // For the following functions, an "identifier" is a letter or underscore,
 // followed by letters, underscores, or digits.
@@ -469,6 +472,11 @@ StringPiece ScanForFirstWord(StringPiece input);
 // Returns a pointer past the end of the "identifier" (see above) beginning at
 // str, or NULL if str doesn't start with an identifier.
 const char* AdvanceIdentifier(const char* str);
+inline char* AdvanceIdentifier(char* str) {
+  // implicit_cast<> would be more appropriate for casting to const,
+  // but we save the inclusion of "base/casts.h" here by using const_cast<>.
+  return const_cast<char*>(AdvanceIdentifier(const_cast<const char*>(str)));
+}
 
 // Returns whether str is an "identifier" (see above).
 bool IsIdentifier(const char* str);
@@ -509,4 +517,4 @@ int SafeSnprintf(char* str, size_t size, const char* format, ...)
 bool GetlineFromStdioFile(FILE* file, string* str, char delim);
 
 }  // namespace googleapis
-#endif  // STRINGS_UTIL_H_
+#endif  // GOOGLEAPIS_STRINGS_UTIL_H_

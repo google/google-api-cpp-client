@@ -16,6 +16,23 @@
  *
  * @}
  */
+/*
+ * \license @{
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @}
+ */
 // Copyright 2004 and onwards Google Inc.
 //
 //
@@ -32,11 +49,11 @@ using std::swap;
 #include <climits>
 #include <string>
 using std::string;
+using std::string;
 
-#include <glog/logging.h>
 #include "googleapis/strings/memutil.h"
-#include "googleapis/util/stl_util.h"
-#include "googleapis/util/hash.h"
+#include "googleapis/util/gtl/stl_util.h"
+#include <glog/logging.h>
 
 namespace googleapis {
 
@@ -72,23 +89,6 @@ void StringPiece::CopyToString(string* target) const {
 
 void StringPiece::AppendToString(string* target) const {
   STLAppendToString(target, ptr_, length_);
-}
-
-bool StringPiece::Consume(StringPiece x) {
-  if (starts_with(x)) {
-    ptr_ += x.length_;
-    length_ -= x.length_;
-    return true;
-  }
-  return false;
-}
-
-bool StringPiece::ConsumeFromEnd(StringPiece x) {
-  if (ends_with(x)) {
-    length_ -= x.length_;
-    return true;
-  }
-  return false;
 }
 
 stringpiece_ssize_type StringPiece::copy(char* buf,

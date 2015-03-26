@@ -16,13 +16,30 @@
  *
  * @}
  */
+/*
+ * \license @{
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @}
+ */
 
 // Maintainer: mec@google.com (Michael Chastain)
 //
 // Convert strings to numbers or numbers to strings.
 
-#ifndef STRINGS_NUMBERS_H_
-#define STRINGS_NUMBERS_H_
+#ifndef GOOGLEAPIS_STRINGS_NUMBERS_H_
+#define GOOGLEAPIS_STRINGS_NUMBERS_H_
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -31,19 +48,27 @@
 #include <functional>
 using std::binary_function;
 using std::less;
+using std::binary_function;
+using std::less;
 #include <limits>
+using std::numeric_limits;
 using std::numeric_limits;
 #include <string>
 using std::string;
+using std::string;
 #include <vector>
 using std::vector;
+using std::vector;
 
+#if defined(HAVE_INT_128)
 #include "googleapis/base/int128.h"
+#endif  // HAVE_INT_128
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/port.h"
-#include "googleapis/base/type_traits.h"
+#if defined(HAVE_STRING_PRINTF)
 #include "googleapis/base/stringprintf.h"
+#endif  // HAVE_STRING_PRINTF
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/stringpiece.h"
 namespace googleapis {
@@ -153,31 +178,20 @@ inline bool safe_strtou64(const string& str, uint64* value) {
 
 // Convert a fingerprint to 16 hex digits.
 string FpToString(Fprint fp);
+#if defined(HAVE_INT_128)
 // Convert between uint128 and 32-digit hex string (sans leading 0x).
 string Uint128ToHexString(uint128 ui128);
 // Returns true on successful conversion; false on invalid input.
 bool HexStringToUint128(StringPiece hex, uint128* value);
+#endif  // HAVE_INT_128
 
 // Convert strings to floating point values.
 // Leading and trailing spaces are allowed.
 // Values may be rounded on over- and underflow.
-bool safe_strtof(StringPiece str, float* value);
 bool safe_strtof(const char* str, float* value);
-#if defined(HAS_GLOBAL_STRING)
 bool safe_strtof(const string& str, float* value);
-#endif
-// In order to avoid ambiguity between conversion to string and
-// StringPiece, define a specialization for std::string.
-bool safe_strtof(const std::string& str, float* value);
-
-bool safe_strtod(StringPiece str, double* value);
 bool safe_strtod(const char* str, double* value);
-#if defined(HAS_GLOBAL_STRING)
 bool safe_strtod(const string& str, double* value);
-#endif
-// In order to avoid ambiguity between conversion to string and
-// StringPiece, define a specialization for std::string.
-bool safe_strtod(const std::string& str, double* value);
 
 // Parses text (case insensitive) into a boolean. The following strings are
 // interpreted to boolean true: "true", "t", "yes", "y", "1". The following
@@ -201,14 +215,25 @@ inline uint64 atoi_kmgt(const string& s) { return atoi_kmgt(s.c_str()); }
 
 // ----------------------------------------------------------------------
 // FastIntToBuffer()
+// FastHexToBuffer()
+// FastHex64ToBuffer()
+// FastHex32ToBuffer()
 // FastTimeToBuffer()
-//    These are intended for speed.  FastTimeToBuffer() puts the output
+//    These are intended for speed.  FastHexToBuffer() puts output in
+//    hex rather than decimal.  FastTimeToBuffer() puts the output
 //    into RFC822 format.
+//
+//    FastHex64ToBuffer() puts a 64-bit unsigned value in hex-format,
+//    padded to exactly 16 bytes (plus one byte for '\0')
+//
+//    FastHex32ToBuffer() puts a 32-bit unsigned value in hex-format,
+//    padded to exactly 8 bytes (plus one byte for '\0')
 //
 //    All functions take the output buffer as an arg.  FastInt() uses
 //    at most 22 bytes, FastTime() uses exactly 30 bytes.  They all
-//    return a pointer to the beginning of the output, which is the same as
-//    the beginning of the input buffer.
+//    return a pointer to the beginning of the output, which for
+//    FastHex() may not be the beginning of the input buffer.  (For
+//    all others, we guarantee that it is.)
 //
 //    NOTE: In 64-bit land, sizeof(time_t) is 8, so it is possible
 //    to pass to FastTimeToBuffer() a time whose year cannot be
@@ -219,16 +244,17 @@ inline uint64 atoi_kmgt(const string& s) { return atoi_kmgt(s.c_str()); }
 // Previously documented minimums -- the buffers provided must be at least this
 // long, though these numbers are subject to change:
 //     Int32, UInt32:                   12 bytes
-//     Int64, UInt64, Int, Uint:        22 bytes
+//     Int64, UInt64, Hex, Int, Uint:   22 bytes
 //     Time:                            30 bytes
+//     Hex32:                            9 bytes
+//     Hex64:                           17 bytes
 // Use kFastToBufferSize rather than hardcoding constants.
 static const int kFastToBufferSize = 32;
 
 char* FastUInt32ToBuffer(uint32 i, char* buffer);
 char* FastUInt64ToBuffer(uint64 i, char* buffer);
+char* FastHexToBuffer(int i, char* buffer) MUST_USE_RESULT;
 char* FastTimeToBuffer(time_t t, char* buffer);
-
-// These are deprecated.  Use StrCat instead.
 char* FastHex64ToBuffer(uint64 i, char* buffer);
 char* FastHex32ToBuffer(uint32 i, char* buffer);
 
@@ -274,6 +300,10 @@ inline char* FastUInt64ToBuffer(uint64 i, char* buffer) {
 inline char* FastIntToBuffer(int i, char* buffer) {
   return (sizeof(i) == 4 ?
           FastInt32ToBuffer(i, buffer) : FastInt64ToBuffer(i, buffer));
+}
+inline char* FastUIntToBuffer(unsigned int i, char* buffer) {
+  return (sizeof(i) == 4 ?
+          FastUInt32ToBuffer(i, buffer) : FastUInt64ToBuffer(i, buffer));
 }
 
 // ----------------------------------------------------------------------
@@ -391,7 +421,10 @@ inline double ParseLeadingDoubleValue(const string& str, double deflt) {
 //    whitespace, is case insensitive, and recognizes these forms:
 //    0/1, false/true, no/yes, n/y
 // --------------------------------------------------------------------
-bool ParseLeadingBoolValue(StringPiece str, bool deflt);
+bool ParseLeadingBoolValue(const char* str, bool deflt);
+inline bool ParseLeadingBoolValue(const string& str, bool deflt) {
+  return ParseLeadingBoolValue(str.c_str(), deflt);
+}
 
 // ----------------------------------------------------------------------
 // AutoDigitStrCmp
@@ -416,15 +449,15 @@ bool ParseLeadingBoolValue(StringPiece str, bool deflt);
 //    strict mode, but "01" == "1" otherwise.
 // ----------------------------------------------------------------------
 
-int AutoDigitStrCmp(const char* a, size_t alen,
-                    const char* b, size_t blen,
+int AutoDigitStrCmp(const char* a, int alen,
+                    const char* b, int blen,
                     bool strict);
 
-bool AutoDigitLessThan(const char* a, size_t alen,
-                       const char* b, size_t blen);
+bool AutoDigitLessThan(const char* a, int alen,
+                       const char* b, int blen);
 
-bool StrictAutoDigitLessThan(const char* a, size_t alen,
-                             const char* b, size_t blen);
+bool StrictAutoDigitLessThan(const char* a, int alen,
+                             const char* b, int blen);
 
 struct autodigit_less
   : public std::binary_function<const string&, const string&, bool> {
@@ -508,36 +541,22 @@ inline string SimpleItoa(unsigned long i) {  // NOLINT long is OK here
 // Returns true if parsing was successful.
 template <typename int_type>
 bool MUST_USE_RESULT SimpleAtoi(const char* s, int_type* out) {
-  static_assert(sizeof(*out) == 4 || sizeof(*out) == 8,
-                "SimpleAtoi works only with 32-bit or 64-bit integers.");
-  static_assert(!base::is_floating_point<int_type>::value,
-                "Use safe_strtof or safe_strtod instead.");
-  bool parsed;
-  // TODO(user): This signed-ness check is used because it works correctly
-  // with enums, and it also serves to check that int_type is not a pointer.
-  // If one day something like std::is_signed<enum E> works, switch to it.
-  if (static_cast<int_type>(0) > -1) {  // Signed
+  // Must be of integer type (not pointer type), with more than 16-bitwidth.
+  COMPILE_ASSERT(sizeof(*out) == 4 || sizeof(*out) == 8,
+                 SimpleAtoiWorksWith32Or64BitInts);
+  if (std::numeric_limits<int_type>::is_signed) {  // Signed
     if (sizeof(*out) == 64 / 8) {  // 64-bit
-      int64 val;
-      parsed = safe_strto64(s, &val);
-      *out = static_cast<int_type>(val);
+      return safe_strto64(s, reinterpret_cast<int64*>(out));
     } else {  // 32-bit
-      int32 val;
-      parsed = safe_strto32(s, &val);
-      *out = static_cast<int_type>(val);
+      return safe_strto32(s, reinterpret_cast<int32*>(out));
     }
   } else {  // Unsigned
     if (sizeof(*out) == 64 / 8) {  // 64-bit
-      uint64 val;
-      parsed = safe_strtou64(s, &val);
-      *out = static_cast<int_type>(val);
+      return safe_strtou64(s, reinterpret_cast<uint64*>(out));
     } else {  // 32-bit
-      uint32 val;
-      parsed = safe_strtou32(s, &val);
-      *out = static_cast<int_type>(val);
+      return safe_strtou32(s, reinterpret_cast<uint32*>(out));
     }
   }
-  return parsed;
 }
 
 template <typename int_type>
@@ -571,36 +590,6 @@ string SimpleFtoa(float value);
 // Required buffer size for FloatToBuffer is kFastToBufferSize.
 char* DoubleToBuffer(double i, char* buffer);  // DEPRECATED(mec)
 char* FloatToBuffer(float i, char* buffer);  // DEPRECATED(mec)
-
-// ----------------------------------------------------------------------
-// SimpleItoaWithCommas()
-//    Description: converts an integer to a string.
-//    Puts commas every 3 spaces.
-//    Faster than printf("%d")?
-//
-//    Return value: string
-// ----------------------------------------------------------------------
-
-template <typename IntType>
-inline string SimpleItoaWithCommas(IntType ii) {
-  string s1 = SimpleItoa(ii);
-  StringPiece sp1(s1);
-  string output;
-  // Copy leading non-digit characters unconditionally.
-  // This picks up the leading sign.
-  while (sp1.size() > 0 && !ascii_isdigit(sp1[0])) {
-    output.push_back(sp1[0]);
-    sp1.remove_prefix(1);
-  }
-  // Copy rest of input characters.
-  for (stringpiece_ssize_type i = 0; i < sp1.size(); ++i) {
-    if (i > 0 && (sp1.size() - i) % 3 == 0) {
-      output.push_back(',');
-    }
-    output.push_back(sp1[i]);
-  }
-  return output;
-}
 
 // Converts a boolean to a string, which if passed to safe_strtob will produce
 // the exact same original boolean. The returned string will be "true" if
@@ -676,4 +665,4 @@ bool ParseDoubleRange(const char* text, int len, const char** end,
 /* @} */
 
 }  // namespace googleapis
-#endif  // STRINGS_NUMBERS_H_
+#endif  // GOOGLEAPIS_STRINGS_NUMBERS_H_

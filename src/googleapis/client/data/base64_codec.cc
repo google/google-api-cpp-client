@@ -114,7 +114,7 @@ class Base64Reader : public CodecReader {
       success = strings::WebSafeBase64Unescape(chunk.data(), chunk.size(),
                                                &decoded);
     } else {
-#ifndef GOOGLECLIENT_SUBSET
+      success = strings::Base64Unescape(chunk.data(), chunk.size(), &decoded);
     }
     if (success && decoded.size() <= *to_length) {
       memcpy(to, decoded.data(), decoded.size());

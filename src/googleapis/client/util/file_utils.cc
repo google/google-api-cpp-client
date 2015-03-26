@@ -39,6 +39,7 @@ using std::swap;
 #include "googleapis/client/util/file_utils.h"
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
+#include "googleapis/base/stringprintf.h"
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/util/status.h"

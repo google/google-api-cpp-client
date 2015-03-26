@@ -29,7 +29,7 @@
 // And also the use of _MSC_VER is the appropriate guard in each
 // porting situation.
 
-#include "googleapis/client/opensource/src/base/windows_compatability.h"
+#include "googleapis/base/windows_compatability.h"
 
 #include <memory>
 #include <string>

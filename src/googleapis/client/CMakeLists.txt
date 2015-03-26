@@ -3,7 +3,6 @@
 project (GoogleApis_C++_Client)
 
 # just for testing
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/test)
 include_directories(${GFLAGS_INCLUDES} ${GTEST_INCLUDES})
 
 configure_file(data/roots.pem ${EXECUTABLE_OUTPUT_PATH}/roots.pem COPYONLY)

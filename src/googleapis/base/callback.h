@@ -107,7 +107,7 @@ extern void DoNothing();
 // instead of this.
 //
 // AutoClosureRunner executes a closure upon deletion.  This class
-// is similar to scoped_ptr: it is typically stack-allocated and can be
+// is similar to std::unique_ptr: it is typically stack-allocated and can be
 // used to perform some type of cleanup upon exiting a block.
 //
 // Note: use of AutoClosureRunner with Closures that must be executed at
