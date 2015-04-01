@@ -52,7 +52,7 @@ using std::string;
 using std::string;
 
 #include "googleapis/strings/memutil.h"
-#include "googleapis/util/gtl/stl_util.h"
+#include "googleapis/util/stl_util.h"
 #include <glog/logging.h>
 
 namespace googleapis {
