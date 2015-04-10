@@ -24,10 +24,10 @@
 #ifndef  GOOGLE_CALENDAR_API_CALENDAR_SERVICE_H_
 #define  GOOGLE_CALENDAR_API_CALENDAR_SERVICE_H_
 
+#include <memory>
 #include <string>
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/client/service/client_service.h"
 #include "googleapis/client/service/service_request_pager.h"
 #include "googleapis/client/util/date_time.h"

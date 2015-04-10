@@ -23,9 +23,9 @@
 //------------------------------------------------------------------------------
 #include "google/calendar_api/calendar_service.h"
 
+#include <memory>
 #include <string>
 #include "googleapis/base/integral_types.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/client/service/client_service.h"
 #include "googleapis/client/service/service_request_pager.h"
 #include "googleapis/client/util/date_time.h"

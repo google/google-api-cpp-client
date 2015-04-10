@@ -24,10 +24,10 @@
 #ifndef  GOOGLE_DRIVE_API_DRIVE_SERVICE_H_
 #define  GOOGLE_DRIVE_API_DRIVE_SERVICE_H_
 
+#include <memory>
 #include <string>
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/client/service/client_service.h"
 #include "googleapis/client/service/media_uploader.h"
 #include "googleapis/client/service/service_request_pager.h"
@@ -3892,7 +3892,7 @@ class FilesResource_InsertMethod : public DriveServiceBaseRequest {
   bool _have_ocr_ : 1;
   bool _have_timed_text_track_name_ : 1;
   bool _have_timed_text_language_ : 1;
-  scoped_ptr<client::MediaUploader> _uploader_;
+  std::unique_ptr<client::MediaUploader> _uploader_;
 
   DISALLOW_COPY_AND_ASSIGN(FilesResource_InsertMethod);
 };
@@ -5575,7 +5575,7 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
   bool _have_ocr_ : 1;
   bool _have_timed_text_language_ : 1;
   bool _have_timed_text_track_name_ : 1;
-  scoped_ptr<client::MediaUploader> _uploader_;
+  std::unique_ptr<client::MediaUploader> _uploader_;
 
   DISALLOW_COPY_AND_ASSIGN(FilesResource_UpdateMethod);
 };
@@ -7760,7 +7760,7 @@ class RealtimeResource_UpdateMethod : public DriveServiceBaseRequest {
   string file_id_;
   string base_revision_;
   bool _have_base_revision_ : 1;
-  scoped_ptr<client::MediaUploader> _uploader_;
+  std::unique_ptr<client::MediaUploader> _uploader_;
 
   DISALLOW_COPY_AND_ASSIGN(RealtimeResource_UpdateMethod);
 };

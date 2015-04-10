@@ -24,10 +24,10 @@
 #ifndef  GOOGLE_YOUTUBE_API_YOU_TUBE_SERVICE_H_
 #define  GOOGLE_YOUTUBE_API_YOU_TUBE_SERVICE_H_
 
+#include <memory>
 #include <string>
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/base/scoped_ptr.h"
 #include "googleapis/client/service/client_service.h"
 #include "googleapis/client/service/media_uploader.h"
 #include "googleapis/client/service/service_request_pager.h"
@@ -1169,7 +1169,7 @@ class ChannelBannersResource_InsertMethod : public YouTubeServiceBaseRequest {
  private:
   string on_behalf_of_content_owner_;
   bool _have_on_behalf_of_content_owner_ : 1;
-  scoped_ptr<client::MediaUploader> _uploader_;
+  std::unique_ptr<client::MediaUploader> _uploader_;
 
   DISALLOW_COPY_AND_ASSIGN(ChannelBannersResource_InsertMethod);
 };
@@ -9883,7 +9883,7 @@ class ThumbnailsResource_SetMethod : public YouTubeServiceBaseRequest {
   string video_id_;
   string on_behalf_of_content_owner_;
   bool _have_on_behalf_of_content_owner_ : 1;
-  scoped_ptr<client::MediaUploader> _uploader_;
+  std::unique_ptr<client::MediaUploader> _uploader_;
 
   DISALLOW_COPY_AND_ASSIGN(ThumbnailsResource_SetMethod);
 };
@@ -10757,7 +10757,7 @@ class VideosResource_InsertMethod : public YouTubeServiceBaseRequest {
   bool _have_on_behalf_of_content_owner_channel_ : 1;
   bool _have_notify_subscribers_ : 1;
   bool _have_auto_levels_ : 1;
-  scoped_ptr<client::MediaUploader> _uploader_;
+  std::unique_ptr<client::MediaUploader> _uploader_;
 
   DISALLOW_COPY_AND_ASSIGN(VideosResource_InsertMethod);
 };
@@ -11810,7 +11810,7 @@ class WatermarksResource_SetMethod : public YouTubeServiceBaseRequest {
   string channel_id_;
   string on_behalf_of_content_owner_;
   bool _have_on_behalf_of_content_owner_ : 1;
-  scoped_ptr<client::MediaUploader> _uploader_;
+  std::unique_ptr<client::MediaUploader> _uploader_;
 
   DISALLOW_COPY_AND_ASSIGN(WatermarksResource_SetMethod);
 };
