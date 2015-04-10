@@ -16,11 +16,12 @@ target_link_libraries(calendar_sample googleapis_utils)
 if (HAVE_OPENSSL)
 target_link_libraries(calendar_sample googleapis_openssl_codec)
 endif()
-target_link_libraries(calendar_sample ${GFLAGS_LIBRARY})
+target_link_libraries(calendar_sample ${GFLAGS_LIBRARY} pthread)
 
 
 # A helper library used by other samples
 # It provides a shell command processor for sending messages interactively.
+if (googleapis_mongoose_webserver)
 add_library(sample_contrib STATIC
             command_processor.cc
             installed_application.cc)
@@ -45,14 +46,14 @@ target_link_libraries(gdrive_sample ${GFLAGS_LIBRARY})
 
 # A sample that interacts with the YouTube Service for Live Broadcasts.
 add_executable(youtube_broadcast_sample youtube_broadcast_main.cc)
-target_link_libraries(youtube_broadcast_sample youtube_api)
+target_link_libraries(youtube_broadcast_sample google_youtube_api)
 target_link_libraries(youtube_broadcast_sample sample_contrib)
 target_link_libraries(youtube_broadcast_sample googleapis_jsoncpp)
 target_link_libraries(youtube_broadcast_sample googleapis_curl_http)
 target_link_libraries(youtube_broadcast_sample googleapis_http)
 target_link_libraries(youtube_broadcast_sample googleapis_oauth2)
 target_link_libraries(youtube_broadcast_sample googleapis_utils)
-target_link_libraries(youtube_broadcast_sample ${GFLAGS_LIBRARY})
+target_link_libraries(youtube_broadcast_sample ${GFLAGS_LIBRARY} pthread)
 
 add_executable(webflow_sample
                webflow_sample_main.cc
@@ -66,3 +67,4 @@ target_link_libraries(webflow_sample googleapis_http)
 target_link_libraries(webflow_sample googleapis_oauth2)
 target_link_libraries(webflow_sample googleapis_utils)
 target_link_libraries(webflow_sample ${GFLAGS_LIBRARY})
+endif()

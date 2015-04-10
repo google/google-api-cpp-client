@@ -1,6 +1,10 @@
 cmake_minimum_required (VERSION 2.6)
 project (GoogleApis_C++)
 
+find_package(PkgConfig)
+pkg_check_modules(JSONCPP jsoncpp)
+include_directories(${JSONCPP_INCLUDE_DIRS})
+
 if(EXISTS "./local.cmake")
 include("local.cmake")
 endif()
@@ -25,7 +29,7 @@ set(GOOGLEAPIS_INSTALL_INCLUDE_DIR
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
 option(gtest_force_shared_crt "Force Gmock to use standard compiler flags" ON)
 
-option(googleapis_build_tests "Build all of googleapis' own tests." ON)
+option(googleapis_build_tests "Build all of googleapis' own tests." OFF)
 option(googleapis_build_samples "Build googleapis sample programs." ON)
 option(googleapis_build_service_apis "Build specialized service APIs." ON)
 

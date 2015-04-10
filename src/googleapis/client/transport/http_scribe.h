@@ -38,13 +38,15 @@ using std::vector;
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 
+namespace googleapis {
 namespace client {
 class HttpRequestBatch;
 class HttpRequest;
 class ParsedUrl;
 
 using googleapis::StringPiece;
-
+using googleapis::util::Status;
+using googleapis::Mutex;
 /*
  * Determines what is appropriate for scribes to record.
  * @ingroup TransportLayerCore
@@ -304,9 +306,9 @@ class HttpScribe {
    * @param[in] error The transport error.
    */
   virtual void RequestFailedWithTransportError(
-      const HttpRequest* request, const util::Status& error) = 0;
+      const HttpRequest* request, const Status& error) = 0;
   virtual void RequestBatchFailedWithTransportError(
-      const HttpRequestBatch* batch, const util::Status& error) = 0;
+      const HttpRequestBatch* batch, const Status& error) = 0;
 
   void reset_censor(HttpScribeCensor* censor) {
     censor_.reset(censor);
@@ -444,9 +446,9 @@ class HttpEntryScribe : public HttpScribe {
      * @param[in] status Explains te error.
      */
     virtual void Failed(
-        const HttpRequest* request, const util::Status& status) = 0;
+        const HttpRequest* request, const Status& status) = 0;
     virtual void FailedBatch(
-        const HttpRequestBatch* batch, const util::Status& status) = 0;
+        const HttpRequestBatch* batch, const Status& status) = 0;
 
     /*
      * Returns the age of this intance.
@@ -557,9 +559,9 @@ class HttpEntryScribe : public HttpScribe {
    * @param[in] error An explanation of the failure.
    */
   virtual void RequestFailedWithTransportError(
-      const HttpRequest* request, const util::Status& error);
+      const HttpRequest* request, const Status& error);
   virtual void RequestBatchFailedWithTransportError(
-      const HttpRequestBatch* batch, const util::Status& error);
+      const HttpRequestBatch* batch, const Status& error);
 
  protected:
   /*
@@ -639,7 +641,6 @@ class HttpEntryScribe : public HttpScribe {
   virtual Entry* NewBatchEntry(const HttpRequestBatch* batch)
       EXCLUSIVE_LOCKS_REQUIRED(mutex_) {
     LOG(FATAL) << "Not Implemented";  // Remove #include logging.h with this.
-namespace googleapis {
     return NULL;
   }
 
@@ -658,8 +659,6 @@ namespace googleapis {
 
   DISALLOW_COPY_AND_ASSIGN(HttpEntryScribe);
 };
-
-}  // namespace client
-
+}
 }  // namespace googleapis
 #endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_SCRIBE_H_

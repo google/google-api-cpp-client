@@ -61,6 +61,7 @@ using std::string;
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/client/transport/http_request.h"
+#include "googleapis/client/transport/http_scribe.h"
 namespace googleapis {
 
 namespace thread {
@@ -69,7 +70,6 @@ class Executor;
 
 namespace client {
 
-class HttpScribe;
 class HttpTransportFactory;  // forward declaration
 class HttpTransportLayerConf;  // forward declaration
 

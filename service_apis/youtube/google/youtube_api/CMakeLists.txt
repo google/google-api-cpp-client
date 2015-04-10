@@ -6,6 +6,10 @@
 
 project (google_youtube_api)
 
+find_package(PkgConfig)
+pkg_check_modules(JSONCPP jsoncpp)
+include_directories(${JSONCPP_INCLUDE_DIRS})
+
 # These sources assume that the CMakeLists.txt in ../.. added itself to
 # the include directories so that include paths are specified explicitly
 # with the directory #include "google/youtube_api/..."
