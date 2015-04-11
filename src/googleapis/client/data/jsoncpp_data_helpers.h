@@ -30,6 +30,7 @@ using std::string;
 #include "googleapis/base/integral_types.h"
 #include "googleapis/strings/numbers.h"
 #include <json/json.h>
+
 namespace googleapis {
 
 namespace client {

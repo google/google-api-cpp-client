@@ -2,6 +2,10 @@
 
 project (GoogleApis_C++_Client)
 
+find_package(PkgConfig)
+pkg_check_modules(JSONCPP jsoncpp)
+include_directories(${JSONCPP_INCLUDE_DIRS})
+
 # just for testing
 include_directories(${GFLAGS_INCLUDES} ${GTEST_INCLUDES})
 
@@ -50,6 +54,8 @@ install(FILES util/date_time.h
               util/uri_utils.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/util)
 
+
+if (googleapis_mongoose_webserver)
 add_library(googleapis_mongoose STATIC
             util/abstract_webserver.cc
             util/mongoose_webserver.cc
@@ -67,6 +73,7 @@ install(TARGETS googleapis_mongoose DESTINATION
                 ${GOOGLEAPIS_INSTALL_LIB_DIR})
 install(FILES util/mongoose_webserver.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/util)
+endif()
 install(FILES auth/oauth2_pending_authorizations.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/auth)
 
@@ -181,6 +188,7 @@ install(FILES transport/curl_http_transport.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/transport)
 
 
+if (googleapis_build_tests)
 add_library(googleapis_http_transport_test_fixture STATIC
             transport/test/http_transport_test_fixture.cc)
 target_link_libraries(googleapis_http_transport_test_fixture googleapis_json)
@@ -197,7 +205,7 @@ add_library(googleapis_gtest_main STATIC util/test/googleapis_gtest_main.cc)
 target_link_libraries(googleapis_gtest_main googleapis_internal)
 target_link_libraries(googleapis_gtest_main ${GLOG_LIBRARY})
 target_link_libraries(googleapis_gtest_main gtest_main)
-
+endif()
 
 # Defines an executable and adds a test for it using the most basic libraries
 # Args:
