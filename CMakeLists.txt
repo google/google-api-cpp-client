@@ -34,7 +34,6 @@ set(GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/external_dependenci
 
 FIND_PACKAGE(Threads)
 find_package(CURL)
-find_package(gflags)
 
 if (MSVC)
   option(gtest_force_shared_crt "Force Gmock to use standard compiler flags" ON)
@@ -54,6 +53,7 @@ endif()
 find_package(PkgConfig)
 pkg_check_modules(JSONCPP jsoncpp)
 pkg_check_modules(GLOG libglog)
+pkg_check_modules(GFLAGS libgflags)
 
 set(GLOG_LIBRARY ${GLOG_LIBRARIES})
 
