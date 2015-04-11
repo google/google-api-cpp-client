@@ -50,6 +50,7 @@ install(FILES util/date_time.h
               util/uri_utils.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/util)
 
+if(googleapis_build_mongoose)
 add_library(googleapis_mongoose STATIC
             util/abstract_webserver.cc
             util/mongoose_webserver.cc
@@ -67,6 +68,7 @@ install(TARGETS googleapis_mongoose DESTINATION
                 ${GOOGLEAPIS_INSTALL_LIB_DIR})
 install(FILES util/mongoose_webserver.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/util)
+endif()
 install(FILES auth/oauth2_pending_authorizations.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/auth)
 
@@ -282,8 +284,10 @@ target_link_libraries(interactive_oauth2_authorization_test
                       googleapis_internal)
 target_link_libraries(interactive_oauth2_authorization_test
                       googleapis_curl_http)
+if(googleapis_build_mongoose)
 target_link_libraries(interactive_oauth2_authorization_test
                       googleapis_mongoose)
+endif()
 target_link_libraries(interactive_oauth2_authorization_test
                       googleapis_internal)
 target_link_libraries(interactive_oauth2_authorization_test

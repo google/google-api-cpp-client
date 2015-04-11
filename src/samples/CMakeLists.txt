@@ -21,6 +21,7 @@ target_link_libraries(calendar_sample ${GFLAGS_LIBRARY} pthread)
 
 # A helper library used by other samples
 # It provides a shell command processor for sending messages interactively.
+if(googleapis_build_mongoose)
 add_library(sample_contrib STATIC
             command_processor.cc
             installed_application.cc)
@@ -66,3 +67,4 @@ target_link_libraries(webflow_sample googleapis_http)
 target_link_libraries(webflow_sample googleapis_oauth2)
 target_link_libraries(webflow_sample googleapis_utils)
 target_link_libraries(webflow_sample ${GFLAGS_LIBRARY})
+endif()
