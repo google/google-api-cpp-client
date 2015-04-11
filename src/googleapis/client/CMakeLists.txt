@@ -180,7 +180,7 @@ install(TARGETS googleapis_curl_http DESTINATION ${GOOGLEAPIS_INSTALL_LIB_DIR})
 install(FILES transport/curl_http_transport.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/transport)
 
-
+if (googleapis_build_tests)
 add_library(googleapis_http_transport_test_fixture STATIC
             transport/test/http_transport_test_fixture.cc)
 target_link_libraries(googleapis_http_transport_test_fixture googleapis_json)
@@ -191,6 +191,7 @@ target_link_libraries(googleapis_http_transport_test_fixture googleapis_internal
 target_link_libraries(googleapis_http_transport_test_fixture ${GLOG_LIBRARY})
 target_link_libraries(googleapis_http_transport_test_fixture ${GFLAGS_LIBRARY})
 target_link_libraries(googleapis_http_transport_test_fixture gtest)
+endif()
 
 # Some gtest enhancements to facilitate test setup and cleanup.
 add_library(googleapis_gtest_main STATIC util/test/googleapis_gtest_main.cc)
