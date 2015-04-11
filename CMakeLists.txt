@@ -33,6 +33,8 @@ option(googleapis_build_mongoose "Build mongoose webserver APIs." ON)
 set(GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/external_dependencies/install CACHE STRING "Root directory where external dependencies are located")
 
 FIND_PACKAGE(Threads)
+find_package(CURL)
+find_package(gflags)
 
 if (MSVC)
   option(gtest_force_shared_crt "Force Gmock to use standard compiler flags" ON)
@@ -41,13 +43,6 @@ if (MSVC)
                   -D_UNICODE -DUNICODE
                   -DGFLAGS_DLL_DECL= -DGFLAGS_DLL_DEFINE_FLAG=
                   -D_VARIADIC_MAX=10 -DGLOG_NO_ABBREVIATED_SEVERITIES)
-  set(GLOG_LIBRARY libglog)
-  set(GFLAGS_LIBRARY libgflags)
-  set(CURL_LIBRARY libcurl_imp)
-else()
-  set(GLOG_LIBRARY glog)
-  set(GFLAGS_LIBRARY gflags)
-  set(CURL_LIBRARY curl)
 endif()
 
 # This may not work on windows.
@@ -58,16 +53,26 @@ endif()
 
 find_package(PkgConfig)
 pkg_check_modules(JSONCPP jsoncpp)
+pkg_check_modules(GLOG libglog)
+
+set(GLOG_LIBRARY ${GLOG_LIBRARIES})
 
 include_directories(
     "${GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    ${GLOG_INCLUDES}
-    ${CURL_INCLUDES}
-    ${GTEST_INCLUDES}
+    ${GLOG_INCLUDE_DIRS}
+    ${CURL_INCLUDE_DIRS}
+    ${GTEST_INCLUDE_DIRS}
     ${OTHER_INCLUDES}
     ${JSONCPP_INCLUDE_DIRS}
     )
+
+link_directories(
+    ${GLOG_LIBRARY_DIRS}
+    ${CURL_LIBRARY_DIRS}
+    ${GTEST_LIBRARY_DIRS}
+    ${JSONCPP_LIBRARY_DIRS}
+  )
 
 link_directories("${GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR}/lib"
                  "${GOOGLEAPIS_INSTALL_LIB_DIR}")
