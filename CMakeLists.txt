@@ -28,6 +28,7 @@ option(gtest_force_shared_crt "Force Gmock to use standard compiler flags" ON)
 option(googleapis_build_tests "Build all of googleapis' own tests." ON)
 option(googleapis_build_samples "Build googleapis sample programs." ON)
 option(googleapis_build_service_apis "Build specialized service APIs." ON)
+option(googleapis_build_mongoose "Build mongoose webserver APIs." ON)
 
 set(GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/external_dependencies/install CACHE STRING "Root directory where external dependencies are located")
 
@@ -55,6 +56,9 @@ if (CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
 endif()
 
+find_package(PkgConfig)
+pkg_check_modules(JSONCPP jsoncpp)
+
 include_directories(
     "${GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -62,6 +66,7 @@ include_directories(
     ${CURL_INCLUDES}
     ${GTEST_INCLUDES}
     ${OTHER_INCLUDES}
+    ${JSONCPP_INCLUDE_DIRS}
     )
 
 link_directories("${GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR}/lib"
