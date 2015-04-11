@@ -193,13 +193,13 @@ target_link_libraries(googleapis_http_transport_test_fixture googleapis_internal
 target_link_libraries(googleapis_http_transport_test_fixture ${GLOG_LIBRARY})
 target_link_libraries(googleapis_http_transport_test_fixture ${GFLAGS_LIBRARY})
 target_link_libraries(googleapis_http_transport_test_fixture gtest)
-endif()
 
 # Some gtest enhancements to facilitate test setup and cleanup.
 add_library(googleapis_gtest_main STATIC util/test/googleapis_gtest_main.cc)
 target_link_libraries(googleapis_gtest_main googleapis_internal)
 target_link_libraries(googleapis_gtest_main ${GLOG_LIBRARY})
 target_link_libraries(googleapis_gtest_main gtest_main)
+endif()
 
 
 # Defines an executable and adds a test for it using the most basic libraries
