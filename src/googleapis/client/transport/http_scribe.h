@@ -38,6 +38,7 @@ using std::vector;
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 
+namespace googleapis {
 namespace client {
 class HttpRequestBatch;
 class HttpRequest;
@@ -304,9 +305,9 @@ class HttpScribe {
    * @param[in] error The transport error.
    */
   virtual void RequestFailedWithTransportError(
-      const HttpRequest* request, const util::Status& error) = 0;
+      const HttpRequest* request, const googleapis::util::Status& error) = 0;
   virtual void RequestBatchFailedWithTransportError(
-      const HttpRequestBatch* batch, const util::Status& error) = 0;
+      const HttpRequestBatch* batch, const googleapis::util::Status& error) = 0;
 
   void reset_censor(HttpScribeCensor* censor) {
     censor_.reset(censor);
@@ -444,9 +445,9 @@ class HttpEntryScribe : public HttpScribe {
      * @param[in] status Explains te error.
      */
     virtual void Failed(
-        const HttpRequest* request, const util::Status& status) = 0;
+        const HttpRequest* request, const googleapis::util::Status& status) = 0;
     virtual void FailedBatch(
-        const HttpRequestBatch* batch, const util::Status& status) = 0;
+        const HttpRequestBatch* batch, const googleapis::util::Status& status) = 0;
 
     /*
      * Returns the age of this intance.
@@ -557,9 +558,9 @@ class HttpEntryScribe : public HttpScribe {
    * @param[in] error An explanation of the failure.
    */
   virtual void RequestFailedWithTransportError(
-      const HttpRequest* request, const util::Status& error);
+      const HttpRequest* request, const googleapis::util::Status& error);
   virtual void RequestBatchFailedWithTransportError(
-      const HttpRequestBatch* batch, const util::Status& error);
+      const HttpRequestBatch* batch, const googleapis::util::Status& error);
 
  protected:
   /*
@@ -639,7 +640,6 @@ class HttpEntryScribe : public HttpScribe {
   virtual Entry* NewBatchEntry(const HttpRequestBatch* batch)
       EXCLUSIVE_LOCKS_REQUIRED(mutex_) {
     LOG(FATAL) << "Not Implemented";  // Remove #include logging.h with this.
-namespace googleapis {
     return NULL;
   }
 
