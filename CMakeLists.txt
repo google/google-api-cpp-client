@@ -33,7 +33,8 @@ option(googleapis_build_mongoose "Build mongoose webserver APIs." ON)
 set(GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/external_dependencies/install CACHE STRING "Root directory where external dependencies are located")
 
 FIND_PACKAGE(Threads)
-find_package(CURL)
+find_package(CURL REQUIRED)
+find_package(gflags REQUIRED)
 
 if (MSVC)
   option(gtest_force_shared_crt "Force Gmock to use standard compiler flags" ON)
@@ -51,9 +52,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 find_package(PkgConfig)
-pkg_check_modules(JSONCPP jsoncpp)
-pkg_check_modules(GLOG libglog)
-pkg_check_modules(GFLAGS libgflags)
+pkg_check_modules(JSONCPP jsoncpp REQUIRED)
+pkg_check_modules(GLOG libglog REQUIRED)
 
 set(GLOG_LIBRARY ${GLOG_LIBRARIES})
 
