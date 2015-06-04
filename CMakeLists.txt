@@ -26,12 +26,17 @@ option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
 option(gtest_force_shared_crt "Force Gmock to use standard compiler flags" ON)
 
 option(googleapis_build_tests "Build all of googleapis' own tests." ON)
-option(googleapis_build_samples "Build googleapis sample programs." ON)
-option(googleapis_build_service_apis "Build specialized service APIs." ON)
+option(googleapis_build_samples "Build googleapis sample programs." OFF)
+option(googleapis_build_service_apis "Build specialized service APIs." OFF)
+option(googleapis_build_mongoose "Build mongoose webserver APIs." OFF)
 
+if(NOT DEFINED GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR)
 set(GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/external_dependencies/install CACHE STRING "Root directory where external dependencies are located")
+endif()
 
-FIND_PACKAGE(Threads)
+find_package(Threads)
+find_package(curl)
+find_package(gflags)
 
 if (MSVC)
   option(gtest_force_shared_crt "Force Gmock to use standard compiler flags" ON)
@@ -47,6 +52,7 @@ else()
   set(GLOG_LIBRARY glog)
   set(GFLAGS_LIBRARY gflags)
   set(CURL_LIBRARY curl)
+  set(CMAKE_STANDARD_LIBRARIES ${CMAKE_STANDARD_LIBRARIES} pthread)
 endif()
 
 # This may not work on windows.
@@ -58,10 +64,12 @@ endif()
 include_directories(
     "${GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR}/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    ${GLOG_INCLUDES}
-    ${CURL_INCLUDES}
-    ${GTEST_INCLUDES}
-    ${OTHER_INCLUDES}
+    ${CURL_INCLUDE_DIRS}
+    ${GFLAGS_INCLUDE_DIRS}
+    ${GLOG_INCLUDE_DIRS}
+    ${GTEST_INCLUDE_DIRS}
+    ${JSONCPP_INCLUDE_DIRS}
+    ${OTHER_INCLUDE_DIRS}
     )
 
 link_directories("${GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR}/lib"
@@ -95,7 +103,7 @@ if (googleapis_build_service_apis)
   add_subdirectory(service_apis)
 endif()
 
-# Build sampels after the service apis
+# Build samples after the service apis
 # but keep them under src
 if (googleapis_build_samples)
   add_subdirectory(src/samples)
