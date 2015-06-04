@@ -26,6 +26,9 @@ add_library(google_youtube_api STATIC
             activity_content_details_upload.cc
             activity_list_response.cc
             activity_snippet.cc
+            caption.cc
+            caption_list_response.cc
+            caption_snippet.cc
             cdn_settings.cc
             channel.cc
             channel_audit_details.cc
@@ -35,6 +38,7 @@ add_library(google_youtube_api STATIC
             channel_content_owner_details.cc
             channel_conversion_ping.cc
             channel_conversion_pings.cc
+            channel_id.cc
             channel_list_response.cc
             channel_localization.cc
             channel_section.cc
@@ -42,11 +46,19 @@ add_library(google_youtube_api STATIC
             channel_section_list_response.cc
             channel_section_localization.cc
             channel_section_snippet.cc
+            channel_section_targeting.cc
             channel_settings.cc
             channel_snippet.cc
             channel_statistics.cc
             channel_status.cc
             channel_topic_details.cc
+            comment.cc
+            comment_list_response.cc
+            comment_snippet.cc
+            comment_thread.cc
+            comment_thread_list_response.cc
+            comment_thread_replies.cc
+            comment_thread_snippet.cc
             content_rating.cc
             geo_point.cc
             guide_category.cc
@@ -69,9 +81,12 @@ add_library(google_youtube_api STATIC
             live_broadcast_content_details.cc
             live_broadcast_list_response.cc
             live_broadcast_snippet.cc
+            live_broadcast_statistics.cc
             live_broadcast_status.cc
             live_stream.cc
+            live_stream_configuration_issue.cc
             live_stream_content_details.cc
+            live_stream_health_status.cc
             live_stream_list_response.cc
             live_stream_snippet.cc
             live_stream_status.cc
@@ -108,6 +123,11 @@ add_library(google_youtube_api STATIC
             thumbnail_set_response.cc
             token_pagination.cc
             video.cc
+            video_abuse_report.cc
+            video_abuse_report_reason.cc
+            video_abuse_report_reason_list_response.cc
+            video_abuse_report_reason_snippet.cc
+            video_abuse_report_secondary_reason.cc
             video_age_gating.cc
             video_category.cc
             video_category_list_response.cc
