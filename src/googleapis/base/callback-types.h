@@ -22,8 +22,15 @@
 #ifndef _CALLBACK_TYPES_H
 #define _CALLBACK_TYPES_H
 
-#include "googleapis/base/type_traits.h"
+#include <cstddef>
+#include <type_traits>
 namespace googleapis {
+
+namespace base {
+class Context;
+template <class T> struct remove_reference;
+}  // namespace base
+class TraceContext;
 
 struct CallbackUtils_ {
   static void FailIsRepeatable(const char* name);
@@ -34,7 +41,7 @@ namespace internal {
 
 template <typename T>
 struct ConstRef {
-  typedef typename googleapis::base::remove_reference<T>::type base_type;
+  typedef typename ::std::remove_reference<T>::type base_type;
   typedef const base_type& type;
 };
 

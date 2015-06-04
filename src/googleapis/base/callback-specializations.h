@@ -21,16 +21,16 @@
 
 #ifndef _CALLBACK_SPECIALIZATIONS_H
 #define _CALLBACK_SPECIALIZATIONS_H
-#include "googleapis/base/callback-types.h"
 
-#include "googleapis/base/type_traits.h"
+#include <type_traits>
+
+#include "googleapis/base/callback-types.h"
 namespace googleapis {
 
 
-
 template <bool del, class R, class T,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_0_0 : public ResultCallback<R> {
  public:
@@ -71,8 +71,8 @@ class _ConstMemberResultCallback_0_0 : public ResultCallback<R> {
 
 template <bool del, class T>
 class _ConstMemberResultCallback_0_0<del, void, T,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -126,8 +126,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)() const) {
 #endif
 
 template <bool del, class R, class T,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_0_0 : public ResultCallback<R> {
  public:
@@ -168,8 +168,8 @@ class _MemberResultCallback_0_0 : public ResultCallback<R> {
 
 template <bool del, class T>
 class _MemberResultCallback_0_0<del, void, T,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -305,8 +305,8 @@ NewPermanentCallback(R (*function)()) {
 }
 
 template <bool del, class R, class T, class P1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_1_0 : public ResultCallback<R> {
  public:
@@ -316,7 +316,7 @@ class _ConstMemberResultCallback_1_0 : public ResultCallback<R> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -348,8 +348,8 @@ class _ConstMemberResultCallback_1_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1>
 class _ConstMemberResultCallback_1_0<del, void, T, P1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -359,7 +359,7 @@ class _ConstMemberResultCallback_1_0<del, void, T, P1,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -404,8 +404,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1) const, typename googleap
 #endif
 
 template <bool del, class R, class T, class P1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_1_0 : public ResultCallback<R> {
  public:
@@ -415,7 +415,7 @@ class _MemberResultCallback_1_0 : public ResultCallback<R> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -447,8 +447,8 @@ class _MemberResultCallback_1_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1>
 class _MemberResultCallback_1_0<del, void, T, P1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -458,7 +458,7 @@ class _MemberResultCallback_1_0<del, void, T, P1,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -510,7 +510,7 @@ class _FunctionResultCallback_1_0 : public ResultCallback<R> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -547,7 +547,7 @@ class _FunctionResultCallback_1_0<del, void, P1> : public Closure {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -587,8 +587,8 @@ NewPermanentCallback(R (*function)(P1), typename googleapis::base::internal::Con
 }
 
 template <bool del, class R, class T, class P1, class P2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_2_0 : public ResultCallback<R> {
  public:
@@ -598,8 +598,8 @@ class _ConstMemberResultCallback_2_0 : public ResultCallback<R> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -631,8 +631,8 @@ class _ConstMemberResultCallback_2_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1, class P2>
 class _ConstMemberResultCallback_2_0<del, void, T, P1, P2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -642,8 +642,8 @@ class _ConstMemberResultCallback_2_0<del, void, T, P1, P2,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -688,8 +688,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2) const, typename googl
 #endif
 
 template <bool del, class R, class T, class P1, class P2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_2_0 : public ResultCallback<R> {
  public:
@@ -699,8 +699,8 @@ class _MemberResultCallback_2_0 : public ResultCallback<R> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -732,8 +732,8 @@ class _MemberResultCallback_2_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1, class P2>
 class _MemberResultCallback_2_0<del, void, T, P1, P2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -743,8 +743,8 @@ class _MemberResultCallback_2_0<del, void, T, P1, P2,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -796,8 +796,8 @@ class _FunctionResultCallback_2_0 : public ResultCallback<R> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -834,8 +834,8 @@ class _FunctionResultCallback_2_0<del, void, P1, P2> : public Closure {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -875,8 +875,8 @@ NewPermanentCallback(R (*function)(P1,P2), typename googleapis::base::internal::
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_3_0 : public ResultCallback<R> {
  public:
@@ -886,9 +886,9 @@ class _ConstMemberResultCallback_3_0 : public ResultCallback<R> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -920,8 +920,8 @@ class _ConstMemberResultCallback_3_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1, class P2, class P3>
 class _ConstMemberResultCallback_3_0<del, void, T, P1, P2, P3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -931,9 +931,9 @@ class _ConstMemberResultCallback_3_0<del, void, T, P1, P2, P3,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -978,8 +978,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3) const, typename go
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_3_0 : public ResultCallback<R> {
  public:
@@ -989,9 +989,9 @@ class _MemberResultCallback_3_0 : public ResultCallback<R> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -1023,8 +1023,8 @@ class _MemberResultCallback_3_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1, class P2, class P3>
 class _MemberResultCallback_3_0<del, void, T, P1, P2, P3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -1034,9 +1034,9 @@ class _MemberResultCallback_3_0<del, void, T, P1, P2, P3,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -1088,9 +1088,9 @@ class _FunctionResultCallback_3_0 : public ResultCallback<R> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -1127,9 +1127,9 @@ class _FunctionResultCallback_3_0<del, void, P1, P2, P3> : public Closure {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -1169,8 +1169,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3), typename googleapis::base::interna
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_4_0 : public ResultCallback<R> {
  public:
@@ -1180,10 +1180,10 @@ class _ConstMemberResultCallback_4_0 : public ResultCallback<R> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -1215,8 +1215,8 @@ class _ConstMemberResultCallback_4_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4>
 class _ConstMemberResultCallback_4_0<del, void, T, P1, P2, P3, P4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -1226,10 +1226,10 @@ class _ConstMemberResultCallback_4_0<del, void, T, P1, P2, P3, P4,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -1274,8 +1274,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4) const, typename
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_4_0 : public ResultCallback<R> {
  public:
@@ -1285,10 +1285,10 @@ class _MemberResultCallback_4_0 : public ResultCallback<R> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -1320,8 +1320,8 @@ class _MemberResultCallback_4_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4>
 class _MemberResultCallback_4_0<del, void, T, P1, P2, P3, P4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -1331,10 +1331,10 @@ class _MemberResultCallback_4_0<del, void, T, P1, P2, P3, P4,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -1386,10 +1386,10 @@ class _FunctionResultCallback_4_0 : public ResultCallback<R> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -1426,10 +1426,10 @@ class _FunctionResultCallback_4_0<del, void, P1, P2, P3, P4> : public Closure {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -1469,8 +1469,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4), typename googleapis::base::inte
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_5_0 : public ResultCallback<R> {
  public:
@@ -1480,11 +1480,11 @@ class _ConstMemberResultCallback_5_0 : public ResultCallback<R> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -1516,8 +1516,8 @@ class _ConstMemberResultCallback_5_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5>
 class _ConstMemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -1527,11 +1527,11 @@ class _ConstMemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -1576,8 +1576,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5) const, typen
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_5_0 : public ResultCallback<R> {
  public:
@@ -1587,11 +1587,11 @@ class _MemberResultCallback_5_0 : public ResultCallback<R> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -1623,8 +1623,8 @@ class _MemberResultCallback_5_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5>
 class _MemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -1634,11 +1634,11 @@ class _MemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -1690,11 +1690,11 @@ class _FunctionResultCallback_5_0 : public ResultCallback<R> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -1731,11 +1731,11 @@ class _FunctionResultCallback_5_0<del, void, P1, P2, P3, P4, P5> : public Closur
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -1775,8 +1775,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5), typename googleapis::base::i
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_6_0 : public ResultCallback<R> {
  public:
@@ -1786,12 +1786,12 @@ class _ConstMemberResultCallback_6_0 : public ResultCallback<R> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -1823,8 +1823,8 @@ class _ConstMemberResultCallback_6_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6>
 class _ConstMemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -1834,12 +1834,12 @@ class _ConstMemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_0(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -1884,8 +1884,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6) const, ty
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_6_0 : public ResultCallback<R> {
  public:
@@ -1895,12 +1895,12 @@ class _MemberResultCallback_6_0 : public ResultCallback<R> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -1932,8 +1932,8 @@ class _MemberResultCallback_6_0 : public ResultCallback<R> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6>
 class _MemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Closure {
  public:
@@ -1943,12 +1943,12 @@ class _MemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_0( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -2000,12 +2000,12 @@ class _FunctionResultCallback_6_0 : public ResultCallback<R> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -2042,12 +2042,12 @@ class _FunctionResultCallback_6_0<del, void, P1, P2, P3, P4, P5, P6> : public Cl
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_0(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -2087,8 +2087,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5,P6), typename googleapis::base
 }
 
 template <bool del, class R, class T, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_0_1 : public ResultCallback1<R,A1> {
  public:
@@ -2129,8 +2129,8 @@ class _ConstMemberResultCallback_0_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class A1>
 class _ConstMemberResultCallback_0_1<del, void, T, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -2184,8 +2184,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(A1) const) {
 #endif
 
 template <bool del, class R, class T, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_0_1 : public ResultCallback1<R,A1> {
  public:
@@ -2226,8 +2226,8 @@ class _MemberResultCallback_0_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class A1>
 class _MemberResultCallback_0_1<del, void, T, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -2363,8 +2363,8 @@ NewPermanentCallback(R (*function)(A1)) {
 }
 
 template <bool del, class R, class T, class P1, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_1_1 : public ResultCallback1<R,A1> {
  public:
@@ -2374,7 +2374,7 @@ class _ConstMemberResultCallback_1_1 : public ResultCallback1<R,A1> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -2406,8 +2406,8 @@ class _ConstMemberResultCallback_1_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class A1>
 class _ConstMemberResultCallback_1_1<del, void, T, P1, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -2417,7 +2417,7 @@ class _ConstMemberResultCallback_1_1<del, void, T, P1, A1,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -2462,8 +2462,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,A1) const, typename googl
 #endif
 
 template <bool del, class R, class T, class P1, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_1_1 : public ResultCallback1<R,A1> {
  public:
@@ -2473,7 +2473,7 @@ class _MemberResultCallback_1_1 : public ResultCallback1<R,A1> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -2505,8 +2505,8 @@ class _MemberResultCallback_1_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class A1>
 class _MemberResultCallback_1_1<del, void, T, P1, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -2516,7 +2516,7 @@ class _MemberResultCallback_1_1<del, void, T, P1, A1,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -2568,7 +2568,7 @@ class _FunctionResultCallback_1_1 : public ResultCallback1<R,A1> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -2605,7 +2605,7 @@ class _FunctionResultCallback_1_1<del, void, P1, A1> : public Callback1<A1> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -2645,8 +2645,8 @@ NewPermanentCallback(R (*function)(P1,A1), typename googleapis::base::internal::
 }
 
 template <bool del, class R, class T, class P1, class P2, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_2_1 : public ResultCallback1<R,A1> {
  public:
@@ -2656,8 +2656,8 @@ class _ConstMemberResultCallback_2_1 : public ResultCallback1<R,A1> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -2689,8 +2689,8 @@ class _ConstMemberResultCallback_2_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class P2, class A1>
 class _ConstMemberResultCallback_2_1<del, void, T, P1, P2, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -2700,8 +2700,8 @@ class _ConstMemberResultCallback_2_1<del, void, T, P1, P2, A1,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -2746,8 +2746,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,A1) const, typename go
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_2_1 : public ResultCallback1<R,A1> {
  public:
@@ -2757,8 +2757,8 @@ class _MemberResultCallback_2_1 : public ResultCallback1<R,A1> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -2790,8 +2790,8 @@ class _MemberResultCallback_2_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class P2, class A1>
 class _MemberResultCallback_2_1<del, void, T, P1, P2, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -2801,8 +2801,8 @@ class _MemberResultCallback_2_1<del, void, T, P1, P2, A1,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -2854,8 +2854,8 @@ class _FunctionResultCallback_2_1 : public ResultCallback1<R,A1> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -2892,8 +2892,8 @@ class _FunctionResultCallback_2_1<del, void, P1, P2, A1> : public Callback1<A1> 
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -2933,8 +2933,8 @@ NewPermanentCallback(R (*function)(P1,P2,A1), typename googleapis::base::interna
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_3_1 : public ResultCallback1<R,A1> {
  public:
@@ -2944,9 +2944,9 @@ class _ConstMemberResultCallback_3_1 : public ResultCallback1<R,A1> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -2978,8 +2978,8 @@ class _ConstMemberResultCallback_3_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class P2, class P3, class A1>
 class _ConstMemberResultCallback_3_1<del, void, T, P1, P2, P3, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -2989,9 +2989,9 @@ class _ConstMemberResultCallback_3_1<del, void, T, P1, P2, P3, A1,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -3036,8 +3036,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,A1) const, typename
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_3_1 : public ResultCallback1<R,A1> {
  public:
@@ -3047,9 +3047,9 @@ class _MemberResultCallback_3_1 : public ResultCallback1<R,A1> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -3081,8 +3081,8 @@ class _MemberResultCallback_3_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class P2, class P3, class A1>
 class _MemberResultCallback_3_1<del, void, T, P1, P2, P3, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -3092,9 +3092,9 @@ class _MemberResultCallback_3_1<del, void, T, P1, P2, P3, A1,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -3146,9 +3146,9 @@ class _FunctionResultCallback_3_1 : public ResultCallback1<R,A1> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -3185,9 +3185,9 @@ class _FunctionResultCallback_3_1<del, void, P1, P2, P3, A1> : public Callback1<
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -3227,8 +3227,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,A1), typename googleapis::base::inte
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_4_1 : public ResultCallback1<R,A1> {
  public:
@@ -3238,10 +3238,10 @@ class _ConstMemberResultCallback_4_1 : public ResultCallback1<R,A1> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -3273,8 +3273,8 @@ class _ConstMemberResultCallback_4_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class A1>
 class _ConstMemberResultCallback_4_1<del, void, T, P1, P2, P3, P4, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -3284,10 +3284,10 @@ class _ConstMemberResultCallback_4_1<del, void, T, P1, P2, P3, P4, A1,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -3332,8 +3332,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,A1) const, typen
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_4_1 : public ResultCallback1<R,A1> {
  public:
@@ -3343,10 +3343,10 @@ class _MemberResultCallback_4_1 : public ResultCallback1<R,A1> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -3378,8 +3378,8 @@ class _MemberResultCallback_4_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class A1>
 class _MemberResultCallback_4_1<del, void, T, P1, P2, P3, P4, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -3389,10 +3389,10 @@ class _MemberResultCallback_4_1<del, void, T, P1, P2, P3, P4, A1,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -3444,10 +3444,10 @@ class _FunctionResultCallback_4_1 : public ResultCallback1<R,A1> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -3484,10 +3484,10 @@ class _FunctionResultCallback_4_1<del, void, P1, P2, P3, P4, A1> : public Callba
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -3527,8 +3527,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,A1), typename googleapis::base::i
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_5_1 : public ResultCallback1<R,A1> {
  public:
@@ -3538,11 +3538,11 @@ class _ConstMemberResultCallback_5_1 : public ResultCallback1<R,A1> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -3574,8 +3574,8 @@ class _ConstMemberResultCallback_5_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class A1>
 class _ConstMemberResultCallback_5_1<del, void, T, P1, P2, P3, P4, P5, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -3585,11 +3585,11 @@ class _ConstMemberResultCallback_5_1<del, void, T, P1, P2, P3, P4, P5, A1,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -3634,8 +3634,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1) const, ty
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_5_1 : public ResultCallback1<R,A1> {
  public:
@@ -3645,11 +3645,11 @@ class _MemberResultCallback_5_1 : public ResultCallback1<R,A1> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -3681,8 +3681,8 @@ class _MemberResultCallback_5_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class A1>
 class _MemberResultCallback_5_1<del, void, T, P1, P2, P3, P4, P5, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -3692,11 +3692,11 @@ class _MemberResultCallback_5_1<del, void, T, P1, P2, P3, P4, P5, A1,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -3748,11 +3748,11 @@ class _FunctionResultCallback_5_1 : public ResultCallback1<R,A1> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -3789,11 +3789,11 @@ class _FunctionResultCallback_5_1<del, void, P1, P2, P3, P4, P5, A1> : public Ca
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -3833,8 +3833,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5,A1), typename googleapis::base
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_6_1 : public ResultCallback1<R,A1> {
  public:
@@ -3844,12 +3844,12 @@ class _ConstMemberResultCallback_6_1 : public ResultCallback1<R,A1> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -3881,8 +3881,8 @@ class _ConstMemberResultCallback_6_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1>
 class _ConstMemberResultCallback_6_1<del, void, T, P1, P2, P3, P4, P5, P6, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -3892,12 +3892,12 @@ class _ConstMemberResultCallback_6_1<del, void, T, P1, P2, P3, P4, P5, P6, A1,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_1(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -3942,8 +3942,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1) const,
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_6_1 : public ResultCallback1<R,A1> {
  public:
@@ -3953,12 +3953,12 @@ class _MemberResultCallback_6_1 : public ResultCallback1<R,A1> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -3990,8 +3990,8 @@ class _MemberResultCallback_6_1 : public ResultCallback1<R,A1> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1>
 class _MemberResultCallback_6_1<del, void, T, P1, P2, P3, P4, P5, P6, A1,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback1<A1> {
  public:
@@ -4001,12 +4001,12 @@ class _MemberResultCallback_6_1<del, void, T, P1, P2, P3, P4, P5, P6, A1,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_1( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -4058,12 +4058,12 @@ class _FunctionResultCallback_6_1 : public ResultCallback1<R,A1> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -4100,12 +4100,12 @@ class _FunctionResultCallback_6_1<del, void, P1, P2, P3, P4, P5, P6, A1> : publi
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_1(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -4145,8 +4145,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5,P6,A1), typename googleapis::b
 }
 
 template <bool del, class R, class T, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_0_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -4187,8 +4187,8 @@ class _ConstMemberResultCallback_0_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class A1, class A2>
 class _ConstMemberResultCallback_0_2<del, void, T, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -4242,8 +4242,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(A1,A2) const) {
 #endif
 
 template <bool del, class R, class T, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_0_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -4284,8 +4284,8 @@ class _MemberResultCallback_0_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class A1, class A2>
 class _MemberResultCallback_0_2<del, void, T, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -4421,8 +4421,8 @@ NewPermanentCallback(R (*function)(A1,A2)) {
 }
 
 template <bool del, class R, class T, class P1, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_1_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -4432,7 +4432,7 @@ class _ConstMemberResultCallback_1_2 : public ResultCallback2<R,A1,A2> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -4464,8 +4464,8 @@ class _ConstMemberResultCallback_1_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class A1, class A2>
 class _ConstMemberResultCallback_1_2<del, void, T, P1, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -4475,7 +4475,7 @@ class _ConstMemberResultCallback_1_2<del, void, T, P1, A1, A2,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -4520,8 +4520,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,A1,A2) const, typename go
 #endif
 
 template <bool del, class R, class T, class P1, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_1_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -4531,7 +4531,7 @@ class _MemberResultCallback_1_2 : public ResultCallback2<R,A1,A2> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -4563,8 +4563,8 @@ class _MemberResultCallback_1_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class A1, class A2>
 class _MemberResultCallback_1_2<del, void, T, P1, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -4574,7 +4574,7 @@ class _MemberResultCallback_1_2<del, void, T, P1, A1, A2,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -4626,7 +4626,7 @@ class _FunctionResultCallback_1_2 : public ResultCallback2<R,A1,A2> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -4663,7 +4663,7 @@ class _FunctionResultCallback_1_2<del, void, P1, A1, A2> : public Callback2<A1,A
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -4703,8 +4703,8 @@ NewPermanentCallback(R (*function)(P1,A1,A2), typename googleapis::base::interna
 }
 
 template <bool del, class R, class T, class P1, class P2, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_2_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -4714,8 +4714,8 @@ class _ConstMemberResultCallback_2_2 : public ResultCallback2<R,A1,A2> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -4747,8 +4747,8 @@ class _ConstMemberResultCallback_2_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class P2, class A1, class A2>
 class _ConstMemberResultCallback_2_2<del, void, T, P1, P2, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -4758,8 +4758,8 @@ class _ConstMemberResultCallback_2_2<del, void, T, P1, P2, A1, A2,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -4804,8 +4804,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,A1,A2) const, typename
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_2_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -4815,8 +4815,8 @@ class _MemberResultCallback_2_2 : public ResultCallback2<R,A1,A2> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -4848,8 +4848,8 @@ class _MemberResultCallback_2_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class P2, class A1, class A2>
 class _MemberResultCallback_2_2<del, void, T, P1, P2, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -4859,8 +4859,8 @@ class _MemberResultCallback_2_2<del, void, T, P1, P2, A1, A2,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -4912,8 +4912,8 @@ class _FunctionResultCallback_2_2 : public ResultCallback2<R,A1,A2> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -4950,8 +4950,8 @@ class _FunctionResultCallback_2_2<del, void, P1, P2, A1, A2> : public Callback2<
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -4991,8 +4991,8 @@ NewPermanentCallback(R (*function)(P1,P2,A1,A2), typename googleapis::base::inte
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_3_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -5002,9 +5002,9 @@ class _ConstMemberResultCallback_3_2 : public ResultCallback2<R,A1,A2> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -5036,8 +5036,8 @@ class _ConstMemberResultCallback_3_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class P2, class P3, class A1, class A2>
 class _ConstMemberResultCallback_3_2<del, void, T, P1, P2, P3, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -5047,9 +5047,9 @@ class _ConstMemberResultCallback_3_2<del, void, T, P1, P2, P3, A1, A2,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -5094,8 +5094,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,A1,A2) const, typen
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_3_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -5105,9 +5105,9 @@ class _MemberResultCallback_3_2 : public ResultCallback2<R,A1,A2> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -5139,8 +5139,8 @@ class _MemberResultCallback_3_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class P2, class P3, class A1, class A2>
 class _MemberResultCallback_3_2<del, void, T, P1, P2, P3, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -5150,9 +5150,9 @@ class _MemberResultCallback_3_2<del, void, T, P1, P2, P3, A1, A2,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -5204,9 +5204,9 @@ class _FunctionResultCallback_3_2 : public ResultCallback2<R,A1,A2> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -5243,9 +5243,9 @@ class _FunctionResultCallback_3_2<del, void, P1, P2, P3, A1, A2> : public Callba
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -5285,8 +5285,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,A1,A2), typename googleapis::base::i
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_4_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -5296,10 +5296,10 @@ class _ConstMemberResultCallback_4_2 : public ResultCallback2<R,A1,A2> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -5331,8 +5331,8 @@ class _ConstMemberResultCallback_4_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class A1, class A2>
 class _ConstMemberResultCallback_4_2<del, void, T, P1, P2, P3, P4, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -5342,10 +5342,10 @@ class _ConstMemberResultCallback_4_2<del, void, T, P1, P2, P3, P4, A1, A2,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -5390,8 +5390,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2) const, ty
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_4_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -5401,10 +5401,10 @@ class _MemberResultCallback_4_2 : public ResultCallback2<R,A1,A2> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -5436,8 +5436,8 @@ class _MemberResultCallback_4_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class A1, class A2>
 class _MemberResultCallback_4_2<del, void, T, P1, P2, P3, P4, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -5447,10 +5447,10 @@ class _MemberResultCallback_4_2<del, void, T, P1, P2, P3, P4, A1, A2,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -5502,10 +5502,10 @@ class _FunctionResultCallback_4_2 : public ResultCallback2<R,A1,A2> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -5542,10 +5542,10 @@ class _FunctionResultCallback_4_2<del, void, P1, P2, P3, P4, A1, A2> : public Ca
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -5585,8 +5585,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,A1,A2), typename googleapis::base
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_5_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -5596,11 +5596,11 @@ class _ConstMemberResultCallback_5_2 : public ResultCallback2<R,A1,A2> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -5632,8 +5632,8 @@ class _ConstMemberResultCallback_5_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2>
 class _ConstMemberResultCallback_5_2<del, void, T, P1, P2, P3, P4, P5, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -5643,11 +5643,11 @@ class _ConstMemberResultCallback_5_2<del, void, T, P1, P2, P3, P4, P5, A1, A2,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -5692,8 +5692,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2) const,
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_5_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -5703,11 +5703,11 @@ class _MemberResultCallback_5_2 : public ResultCallback2<R,A1,A2> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -5739,8 +5739,8 @@ class _MemberResultCallback_5_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2>
 class _MemberResultCallback_5_2<del, void, T, P1, P2, P3, P4, P5, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -5750,11 +5750,11 @@ class _MemberResultCallback_5_2<del, void, T, P1, P2, P3, P4, P5, A1, A2,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -5806,11 +5806,11 @@ class _FunctionResultCallback_5_2 : public ResultCallback2<R,A1,A2> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -5847,11 +5847,11 @@ class _FunctionResultCallback_5_2<del, void, P1, P2, P3, P4, P5, A1, A2> : publi
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -5891,8 +5891,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5,A1,A2), typename googleapis::b
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_6_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -5902,12 +5902,12 @@ class _ConstMemberResultCallback_6_2 : public ResultCallback2<R,A1,A2> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -5939,8 +5939,8 @@ class _ConstMemberResultCallback_6_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2>
 class _ConstMemberResultCallback_6_2<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -5950,12 +5950,12 @@ class _ConstMemberResultCallback_6_2<del, void, T, P1, P2, P3, P4, P5, P6, A1, A
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_2(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -6000,8 +6000,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2) con
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_6_2 : public ResultCallback2<R,A1,A2> {
  public:
@@ -6011,12 +6011,12 @@ class _MemberResultCallback_6_2 : public ResultCallback2<R,A1,A2> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -6048,8 +6048,8 @@ class _MemberResultCallback_6_2 : public ResultCallback2<R,A1,A2> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2>
 class _MemberResultCallback_6_2<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback2<A1,A2> {
  public:
@@ -6059,12 +6059,12 @@ class _MemberResultCallback_6_2<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_2( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -6116,12 +6116,12 @@ class _FunctionResultCallback_6_2 : public ResultCallback2<R,A1,A2> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -6158,12 +6158,12 @@ class _FunctionResultCallback_6_2<del, void, P1, P2, P3, P4, P5, P6, A1, A2> : p
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_2(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -6203,8 +6203,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5,P6,A1,A2), typename googleapis
 }
 
 template <bool del, class R, class T, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_0_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -6245,8 +6245,8 @@ class _ConstMemberResultCallback_0_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class A1, class A2, class A3>
 class _ConstMemberResultCallback_0_3<del, void, T, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -6300,8 +6300,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(A1,A2,A3) const) {
 #endif
 
 template <bool del, class R, class T, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_0_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -6342,8 +6342,8 @@ class _MemberResultCallback_0_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class A1, class A2, class A3>
 class _MemberResultCallback_0_3<del, void, T, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -6479,8 +6479,8 @@ NewPermanentCallback(R (*function)(A1,A2,A3)) {
 }
 
 template <bool del, class R, class T, class P1, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_1_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -6490,7 +6490,7 @@ class _ConstMemberResultCallback_1_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -6522,8 +6522,8 @@ class _ConstMemberResultCallback_1_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class A1, class A2, class A3>
 class _ConstMemberResultCallback_1_3<del, void, T, P1, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -6533,7 +6533,7 @@ class _ConstMemberResultCallback_1_3<del, void, T, P1, A1, A2, A3,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -6578,8 +6578,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,A1,A2,A3) const, typename
 #endif
 
 template <bool del, class R, class T, class P1, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_1_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -6589,7 +6589,7 @@ class _MemberResultCallback_1_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -6621,8 +6621,8 @@ class _MemberResultCallback_1_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class A1, class A2, class A3>
 class _MemberResultCallback_1_3<del, void, T, P1, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -6632,7 +6632,7 @@ class _MemberResultCallback_1_3<del, void, T, P1, A1, A2, A3,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -6684,7 +6684,7 @@ class _FunctionResultCallback_1_3 : public ResultCallback3<R,A1,A2,A3> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -6721,7 +6721,7 @@ class _FunctionResultCallback_1_3<del, void, P1, A1, A2, A3> : public Callback3<
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -6761,8 +6761,8 @@ NewPermanentCallback(R (*function)(P1,A1,A2,A3), typename googleapis::base::inte
 }
 
 template <bool del, class R, class T, class P1, class P2, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_2_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -6772,8 +6772,8 @@ class _ConstMemberResultCallback_2_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -6805,8 +6805,8 @@ class _ConstMemberResultCallback_2_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class P2, class A1, class A2, class A3>
 class _ConstMemberResultCallback_2_3<del, void, T, P1, P2, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -6816,8 +6816,8 @@ class _ConstMemberResultCallback_2_3<del, void, T, P1, P2, A1, A2, A3,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -6862,8 +6862,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,A1,A2,A3) const, typen
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_2_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -6873,8 +6873,8 @@ class _MemberResultCallback_2_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -6906,8 +6906,8 @@ class _MemberResultCallback_2_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class P2, class A1, class A2, class A3>
 class _MemberResultCallback_2_3<del, void, T, P1, P2, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -6917,8 +6917,8 @@ class _MemberResultCallback_2_3<del, void, T, P1, P2, A1, A2, A3,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -6970,8 +6970,8 @@ class _FunctionResultCallback_2_3 : public ResultCallback3<R,A1,A2,A3> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -7008,8 +7008,8 @@ class _FunctionResultCallback_2_3<del, void, P1, P2, A1, A2, A3> : public Callba
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -7049,8 +7049,8 @@ NewPermanentCallback(R (*function)(P1,P2,A1,A2,A3), typename googleapis::base::i
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_3_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -7060,9 +7060,9 @@ class _ConstMemberResultCallback_3_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -7094,8 +7094,8 @@ class _ConstMemberResultCallback_3_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class P2, class P3, class A1, class A2, class A3>
 class _ConstMemberResultCallback_3_3<del, void, T, P1, P2, P3, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -7105,9 +7105,9 @@ class _ConstMemberResultCallback_3_3<del, void, T, P1, P2, P3, A1, A2, A3,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -7152,8 +7152,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3) const, ty
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_3_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -7163,9 +7163,9 @@ class _MemberResultCallback_3_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -7197,8 +7197,8 @@ class _MemberResultCallback_3_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class P2, class P3, class A1, class A2, class A3>
 class _MemberResultCallback_3_3<del, void, T, P1, P2, P3, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -7208,9 +7208,9 @@ class _MemberResultCallback_3_3<del, void, T, P1, P2, P3, A1, A2, A3,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -7262,9 +7262,9 @@ class _FunctionResultCallback_3_3 : public ResultCallback3<R,A1,A2,A3> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -7301,9 +7301,9 @@ class _FunctionResultCallback_3_3<del, void, P1, P2, P3, A1, A2, A3> : public Ca
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -7343,8 +7343,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,A1,A2,A3), typename googleapis::base
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_4_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -7354,10 +7354,10 @@ class _ConstMemberResultCallback_4_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -7389,8 +7389,8 @@ class _ConstMemberResultCallback_4_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3>
 class _ConstMemberResultCallback_4_3<del, void, T, P1, P2, P3, P4, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -7400,10 +7400,10 @@ class _ConstMemberResultCallback_4_3<del, void, T, P1, P2, P3, P4, A1, A2, A3,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -7448,8 +7448,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3) const,
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_4_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -7459,10 +7459,10 @@ class _MemberResultCallback_4_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -7494,8 +7494,8 @@ class _MemberResultCallback_4_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3>
 class _MemberResultCallback_4_3<del, void, T, P1, P2, P3, P4, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -7505,10 +7505,10 @@ class _MemberResultCallback_4_3<del, void, T, P1, P2, P3, P4, A1, A2, A3,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -7560,10 +7560,10 @@ class _FunctionResultCallback_4_3 : public ResultCallback3<R,A1,A2,A3> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -7600,10 +7600,10 @@ class _FunctionResultCallback_4_3<del, void, P1, P2, P3, P4, A1, A2, A3> : publi
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -7643,8 +7643,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,A1,A2,A3), typename googleapis::b
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_5_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -7654,11 +7654,11 @@ class _ConstMemberResultCallback_5_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -7690,8 +7690,8 @@ class _ConstMemberResultCallback_5_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3>
 class _ConstMemberResultCallback_5_3<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -7701,11 +7701,11 @@ class _ConstMemberResultCallback_5_3<del, void, T, P1, P2, P3, P4, P5, A1, A2, A
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -7750,8 +7750,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3) con
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_5_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -7761,11 +7761,11 @@ class _MemberResultCallback_5_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -7797,8 +7797,8 @@ class _MemberResultCallback_5_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3>
 class _MemberResultCallback_5_3<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -7808,11 +7808,11 @@ class _MemberResultCallback_5_3<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -7864,11 +7864,11 @@ class _FunctionResultCallback_5_3 : public ResultCallback3<R,A1,A2,A3> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -7905,11 +7905,11 @@ class _FunctionResultCallback_5_3<del, void, P1, P2, P3, P4, P5, A1, A2, A3> : p
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -7949,8 +7949,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5,A1,A2,A3), typename googleapis
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_6_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -7960,12 +7960,12 @@ class _ConstMemberResultCallback_6_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -7997,8 +7997,8 @@ class _ConstMemberResultCallback_6_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3>
 class _ConstMemberResultCallback_6_3<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -8008,12 +8008,12 @@ class _ConstMemberResultCallback_6_3<del, void, T, P1, P2, P3, P4, P5, P6, A1, A
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_3(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -8058,8 +8058,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3) 
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_6_3 : public ResultCallback3<R,A1,A2,A3> {
  public:
@@ -8069,12 +8069,12 @@ class _MemberResultCallback_6_3 : public ResultCallback3<R,A1,A2,A3> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -8106,8 +8106,8 @@ class _MemberResultCallback_6_3 : public ResultCallback3<R,A1,A2,A3> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3>
 class _MemberResultCallback_6_3<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2, A3,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback3<A1,A2,A3> {
  public:
@@ -8117,12 +8117,12 @@ class _MemberResultCallback_6_3<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2, A3
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_3( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -8174,12 +8174,12 @@ class _FunctionResultCallback_6_3 : public ResultCallback3<R,A1,A2,A3> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -8216,12 +8216,12 @@ class _FunctionResultCallback_6_3<del, void, P1, P2, P3, P4, P5, P6, A1, A2, A3>
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_3(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -8261,8 +8261,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5,P6,A1,A2,A3), typename googlea
 }
 
 template <bool del, class R, class T, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_0_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -8303,8 +8303,8 @@ class _ConstMemberResultCallback_0_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class A1, class A2, class A3, class A4>
 class _ConstMemberResultCallback_0_4<del, void, T, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -8358,8 +8358,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(A1,A2,A3,A4) const) {
 #endif
 
 template <bool del, class R, class T, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_0_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -8400,8 +8400,8 @@ class _MemberResultCallback_0_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class A1, class A2, class A3, class A4>
 class _MemberResultCallback_0_4<del, void, T, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -8537,8 +8537,8 @@ NewPermanentCallback(R (*function)(A1,A2,A3,A4)) {
 }
 
 template <bool del, class R, class T, class P1, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_1_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -8548,7 +8548,7 @@ class _ConstMemberResultCallback_1_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -8580,8 +8580,8 @@ class _ConstMemberResultCallback_1_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class A1, class A2, class A3, class A4>
 class _ConstMemberResultCallback_1_4<del, void, T, P1, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -8591,7 +8591,7 @@ class _ConstMemberResultCallback_1_4<del, void, T, P1, A1, A2, A3, A4,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -8636,8 +8636,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,A1,A2,A3,A4) const, typen
 #endif
 
 template <bool del, class R, class T, class P1, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_1_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -8647,7 +8647,7 @@ class _MemberResultCallback_1_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -8679,8 +8679,8 @@ class _MemberResultCallback_1_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class A1, class A2, class A3, class A4>
 class _MemberResultCallback_1_4<del, void, T, P1, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -8690,7 +8690,7 @@ class _MemberResultCallback_1_4<del, void, T, P1, A1, A2, A3, A4,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -8742,7 +8742,7 @@ class _FunctionResultCallback_1_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -8779,7 +8779,7 @@ class _FunctionResultCallback_1_4<del, void, P1, A1, A2, A3, A4> : public Callba
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -8819,8 +8819,8 @@ NewPermanentCallback(R (*function)(P1,A1,A2,A3,A4), typename googleapis::base::i
 }
 
 template <bool del, class R, class T, class P1, class P2, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_2_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -8830,8 +8830,8 @@ class _ConstMemberResultCallback_2_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -8863,8 +8863,8 @@ class _ConstMemberResultCallback_2_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class P2, class A1, class A2, class A3, class A4>
 class _ConstMemberResultCallback_2_4<del, void, T, P1, P2, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -8874,8 +8874,8 @@ class _ConstMemberResultCallback_2_4<del, void, T, P1, P2, A1, A2, A3, A4,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -8920,8 +8920,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4) const, ty
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_2_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -8931,8 +8931,8 @@ class _MemberResultCallback_2_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -8964,8 +8964,8 @@ class _MemberResultCallback_2_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class P2, class A1, class A2, class A3, class A4>
 class _MemberResultCallback_2_4<del, void, T, P1, P2, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -8975,8 +8975,8 @@ class _MemberResultCallback_2_4<del, void, T, P1, P2, A1, A2, A3, A4,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -9028,8 +9028,8 @@ class _FunctionResultCallback_2_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -9066,8 +9066,8 @@ class _FunctionResultCallback_2_4<del, void, P1, P2, A1, A2, A3, A4> : public Ca
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -9107,8 +9107,8 @@ NewPermanentCallback(R (*function)(P1,P2,A1,A2,A3,A4), typename googleapis::base
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_3_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -9118,9 +9118,9 @@ class _ConstMemberResultCallback_3_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -9152,8 +9152,8 @@ class _ConstMemberResultCallback_3_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class P2, class P3, class A1, class A2, class A3, class A4>
 class _ConstMemberResultCallback_3_4<del, void, T, P1, P2, P3, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -9163,9 +9163,9 @@ class _ConstMemberResultCallback_3_4<del, void, T, P1, P2, P3, A1, A2, A3, A4,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -9210,8 +9210,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4) const,
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_3_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -9221,9 +9221,9 @@ class _MemberResultCallback_3_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -9255,8 +9255,8 @@ class _MemberResultCallback_3_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class P2, class P3, class A1, class A2, class A3, class A4>
 class _MemberResultCallback_3_4<del, void, T, P1, P2, P3, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -9266,9 +9266,9 @@ class _MemberResultCallback_3_4<del, void, T, P1, P2, P3, A1, A2, A3, A4,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -9320,9 +9320,9 @@ class _FunctionResultCallback_3_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -9359,9 +9359,9 @@ class _FunctionResultCallback_3_4<del, void, P1, P2, P3, A1, A2, A3, A4> : publi
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -9401,8 +9401,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,A1,A2,A3,A4), typename googleapis::b
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_4_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -9412,10 +9412,10 @@ class _ConstMemberResultCallback_4_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -9447,8 +9447,8 @@ class _ConstMemberResultCallback_4_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4>
 class _ConstMemberResultCallback_4_4<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -9458,10 +9458,10 @@ class _ConstMemberResultCallback_4_4<del, void, T, P1, P2, P3, P4, A1, A2, A3, A
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -9506,8 +9506,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4) con
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_4_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -9517,10 +9517,10 @@ class _MemberResultCallback_4_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -9552,8 +9552,8 @@ class _MemberResultCallback_4_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4>
 class _MemberResultCallback_4_4<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -9563,10 +9563,10 @@ class _MemberResultCallback_4_4<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -9618,10 +9618,10 @@ class _FunctionResultCallback_4_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -9658,10 +9658,10 @@ class _FunctionResultCallback_4_4<del, void, P1, P2, P3, P4, A1, A2, A3, A4> : p
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -9701,8 +9701,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,A1,A2,A3,A4), typename googleapis
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_5_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -9712,11 +9712,11 @@ class _ConstMemberResultCallback_5_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -9748,8 +9748,8 @@ class _ConstMemberResultCallback_5_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4>
 class _ConstMemberResultCallback_5_4<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -9759,11 +9759,11 @@ class _ConstMemberResultCallback_5_4<del, void, T, P1, P2, P3, P4, P5, A1, A2, A
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -9808,8 +9808,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4) 
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_5_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -9819,11 +9819,11 @@ class _MemberResultCallback_5_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -9855,8 +9855,8 @@ class _MemberResultCallback_5_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4>
 class _MemberResultCallback_5_4<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -9866,11 +9866,11 @@ class _MemberResultCallback_5_4<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3, A4
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -9922,11 +9922,11 @@ class _FunctionResultCallback_5_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -9963,11 +9963,11 @@ class _FunctionResultCallback_5_4<del, void, P1, P2, P3, P4, P5, A1, A2, A3, A4>
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -10007,8 +10007,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5,A1,A2,A3,A4), typename googlea
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_6_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -10018,12 +10018,12 @@ class _ConstMemberResultCallback_6_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -10055,8 +10055,8 @@ class _ConstMemberResultCallback_6_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4>
 class _ConstMemberResultCallback_6_4<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -10066,12 +10066,12 @@ class _ConstMemberResultCallback_6_4<del, void, T, P1, P2, P3, P4, P5, P6, A1, A
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_4(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -10116,8 +10116,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_6_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  public:
@@ -10127,12 +10127,12 @@ class _MemberResultCallback_6_4 : public ResultCallback4<R,A1,A2,A3,A4> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -10164,8 +10164,8 @@ class _MemberResultCallback_6_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4>
 class _MemberResultCallback_6_4<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2, A3, A4,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback4<A1,A2,A3,A4> {
  public:
@@ -10175,12 +10175,12 @@ class _MemberResultCallback_6_4<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2, A3
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_4( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -10232,12 +10232,12 @@ class _FunctionResultCallback_6_4 : public ResultCallback4<R,A1,A2,A3,A4> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -10274,12 +10274,12 @@ class _FunctionResultCallback_6_4<del, void, P1, P2, P3, P4, P5, P6, A1, A2, A3,
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_4(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -10319,8 +10319,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4), typename goog
 }
 
 template <bool del, class R, class T, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_0_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -10361,8 +10361,8 @@ class _ConstMemberResultCallback_0_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
 
 template <bool del, class T, class A1, class A2, class A3, class A4, class A5>
 class _ConstMemberResultCallback_0_5<del, void, T, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -10416,8 +10416,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(A1,A2,A3,A4,A5) const) {
 #endif
 
 template <bool del, class R, class T, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_0_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -10458,8 +10458,8 @@ class _MemberResultCallback_0_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
 template <bool del, class T, class A1, class A2, class A3, class A4, class A5>
 class _MemberResultCallback_0_5<del, void, T, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -10595,8 +10595,8 @@ NewPermanentCallback(R (*function)(A1,A2,A3,A4,A5)) {
 }
 
 template <bool del, class R, class T, class P1, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_1_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -10606,7 +10606,7 @@ class _ConstMemberResultCallback_1_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -10638,8 +10638,8 @@ class _ConstMemberResultCallback_1_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
 
 template <bool del, class T, class P1, class A1, class A2, class A3, class A4, class A5>
 class _ConstMemberResultCallback_1_5<del, void, T, P1, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -10649,7 +10649,7 @@ class _ConstMemberResultCallback_1_5<del, void, T, P1, A1, A2, A3, A4, A5,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _ConstMemberResultCallback_1_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -10694,8 +10694,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,A1,A2,A3,A4,A5) const, ty
 #endif
 
 template <bool del, class R, class T, class P1, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_1_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -10705,7 +10705,7 @@ class _MemberResultCallback_1_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -10737,8 +10737,8 @@ class _MemberResultCallback_1_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
 template <bool del, class T, class P1, class A1, class A2, class A3, class A4, class A5>
 class _MemberResultCallback_1_5<del, void, T, P1, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -10748,7 +10748,7 @@ class _MemberResultCallback_1_5<del, void, T, P1, A1, A2, A3, A4, A5,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _MemberResultCallback_1_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -10800,7 +10800,7 @@ class _FunctionResultCallback_1_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -10837,7 +10837,7 @@ class _FunctionResultCallback_1_5<del, void, P1, A1, A2, A3, A4, A5> : public Ca
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P1>::type p1_;
 
  public:
   inline _FunctionResultCallback_1_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1)
@@ -10877,8 +10877,8 @@ NewPermanentCallback(R (*function)(P1,A1,A2,A3,A4,A5), typename googleapis::base
 }
 
 template <bool del, class R, class T, class P1, class P2, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_2_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -10888,8 +10888,8 @@ class _ConstMemberResultCallback_2_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -10921,8 +10921,8 @@ class _ConstMemberResultCallback_2_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
 
 template <bool del, class T, class P1, class P2, class A1, class A2, class A3, class A4, class A5>
 class _ConstMemberResultCallback_2_5<del, void, T, P1, P2, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -10932,8 +10932,8 @@ class _ConstMemberResultCallback_2_5<del, void, T, P1, P2, A1, A2, A3, A4, A5,
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _ConstMemberResultCallback_2_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -10978,8 +10978,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4,A5) const,
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_2_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -10989,8 +10989,8 @@ class _MemberResultCallback_2_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -11022,8 +11022,8 @@ class _MemberResultCallback_2_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
 template <bool del, class T, class P1, class P2, class A1, class A2, class A3, class A4, class A5>
 class _MemberResultCallback_2_5<del, void, T, P1, P2, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -11033,8 +11033,8 @@ class _MemberResultCallback_2_5<del, void, T, P1, P2, A1, A2, A3, A4, A5,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _MemberResultCallback_2_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -11086,8 +11086,8 @@ class _FunctionResultCallback_2_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -11124,8 +11124,8 @@ class _FunctionResultCallback_2_5<del, void, P1, P2, A1, A2, A3, A4, A5> : publi
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
 
  public:
   inline _FunctionResultCallback_2_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2)
@@ -11165,8 +11165,8 @@ NewPermanentCallback(R (*function)(P1,P2,A1,A2,A3,A4,A5), typename googleapis::b
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_3_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -11176,9 +11176,9 @@ class _ConstMemberResultCallback_3_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -11210,8 +11210,8 @@ class _ConstMemberResultCallback_3_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
 
 template <bool del, class T, class P1, class P2, class P3, class A1, class A2, class A3, class A4, class A5>
 class _ConstMemberResultCallback_3_5<del, void, T, P1, P2, P3, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -11221,9 +11221,9 @@ class _ConstMemberResultCallback_3_5<del, void, T, P1, P2, P3, A1, A2, A3, A4, A
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _ConstMemberResultCallback_3_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -11268,8 +11268,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4,A5) con
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_3_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -11279,9 +11279,9 @@ class _MemberResultCallback_3_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -11313,8 +11313,8 @@ class _MemberResultCallback_3_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
 template <bool del, class T, class P1, class P2, class P3, class A1, class A2, class A3, class A4, class A5>
 class _MemberResultCallback_3_5<del, void, T, P1, P2, P3, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -11324,9 +11324,9 @@ class _MemberResultCallback_3_5<del, void, T, P1, P2, P3, A1, A2, A3, A4, A5,
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _MemberResultCallback_3_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -11378,9 +11378,9 @@ class _FunctionResultCallback_3_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -11417,9 +11417,9 @@ class _FunctionResultCallback_3_5<del, void, P1, P2, P3, A1, A2, A3, A4, A5> : p
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
 
  public:
   inline _FunctionResultCallback_3_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3)
@@ -11459,8 +11459,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,A1,A2,A3,A4,A5), typename googleapis
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_4_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -11470,10 +11470,10 @@ class _ConstMemberResultCallback_4_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -11505,8 +11505,8 @@ class _ConstMemberResultCallback_4_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4, class A5>
 class _ConstMemberResultCallback_4_5<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -11516,10 +11516,10 @@ class _ConstMemberResultCallback_4_5<del, void, T, P1, P2, P3, P4, A1, A2, A3, A
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _ConstMemberResultCallback_4_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -11564,8 +11564,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4,A5) 
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_4_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -11575,10 +11575,10 @@ class _MemberResultCallback_4_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -11610,8 +11610,8 @@ class _MemberResultCallback_4_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4, class A5>
 class _MemberResultCallback_4_5<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -11621,10 +11621,10 @@ class _MemberResultCallback_4_5<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4, A5
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _MemberResultCallback_4_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -11676,10 +11676,10 @@ class _FunctionResultCallback_4_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -11716,10 +11716,10 @@ class _FunctionResultCallback_4_5<del, void, P1, P2, P3, P4, A1, A2, A3, A4, A5>
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
 
  public:
   inline _FunctionResultCallback_4_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4)
@@ -11759,8 +11759,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,A1,A2,A3,A4,A5), typename googlea
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_5_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -11770,11 +11770,11 @@ class _ConstMemberResultCallback_5_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -11806,8 +11806,8 @@ class _ConstMemberResultCallback_5_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4, class A5>
 class _ConstMemberResultCallback_5_5<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -11817,11 +11817,11 @@ class _ConstMemberResultCallback_5_5<del, void, T, P1, P2, P3, P4, P5, A1, A2, A
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _ConstMemberResultCallback_5_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -11866,8 +11866,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4,A
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_5_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -11877,11 +11877,11 @@ class _MemberResultCallback_5_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -11913,8 +11913,8 @@ class _MemberResultCallback_5_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4, class A5>
 class _MemberResultCallback_5_5<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -11924,11 +11924,11 @@ class _MemberResultCallback_5_5<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3, A4
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _MemberResultCallback_5_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -11980,11 +11980,11 @@ class _FunctionResultCallback_5_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -12021,11 +12021,11 @@ class _FunctionResultCallback_5_5<del, void, P1, P2, P3, P4, P5, A1, A2, A3, A4,
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
 
  public:
   inline _FunctionResultCallback_5_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5)
@@ -12065,8 +12065,8 @@ NewPermanentCallback(R (*function)(P1,P2,P3,P4,P5,A1,A2,A3,A4,A5), typename goog
 }
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _ConstMemberResultCallback_6_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -12076,12 +12076,12 @@ class _ConstMemberResultCallback_6_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -12113,8 +12113,8 @@ class _ConstMemberResultCallback_6_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> 
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4, class A5>
 class _ConstMemberResultCallback_6_5<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -12124,12 +12124,12 @@ class _ConstMemberResultCallback_6_5<del, void, T, P1, P2, P3, P4, P5, P6, A1, A
  private:
   const T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _ConstMemberResultCallback_6_5(const T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -12174,8 +12174,8 @@ NewPermanentCallback(const T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A
 #endif
 
 template <bool del, class R, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4, class A5,
-          class OnlyIf = typename googleapis::base::enable_if<
-              googleapis::base::internal::is_class_or_union<T>::value
+          class OnlyIf = typename ::std::enable_if<
+              ::std::is_compound<T>::value
               >::type>
 class _MemberResultCallback_6_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  public:
@@ -12185,12 +12185,12 @@ class _MemberResultCallback_6_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -12222,8 +12222,8 @@ class _MemberResultCallback_6_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
 template <bool del, class T, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4, class A5>
 class _MemberResultCallback_6_5<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2, A3, A4, A5,
-         typename googleapis::base::enable_if<
-             googleapis::base::internal::is_class_or_union<T>::value
+         typename ::std::enable_if<
+             ::std::is_compound<T>::value
              >::type>
     : public Callback5<A1,A2,A3,A4,A5> {
  public:
@@ -12233,12 +12233,12 @@ class _MemberResultCallback_6_5<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2, A3
  private:
    T* object_;
   MemberSignature member_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _MemberResultCallback_6_5( T* object, MemberSignature member, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -12290,12 +12290,12 @@ class _FunctionResultCallback_6_5 : public ResultCallback5<R,A1,A2,A3,A4,A5> {
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)
@@ -12332,12 +12332,12 @@ class _FunctionResultCallback_6_5<del, void, P1, P2, P3, P4, P5, P6, A1, A2, A3,
 
  private:
   FunctionSignature function_;
-  typename googleapis::base::remove_reference<P1>::type p1_;
-  typename googleapis::base::remove_reference<P2>::type p2_;
-  typename googleapis::base::remove_reference<P3>::type p3_;
-  typename googleapis::base::remove_reference<P4>::type p4_;
-  typename googleapis::base::remove_reference<P5>::type p5_;
-  typename googleapis::base::remove_reference<P6>::type p6_;
+  typename ::std::remove_reference<P1>::type p1_;
+  typename ::std::remove_reference<P2>::type p2_;
+  typename ::std::remove_reference<P3>::type p3_;
+  typename ::std::remove_reference<P4>::type p4_;
+  typename ::std::remove_reference<P5>::type p5_;
+  typename ::std::remove_reference<P6>::type p6_;
 
  public:
   inline _FunctionResultCallback_6_5(FunctionSignature function, typename googleapis::base::internal::ConstRef<P1>::type p1, typename googleapis::base::internal::ConstRef<P2>::type p2, typename googleapis::base::internal::ConstRef<P3>::type p3, typename googleapis::base::internal::ConstRef<P4>::type p4, typename googleapis::base::internal::ConstRef<P5>::type p5, typename googleapis::base::internal::ConstRef<P6>::type p6)

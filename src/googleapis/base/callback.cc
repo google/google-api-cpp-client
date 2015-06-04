@@ -16,14 +16,15 @@
  *
  * @}
  */
-#include "googleapis/base/mutex.h"
 #include "googleapis/base/callback.h"
+
+#include "googleapis/base/mutex.h"
 #include <glog/logging.h>
 
 namespace googleapis {
 
-// Fails with informative error message
-// when 'name' is not a repeatable callback.
+// Fails with informative error message  when 'name' is not a repeatable
+// callback.
 // This is a helper utility function for callback-specializations.h.
 // CallbackUtils_ class is defined in generate-callback-specializations.py.
 void CallbackUtils_::FailIsRepeatable(const char* name) {
