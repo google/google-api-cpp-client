@@ -83,7 +83,7 @@ class MockData : public SerializableJson {
   MOCK_CONST_METHOD0(get_next_page_token, string());
 
   MOCK_METHOD0(Clear, void());
-  MOCK_METHOD1(LoadFromJsonReader, util::Status(DataReader* reader));
+  MOCK_METHOD1(LoadFromJsonReader, googleapis::util::Status(DataReader* reader));
   MOCK_CONST_METHOD0(MakeJsonReader, DataReader*());
 };
 
@@ -93,7 +93,7 @@ class FakeRequest : public ClientServiceRequest {
        : ClientServiceRequest(service, NULL, HttpRequest::GET, kTestUri) {
   }
 
-  util::Status ExecuteAndParseResponse(MockData* data) {
+  googleapis::util::Status ExecuteAndParseResponse(MockData* data) {
     return ClientServiceRequest::ExecuteAndParseResponse(data);
   }
 

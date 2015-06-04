@@ -23,8 +23,8 @@
 // Instead add some other simple PUBLIC service or mock
 // that can be open sourced.
 
-#ifndef APISERVING_CLIENTS_CPP_HTTP_TRANSPORT_TEST_FIXTURE_H_
-#define APISERVING_CLIENTS_CPP_HTTP_TRANSPORT_TEST_FIXTURE_H_
+#ifndef GOOGLEAPIS_HTTP_TRANSPORT_TEST_FIXTURE_H_
+#define GOOGLEAPIS_HTTP_TRANSPORT_TEST_FIXTURE_H_
 
 #include "googleapis/client/transport/http_transport.h"
 #include <gtest/gtest.h>
@@ -67,4 +67,4 @@ class HttpTransportTestFixture : public testing::Test {
 };
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_HTTP_TRANSPORT_TEST_FIXTURE_H_
+#endif  // GOOGLEAPIS_HTTP_TRANSPORT_TEST_FIXTURE_H_

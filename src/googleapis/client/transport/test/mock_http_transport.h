@@ -29,8 +29,8 @@
  * applications as a matter of policy. There are not generally technical
  * reasons to prevent their inclusion.
  */
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_MOCK_HTTP_TRANSPORT_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_MOCK_HTTP_TRANSPORT_H_
+#ifndef GOOGLEAPIS_TRANSPORT_MOCK_HTTP_TRANSPORT_H_
+#define GOOGLEAPIS_TRANSPORT_MOCK_HTTP_TRANSPORT_H_
 
 #include <string>
 using std::string;
@@ -39,7 +39,6 @@ using std::string;
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/transport/http_request.h"
-#include "googleapis/strings/stringpiece.h"
 #include <gmock/gmock.h>
 namespace googleapis {
 
@@ -62,11 +61,11 @@ class MockHttpTransportErrorHandler : public HttpTransportErrorHandler {
  */
 class MockAuthorizationCredential : public AuthorizationCredential {
  public:
-  MOCK_CONST_METHOD0(type, const StringPiece());
-  MOCK_METHOD1(AuthorizeRequest, util::Status(HttpRequest* request));
-  MOCK_METHOD0(Refresh, util::Status());
+  MOCK_CONST_METHOD0(type, const string());
+  MOCK_METHOD1(AuthorizeRequest, googleapis::util::Status(HttpRequest* request));
+  MOCK_METHOD0(Refresh, googleapis::util::Status());
   MOCK_METHOD1(RefreshAsync, void(Callback1<util::Status>* callback));
-  MOCK_METHOD1(Load, util::Status(DataReader* reader));
+  MOCK_METHOD1(Load, googleapis::util::Status(DataReader* reader));
   MOCK_CONST_METHOD0(MakeDataReader, DataReader*());
 };
 
@@ -90,8 +89,7 @@ class MockHttpRequest : public HttpRequest {
     mutable_state()->set_transport_status(status);
   }
 
-  void poke_response_header(
-      const StringPiece name, const StringPiece value) {
+  void poke_response_header(const string& name, const string& value) {
     response()->AddHeader(name, value);
   }
 
@@ -142,7 +140,7 @@ class MockHttpRequest : public HttpRequest {
    * @param[in] name Header to check
    * @param[in] value Value to confirm
    */
-  void CheckHeader(const StringPiece& name, const string& value) {
+  void CheckHeader(const string& name, const string& value) {
     const string* have = FindHeaderValue(name);
     EXPECT_TRUE(have != NULL) << "Did not find header=" << name;
     if (have && !value.empty()) {
@@ -188,4 +186,4 @@ class MockHttpTransportFactory : public HttpTransportFactory {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_MOCK_HTTP_TRANSPORT_H_
+#endif  // GOOGLEAPIS_TRANSPORT_MOCK_HTTP_TRANSPORT_H_

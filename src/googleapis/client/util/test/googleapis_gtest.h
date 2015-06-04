@@ -21,8 +21,8 @@
 // Convience helpers for GTest.
 // These require linking against googleapis_gtest_main instead of gtest_main
 
-#ifndef APISERVING_CLIENTS_CPP_UTIL_GOOGLEAPIS_GTEST_H_
-#define APISERVING_CLIENTS_CPP_UTIL_GOOGLEAPIS_GTEST_H_
+#ifndef GOOGLEAPIS_UTIL_GOOGLEAPIS_GTEST_H_
+#define GOOGLEAPIS_UTIL_GOOGLEAPIS_GTEST_H_
 
 #include "googleapis/strings/strcat.h"
 #include <gtest/gtest.h>
@@ -40,4 +40,4 @@ string GetTestingTempDir();
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_UTIL_GOOGLEAPIS_GTEST_H_
+#endif  // GOOGLEAPIS_UTIL_GOOGLEAPIS_GTEST_H_

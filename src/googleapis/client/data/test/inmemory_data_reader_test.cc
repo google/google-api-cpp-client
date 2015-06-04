@@ -18,8 +18,10 @@
  */
 
 
+#include <memory>
 #include <string>
 using std::string;
+
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"

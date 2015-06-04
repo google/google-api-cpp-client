@@ -45,7 +45,7 @@ class OpenSslCodecTestFixture : public testing::Test {
 };
 
 TEST_F(OpenSslCodecTestFixture, TestEncryptDecrypt) {
-  util::Status status;
+  googleapis::util::Status status;
   const StringPiece kPlainText = "Hello, World!";
 
   OpenSslCodecFactory factoryX;
@@ -82,7 +82,7 @@ TEST_F(OpenSslCodecTestFixture, TestEncryptDecrypt) {
 }
 
 TEST_F(OpenSslCodecTestFixture, TestEncryptingReader) {
-  util::Status status;
+  googleapis::util::Status status;
   const StringPiece kPlainText = "Hello, World!";
   OpenSslCodecFactory factory;
   EXPECT_TRUE(factory.SetPassphrase(kPassphraseX).ok());
@@ -124,7 +124,7 @@ TEST_F(OpenSslCodecTestFixture, TestEncryptingReader) {
 }
 
 TEST_F(OpenSslCodecTestFixture, TestDecryptingReader) {
-  util::Status status;
+  googleapis::util::Status status;
   const StringPiece kPlainText = "Hello, World!";
   OpenSslCodecFactory factory;
   EXPECT_TRUE(factory.SetPassphrase(kPassphraseX).ok());
@@ -166,7 +166,7 @@ TEST_F(OpenSslCodecTestFixture, TestSeekDecryptingReader) {
     plain_text.push_back(i);
   }
 
-  util::Status status;
+  googleapis::util::Status status;
   OpenSslCodecFactory factory;
   factory.set_chunk_size(32);
   EXPECT_TRUE(factory.SetPassphrase(kPassphraseX).ok());

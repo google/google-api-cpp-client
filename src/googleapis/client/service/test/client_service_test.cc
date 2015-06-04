@@ -36,7 +36,6 @@ using std::pair;
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 #include <gtest/gtest.h>
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -81,14 +80,14 @@ class TestServiceRequest : public ClientServiceRequest {
     return mutable_http_request()->url();
   }
 
-  virtual util::Status AppendOptionalQueryParameters(string* target) {
+  virtual googleapis::util::Status AppendOptionalQueryParameters(string* target) {
     if (!get_use_media_download()) {
       target->append("&optional");
     }
     return ClientServiceRequest::AppendOptionalQueryParameters(target);
   }
 
-  virtual util::Status AppendVariable(
+  virtual googleapis::util::Status AppendVariable(
       const StringPiece& name, const UriTemplateConfig& config, string* out) {
     if (name == "var") {
       out->append("value");
@@ -111,7 +110,7 @@ class TestServiceRequest : public ClientServiceRequest {
     return StatusInvalidArgument(StrCat("Unknown name=", name));
   }
 
-  util::Status ExecuteAndParseResponse(SerializableJson* data) {
+  googleapis::util::Status ExecuteAndParseResponse(SerializableJson* data) {
     // Expose protected method.
     return ClientServiceRequest::ExecuteAndParseResponse(data);
   }
@@ -129,7 +128,7 @@ class FakeJsonData : public SerializableJson {
   FakeJsonData() {}
   ~FakeJsonData() {}
   virtual void Clear() {}
-  virtual util::Status LoadFromJsonReader(DataReader* reader) {
+  virtual googleapis::util::Status LoadFromJsonReader(DataReader* reader) {
     return StatusOk();
   }
   virtual DataReader* MakeJsonReader() const { return NULL; }  // not used

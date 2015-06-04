@@ -47,7 +47,6 @@ using std::vector;
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "googleapis/util/mock_executor.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -93,12 +92,12 @@ class FakeDataWriter : public DataWriter {
   const string& got() { return s_; }
 
  protected:
-  virtual util::Status DoClear() {
+  virtual googleapis::util::Status DoClear() {
     s_.clear();
     return StatusOk();
   }
 
-  virtual util::Status DoWrite(int64 bytes, const char* data) {
+  virtual googleapis::util::Status DoWrite(int64 bytes, const char* data) {
     s_.append(data, bytes);
     return StatusOk();
   }
@@ -156,7 +155,7 @@ TEST_F(HttpTransportFixture, TestRequest) {
 }
 
 TEST_F(HttpTransportFixture, TestResponseAttributes) {
-  util::Status status;
+  googleapis::util::Status status;
   HttpResponse http_response;
   EXPECT_EQ(HttpRequestState::UNSENT, http_response.request_state_code());
   EXPECT_EQ(0, http_response.http_code());
@@ -271,7 +270,7 @@ TEST_F(HttpTransportFixture, TestAddBuiltinHeaders) {
       NewCallback(&mock_request, &MockHttpRequest::poke_http_code, 234);
   EXPECT_CALL(mock_request, DoExecute(_))
       .WillOnce(InvokeWithoutArgs(set_http_code, &Closure::Run));
-  util::Status got_status = mock_request.Execute();
+  googleapis::util::Status got_status = mock_request.Execute();
   const string *value =
       mock_request.FindHeaderValue(HttpRequest::HttpHeader_HOST);
   EXPECT_TRUE(value != NULL);
@@ -291,7 +290,7 @@ TEST_F(HttpTransportFixture, TestAddBuiltinHeaders) {
       HttpRequest::HttpHeader_TRANSFER_ENCODING);
   EXPECT_TRUE(value == NULL);
 
-  StringPiece kContentType = "application/xyz";
+  string kContentType = "application/xyz";
   StringPiece kPostData = "Helo, World!";
   MockHttpRequest mock_post(HttpRequest::POST, &transport);
   set_http_code =
@@ -320,8 +319,8 @@ TEST_F(HttpTransportFixture, TestOverrideBuiltinHeaders) {
   MockHttpRequest mock_request(HttpRequest::GET, &transport);
   mock_request.set_url(StrCat("https://test/path"));
 
-  StringPiece my_host("myhost:123");
-  StringPiece my_agent("my user agent");
+  string my_host("myhost:123");
+  string my_agent("my user agent");
   mock_request.AddHeader("user-agent", my_agent);
   mock_request.AddHeader("host", my_host);
   mock_request.AddHeader("another", "whatever");
@@ -364,7 +363,7 @@ TEST_F(HttpTransportFixture, TestOkFlow) {
       .WillOnce(
           DoAll(InvokeWithoutArgs(set_http_code, &Closure::Run),
                 InvokeWithoutArgs(write_payload, &Closure::Run)));
-  util::Status got_status = mock_request.Execute();
+  googleapis::util::Status got_status = mock_request.Execute();
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
 
   HttpResponse* http_response = mock_request.response();
@@ -395,7 +394,7 @@ TEST_F(HttpTransportFixture, TestReplaceWriter) {
         .WillOnce(
             DoAll(InvokeWithoutArgs(set_http_code, &Closure::Run),
                   InvokeWithoutArgs(write_payload, &Closure::Run)));
-    util::Status got_status = mock_request.Execute();
+    googleapis::util::Status got_status = mock_request.Execute();
     EXPECT_TRUE(got_status.ok()) << got_status.ToString();
     EXPECT_EQ(kExpect,
               mock_request.response()->body_reader()->RemainderToString());
@@ -415,7 +414,7 @@ TEST_F(HttpTransportFixture, TestTransportErrorFlow) {
   for (int allow_retries = 0; allow_retries < 4; ++allow_retries) {
     MockHttpRequest mock_request(HttpRequest::GET, &transport);
 
-    util::Status failure_status = StatusUnknown("Transport Error");
+    googleapis::util::Status failure_status = StatusUnknown("Transport Error");
     std::unique_ptr<Closure> set_transport_status(
         NewPermanentCallback(
             &mock_request, &MockHttpRequest::poke_transport_status,
@@ -489,7 +488,7 @@ TEST_F(HttpTransportFixture, TestBuiltinTransportFailure) {
   MockHttpRequest mock_request(HttpRequest::GET, &transport);
   HttpRequestState* state = mock_request.mutable_state();
 
-  util::Status failure_status = StatusUnknown("Transport Error");
+  googleapis::util::Status failure_status = StatusUnknown("Transport Error");
   Closure* set_transport_status = NewCallback(
       state, &HttpRequestState::set_transport_status, failure_status);
   EXPECT_CALL(mock_request, DoExecute(_))
@@ -699,7 +698,7 @@ TEST_F(HttpTransportFixture, Test301RedirectFlowWithinDomain) {
 }
 
 TEST_F(HttpTransportFixture, TestRedirectFlow) {
-  const StringPiece redirect_url = "the_redirected_path";
+  const string redirect_url = "the_redirected_path";
   MockHttpTransport transport;
   HttpTransportErrorHandler error_handler;
   transport.mutable_options()->set_error_handler(&error_handler);
@@ -764,7 +763,7 @@ TEST_F(HttpTransportFixture, TestRedirectFlow) {
 
 TEST_F(HttpTransportFixture, Test304Redirect) {
   const char* original_url = "the_original_url";
-  const StringPiece redirect_url = "the_redirected_url";
+  const string redirect_url = "the_redirected_url";
   MockHttpTransport transport;
   MockHttpRequest mock_request(HttpRequest::GET, &transport);
 
@@ -794,7 +793,7 @@ TEST_F(HttpTransportFixture, Test304Redirect) {
 
 TEST_F(HttpTransportFixture, TestDoNotRedirect) {
   const char* original_url = "the_original_url";
-  const StringPiece redirect_url = "the_redirected_url";
+  const string redirect_url = "the_redirected_url";
   MockHttpTransport transport;
   MockHttpRequest mock_request(HttpRequest::POST, &transport);
   HttpTransportErrorHandler error_handler;
@@ -837,16 +836,16 @@ TEST_F(HttpTransportFixture, TestAuthorizationFlow) {
   MockHttpTransport transport;
   MockHttpRequest bad_mock_request(HttpRequest::GET, &transport);
 
-  const StringPiece kFailureMessage("Test failed to authorize request");
+  const char kFailureMessage[] = "Test failed to authorize request";
   MockAuthorizationCredential mock_credential;
-  util::Status failed_status = StatusPermissionDenied(kFailureMessage);
+  googleapis::util::Status failed_status = StatusPermissionDenied(kFailureMessage);
   EXPECT_CALL(mock_credential, AuthorizeRequest(&bad_mock_request))
       .WillOnce(Return(failed_status));
 
   // Note that the mock_request is not expecting to get called. This
   // will fail before even calling into it (i.e. wont DoExecute).
   bad_mock_request.set_credential(&mock_credential);
-  util::Status got_status = bad_mock_request.Execute();
+  googleapis::util::Status got_status = bad_mock_request.Execute();
   EXPECT_FALSE(got_status.ok());
   HttpResponse* http_response = bad_mock_request.response();
   EXPECT_EQ(HttpRequestState::COULD_NOT_SEND,
@@ -996,7 +995,7 @@ TEST_F(HttpTransportFixture, TestOkFlowAsync) {
 TEST_F(HttpTransportFixture, TestWillNotExecute) {
   MockHttpTransport transport;
   MockHttpRequest mock_request(HttpRequest::GET, &transport);
-  util::Status failure_status = StatusUnknown("Transport Error");
+  googleapis::util::Status failure_status = StatusUnknown("Transport Error");
   mock_request.WillNotExecute(failure_status);
   EXPECT_TRUE(mock_request.state().done());
   EXPECT_FALSE(mock_request.state().ok());

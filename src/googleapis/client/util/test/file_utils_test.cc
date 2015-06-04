@@ -27,11 +27,11 @@ using std::string;
 
 #include "googleapis/client/util/file_utils.h"
 #include "googleapis/client/util/test/googleapis_gtest.h"
+#include "googleapis/client/util/status.h"
 #include <glog/logging.h>
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/util/canonical_errors.h"
-#include "googleapis/util/status.h"
 #include "googleapis/util/status_test_util.h"
 
 namespace googleapis {
@@ -65,7 +65,7 @@ TEST_F(FileUtilsTestFixture, TestCreateDir) {
   File::DeleteDir(kRoot.c_str());
   ASSERT_TRUE(util::IsNotFound(file::Exists(kRoot, file::Defaults())));
 
-  util::Status status =
+  googleapis::util::Status status =
         SensitiveFileUtils::CreateSecureDirectoryRecursively(kRoot);
   EXPECT_TRUE(status.ok()) << status.ToString();
   CheckPermissions(kRoot, S_IRUSR | S_IWUSR | S_IXUSR);
@@ -82,7 +82,7 @@ EXPECT_TRUE(
        File::RecursivelyCreateDirWithPermissions(kRoot, bad_permissions).ok());
   CheckPermissions(kRoot, bad_permissions);
 
-  util::Status status = SensitiveFileUtils::VerifyIsSecureDirectory(kRoot);
+  googleapis::util::Status status = SensitiveFileUtils::VerifyIsSecureDirectory(kRoot);
   EXPECT_FALSE(status.ok());
 #else
   LOG(WARNING) << "Cannot test for invalid dir";
@@ -95,12 +95,12 @@ TEST_F(FileUtilsTestFixture, TestStoreFile) {
   ASSERT_TRUE(util::IsNotFound(file::Exists(kPath, file::Defaults())));
 
   const string kOriginalContent = "Sample test data";
-  util::Status status = SensitiveFileUtils::WriteSensitiveStringToFile(
+  googleapis::util::Status status = SensitiveFileUtils::WriteSensitiveStringToFile(
        kOriginalContent, kPath, false);
   EXPECT_TRUE(status.ok()) << status.ToString();
   CheckPermissions(kPath, S_IRUSR | S_IWUSR);
 
-  const string kFailedContent= "Failed test data";
+  const string kFailedContent = "Failed test data";
   // Cant write file that already exists (overwrite is false)
   status = SensitiveFileUtils::WriteSensitiveStringToFile(
       kFailedContent, kPath, false);
@@ -119,7 +119,7 @@ TEST_F(FileUtilsTestFixture, TestSecureDelete) {
   const string kPath = StrCat(GetTestingTempDir(), "/test_delete");
   File::Delete(kPath);
 
-  util::Status status =
+  googleapis::util::Status status =
         SensitiveFileUtils::WriteSensitiveStringToFile("X", kPath, true);
   EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_OK(file::Exists(kPath, file::Defaults()));
@@ -136,7 +136,7 @@ TEST_F(FileUtilsTestFixture, TestValidatePermissions) {
   const string kPath = StrCat(GetTestingTempDir(), "/test_validate");
   File::Delete(kPath);
   ASSERT_TRUE(util::IsNotFound(file::Exists(kPath, file::Defaults())));
-  util::Status status =
+  googleapis::util::Status status =
         SensitiveFileUtils::WriteSensitiveStringToFile("X", kPath, false);
   EXPECT_TRUE(status.ok()) << status.ToString();
 

@@ -82,8 +82,8 @@ static const int  kReturnedExpiresInSecs = 1234;
 
 static void VerifyHeader(
     const HttpRequest* request,
-    const StringPiece& name,
-    const StringPiece& value) {
+    const string& name,
+    const string& value) {
   const string* got = request->FindHeaderValue(name);
   EXPECT_TRUE(got != NULL) << name;
   if (got) {
@@ -234,7 +234,7 @@ TEST_F(OAuth2TestFixture, TestClientSpecFromJson) {
   for (int test = 0; test < arraysize(types); ++test) {
     std::unique_ptr<MockHttpTransport> transport(new MockHttpTransport);
     string json = StringReplace(json_template, "FLOW_TYPE", types[test], false);
-    util::Status status;
+    googleapis::util::Status status;
     OAuth2AuthorizationFlow* flow =
         OAuth2AuthorizationFlow::MakeFlowFromClientSecretsJson(
             json, transport.release(), &status);
@@ -302,7 +302,7 @@ TEST_F(OAuth2TestFixture, TestExchangeAuthorizationCodeRequest) {
               global_mock_transport_, kTestEncodedRedirectUri)));
 
   client::OAuth2RequestOptions options;
-  util::Status status = global_flow_->PerformExchangeAuthorizationCode(
+  googleapis::util::Status status = global_flow_->PerformExchangeAuthorizationCode(
       kTestAuthorizationCode, options, &credential);
 
   EXPECT_TRUE(status.ok()) << status.ToString();
@@ -338,7 +338,7 @@ TEST_F(OAuth2TestFixture, TestExchangeAuthorizationCodeRequestFailure) {
           new FakeFailedHttpRequest(global_mock_transport_, 401)));
 
   client::OAuth2RequestOptions options;
-  util::Status status = global_flow_->PerformExchangeAuthorizationCode(
+  googleapis::util::Status status = global_flow_->PerformExchangeAuthorizationCode(
       kTestAuthorizationCode, options, &credential);
 
   EXPECT_FALSE(status.ok()) << status.ToString();
@@ -365,7 +365,7 @@ TEST_F(OAuth2TestFixture, TestRefreshToken) {
       client::DateTime().ToEpochTime() + kReturnedExpiresInSecs;
 
   client::OAuth2RequestOptions options;
-  util::Status status =
+  googleapis::util::Status status =
       global_flow_->PerformRefreshToken(options, &credential);
   EXPECT_TRUE(status.ok()) << status.ToString();
 
@@ -384,7 +384,7 @@ TEST_F(OAuth2TestFixture, TestRefreshTokenFailure) {
       .WillOnce(Return(
           new FakeFailedHttpRequest(global_mock_transport_, 400)));
 
-  util::Status status = global_flow_->PerformRevokeToken(false, &credential);
+  googleapis::util::Status status = global_flow_->PerformRevokeToken(false, &credential);
   EXPECT_FALSE(status.ok()) << status.ToString();
   EXPECT_TRUE(credential.access_token().empty());
 }
@@ -400,7 +400,7 @@ TEST_F(OAuth2TestFixture, TestRevokeAccessToken) {
           new FakeRevokeTokenHttpRequest(global_mock_transport_,
                                          kReturnedAccessToken)));
 
-  util::Status status = global_flow_->PerformRevokeToken(true, &credential);
+  googleapis::util::Status status = global_flow_->PerformRevokeToken(true, &credential);
   EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(credential.access_token().empty());
   EXPECT_TRUE(!credential.refresh_token().empty());
@@ -417,7 +417,7 @@ TEST_F(OAuth2TestFixture, TestRevokeRefreshToken) {
           new FakeRevokeTokenHttpRequest(global_mock_transport_,
                                          kReturnedRefreshToken)));
 
-  util::Status status = global_flow_->PerformRevokeToken(false, &credential);
+  googleapis::util::Status status = global_flow_->PerformRevokeToken(false, &credential);
   EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(!credential.access_token().empty());
   EXPECT_TRUE(credential.refresh_token().empty());
@@ -433,7 +433,7 @@ TEST_F(OAuth2TestFixture, TestRevokeAccessTokenFailure) {
       .WillOnce(Return(
           new FakeFailedHttpRequest(global_mock_transport_, 400)));
 
-  util::Status status = global_flow_->PerformRevokeToken(true, &credential);
+  googleapis::util::Status status = global_flow_->PerformRevokeToken(true, &credential);
   EXPECT_FALSE(status.ok()) << status.ToString();
   EXPECT_TRUE(!credential.access_token().empty());
   EXPECT_TRUE(!credential.refresh_token().empty());
@@ -451,7 +451,7 @@ TEST_F(OAuth2TestFixture, TestSerialization) {
   verify.set_expiration_timestamp_secs(123);
 
   EXPECT_TRUE(reader->Reset());
-  util::Status status = verify.Load(reader.get());
+  googleapis::util::Status status = verify.Load(reader.get());
   EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(verify.access_token().as_string().empty());
   EXPECT_TRUE(verify.refresh_token().as_string().empty());

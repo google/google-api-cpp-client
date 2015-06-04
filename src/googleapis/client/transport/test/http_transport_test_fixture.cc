@@ -238,7 +238,7 @@ void HttpTransportTestFixture::TearDownTestCase() {
       JoinPath(
           JoinPath(FLAGS_wax_root_url, FLAGS_wax_service_path),
           "quit"));
-  util::Status status = request->Execute();
+  googleapis::util::Status status = request->Execute();
   if (!status.ok()) {
     LOG(ERROR) << "Error quiting server: " << status.error_message();
   }
@@ -266,7 +266,7 @@ void HttpTransportTestFixture::ResetGlobalSessionId() {
   std::unique_ptr<SessionsResource_RemoveSessionMethod> remove_method(
       rsrc.NewRemoveSessionMethod(NULL, *request));
 
-  util::Status got_status = remove_method->Execute();
+  googleapis::util::Status got_status = remove_method->Execute();
 
   // Check for 503, but we need to do the cleanup so dont use the macro.
   // Explicitly guard it instead.
@@ -307,7 +307,7 @@ WaxService& HttpTransportTestFixture::GetGlobalWaxService() {
         rsrc.NewNewSessionMethod(NULL, *request));
 
     std::unique_ptr<WaxNewSessionResponse> result(WaxNewSessionResponse::New());
-    util::Status got_status =
+    googleapis::util::Status got_status =
           new_method->ExecuteAndParseResponse(result.get());
     HttpResponse* http_response = new_method->http_response();
     if (http_response->http_code() == 503 && FLAGS_allow_503) {
@@ -389,7 +389,7 @@ TEST_F(HttpTransportTestFixture, TestList) {
       rsrc.NewListMethod(NULL, GetGlobalSessionId()));
 
   std::unique_ptr<WaxListResponse> result(WaxListResponse::New());
-  util::Status got_status =
+  googleapis::util::Status got_status =
         list_method->ExecuteAndParseResponse(result.get());
   HttpResponse* http_response = list_method->http_response();
   MAYBE_CANCEL_TEST_ON_503(http_response->http_code());
@@ -440,7 +440,7 @@ TEST_F(HttpTransportTestFixture, TestReuse) {
   std::unique_ptr<ItemsResource_GetMethod> get_method(
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "A"));
 
-  util::Status got_status = get_method->Execute();
+  googleapis::util::Status got_status = get_method->Execute();
   MAYBE_CANCEL_TEST_ON_503(get_method->http_response()->http_code());
 
   EXPECT_TRUE(got_status.ok());
@@ -464,7 +464,7 @@ TEST_F(HttpTransportTestFixture, TestGoodGet) {
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "A"));
 
   JsonCppCapsule<WaxDataItem> wax;
-  util::Status got_status = get_method->ExecuteAndParseResponse(&wax);
+  googleapis::util::Status got_status = get_method->ExecuteAndParseResponse(&wax);
   HttpResponse* http_response = get_method->http_response();
   MAYBE_CANCEL_TEST_ON_503(http_response->http_code());
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
@@ -507,7 +507,7 @@ TEST_F(HttpTransportTestFixture, TestTimeout) {
     const int64 timeout_ms = kInitialTimeoutMs + kIncreasePerInterval * i;
     http_request->mutable_options()->set_timeout_ms(timeout_ms);
     JsonCppCapsule<WaxDataItem> wax_result;
-    util::Status got_status =
+    googleapis::util::Status got_status =
           insert_method->ExecuteAndParseResponse(&wax_result);
     EXPECT_FALSE(got_status.ok());
     HttpResponse* http_response = insert_method->http_response();
@@ -542,7 +542,7 @@ TEST_F(HttpTransportTestFixture, TestInsert) {
       rsrc.NewInsertMethod(NULL, GetGlobalSessionId(), wax));
 
   JsonCppCapsule<WaxDataItem> wax_result;
-  util::Status got_status =
+  googleapis::util::Status got_status =
         insert_method->ExecuteAndParseResponse(&wax_result);
   MAYBE_CANCEL_TEST_ON_503(insert_method->http_response()->http_code());
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
@@ -584,7 +584,7 @@ TEST_F(HttpTransportTestFixture, TestBadInsert) {
       rsrc.NewInsertMethod(NULL, GetGlobalSessionId(), wax));
 
   JsonCppCapsule<WaxDataItem> wax_result;
-  util::Status got_status =
+  googleapis::util::Status got_status =
         insert_method->ExecuteAndParseResponse(&wax_result);
   EXPECT_FALSE(got_status.ok());
   HttpResponse* http_response = insert_method->http_response();
@@ -610,7 +610,7 @@ TEST_F(HttpTransportTestFixture, TestDelete) {
   std::unique_ptr<ItemsResource_InsertMethod> insert_method(
       rsrc.NewInsertMethod(NULL, GetGlobalSessionId(), wax));
 
-  util::Status got_status = insert_method->Execute();
+  googleapis::util::Status got_status = insert_method->Execute();
   HttpResponse* http_response = insert_method->http_response();
   MAYBE_CANCEL_TEST_ON_503(http_response->http_code());
   EXPECT_TRUE(got_status.ok());
@@ -652,7 +652,7 @@ TEST_F(HttpTransportTestFixture, TestPatch) {
   std::unique_ptr<ItemsResource_PatchMethod> patch_method(
       rsrc.NewPatchMethod(NULL, GetGlobalSessionId(), "A", wax));
 
-  util::Status got_status = patch_method->Execute();
+  googleapis::util::Status got_status = patch_method->Execute();
   MAYBE_CANCEL_TEST_ON_503(patch_method->http_response()->http_code());
 
   // TODO(user): 20130227
@@ -693,7 +693,7 @@ TEST_F(HttpTransportTestFixture, TestUpdate) {
   std::unique_ptr<ItemsResource_UpdateMethod> update_method(
       rsrc.NewUpdateMethod(NULL, GetGlobalSessionId(), "A", wax));
 
-  util::Status got_status = update_method->Execute();
+  googleapis::util::Status got_status = update_method->Execute();
   MAYBE_CANCEL_TEST_ON_503(update_method->http_response()->http_code());
 
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
@@ -723,7 +723,7 @@ TEST_F(HttpTransportTestFixture, TestRemoveSessionId) {
   std::unique_ptr<ItemsResource_GetMethod> check_method(
       service->get_items().NewGetMethod(NULL, GetGlobalSessionId(), "A"));
 
-  util::Status got_status = check_method->Execute();
+  googleapis::util::Status got_status = check_method->Execute();
   MAYBE_CANCEL_TEST_ON_503(check_method->http_response()->http_code());
 
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
@@ -748,7 +748,7 @@ TEST_F(HttpTransportTestFixture, TestResponseHeaders) {
   std::unique_ptr<ItemsResource_GetMethod> get_method(
       rsrc.NewGetMethod(NULL, GetGlobalSessionId(), "A"));
 
-  util::Status got_status = get_method->Execute();
+  googleapis::util::Status got_status = get_method->Execute();
   MAYBE_CANCEL_TEST_ON_503(get_method->http_response()->http_code());
 
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
@@ -843,7 +843,7 @@ TEST_F(HttpTransportTestFixture, TestAsynchronous) {
     VLOG(1) << "Adding " << i;
     insert_method->ExecuteAsync(
         NewCallback(&GatherAsyncResponse, i, &mutex, &got, &remaining));
-    util::Status status = insert_method->http_response()->transport_status();
+    googleapis::util::Status status = insert_method->http_response()->transport_status();
     ASSERT_TRUE(status.ok()) << status.error_message();
   }
 
@@ -859,7 +859,7 @@ TEST_F(HttpTransportTestFixture, TestAsynchronous) {
     delete_method->ExecuteAsync(
         NewCallback(&GatherAsyncResponse, response_index, &mutex, &got,
                     &remaining));
-    util::Status status = delete_method->http_response()->transport_status();
+    googleapis::util::Status status = delete_method->http_response()->transport_status();
     ASSERT_TRUE(status.ok()) << status.error_message();
   }
 

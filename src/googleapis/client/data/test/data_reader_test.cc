@@ -19,6 +19,7 @@
 
 
 #include "googleapis/client/data/data_reader.h"
+#include <memory>
 #include <string>
 using std::string;
 
@@ -114,7 +115,7 @@ TEST_F(DataReaderTestFixture, TestAttributes) {
   EXPECT_FALSE(reader.done());
   EXPECT_FALSE(reader.error());
 
-  util::Status status(StatusUnknown("Poked Error"));
+  googleapis::util::Status status(StatusUnknown("Poked Error"));
   reader.poke_status(status);
   EXPECT_TRUE(reader.done());
   EXPECT_TRUE(reader.error());
@@ -272,7 +273,7 @@ TEST_F(DataReaderTestFixture, ReadToBufferFragmented) {
 }
 
 TEST_F(DataReaderTestFixture, TestInvalidReader) {
-  util::Status status = StatusInternalError("test");
+  googleapis::util::Status status = StatusInternalError("test");
   std::unique_ptr<DataReader> reader(NewUnmanagedInvalidDataReader(status));
   EXPECT_FALSE(reader->ok());
   EXPECT_TRUE(reader->done());

@@ -34,7 +34,6 @@ using std::string;
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/strcat.h"
 #include <gtest/gtest.h>
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -79,7 +78,7 @@ class MediaUploaderFixture : public testing::Test {
 
   // We'll append the decorator to verify that this got called.
   // The decorator can be NULL to indicate a failure.
-  util::Status PrepareUrl(
+  googleapis::util::Status PrepareUrl(
       const char* decorator, const StringPiece& from, string* to) {
     *to = from.as_string();
     if (decorator == NULL) {
@@ -107,7 +106,7 @@ TEST_F(MediaUploaderFixture, TestDefault) {
   EXPECT_FALSE(uploader_.is_ready());
 
   // Setting nothing fails
-  util::Status got_status =
+  googleapis::util::Status got_status =
         uploader_.BuildRequest(&request_, MakePreparer());
   EXPECT_FALSE(got_status.ok());
   EXPECT_EQ("", request_.url());
@@ -128,7 +127,7 @@ TEST_F(MediaUploaderFixture, TestJustMetadataNoMultipart) {
 
   const string kMetadata = "METADATA";
   non_multipart_uploader.set_metadata("metadata_type", kMetadata);
-  util::Status got_status =
+  googleapis::util::Status got_status =
         non_multipart_uploader.BuildRequest(&request_, MakePreparer());
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
   EXPECT_TRUE(non_multipart_uploader.is_ready());
@@ -160,7 +159,7 @@ TEST_F(MediaUploaderFixture, TestNullContentWithMimeType) {
   const string kMimeType = "test/mime-type";
   uploader_.set_media_content_reader(kMimeType, NULL);
   uploader_.set_metadata("metadata_type", "METADATA");
-  util::Status got_status =
+  googleapis::util::Status got_status =
         uploader_.BuildRequest(&request_, MakePreparer());
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
   EXPECT_TRUE(uploader_.is_ready());
@@ -185,7 +184,7 @@ TEST_F(MediaUploaderFixture, TestNullContentWithMimeType) {
 
 TEST_F(MediaUploaderFixture, TestJustMetadata) {
   uploader_.set_metadata("metadata_type", "METADATA");
-  util::Status got_status =
+  googleapis::util::Status got_status =
         uploader_.BuildRequest(&request_, MakePreparer());
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
   EXPECT_TRUE(uploader_.is_ready());
@@ -208,7 +207,7 @@ TEST_F(MediaUploaderFixture, TestJustMetadata) {
 TEST_F(MediaUploaderFixture, TestJustMedia) {
   uploader_.set_media_content_reader(
       "media_type", NewUnmanagedInMemoryDataReader("MEDIA"));
-  util::Status got_status =
+  googleapis::util::Status got_status =
         uploader_.BuildRequest(&request_, MakePreparer());
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
   EXPECT_TRUE(uploader_.is_ready());
@@ -232,7 +231,7 @@ TEST_F(MediaUploaderFixture, TestBinaryMedia) {
   const string binary_data(kSomeBinaryData, sizeof(kSomeBinaryData));
   uploader_.set_media_content_reader(
       "media_type", NewUnmanagedInMemoryDataReader(binary_data));
-  util::Status got_status =
+  googleapis::util::Status got_status =
         uploader_.BuildRequest(&request_, MakePreparer());
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
   EXPECT_TRUE(uploader_.is_ready());
@@ -257,7 +256,7 @@ TEST_F(MediaUploaderFixture, TestMultipart) {
   uploader_.set_media_content_reader(
       "media_type", NewUnmanagedInMemoryDataReader("MEDIA"));
   uploader_.set_metadata("metadata_type", "METADATA");
-  util::Status got_status = uploader_.BuildRequest(
+  googleapis::util::Status got_status = uploader_.BuildRequest(
        &request_, MakePreparer());
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
   EXPECT_TRUE(uploader_.is_ready());
@@ -289,7 +288,7 @@ TEST_F(MediaUploaderFixture, TestBinaryMultipart) {
   uploader_.set_media_content_reader(
       "media_type", NewUnmanagedInMemoryDataReader(binary_data));
   uploader_.set_metadata("metadata_type", "METADATA");
-  util::Status got_status =
+  googleapis::util::Status got_status =
         uploader_.BuildRequest(&request_, MakePreparer());
   EXPECT_TRUE(got_status.ok()) << got_status.ToString();
   EXPECT_TRUE(uploader_.is_ready());
@@ -326,7 +325,7 @@ TEST_F(MediaUploaderFixture, TestBinaryMultipart) {
 
 TEST_F(MediaUploaderFixture, TestPrepareFailure) {
   uploader_.set_metadata("metadata_type", "METADATA");
-  util::Status got_status =
+  googleapis::util::Status got_status =
       uploader_.BuildRequest(
           &request_,
           NewCallback(this, &MediaUploaderFixture::PrepareUrl, NULL));

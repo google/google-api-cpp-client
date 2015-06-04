@@ -35,14 +35,12 @@ using std::string;
 #include "googleapis/client/util/test/googleapis_gtest.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_utils.h"
-#include "googleapis/util/filesystem.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
 #include <gmock/gmock.h>
 #include "googleapis/util/canonical_errors.h"
-#include "googleapis/util/status.h"
 #include "googleapis/util/status_test_util.h"
 
 namespace googleapis {
@@ -67,20 +65,20 @@ using client::StatusOk;
 
 class MockAuthorizationCredential : public AuthorizationCredential {
  public:
-  MOCK_CONST_METHOD0(type, const StringPiece());
-  MOCK_METHOD1(AuthorizeRequest, util::Status(HttpRequest* request));
-  MOCK_METHOD0(Refresh, util::Status());
+  MOCK_CONST_METHOD0(type, const string());
+  MOCK_METHOD1(AuthorizeRequest, googleapis::util::Status(HttpRequest* request));
+  MOCK_METHOD0(Refresh, googleapis::util::Status());
   MOCK_METHOD1(RefreshAsync, void(Callback1<util::Status>* callback));
-  MOCK_METHOD1(Load, util::Status(DataReader* reader));
+  MOCK_METHOD1(Load, googleapis::util::Status(DataReader* reader));
   MOCK_CONST_METHOD0(MakeDataReader, DataReader*());
 };
 
 class MockCodec : public Codec {
  public:
   MOCK_METHOD3(NewManagedEncodingReader,
-               DataReader*(DataReader*, Closure*, util::Status*));
+               DataReader*(DataReader*, Closure*, googleapis::util::Status*));
   MOCK_METHOD3(NewManagedDecodingReader,
-               DataReader*(DataReader*, Closure*, util::Status*));
+               DataReader*(DataReader*, Closure*, googleapis::util::Status*));
 };
 
 class MockCodecFactory : public CodecFactory {
@@ -95,14 +93,14 @@ class FileCredentialStoreFixture : public testing::Test {
     EXPECT_EQ(expect, got);
   }
 
-  void SetStatus(const util::Status& value, util::Status* status) {
+  void SetStatus(const googleapis::util::Status& value, googleapis::util::Status* status) {
     *status = value;
   }
 
   DataReader* NewTransformReader(
       const StringPiece& expect,
       const StringPiece& provide,
-      DataReader* reader, Closure* deleter, util::Status* status) {
+      DataReader* reader, Closure* deleter, googleapis::util::Status* status) {
     *status = StatusOk();
     EXPECT_EQ(expect, reader->RemainderToString());
     return NewManagedInMemoryDataReader(provide, deleter);
@@ -120,7 +118,7 @@ TEST_F(FileCredentialStoreFixture, TestCreateDir) {
   File::DeleteDir(kRoot.c_str());
   ASSERT_TRUE(util::IsNotFound(file::Exists(kRoot, file::Defaults())));
 
-  util::Status status;
+  googleapis::util::Status status;
   FileCredentialStoreFactory factory(kRoot);
   std::unique_ptr<CredentialStore> store(
       factory.NewCredentialStore(kClientId, &status));
@@ -153,7 +151,7 @@ TEST_F(FileCredentialStoreFixture, TestInvalidDir) {
     File::RecursivelyCreateDirWithPermissions(
         kRoot.c_str(), bad_permissions).ok());
 
-  util::Status status;
+  googleapis::util::Status status;
   FileCredentialStoreFactory factory(kRoot);
   std::unique_ptr<CredentialStore> store(
       factory.NewCredentialStore(kClientId, &status));
@@ -168,7 +166,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreFile) {
   const string kKey = "file";
   const string kFullPath = JoinPath(JoinPath(kRoot, kKey), kClientId);
 
-  util::Status status;
+  googleapis::util::Status status;
   FileCredentialStoreFactory factory(kRoot);
   std::unique_ptr<CredentialStore> store(
       factory.NewCredentialStore(kClientId, &status));
@@ -215,7 +213,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreEncodedFile) {
 
   // The factory will return our mock_codec, which we'll setup
   // below.
-  typedef Callback1< util::Status*> SetStatusCallback;
+  typedef Callback1< googleapis::util::Status*> SetStatusCallback;
   std::unique_ptr<SetStatusCallback> set_status(NewPermanentCallback(
       this, &FileCredentialStoreFixture::SetStatus, StatusOk()));
   EXPECT_CALL(*codec_factory, New(_))
@@ -230,7 +228,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreEncodedFile) {
   const string kKey = "file";
   const string kFullPath = JoinPath(JoinPath(kRoot, kKey), kClientId);
 
-  util::Status status;
+  googleapis::util::Status status;
   FileCredentialStoreFactory factory(kRoot);
   factory.set_codec_factory(codec_factory);
   std::unique_ptr<CredentialStore> store(
@@ -241,7 +239,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreEncodedFile) {
   const StringPiece kOriginalString("StringToStore");
   const StringPiece kExpectEncode("TheEncodedValue");
 
-  typedef ResultCallback3<DataReader*, DataReader*, Closure*, util::Status*>
+  typedef ResultCallback3<DataReader*, DataReader*, Closure*, googleapis::util::Status*>
       NewTransformReaderCallback;
   std::unique_ptr<NewTransformReaderCallback> encode_reader(
       NewPermanentCallback(

@@ -48,7 +48,6 @@ using std::string;
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/util.h"
 #include <gtest/gtest.h>
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -122,7 +121,7 @@ class OAuth2TestFixture : public testing::Test {
         new CurlHttpTransportFactory(config_.get()));
     credential_.reset(new OAuth2Credential);
 
-    util::Status status;
+    googleapis::util::Status status;
     installed_flow_.reset(
         OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
             FLAGS_installed_client_secrets_path,
@@ -139,7 +138,7 @@ class OAuth2TestFixture : public testing::Test {
     CHECK(status.ok()) << status.error_message();
   }
 
-  static util::Status PromptShellForAuthorizationCode(
+  static googleapis::util::Status PromptShellForAuthorizationCode(
       OAuth2AuthorizationFlow* flow,
       const OAuth2RequestOptions& options,
       string* authorization_code) {
@@ -172,7 +171,7 @@ class OAuth2TestFixture : public testing::Test {
     OAuth2Credential credential;
 
     OAuth2RequestOptions options;
-    util::Status status =
+    googleapis::util::Status status =
           flow->RefreshCredentialWithOptions(options, &credential);
     EXPECT_TRUE(status.ok()) << status.ToString();
     EXPECT_FALSE(credential.access_token().empty());
@@ -193,7 +192,7 @@ TEST_F(OAuth2TestFixture, VerifyProtectedUrl) {
 
 
 TEST_F(OAuth2TestFixture, TestRedirectToOutOfBand) {
-  util::Status status;
+  googleapis::util::Status status;
   std::unique_ptr<OAuth2AuthorizationFlow> flow(
       OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
           FLAGS_installed_client_secrets_path,

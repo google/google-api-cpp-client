@@ -19,22 +19,28 @@
 
 
 #include <stdio.h>
+#include <string.h>
+
 #include <iostream>
 using std::cout;
 using std::endl;
 using std::ostream;
 #include <memory>
+#include <string>
+using std::string;
 
 #ifdef _MSC_VER
 #include <tchar.h>
 #endif
-#include "googleapis/client/util/test/googleapis_gtest.h"
-#include <glog/logging.h>
 
+#include "googleapis/client/util/test/googleapis_gtest.h"
+#include "googleapis/client/util/status.h"
+#include <glog/logging.h>
 #include "googleapis/util/file.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
+
+using std::string;
 
 namespace {
 
@@ -61,9 +67,13 @@ static string tempnam(const char* ignore_dir, const char* prefix) {
 std::unique_ptr<string> default_tempdir_;
 
 void CreateTestingTempDir() {
+#if defined(__linux__)
+  default_tempdir_.reset(new string(mkdtemp("/tmp/gapi.XXXXXX")));
+#else
   default_tempdir_.reset(new string(tempnam(NULL, "gapi")));
+#endif
 
-  util::Status status =
+  googleapis::util::Status status =
         File::RecursivelyCreateDirWithPermissions(*default_tempdir_, S_IRWXU);
 
   // If this fails, maybe there was a race condition.

@@ -53,7 +53,7 @@ using client::MockHttpRequest;
 using client::MockHttpTransport;
 using client::kCRLF;
 
-const StringPiece kAuthorizationHeader("TestAuthorizationHeader");
+const char kAuthorizationHeader[] = "TestAuthorizationHeader";
 class FakeCredential : public AuthorizationCredential {
  public:
   explicit FakeCredential(const StringPiece& value)
@@ -62,8 +62,8 @@ class FakeCredential : public AuthorizationCredential {
   virtual ~FakeCredential() {}
   const string& fake_value() const { return value_; }
 
-  virtual const StringPiece type() const { return "FAKE"; }
-  virtual util::Status Refresh() {
+  virtual const string type() const { return "FAKE"; }
+  virtual googleapis::util::Status Refresh() {
     LOG(FATAL) << "Not expected";
     return client::StatusUnimplemented("Not expected");
   }
@@ -71,7 +71,7 @@ class FakeCredential : public AuthorizationCredential {
     LOG(FATAL) << "Not expected";
     callback->Run(client::StatusUnimplemented("Not expected"));
   }
-  virtual util::Status Load(DataReader* reader) {
+  virtual googleapis::util::Status Load(DataReader* reader) {
     LOG(FATAL) << "Not expected";
     return client::StatusUnimplemented("Not expected");
   }
@@ -79,7 +79,7 @@ class FakeCredential : public AuthorizationCredential {
     LOG(FATAL) << "Not expected";
     return NULL;
   }
-  virtual util::Status AuthorizeRequest(HttpRequest* request) {
+  virtual googleapis::util::Status AuthorizeRequest(HttpRequest* request) {
     request->AddHeader(kAuthorizationHeader, value_);
     return client::StatusOk();
   }
@@ -230,7 +230,7 @@ TEST_F(BatchTestFixture, TestAllOk) {
   EXPECT_EQ("https://www.googleapis.com/batch", batch->http_request().url());
   CHECK_EQ(batch->requests().size(), tests.size());
 
-  util::Status status = batch->Execute();
+  googleapis::util::Status status = batch->Execute();
   EXPECT_TRUE(status.ok()) << status.error_message();
   CheckResponse(tests, batch->requests());
 }
@@ -244,7 +244,7 @@ TEST_F(BatchTestFixture, TestPartialFailure) {
 
   std::unique_ptr<HttpRequestBatch> batch(MakeBatchRequest(tests, NULL));
 
-  util::Status status = batch->Execute();
+  googleapis::util::Status status = batch->Execute();
   EXPECT_TRUE(status.ok()) << status.error_message();
 
   CheckResponse(tests, batch->requests());
@@ -268,7 +268,7 @@ TEST_F(BatchTestFixture, TestWithCredentials) {
       MakeBatchRequest(tests, &outer_credential));
   CHECK_EQ(batch->requests().size(), tests.size());
 
-  util::Status status = batch->Execute();
+  googleapis::util::Status status = batch->Execute();
   EXPECT_TRUE(status.ok()) << status.error_message();
   CheckResponse(tests, batch->requests());
 }
@@ -294,7 +294,7 @@ TEST_F(BatchTestFixture, TestWithCallback) {
   CHECK_EQ(tests.size(), batch->requests().size());
 
   EXPECT_EQ(0, call_count);
-  util::Status status = batch->Execute();
+  googleapis::util::Status status = batch->Execute();
   EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(1, call_count);
   CheckResponse(tests, batch->requests());
@@ -318,7 +318,7 @@ TEST_F(BatchTestFixture, TestDeleteWithCallback) {
   EXPECT_EQ(1, call_count);
   CHECK_EQ(tests.size(), batch->requests().size());
 
-  util::Status status = batch->Execute();
+  googleapis::util::Status status = batch->Execute();
   EXPECT_TRUE(status.ok()) << status.error_message();
   CheckResponse(tests, batch->requests());
 }
@@ -335,7 +335,7 @@ TEST_F(BatchTestFixture, TestBatchAfterCreation) {
   std::unique_ptr<HttpRequestBatch> batch(MakeBatchRequest(tests, NULL));
   CHECK_EQ(batch->requests().size(), tests.size());
 
-  util::Status status = batch->Execute();
+  googleapis::util::Status status = batch->Execute();
   EXPECT_TRUE(status.ok()) << status.error_message();
   CheckResponse(tests, batch->requests());
 }
@@ -356,7 +356,7 @@ TEST_F(BatchTestFixture, TestMissingAndUnexpectedResponse) {
       *mock_response, third_result_id, "INVALID", true);
   *mock_response = hacked;
 
-  util::Status status = batch->Execute();
+  googleapis::util::Status status = batch->Execute();
   EXPECT_FALSE(status.ok());
   EXPECT_EQ(batch->batch_processing_status(), status);
   EXPECT_TRUE(batch->http_request().response()->ok());

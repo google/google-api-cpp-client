@@ -42,7 +42,7 @@ class Base64CodecTestFixture : public testing::Test {
 
 TEST_F(Base64CodecTestFixture, TestSimple) {
   Base64CodecFactory factory;
-  util::Status status;
+  googleapis::util::Status status;
   std::unique_ptr<Codec> codec(factory.New(&status));
   ASSERT_TRUE(status.ok()) << status.error_message();
 

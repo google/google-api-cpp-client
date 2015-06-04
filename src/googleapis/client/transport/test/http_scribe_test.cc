@@ -32,7 +32,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/util/status.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "googleapis/strings/strcat.h"
@@ -56,7 +55,7 @@ using testing::_;
 using testing::Invoke;
 using testing::Return;
 
-const StringPiece censored_base_url(
+const string censored_base_url(
     "https://accounts.google.com/o/oauth2/auth");
 
 static void SetHttpCode(int http_code, HttpResponse* response) {
@@ -64,7 +63,7 @@ static void SetHttpCode(int http_code, HttpResponse* response) {
 }
 
 static void SetTransportStatus(
-    const util::Status &status, HttpResponse* response) {
+    const googleapis::util::Status &status, HttpResponse* response) {
   response->mutable_request_state()->set_transport_status(status);
 }
 
@@ -82,10 +81,10 @@ class MockEntry : public HttpEntryScribe::Entry {
   MOCK_METHOD1(Received, void(const HttpRequest* request));
   MOCK_METHOD1(ReceivedBatch, void(const HttpRequestBatch* batch));
   MOCK_METHOD2(Failed,
-               void(const HttpRequest* request, const util::Status& status));
+               void(const HttpRequest* request, const googleapis::util::Status& status));
   MOCK_METHOD2(
       FailedBatch,
-      void(const HttpRequestBatch* batch, const util::Status& status));
+      void(const HttpRequestBatch* batch, const googleapis::util::Status& status));
 };
 
 class MockHttpEntryScribe : public HttpEntryScribe {
@@ -223,7 +222,7 @@ TEST_F(HttpScribeTestFixture, CensorRequestHeader) {
   std::unique_ptr<HttpScribeCensor> censor(new HttpScribeCensor);
   request_.set_url("https://www.google.com");
 
-  StringPiece value("value");
+  string value("value");
   bool censored = true;
   EXPECT_EQ(
       value,
@@ -273,7 +272,7 @@ TEST_F(HttpScribeTestFixture, ScribeRequestFailure) {
   MockHttpRequest request(HttpRequest::GET, &transport);
   MockEntry entry(&scribe, &request);
 
-  util::Status error = client::StatusInternalError("Failed");
+  googleapis::util::Status error = client::StatusInternalError("Failed");
   typedef Callback1<HttpResponse*> DoExecuteCallbackType;
   DoExecuteCallbackType* set_transport_status =
       NewCallback(&SetTransportStatus, error);
@@ -291,19 +290,19 @@ TEST_F(HttpScribeTestFixture, ScribeRequestFailure) {
 }
 
 TEST_F(HttpScribeTestFixture, HttpRequestCensoring) {
-  const StringPiece kUrl = "THE URL";
-  const StringPiece kRequestHeader = "A-REQUEST-HEADER";
-  const StringPiece kRequestHeaderValue = "REQUEST HEADER VALUE";
-  const StringPiece kResponseHeader = "A-RESPONSE-HEADER";
-  const StringPiece kResponseHeaderValue = "RESPONSE HEADER VALUE";
-  const StringPiece kRequestContent = "REQUEST CONTENT";
-  const StringPiece kResponseBody = "RESPONSE BODY";
+  const string kUrl = "THE URL";
+  const string kRequestHeader = "A-REQUEST-HEADER";
+  const string kRequestHeaderValue = "REQUEST HEADER VALUE";
+  const string kResponseHeader = "A-RESPONSE-HEADER";
+  const string kResponseHeaderValue = "RESPONSE HEADER VALUE";
+  const string kRequestContent = "REQUEST CONTENT";
+  const string kResponseBody = "RESPONSE BODY";
 
   MockHttpTransport transport;
   MockHttpRequest request(HttpRequest::POST, &transport);
   EXPECT_EQ(request.scribe_restrictions(), HttpScribe::ALLOW_EVERYTHING);
 
-  request.set_url(kUrl.as_string());
+  request.set_url(kUrl);
   request.AddHeader(kRequestHeader, kRequestHeaderValue);
   request.set_content_reader(NewUnmanagedInMemoryDataReader(kRequestContent));
   HttpResponse* response = request.response();

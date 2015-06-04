@@ -180,7 +180,7 @@ TEST_F(CompositeDataReaderTestFixture, CompositeResetFailure) {
   EXPECT_EQ(kExpect, s);
 
   // Test Reset
-  util::Status failure_status = StatusUnknown("Test Reset Failure");
+  googleapis::util::Status failure_status = StatusUnknown("Test Reset Failure");
   std::unique_ptr<Closure> poke_status(
       NewPermanentCallback(mock_reader,
                            &MockDataReader::poke_status, failure_status));
@@ -248,7 +248,7 @@ TEST_F(CompositeDataReaderTestFixture, CompositeStringErrors) {
   MockDataReader* mock_reader = new MockDataReader;
   vector<DataReader*>* list = MakeReaderList();
   list->push_back(mock_reader);
-  util::Status status(StatusUnknown("Test Error"));
+  googleapis::util::Status status(StatusUnknown("Test Error"));
   std::unique_ptr<DataReader> reader(
       NewManagedCompositeDataReader(
           *list, NewCompositeReaderListAndContainerDeleter(list)));

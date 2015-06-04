@@ -122,7 +122,7 @@ TEST_F(HtmlScribeTestFixture, TestGet) {
 
   // Dont show sensitive headers.
   EXPECT_NE(string::npos, output_.find(
-      HttpRequest::HttpHeader_AUTHORIZATION.as_string()));
+      string(HttpRequest::HttpHeader_AUTHORIZATION)));
   EXPECT_EQ(string::npos, output_.find(kAuthorization));
 
   // Show response stuff.

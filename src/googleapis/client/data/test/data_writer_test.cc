@@ -31,12 +31,9 @@ using std::string;
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/util/file.h"
-#include "googleapis/util/filesystem.h"
-#include "googleapis/util/helpers.h"
 #include "googleapis/strings/stringpiece.h"
 #include <gmock/gmock.h>
 #include "googleapis/util/canonical_errors.h"
-#include "googleapis/util/status.h"
 #include "googleapis/util/status_test_util.h"
 
 namespace googleapis {
@@ -60,10 +57,10 @@ class MockDataWriter : public DataWriter {
   MockDataWriter() {}
   ~MockDataWriter() override {}
 
-  MOCK_METHOD0(DoClear, util::Status());
-  MOCK_METHOD0(DoBegin, util::Status());
-  MOCK_METHOD0(DoEnd, util::Status());
-  MOCK_METHOD2(DoWrite, util::Status(int64 bytes, const char* buffer));
+  MOCK_METHOD0(DoClear, googleapis::util::Status());
+  MOCK_METHOD0(DoBegin, googleapis::util::Status());
+  MOCK_METHOD0(DoEnd, googleapis::util::Status());
+  MOCK_METHOD2(DoWrite, googleapis::util::Status(int64 bytes, const char* buffer));
   MOCK_METHOD1(DoNewDataReader, DataReader*(Closure* deleter));
 };
 

@@ -217,7 +217,7 @@ TEST_F(JsonCppAdapterFixture, LoadEmpty) {
   JsonCppCapsule<JsonCppData> data;
   string json = "{}";
   istringstream in(json);
-  util::Status status = data.LoadFromJsonStream(&in);
+  googleapis::util::Status status = data.LoadFromJsonStream(&in);
   EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_EQ(0, data.Storage().size());
 
@@ -244,7 +244,7 @@ TEST_F(JsonCppAdapterFixture, LoadStoreComplex) {
   // against the original value we manually constructed.
   JsonCppCapsule<JsonCppData> got;
   istringstream input(complex_json);
-  util::Status status = got.LoadFromJsonStream(&input);
+  googleapis::util::Status status = got.LoadFromJsonStream(&input);
   EXPECT_TRUE(status.ok()) << status.ToString();
   EXPECT_TRUE(value == got.Storage());
 
