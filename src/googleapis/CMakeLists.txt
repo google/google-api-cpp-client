@@ -42,7 +42,6 @@ base/stringprintf.h
 base/strtoint.h
 base/template_util.h
 base/thread_annotations.h
-base/type_traits.h
 base/windows_compatability.h
 DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/base)
 
@@ -50,7 +49,6 @@ install(FILES
 strings/ascii_ctype.h
 strings/case.h
 strings/escaping.h
-strings/fastmem.h
 strings/join.h
 strings/memutil.h
 strings/numbers.h
@@ -66,7 +64,6 @@ util/algorithm.h
 util/case_insensitive_hash.h
 util/executor.h
 util/file.h
-util/free_deleter.h
 util/hash.h
 util/mock_executor.h
 util/status.h
