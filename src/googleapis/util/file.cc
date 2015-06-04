@@ -44,11 +44,11 @@ using std::string;
 #include <vector>
 using std::vector;
 
+#include "googleapis/client/util/status.h"
 #include <glog/logging.h>
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/util.h"
-#include "googleapis/util/status.h"
 #include "googleapis/util/file.h"
 
 namespace googleapis {
@@ -305,14 +305,14 @@ util::Status File::RecursivelyCreateDirWithPermissions(
     string new_path = to_do.top().as_string();
     to_do.pop();
     if (mkdir(new_path.c_str(), permissions) != 0) {
-      util::Status status(util::error::UNKNOWN,
+      googleapis::util::Status status(util::error::UNKNOWN,
                           StrCat("Could not create directory ", new_path,
                                  ": ", strerror(errno)));
       LOG(ERROR) << status.error_message();
       return status;
     }
   }
-  return util::Status();  // OK
+  return googleapis::util::Status();  // OK
 }
 
 
@@ -371,12 +371,12 @@ bool File::Close() {
 
 util::Status File::Flush() {
 #ifdef _MSC_VER
-  return util::Status();
+  return googleapis::util::Status();
 #else
   do {
-    if (fsync(fd_) == 0) return util::Status();  // OK
+    if (fsync(fd_) == 0) return googleapis::util::Status();  // OK
   } while (errno == EINTR || errno == EAGAIN);
-  return util::Status(
+  return googleapis::util::Status(
       util::error::UNKNOWN,
       StrCat("Could not flush file:", strerror(errno)));
 #endif
@@ -403,10 +403,10 @@ util::Status File::WriteString(const StringPiece& bytes) {
         len = 0;
         continue;
       }
-      return util::Status(util::error::DATA_LOSS, "Error writing to file");
+      return googleapis::util::Status(util::error::DATA_LOSS, "Error writing to file");
     }
   }
-  return util::Status();  // OK
+  return googleapis::util::Status();  // OK
 }
 
 util::Status File::Read(char* buffer, int64 len, int64* got) {
@@ -416,8 +416,8 @@ util::Status File::Read(char* buffer, int64 len, int64* got) {
       if (errno == EAGAIN) {
         continue;
       }
-      util::Status status =
-          util::Status(util::error::UNKNOWN,
+      googleapis::util::Status status =
+          googleapis::util::Status(util::error::UNKNOWN,
                        StrCat("Error reading from file: ",
                               strerror(errno)));
       LOG(ERROR) << status.error_message();
@@ -428,17 +428,17 @@ util::Status File::Read(char* buffer, int64 len, int64* got) {
     *got += in;
     buffer += in;
   }
-  return util::Status();  // OK
+  return googleapis::util::Status();  // OK
 }
 
 /* static */
 util::Status File::WritePath(const string& path, const StringPiece& data) {
   File* file = File::Open(path, "wb");
   if (!file) {
-    return util::Status(util::error::INVALID_ARGUMENT,
+    return googleapis::util::Status(util::error::INVALID_ARGUMENT,
                         "Could not write to file");
   }
-  util::Status status = file->WriteString(data);
+  googleapis::util::Status status = file->WriteString(data);
   file->Close();
   return status;
 }
@@ -452,18 +452,18 @@ util::Status File::ReadPath(const string& path, string* s) {
   if (fd < 0) {
     string error(strerror(errno));
     LOG(ERROR) << "Error opening " << native_path << ": " << error;
-    return util::Status(util::error::NOT_FOUND, error);
+    return googleapis::util::Status(util::error::NOT_FOUND, error);
   }
 
   char buffer[1 << 10];  // Use a 1k buffer to keep down stack size.
-  util::Status status;
+  googleapis::util::Status status;
   do {
     ssize_t len = read(fd, buffer, sizeof(buffer));
     if (len == -1) {
       if ((errno == EAGAIN) || (errno == EINTR)) continue;
       string error = strerror(errno);
       LOG(ERROR) << error;
-      status = util::Status(util::error::DATA_LOSS, error);
+      status = googleapis::util::Status(util::error::DATA_LOSS, error);
       break;
     } else if (!len) {
       break;
@@ -484,9 +484,9 @@ util::Status File::Seek(int64 pos, const file::Options& options) {
       continue;
     }
     if (now == pos) {
-      return util::Status();
+      return googleapis::util::Status();
     }
-    return util::Status(util::error::UNKNOWN,
+    return googleapis::util::Status(util::error::UNKNOWN,
                         StrCat("Seek failed. errno=", errno));
   }
 }

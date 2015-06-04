@@ -18,8 +18,8 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_AUTH_OAUTH2_PENDING_AUTHORIZATIONS_H_
-#define APISERVING_CLIENTS_CPP_AUTH_OAUTH2_PENDING_AUTHORIZATIONS_H_
+#ifndef GOOGLEAPIS_AUTH_OAUTH2_PENDING_AUTHORIZATIONS_H_
+#define GOOGLEAPIS_AUTH_OAUTH2_PENDING_AUTHORIZATIONS_H_
 
 #include <stdlib.h>
 #include <map>
@@ -27,15 +27,15 @@ using std::map;
 #include <string>
 using std::string;
 
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
 #include "googleapis/base/thread_annotations.h"
-#include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/numbers.h"
+#include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/hash.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -57,7 +57,7 @@ namespace client {
  *                   reason, such as a timeout.
  * @param[in] code The authorization code if ok, otherwise ignored.
  */
-typedef Callback2<const util::Status&, const StringPiece&>
+typedef Callback2<const googleapis::util::Status&, const StringPiece&>
   OAuth2BasicAuthorizationCodeNotificationHandler;
 
 /*
@@ -133,4 +133,4 @@ class OAuth2PendingAuthorizations {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_AUTH_OAUTH2_PENDING_AUTHORIZATIONS_H_
+#endif  // GOOGLEAPIS_AUTH_OAUTH2_PENDING_AUTHORIZATIONS_H_

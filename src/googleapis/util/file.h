@@ -56,8 +56,9 @@
 
 #include <string>
 using std::string;
+
+#include "googleapis/client/util/status.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace file {
@@ -100,10 +101,10 @@ class File {
   static bool DeleteDir(const string& path);
   static bool RecursivelyDeleteDir(const string& path);
 
-  static util::Status RecursivelyCreateDirWithPermissions(
+  static googleapis::util::Status RecursivelyCreateDirWithPermissions(
       const string& path, mode_t permissions);
-  static util::Status ReadPath(const string& path, string* s);
-  static util::Status WritePath(const string& path, const StringPiece& s);
+  static googleapis::util::Status ReadPath(const string& path, string* s);
+  static googleapis::util::Status WritePath(const string& path, const StringPiece& s);
 
   // Returns the path to the current running program.
   static string GetCurrentProgramFilenamePath();
@@ -123,14 +124,14 @@ class File {
   bool Close();
 
 
-  util::Status Flush();
-  util::Status Write(const char* buffer, int64 length) {
+  googleapis::util::Status Flush();
+  googleapis::util::Status Write(const char* buffer, int64 length) {
     return WriteString(StringPiece(buffer, length));
   }
-  util::Status WriteString(const StringPiece& bytes);
-  util::Status ReadToString(string* output);
-  util::Status Read(char* buffer, int64 length, int64* got);
-  util::Status Seek(int64 position, const file::Options& options);
+  googleapis::util::Status WriteString(const StringPiece& bytes);
+  googleapis::util::Status ReadToString(string* output);
+  googleapis::util::Status Read(char* buffer, int64 length, int64* got);
+  googleapis::util::Status Seek(int64 position, const file::Options& options);
   int64 Tell();
   int64 Size();
 

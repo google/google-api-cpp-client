@@ -36,7 +36,6 @@ using std::string;
 #include <glog/logging.h>
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -61,7 +60,7 @@ util::Status FileDataWriter::DoBegin() {
   if (file_) file_->Close();
   file_ = File::OpenWithOptions(path_, "w", options_);
   if (!file_) {
-    util::Status status =
+    googleapis::util::Status status =
         StatusInvalidArgument(StrCat("Could not open ", path_));
     LOG(WARNING) << status.error_message();
     return status;

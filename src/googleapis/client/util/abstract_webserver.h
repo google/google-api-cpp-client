@@ -35,8 +35,8 @@
  * more stictly separated.
  */
 
-#ifndef APISERVING_CLIENTS_CPP_UTIL_ABSTRACT_WEBSERVER_H_
-#define APISERVING_CLIENTS_CPP_UTIL_ABSTRACT_WEBSERVER_H_
+#ifndef GOOGLEAPIS_UTIL_ABSTRACT_WEBSERVER_H_
+#define GOOGLEAPIS_UTIL_ABSTRACT_WEBSERVER_H_
 
 #include <memory>
 #include <string>
@@ -46,11 +46,11 @@ using std::make_pair;
 using std::pair;
 #include <vector>
 using std::vector;
+#include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -78,7 +78,7 @@ class WebServerResponse {
    *
    * @return ok or reason for failure.
    */
-  util::Status SendHtml(int http_code, const StringPiece& body) {
+  googleapis::util::Status SendHtml(int http_code, const StringPiece& body) {
     return SendReply("text/html", http_code, body);
   }
 
@@ -90,7 +90,7 @@ class WebServerResponse {
    *
    * @return ok or reason for failure.
    */
-  util::Status SendText(int http_code, const StringPiece& body) {
+  googleapis::util::Status SendText(int http_code, const StringPiece& body) {
     return SendReply("text/plain", http_code, body);
   }
 
@@ -102,7 +102,7 @@ class WebServerResponse {
    *
    * @return ok or reason for failure.
    */
-  virtual util::Status SendRedirect(
+  virtual googleapis::util::Status SendRedirect(
       int http_code, const StringPiece& url);
 
   /*
@@ -114,7 +114,7 @@ class WebServerResponse {
    *
    * @return ok or reason for failure.
    */
-  virtual util::Status SendReply(
+  virtual googleapis::util::Status SendReply(
       const StringPiece& content_type,
       int http_code,
       const StringPiece& body) = 0;
@@ -128,7 +128,7 @@ class WebServerResponse {
    * @param[in] name The name of header to add.
    * @param[in] value The value of the header.
    */
-  virtual util::Status AddHeader(
+  virtual googleapis::util::Status AddHeader(
       const StringPiece& name, const StringPiece& value) = 0;
 
   /*
@@ -139,7 +139,7 @@ class WebServerResponse {
    * @param[in] name The name of header to add.
    * @param[in] value The value of the header.
    */
-  virtual util::Status AddCookie(
+  virtual googleapis::util::Status AddCookie(
       const StringPiece& name, const StringPiece& value) = 0;
 
  private:
@@ -210,7 +210,7 @@ class AbstractWebServer {
    * @param[in] request for the request being processed.
    * @return ok or reason for failure.
    */
-  typedef ResultCallback1< util::Status, WebServerRequest*> PathHandler;
+  typedef ResultCallback1< googleapis::util::Status, WebServerRequest*> PathHandler;
 
   /*
    * Constructs an http server on the given port
@@ -234,7 +234,7 @@ class AbstractWebServer {
    *
    * @return ok or reason for error.
    */
-  util::Status Startup();
+  googleapis::util::Status Startup();
 
   /*
    * Stops the server.
@@ -277,7 +277,7 @@ class AbstractWebServer {
   virtual string url_protocol() const;
 
  protected:
-  virtual util::Status DoStartup() = 0;
+  virtual googleapis::util::Status DoStartup() = 0;
   virtual void DoShutdown() = 0;
 
   /*
@@ -288,7 +288,7 @@ class AbstractWebServer {
    *
    * @param[in] request The request from the web server.
    */
-  virtual util::Status DoHandleRequest(WebServerRequest* request);
+  virtual googleapis::util::Status DoHandleRequest(WebServerRequest* request);
 
  private:
   int port_;
@@ -302,4 +302,4 @@ class AbstractWebServer {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_UTIL_ABSTRACT_WEBSERVER_H_
+#endif  // GOOGLEAPIS_UTIL_ABSTRACT_WEBSERVER_H_

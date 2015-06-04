@@ -52,10 +52,10 @@ class FileCredentialStore : public CredentialStore {
   }
   virtual ~FileCredentialStore() {}
 
-  util::Status InitCredential(
+  googleapis::util::Status InitCredential(
        const StringPiece& user, AuthorizationCredential* credential) {
     const string path = UserToPath(user);
-    util::Status status =
+    googleapis::util::Status status =
           SensitiveFileUtils::VerifyIsSecureFile(path, true);
     if (!status.ok()) return status;
 
@@ -67,11 +67,11 @@ class FileCredentialStore : public CredentialStore {
     return credential->Load(decoder.get());
   }
 
-  util::Status Store(
+  googleapis::util::Status Store(
        const StringPiece& user, const AuthorizationCredential& credential) {
     std::unique_ptr<DataReader> credential_reader(credential.MakeDataReader());
     string dir_path = UserToDir(user);
-    util::Status status =
+    googleapis::util::Status status =
           SensitiveFileUtils::CreateSecureDirectoryRecursively(dir_path);
     if (!status.ok()) return status;
 
@@ -91,7 +91,7 @@ class FileCredentialStore : public CredentialStore {
         serialized, file_path, true);
   }
 
-  util::Status Delete(const StringPiece& user) {
+  googleapis::util::Status Delete(const StringPiece& user) {
     return SensitiveFileUtils::DeleteSensitiveFile(UserToPath(user));
   }
 
@@ -126,7 +126,7 @@ util::Status FileCredentialStoreFactory::GetSystemHomeDirectoryStorePath(
 
   const char* home = getenv(kVariableName);
   if (home == NULL) {
-    util::Status status =  StatusInternalError(
+    googleapis::util::Status status =  StatusInternalError(
         StrCat(kVariableName, " environment variable is not defined"));
     LOG(WARNING) << status.error_message();
     return status;
@@ -151,7 +151,7 @@ FileCredentialStoreFactory::~FileCredentialStoreFactory() {
 }
 
 CredentialStore* FileCredentialStoreFactory::NewCredentialStore(
-    const string& client_id, util::Status* status) const {
+    const string& client_id, googleapis::util::Status* status) const {
   *status = SensitiveFileUtils::CreateSecureDirectoryRecursively(root_path_);
   if (status->ok()) {
     std::unique_ptr<FileCredentialStore> store(

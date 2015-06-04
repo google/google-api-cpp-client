@@ -17,8 +17,8 @@
  * @}
  */
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_SCRIBE_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_SCRIBE_H_
+#ifndef GOOGLEAPIS_TRANSPORT_HTTP_SCRIBE_H_
+#define GOOGLEAPIS_TRANSPORT_HTTP_SCRIBE_H_
 
 #include <deque>
 #include <map>
@@ -30,20 +30,18 @@ using std::string;
 #include <vector>
 using std::vector;
 #include "googleapis/client/transport/http_request_batch.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/integral_types.h"
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
 #include "googleapis/base/thread_annotations.h"
-#include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
+namespace googleapis {
 
 namespace client {
 class HttpRequestBatch;
 class HttpRequest;
 class ParsedUrl;
-
-using googleapis::StringPiece;
 
 /*
  * Determines what is appropriate for scribes to record.
@@ -125,7 +123,7 @@ class HttpScribeCensor {
    */
   virtual string GetCensoredRequestHeaderValue(
       const HttpRequest& request,
-      const StringPiece& name, const StringPiece& value,
+      const string& name, const string& value,
       bool* censored) const;
 
   /*
@@ -140,7 +138,7 @@ class HttpScribeCensor {
    */
   virtual string GetCensoredResponseHeaderValue(
       const HttpRequest& request,
-      const StringPiece& name, const StringPiece& value,
+      const string& name, const string& value,
       bool* censored) const;
 
   /*
@@ -304,9 +302,9 @@ class HttpScribe {
    * @param[in] error The transport error.
    */
   virtual void RequestFailedWithTransportError(
-      const HttpRequest* request, const util::Status& error) = 0;
+      const HttpRequest* request, const googleapis::util::Status& error) = 0;
   virtual void RequestBatchFailedWithTransportError(
-      const HttpRequestBatch* batch, const util::Status& error) = 0;
+      const HttpRequestBatch* batch, const googleapis::util::Status& error) = 0;
 
   void reset_censor(HttpScribeCensor* censor) {
     censor_.reset(censor);
@@ -444,9 +442,9 @@ class HttpEntryScribe : public HttpScribe {
      * @param[in] status Explains te error.
      */
     virtual void Failed(
-        const HttpRequest* request, const util::Status& status) = 0;
+        const HttpRequest* request, const googleapis::util::Status& status) = 0;
     virtual void FailedBatch(
-        const HttpRequestBatch* batch, const util::Status& status) = 0;
+        const HttpRequestBatch* batch, const googleapis::util::Status& status) = 0;
 
     /*
      * Returns the age of this intance.
@@ -557,9 +555,9 @@ class HttpEntryScribe : public HttpScribe {
    * @param[in] error An explanation of the failure.
    */
   virtual void RequestFailedWithTransportError(
-      const HttpRequest* request, const util::Status& error);
+      const HttpRequest* request, const googleapis::util::Status& error);
   virtual void RequestBatchFailedWithTransportError(
-      const HttpRequestBatch* batch, const util::Status& error);
+      const HttpRequestBatch* batch, const googleapis::util::Status& error);
 
  protected:
   /*
@@ -638,8 +636,7 @@ class HttpEntryScribe : public HttpScribe {
       = 0;
   virtual Entry* NewBatchEntry(const HttpRequestBatch* batch)
       EXCLUSIVE_LOCKS_REQUIRED(mutex_) {
-    LOG(FATAL) << "Not Implemented";  // Remove #include logging.h with this.
-namespace googleapis {
+    LOG(FATAL) << "Not Implemented";
     return NULL;
   }
 
@@ -662,4 +659,4 @@ namespace googleapis {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_SCRIBE_H_
+#endif  // GOOGLEAPIS_TRANSPORT_HTTP_SCRIBE_H_

@@ -28,8 +28,8 @@
  * defines are used throughout the Google APIs Client Libraries for C++ to
  * help facilitate passing data through the various components and subsystems.
  */
-#ifndef APISERVING_CLIENTS_CPP_DATA_DATA_READER_H_
-#define APISERVING_CLIENTS_CPP_DATA_DATA_READER_H_
+#ifndef GOOGLEAPIS_DATA_DATA_READER_H_
+#define GOOGLEAPIS_DATA_DATA_READER_H_
 
 #include <istream>  // NOLINT
 #include <string>
@@ -37,11 +37,11 @@ using std::string;
 #include <vector>
 using std::vector;
 
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 
@@ -169,7 +169,7 @@ class DataReader {
    * @return a successful status if the stream is ok, otherwise the
    * error encounteredd.
    */
-  util::Status status() const { return status_; }
+  googleapis::util::Status status() const { return status_; }
 
   /*
    * Returns the current offset in the byte sequence.
@@ -400,7 +400,7 @@ class DataReader {
   Closure* deleter_;       // Can be NULL
   int64 total_length_;     // < 0 if unknown
   int64 offset_;           // bytes read so far
-  util::Status status_;  // ok() unless in an error state.
+  googleapis::util::Status status_;  // ok() unless in an error state.
   bool done_;              // we'll never return any more data (e.g. eof)
 
   DISALLOW_COPY_AND_ASSIGN(DataReader);
@@ -420,7 +420,7 @@ class DataReader {
  * It is a placeholder value so that DataReaders are never NULL.
  */
 DataReader* NewManagedInvalidDataReader(
-    util::Status status, Closure* deleter);
+    googleapis::util::Status status, Closure* deleter);
 
 /*
  * Returns an unmanaged invalid data reader.
@@ -717,4 +717,4 @@ DataReader* NewUnmanagedIstreamDataReaderWithLength(
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_DATA_DATA_READER_H_
+#endif  // GOOGLEAPIS_DATA_DATA_READER_H_

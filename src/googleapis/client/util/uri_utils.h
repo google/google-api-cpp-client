@@ -24,8 +24,8 @@
  * The URI Support module provides various classes and free
  * functions to support the use and application of URIs in general.
  */
-#ifndef APISERVING_CLIENTS_CPP_UTIL_URI_UTILS_H_
-#define APISERVING_CLIENTS_CPP_UTIL_URI_UTILS_H_
+#ifndef GOOGLEAPIS_UTIL_URI_UTILS_H_
+#define GOOGLEAPIS_UTIL_URI_UTILS_H_
 
 #include <string>
 using std::string;
@@ -347,4 +347,4 @@ void AppendIteratorToUrl(
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_UTIL_URI_UTILS_H_
+#endif  // GOOGLEAPIS_UTIL_URI_UTILS_H_

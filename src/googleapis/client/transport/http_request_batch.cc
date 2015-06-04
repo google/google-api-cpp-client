@@ -32,9 +32,7 @@ using std::vector;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/case.h"
-#include "googleapis/strings/split.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/strip.h"
 
 namespace googleapis {
 
@@ -122,7 +120,7 @@ static StringPiece GetMultipartBlock(
 
 // Given an indivdiual response, verify that it makes sense and identify
 // the original HttpRequest (our specialized IndividualRequest) that it is for.
-static util::Status ExtractPartResponse(
+static googleapis::util::Status ExtractPartResponse(
     const StringPiece& multipart_block,
     std::set<HttpRequest*>* expected_requests,  // remove the one we find.
     StringPiece* http_response_message,    // subset of multipart_block on out
@@ -143,8 +141,8 @@ static util::Status ExtractPartResponse(
                   multipart_block.size()
                   - double_eoln_offset - kCRLFCRLF.size());
 
-  string batch_metadata =
-      strings::ToLower(multipart_block.substr(0, end_metadata));
+  string batch_metadata(multipart_block.data(), end_metadata);
+  LowerString(&batch_metadata);
   if (batch_metadata.find("content-type: application/http\r\n")
       == string::npos) {
     return StatusUnknown("Missing or wrong batch part content-type");
@@ -178,7 +176,7 @@ static util::Status ExtractPartResponse(
   return StatusOk();
 }
 
-static util::Status ResolveResponses(
+static googleapis::util::Status ResolveResponses(
     const string& boundary_text,
     DataReader* reader,
     std::vector<HttpRequest*>* requests) {
@@ -187,8 +185,8 @@ static util::Status ResolveResponses(
       StrCat(kCRLF, "--", boundary_text, "--", kCRLF);
   string whole_response = reader->RemainderToString();
 
-  util::Status return_status = StatusOk();
-  util::Status transport_status = StatusOk();
+  googleapis::util::Status return_status = StatusOk();
+  googleapis::util::Status transport_status = StatusOk();
   if (!StringPiece(whole_response).starts_with(
           kBoundaryMarker.c_str() + kCRLF.size())) {
     transport_status = StatusUnknown(
@@ -227,7 +225,7 @@ static util::Status ResolveResponses(
         whole_response, offset,
         kBoundaryMarker, kLastBoundaryMarker, &processing_last, &next_offset);
     if (next_offset == string::npos) {
-      util::Status status =
+      googleapis::util::Status status =
           StatusUnknown("Missing closing multipart boundary marker.");
       if (return_status.ok()) {
         return_status = status;
@@ -241,7 +239,7 @@ static util::Status ResolveResponses(
     IndividualRequest* individual_request;
     StringPiece part_request_response_text;
 
-    util::Status status = ExtractPartResponse(
+    googleapis::util::Status status = ExtractPartResponse(
         this_multipart_block, &expected_requests,
         &part_request_response_text, &individual_request);
     if (!status.ok()) {
@@ -266,7 +264,7 @@ static util::Status ResolveResponses(
   }
 
   if (!expected_requests.empty()) {
-    util::Status missing_error =
+    googleapis::util::Status missing_error =
         StatusUnknown("Never received response for batched request");
     for (std::set<HttpRequest*>::iterator it = expected_requests.begin();
          it != expected_requests.end();
@@ -288,15 +286,14 @@ static util::Status ResolveResponses(
   return return_status;
 }
 
-const StringPiece DEFAULT_BATCH_REQUEST_URL =
-    "https://www.googleapis.com/batch";
+const char DEFAULT_BATCH_REQUEST_URL[] = "https://www.googleapis.com/batch";
 
 }  // anonymous namespace
 
 HttpRequestBatch::HttpRequestBatch(HttpTransport* transport)
     : http_request_(transport->NewHttpRequest(HttpRequest::POST)),
       boundary_("bAtch bOundAry") {
-  http_request_->set_url(DEFAULT_BATCH_REQUEST_URL.as_string());
+  http_request_->set_url(DEFAULT_BATCH_REQUEST_URL);
 
   // If we are scribing a transcript then dont show the details of this
   // low level message because we'll already be showing the high level batch
@@ -353,7 +350,7 @@ util::Status HttpRequestBatch::Execute() {
     scribe->AboutToSendRequestBatch(this);
   }
 
-  util::Status status = http_request_->Execute();
+  googleapis::util::Status status = http_request_->Execute();
   ProcessHttpResponse(NULL, http_request_.get());
   return batch_processing_status_;
 }
@@ -399,7 +396,7 @@ void HttpRequestBatch::PrepareFinalHttpRequest() {
     // Normally this happens in the HTTP's Execute method
     // but we are bypassing that.
     if (part->credential()) {
-      util::Status auth_status = part->credential()->AuthorizeRequest(part);
+      googleapis::util::Status auth_status = part->credential()->AuthorizeRequest(part);
       if (!auth_status.ok()) {
         LOG(ERROR) << "Failed to authorize batched request: "
                    << auth_status.error_message();
@@ -460,8 +457,7 @@ void HttpRequestBatch::ProcessHttpResponse(
 
   const char kBoundaryMarker[] = "boundary=";
   HttpHeaderMultiMap::const_iterator found_content_type =
-      response->headers().find(
-          HttpRequest::HttpHeader_CONTENT_TYPE.as_string());
+      response->headers().find(HttpRequest::HttpHeader_CONTENT_TYPE);
   const string kEmpty;
   const string& content_type = found_content_type == response->headers().end()
       ? kEmpty

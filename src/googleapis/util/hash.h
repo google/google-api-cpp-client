@@ -77,7 +77,7 @@ inline uint64 Hash64NumWithSeed(uint64 num, uint64 c) {
 uint64 Hash64StringWithSeed(const char *s, uint32 len, uint64 seed);
 
 // not implemented but referenced by stringpiece
-uint32 Hash32StringWithSeedReferenceImplementation(const char *s, uint32 len,
+uint32 Hash32StringWithSeedReferenceImplementation(const char *s, size_t len,
                                                    uint32 seed);
 
 inline size_t HashTo32(const char* s, size_t len) {

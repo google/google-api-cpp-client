@@ -26,14 +26,14 @@
  * Google Client for C++ library so defined here rather in base/file for
  * internal management reasons.
  */
-#ifndef APISERVING_CLIENTS_CPP_UTIL_FILE_UTILS_H_
-#define APISERVING_CLIENTS_CPP_UTIL_FILE_UTILS_H_
+#ifndef GOOGLEAPIS_UTIL_FILE_UTILS_H_
+#define GOOGLEAPIS_UTIL_FILE_UTILS_H_
 
 #include <sys/stat.h>
 #include <string>
 using std::string;
+#include "googleapis/client/util/status.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -62,7 +62,7 @@ class SensitiveFileUtils {
    * @return ok status if it is secure,
    *         otherwise an error explaining the concern.
    */
-  static util::Status
+  static googleapis::util::Status
   VerifyIsSecureFile(const string& path, bool writable_allowed);
 
   /*
@@ -72,7 +72,7 @@ class SensitiveFileUtils {
    * @return ok status if it is secure,
    *         otherwise an error explaining the concern.
    */
-  static util::Status VerifyIsSecureDirectory(const string& path);
+  static googleapis::util::Status VerifyIsSecureDirectory(const string& path);
 
   /*
    * Creates a secure directory at the specified path if it does not
@@ -85,7 +85,7 @@ class SensitiveFileUtils {
    * @return ok if the path exists as a secure directory when done.
    *         Otherwise an error indicating why it could not be created.
    */
-  static util::Status
+  static googleapis::util::Status
   CreateSecureDirectoryRecursively(const string& path);
 
   /*
@@ -98,7 +98,7 @@ class SensitiveFileUtils {
    *            path. Otherwise fail if a file already exists.
    * @return ok or reason for failure to write the file.
    */
-  static util::Status
+  static googleapis::util::Status
   WriteSensitiveStringToFile(
       const StringPiece& data, const string& path, bool overwrite);
 
@@ -113,10 +113,10 @@ class SensitiveFileUtils {
    * @return ok if the file could be deleted,
    *         otherwise an error explaining the failure.
    */
-  static util::Status DeleteSensitiveFile(const string& path);
+  static googleapis::util::Status DeleteSensitiveFile(const string& path);
 };
 
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_UTIL_FILE_UTILS_H_
+#endif  // GOOGLEAPIS_UTIL_FILE_UTILS_H_

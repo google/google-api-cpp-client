@@ -19,15 +19,15 @@
 
 
 #include <errno.h>
+#include <string.h>
+
 #include <string>
 using std::string;
 #include <utility>
 using std::make_pair;
 using std::pair;
+
 #include "googleapis/client/util/status.h"
-#include "googleapis/strings/numbers.h"
-#include "googleapis/strings/strcat.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -141,7 +141,11 @@ CodeNamePair HttpCodeToPair(int http_status) {
         msg = "Unknown";
       }
   }
-  return std::make_pair(code, StrCat("Http(", http_status, ") ", msg));
+  string result("Http(");
+  result.append(std::to_string(http_status));
+  result.append(") ");
+  result.append(msg);
+  return std::make_pair(code, result);
 }
 
 CodeNamePair ErrnoCodeToPair(int errno_code) {
@@ -184,9 +188,9 @@ util::error::Code ErrnoCodeToStatusEnum(int errno_code) {
   return ErrnoCodeToPair(errno_code).first;
 }
 
-util::Status StatusFromErrno(int errno_code, const StringPiece& msg) {
+util::Status StatusFromErrno(int errno_code, const string& msg) {
   CodeNamePair values = ErrnoCodeToPair(errno_code);
-  return util::Status(values.first, msg.empty() ? values.second : msg);
+  return googleapis::util::Status(values.first, msg.empty() ? values.second : msg);
 }
 
 
@@ -198,9 +202,9 @@ const string HttpCodeToHttpErrorMessage(int http_status) {
   return HttpCodeToPair(http_status).second;
 }
 
-util::Status StatusFromHttp(int http_status, const StringPiece& msg) {
+util::Status StatusFromHttp(int http_status, const string& msg) {
   CodeNamePair values = HttpCodeToPair(http_status);
-  return util::Status(values.first, msg.empty() ? values.second : msg);
+  return googleapis::util::Status(values.first, msg.empty() ? values.second : msg);
 }
 
 }  // namespace client

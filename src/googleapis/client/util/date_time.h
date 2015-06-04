@@ -18,8 +18,8 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_UTIL_DATE_TIME_H_
-#define APISERVING_CLIENTS_CPP_UTIL_DATE_TIME_H_
+#ifndef GOOGLEAPIS_UTIL_DATE_TIME_H_
+#define GOOGLEAPIS_UTIL_DATE_TIME_H_
 
 #include <time.h>
 #ifndef _MSC_VER
@@ -34,12 +34,12 @@ using std::string;
 #include "googleapis/base/port.h"
 namespace googleapis {
 #ifdef _MSC_VER
-inline int localtime_r(const long* tv_secs, struct tm* out) {
+inline int localtime_r(const long* tv_secs, struct tm* out) {  // NOLINT
   time_t secs = *tv_secs;
   return _localtime64_s(out, &secs);
 }
 
-inline void gmtime_r(const long* secs, struct tm* out) {
+inline void gmtime_r(const long* secs, struct tm* out) {  // NOLINT
   time_t timer = *secs;
   gmtime_s(out, &timer);
 }
@@ -266,4 +266,4 @@ class Date {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_UTIL_DATE_TIME_H_
+#endif  // GOOGLEAPIS_UTIL_DATE_TIME_H_

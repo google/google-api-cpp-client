@@ -20,10 +20,10 @@
 
 #ifndef GOOGLEAPIS_UTIL_TASK_STATUS_H_
 #define GOOGLEAPIS_UTIL_TASK_STATUS_H_
+
 #include <string>
-using std::string;
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
+using std::string;
 
 namespace util {
 namespace error {
@@ -113,8 +113,8 @@ class Status {
    * @param[in] code The status code for the instance.
    * @param[in] msg If the code is other than OK then this should not be empty.
    */
-  Status(googleapis::util::error::Code code, const StringPiece& msg)
-      : code_(code), msg_(msg.as_string()) {}
+  Status(googleapis::util::error::Code code, const std::string& msg)
+      : code_(code), msg_(msg) {}
 
   /*
    * Copy constructor.
@@ -151,7 +151,7 @@ class Status {
   /*
    * Get explanation bound at construction.
    */
-  const string& error_message() const  { return msg_; }
+  const std::string& error_message() const  { return msg_; }
 
   /*
    * Get error_code bound at construction.
@@ -166,7 +166,7 @@ class Status {
    *
    * @see error_message()
    */
-  string ToString() const;
+  std::string ToString() const;
 
   /*
    * This method is a NOP that confirms we are ignoring a status.
@@ -175,7 +175,7 @@ class Status {
 
  private:
   googleapis::util::error::Code code_;
-  string msg_;
+  std::string msg_;
 };
 
 }  // namespace util

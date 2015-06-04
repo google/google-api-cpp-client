@@ -18,8 +18,8 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_REQUEST_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_REQUEST_H_
+#ifndef GOOGLEAPIS_TRANSPORT_HTTP_REQUEST_H_
+#define GOOGLEAPIS_TRANSPORT_HTTP_REQUEST_H_
 
 #include <memory>
 #include <string>
@@ -27,9 +27,8 @@ using std::string;
 
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/transport/http_types.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -37,6 +36,7 @@ class AuthorizationCredential;
 class DataReader;
 class HttpRequest;
 class HttpResponse;
+class HttpScribe;
 class HttpTransport;
 
 /*
@@ -74,14 +74,14 @@ class HttpTransport;
 class HttpRequest {
  public:
   /*
-   * Methods are just a free-form StringPiece typedefed to clarify the API.
+   * Methods are just a free-form strings typedefed to clarify the API.
    *
    * Some HTTP servers may use extensions or define non-standard methods.
-   * This type is a free-form StringPiece to accomodate those values.
+   * This type is a free-form strings to accomodate those values.
    * It is suggested, but not required, you use the standard value constants
    * if you can.
    */
-  typedef StringPiece HttpMethod;
+  typedef string HttpMethod;
 
   static const HttpMethod DELETE;  // RFC 2616 DELETE
   static const HttpMethod GET;     // RFC 2616 GET
@@ -93,24 +93,24 @@ class HttpRequest {
   // Any content-type is valid. These are just symbolic names for ones
   // explicitly used within the client libraries.
 
-  static const StringPiece ContentType_HTML;               // text/html
-  static const StringPiece ContentType_JSON;               // application/json
-  static const StringPiece ContentType_TEXT;               // text/plain
-  static const StringPiece ContentType_MULTIPART_MIXED;    // multipart/mixed
-  static const StringPiece ContentType_MULTIPART_RELATED;  // multipart/related
+  static const string ContentType_HTML;               // text/html
+  static const string ContentType_JSON;               // application/json
+  static const string ContentType_TEXT;               // text/plain
+  static const string ContentType_MULTIPART_MIXED;    // multipart/mixed
+  static const string ContentType_MULTIPART_RELATED;  // multipart/related
 
   // application/x-www-form-urlencoded
-  static const StringPiece ContentType_FORM_URL_ENCODED;
+  static const string ContentType_FORM_URL_ENCODED;
 
   // Any header name is valid, these are just common ones used within
   // the api itself.
-  static const StringPiece HttpHeader_AUTHORIZATION;   // Authorization
-  static const StringPiece HttpHeader_CONTENT_LENGTH;  // Content-Length
-  static const StringPiece HttpHeader_CONTENT_TYPE;    // Content-Type
-  static const StringPiece HttpHeader_HOST;            // Host
-  static const StringPiece HttpHeader_LOCATION;        // Location
-  static const StringPiece HttpHeader_TRANSFER_ENCODING;  // Transfer-Encoding
-  static const StringPiece HttpHeader_USER_AGENT;      // User-Agent
+  static const string HttpHeader_AUTHORIZATION;   // Authorization
+  static const string HttpHeader_CONTENT_LENGTH;  // Content-Length
+  static const string HttpHeader_CONTENT_TYPE;    // Content-Type
+  static const string HttpHeader_HOST;            // Host
+  static const string HttpHeader_LOCATION;        // Location
+  static const string HttpHeader_TRANSFER_ENCODING;  // Transfer-Encoding
+  static const string HttpHeader_USER_AGENT;      // User-Agent
 
   /*
    * Standard destructor.
@@ -187,9 +187,10 @@ class HttpRequest {
    *
    * @see RemoveHeader()
    */
-  void set_content_type(const StringPiece& type) {
+  void set_content_type(const string& type) {
     AddHeader(HttpHeader_CONTENT_TYPE, type);
   }
+
 
   /*
    * Returns the content_reader providing this requests's message body.
@@ -240,7 +241,7 @@ class HttpRequest {
    *
    * @param[in] name The name of the header to remove is not case-sensitive.
    */
-  void RemoveHeader(const StringPiece& name);
+  void RemoveHeader(const string& name);
 
   /*
    * Adds a header, or replaces its value if it already exists.
@@ -256,7 +257,7 @@ class HttpRequest {
    * we are requiring request headers to be unique. We do permit
    * repeatable response headers.
    */
-  void AddHeader(const StringPiece& name, const StringPiece& value);
+  void AddHeader(const string& name, const string& value);
 
   /*
    * Get the value of the named header.
@@ -267,7 +268,7 @@ class HttpRequest {
    * A non-NULL result will only be valid until a header is added or removed
    * (or the object is destroyed).
    */
-  const string* FindHeaderValue(const StringPiece& name) const;
+  const string* FindHeaderValue(const string& name) const;
 
   /*
    * Get all the headers explicitly added to the request.
@@ -313,7 +314,7 @@ class HttpRequest {
    * @see response()
    * @see state()
    */
-  util::Status Execute();
+  googleapis::util::Status Execute();
 
   /*
    * Asynchronously send the request to the designated URL then continue
@@ -371,7 +372,7 @@ class HttpRequest {
    * @return ok if the request could not be prepared. The most common expected
    * reason for failure would be that the content_body could not be reset.
    */
-  util::Status PrepareToReuse();
+  googleapis::util::Status PrepareToReuse();
 
   /*
    * Prepare the request to follow a redirect link.
@@ -391,7 +392,7 @@ class HttpRequest {
    * redirect itself. This should be used with caution. It is biased
    * towards the default error handler and may not be generally applicable.
    */
-  util::Status PrepareRedirect(int num_redirects_so_far);
+  googleapis::util::Status PrepareRedirect(int num_redirects_so_far);
 
   /*
    * Restrict how this message is scribed when transcripts are enabled.
@@ -521,4 +522,4 @@ class HttpRequest {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_REQUEST_H_
+#endif  // GOOGLEAPIS_TRANSPORT_HTTP_REQUEST_H_

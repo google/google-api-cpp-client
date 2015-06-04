@@ -22,19 +22,20 @@
 // These are really here to get around cross-include dependencies where
 // the header guard would prevent getting at definitions.
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TYPES_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TYPES_H_
+#ifndef GOOGLEAPIS_TRANSPORT_HTTP_TYPES_H_
+#define GOOGLEAPIS_TRANSPORT_HTTP_TYPES_H_
 
 #include <map>
 using std::map;
 #include <string>
 using std::string;
+
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
 #include "googleapis/base/thread_annotations.h"
 #include "googleapis/strings/case.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -301,7 +302,7 @@ class HttpRequestState {
    * @return The overall request status after the transition. A failure status
    * indicates that the HttpRequest failed, not a failure to transition.
    */
-  util::Status AutoTransitionAndNotifyIfDone()  LOCKS_EXCLUDED(mutex_);
+  googleapis::util::Status AutoTransitionAndNotifyIfDone()  LOCKS_EXCLUDED(mutex_);
 
   /*
    * Sets the transport-level status for the request.
@@ -314,7 +315,7 @@ class HttpRequestState {
    *
    * @param[in] status The transport-level status.
    */
-  void set_transport_status(const util::Status& status)
+  void set_transport_status(const googleapis::util::Status& status)
       LOCKS_EXCLUDED(mutex_);
 
   /*
@@ -323,7 +324,7 @@ class HttpRequestState {
    * @return failure status only if a transport error was encountered.
    * The status will be ok in an UNSENT state.
    */
-  util::Status transport_status() const LOCKS_EXCLUDED(mutex_);
+  googleapis::util::Status transport_status() const LOCKS_EXCLUDED(mutex_);
 
   /*
    * Returns the overall status for this request.
@@ -334,7 +335,7 @@ class HttpRequestState {
    * contains additional error information that wont be contained in the
    * status.
    */
-  util::Status status() const LOCKS_EXCLUDED(mutex_);
+  googleapis::util::Status status() const LOCKS_EXCLUDED(mutex_);
 
   /*
    * Returns the HTTP status code returned in the response.
@@ -423,7 +424,7 @@ class HttpRequestState {
  private:
   mutable Mutex mutex_;
   mutable CondVar condvar_;  //!< Used for signaling to WaitUntilDone
-  util::Status transport_status_  GUARDED_BY(mutex_);
+  googleapis::util::Status transport_status_  GUARDED_BY(mutex_);
   StateCode state_code_ GUARDED_BY(mutex_);
   int http_code_;
   int waiting_ GUARDED_BY(mutex_);
@@ -525,14 +526,14 @@ class HttpStatusCode {
  *
  * This is a \r\n sequence.
  */
-extern const StringPiece kCRLF;
+extern const string kCRLF;
 
 /*
  * Denotes an end of line followed by a blank line within an HTTP message.
  */
-extern const StringPiece kCRLFCRLF;
+extern const string kCRLFCRLF;
 
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TYPES_H_
+#endif  // GOOGLEAPIS_TRANSPORT_HTTP_TYPES_H_

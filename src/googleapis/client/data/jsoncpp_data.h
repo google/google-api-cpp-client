@@ -34,8 +34,8 @@
  * it in future releases.
  */
 
-#ifndef APISERVING_CLIENTS_CPP_DATA_JSONCPP_DATA_H_
-#define APISERVING_CLIENTS_CPP_DATA_JSONCPP_DATA_H_
+#ifndef GOOGLEAPIS_DATA_JSONCPP_DATA_H_
+#define GOOGLEAPIS_DATA_JSONCPP_DATA_H_
 #include <string>
 using std::string;
 #include <utility>
@@ -125,7 +125,7 @@ class JsonCppData : public SerializableJson {
    *
    * @see LoadFromJsonReader
    */
-  virtual util::Status LoadFromJsonStream(std::istream* stream);
+  virtual googleapis::util::Status LoadFromJsonStream(std::istream* stream);
 
   /*
    * Stores the state of this object as JSON in the given std::ostream.
@@ -135,7 +135,7 @@ class JsonCppData : public SerializableJson {
    *
    * @see MakeJsonReader
    */
-  virtual util::Status StoreToJsonStream(std::ostream* stream) const;
+  virtual googleapis::util::Status StoreToJsonStream(std::ostream* stream) const;
 
   /*
    * Clears this instance state to an empty object.
@@ -148,7 +148,7 @@ class JsonCppData : public SerializableJson {
    * @param[in] reader The byte-sequence to read from.
    * @return ok or explaination of failure.
    */
-  virtual util::Status LoadFromJsonReader(DataReader* reader);
+  virtual googleapis::util::Status LoadFromJsonReader(DataReader* reader);
 
   /*
    * Serializes the object into a JSON byte stream.
@@ -711,4 +711,4 @@ class JsonCppConstAssociativeIterator
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_DATA_JSONCPP_DATA_H_
+#endif  // GOOGLEAPIS_DATA_JSONCPP_DATA_H_

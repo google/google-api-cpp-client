@@ -21,8 +21,8 @@
 // The Json discovery documents specify 64 bit integers as strings, so we
 // need to serialize/deserialize them as strings.
 
-#ifndef APISERVING_CLIENTS_CPP_DATA_JSONCPP_DATA_HELPERS_H_
-#define APISERVING_CLIENTS_CPP_DATA_JSONCPP_DATA_HELPERS_H_
+#ifndef GOOGLEAPIS_DATA_JSONCPP_DATA_HELPERS_H_
+#define GOOGLEAPIS_DATA_JSONCPP_DATA_HELPERS_H_
 
 #include <string>
 using std::string;
@@ -349,4 +349,4 @@ inline void SetCppValueFromJsonValueHelper(
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_DATA_JSONCPP_DATA_HELPERS_H_
+#endif  // GOOGLEAPIS_DATA_JSONCPP_DATA_HELPERS_H_

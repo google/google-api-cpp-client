@@ -18,15 +18,15 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_DATA_DATA_WRITER_H_
-#define APISERVING_CLIENTS_CPP_DATA_DATA_WRITER_H_
+#ifndef GOOGLEAPIS_DATA_DATA_WRITER_H_
+#define GOOGLEAPIS_DATA_DATA_WRITER_H_
 
 #include <string>
 using std::string;
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 class FileOpenOptions;
@@ -75,7 +75,7 @@ class DataWriter {
    * @return a successful status if the stream is ok, otherwise the
    * error encounteredd.
    */
-  const util::Status& status() const { return status_; }
+  const googleapis::util::Status& status() const { return status_; }
 
   /*
    * Clears any prior data writen into the stream so that it is empty.
@@ -104,7 +104,7 @@ class DataWriter {
    *
    * @see DoWrite
    */
-  util::Status Write(int64 size, const char* data);
+  googleapis::util::Status Write(int64 size, const char* data);
 
   /*
    * Synchronously write a fixed number of bytes into the stream.
@@ -113,7 +113,7 @@ class DataWriter {
    *
    * @see DoWrite
    */
-  util::Status Write(const StringPiece& data) {
+  googleapis::util::Status Write(const StringPiece& data) {
     return Write(data.size(), data.data());
   }
 
@@ -125,7 +125,7 @@ class DataWriter {
    *                      If max_bytes < 0 then write all remaining bytes.
    * @return Ok or reason for failure.
    */
-  util::Status Write(DataReader* reader, int64 max_bytes = -1);
+  googleapis::util::Status Write(DataReader* reader, int64 max_bytes = -1);
 
   /*
    * Notifies the writer that it has finished writing a stream.
@@ -178,21 +178,21 @@ class DataWriter {
    *
    * The base class just returns ok.
    */
-  virtual util::Status DoBegin();
+  virtual googleapis::util::Status DoBegin();
 
   /*
    * Hook for specialized writes to respond to End.
    *
    * The base class just returns ok.
    */
-  virtual util::Status DoEnd();
+  virtual googleapis::util::Status DoEnd();
 
   /*
    * Hook for specialized writers to clear the byte stream.
    *
    * The base class just returns ok.
    */
-  virtual util::Status DoClear();
+  virtual googleapis::util::Status DoClear();
 
   /*
    * Hook for the specialied writers to write into their byte stream.
@@ -202,7 +202,7 @@ class DataWriter {
    *
    * @return success if all the bytes could be written, or an error.
    */
-  virtual util::Status DoWrite(int64 bytes, const char* data) = 0;
+  virtual googleapis::util::Status DoWrite(int64 bytes, const char* data) = 0;
 
   /*
    * Factory method to create new reader specialized for the writer's
@@ -216,7 +216,7 @@ class DataWriter {
  private:
   int64 size_;
   bool began_;
-  util::Status status_;
+  googleapis::util::Status status_;
 
   DISALLOW_COPY_AND_ASSIGN(DataWriter);
 };
@@ -263,4 +263,4 @@ DataWriter* NewStringDataWriter();
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_DATA_DATA_WRITER_H_
+#endif  // GOOGLEAPIS_DATA_DATA_WRITER_H_

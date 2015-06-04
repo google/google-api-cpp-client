@@ -18,8 +18,8 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TRANSPORT_GLOBAL_STATE_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TRANSPORT_GLOBAL_STATE_H_
+#ifndef GOOGLEAPIS_TRANSPORT_HTTP_TRANSPORT_GLOBAL_STATE_H_
+#define GOOGLEAPIS_TRANSPORT_HTTP_TRANSPORT_GLOBAL_STATE_H_
 
 #include "googleapis/base/macros.h"
 namespace googleapis {
@@ -45,4 +45,4 @@ HttpTransportLayerConfig* GetGlobalHttpTransportLayerConfiguration();
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TRANSPORT_GLOBAL_STATE_H_
+#endif  // GOOGLEAPIS_TRANSPORT_HTTP_TRANSPORT_GLOBAL_STATE_H_

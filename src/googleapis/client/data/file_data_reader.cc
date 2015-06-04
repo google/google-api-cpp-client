@@ -71,7 +71,7 @@ class FileDataReader : public DataReader {
     if (position > len) {
       position = len;
     }
-    util::Status status = file_->Seek(position, file::Defaults());
+    googleapis::util::Status status = file_->Seek(position, file::Defaults());
     if (!status.ok()) {
       set_status(status);
       return -1;
@@ -86,7 +86,7 @@ class FileDataReader : public DataReader {
       return 0;
     }
     int64 len;
-    util::Status status = file_->Read(storage, max_bytes, &len);
+    googleapis::util::Status status = file_->Read(storage, max_bytes, &len);
     if (!status.ok()) {
       set_status(status);
     } else if (len == 0) {

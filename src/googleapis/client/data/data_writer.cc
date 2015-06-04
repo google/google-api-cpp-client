@@ -33,7 +33,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -132,16 +131,16 @@ class StringDataWriter : public DataWriter {
   explicit StringDataWriter(string* storage) : storage_(storage) {}
   ~StringDataWriter() override {}
 
-  util::Status DoClear() override {
+  googleapis::util::Status DoClear() override {
     storage_->clear();
     return StatusOk();
   }
 
-  util::Status DoBegin() override {
+  googleapis::util::Status DoBegin() override {
     return DoClear();
   }
 
-  util::Status DoWrite(int64 bytes, const char* buffer) override {
+  googleapis::util::Status DoWrite(int64 bytes, const char* buffer) override {
     storage_->append(buffer, bytes);
     return StatusOk();
   }

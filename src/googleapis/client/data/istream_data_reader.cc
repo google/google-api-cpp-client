@@ -31,7 +31,6 @@ using std::string;
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 

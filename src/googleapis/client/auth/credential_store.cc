@@ -47,7 +47,7 @@ void CredentialStore::set_codec(
 }
 
 static DataReader* WrapReader(DataReader* input_reader, Codec* codec,
-                              bool with_encoder, util::Status* status) {
+                              bool with_encoder, googleapis::util::Status* status) {
   if (!codec) {
     *status = StatusOk();
     return input_reader;  // passes ownership back
@@ -60,12 +60,12 @@ static DataReader* WrapReader(DataReader* input_reader, Codec* codec,
 }
 
 DataReader* CredentialStore::DecodedToEncodingReader(
-    DataReader* input_reader, util::Status* status) {
+    DataReader* input_reader, googleapis::util::Status* status) {
   return WrapReader(input_reader, codec_.get(), true, status);
 }
 
 DataReader* CredentialStore::EncodedToDecodingReader(
-    DataReader* input_reader, util::Status* status) {
+    DataReader* input_reader, googleapis::util::Status* status) {
   return WrapReader(input_reader, codec_.get(), false, status);
 }
 

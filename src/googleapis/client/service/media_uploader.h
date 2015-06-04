@@ -18,17 +18,17 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_SERVICE_MEDIA_UPLOADER_H_
-#define APISERVING_CLIENTS_CPP_SERVICE_MEDIA_UPLOADER_H_
+#ifndef GOOGLEAPIS_SERVICE_MEDIA_UPLOADER_H_
+#define GOOGLEAPIS_SERVICE_MEDIA_UPLOADER_H_
 
 #include <memory>
 #include <string>
 using std::string;
 #include "googleapis/client/transport/http_types.h"
-#include "googleapis/base/macros.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
+#include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -169,7 +169,7 @@ class MediaUploader {
    * @return success if all the URI parameters could be resolved, failure
    *         if somec could not.
    */
-  typedef ResultCallback2< util::Status,    // Returns ok if fully prepared
+  typedef ResultCallback2< googleapis::util::Status,    // Returns ok if fully prepared
                          const StringPiece&,  // URL to resolve
                          string*>             // resolved url
   UrlPreparer;
@@ -273,7 +273,7 @@ class MediaUploader {
    *         from the http_request->status().
    *
    */
-  util::Status Upload(HttpRequest* http_request);
+  googleapis::util::Status Upload(HttpRequest* http_request);
 
   /*
    * Asynchronously perform the upload protocol using the given request.
@@ -307,7 +307,7 @@ class MediaUploader {
    * @param[in] url_preparer The Callback for resolving template variables
    *            in the upload url if it was specified using URI Templating..
    */
-  util::Status BuildRequest(HttpRequest* request, UrlPreparer* url_preparer);
+  googleapis::util::Status BuildRequest(HttpRequest* request, UrlPreparer* url_preparer);
 
  private:
   const MediaUploadSpec* spec_;  // bound in constructor
@@ -337,4 +337,4 @@ class MediaUploader {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_SERVICE_MEDIA_UPLOADER_H_
+#endif  // GOOGLEAPIS_SERVICE_MEDIA_UPLOADER_H_

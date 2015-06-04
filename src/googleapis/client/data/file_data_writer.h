@@ -16,8 +16,8 @@
  *
  * @}
  */
-#ifndef APISERVING_CLIENTS_CPP_DATA_FILE_DATA_WRITER_H_
-#define APISERVING_CLIENTS_CPP_DATA_FILE_DATA_WRITER_H_
+#ifndef GOOGLEAPIS_DATA_FILE_DATA_WRITER_H_
+#define GOOGLEAPIS_DATA_FILE_DATA_WRITER_H_
 
 //
 
@@ -28,7 +28,6 @@ using std::string;
 #include "googleapis/client/data/data_writer.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/util/file.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 class FileOpenOptions;
@@ -40,13 +39,13 @@ class FileDataWriter : public DataWriter {
   FileDataWriter(const string& path, const FileOpenOptions& options);
   ~FileDataWriter() override;
 
-  util::Status DoClear() override;
+  googleapis::util::Status DoClear() override;
 
-  util::Status DoBegin() override;
+  googleapis::util::Status DoBegin() override;
 
-  util::Status DoEnd() override;
+  googleapis::util::Status DoEnd() override;
 
-  util::Status DoWrite(int64 bytes, const char* buffer) override;
+  googleapis::util::Status DoWrite(int64 bytes, const char* buffer) override;
 
   DataReader* DoNewDataReader(Closure* deleter) override;
 
@@ -79,4 +78,4 @@ DataWriter* NewFileDataWriter(const string& path,
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_DATA_FILE_DATA_WRITER_H_
+#endif  // GOOGLEAPIS_DATA_FILE_DATA_WRITER_H_

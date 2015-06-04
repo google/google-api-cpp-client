@@ -29,12 +29,19 @@ using std::string;
 #include "googleapis/base/integral_types.h"
 #include <glog/logging.h>
 #include "googleapis/strings/strcat.h"
-#include "googleapis/util/free_deleter.h"
 
 namespace googleapis {
 
 namespace client {
 static const int64 kDefaultBufferSize = 1 << 13;  // 8K
+
+namespace {
+struct FreeDeleter {
+  inline void operator()(void* ptr) const {
+    free(ptr);
+  }
+};
+}  // namespace
 
 DataReader::DataReader(Closure* deleter)
     : deleter_(deleter),
@@ -95,7 +102,7 @@ int64 DataReader::ReadToString(int64 max_bytes, string* append_to) {
     }
   }
 
-  std::unique_ptr<char, util::memory::FreeDeleter> buffer(
+  std::unique_ptr<char, FreeDeleter> buffer(
       reinterpret_cast<char*>(malloc(kDefaultBufferSize)));
   char* storage = buffer.get();
   if (storage == NULL) {
@@ -224,11 +231,11 @@ class InvalidDataReader : public DataReader {
   virtual int64 DoReadToBuffer(int64 max_bytes, char* storage) { return 0; }
 
  private:
-  util::Status status_;
+  googleapis::util::Status status_;
 };
 
 DataReader* NewManagedInvalidDataReader(
-    util::Status status, Closure* deleter) {
+    googleapis::util::Status status, Closure* deleter) {
   return new InvalidDataReader(status, deleter);
 }
 

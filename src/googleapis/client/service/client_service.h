@@ -39,16 +39,16 @@
  * the ServiceRequestPager for paging through large resources using finer
  * granularity requests.
  */
-#ifndef APISERVING_CLIENTS_CPP_SERVICE_CLIENT_SERVICE_H_
-#define APISERVING_CLIENTS_CPP_SERVICE_CLIENT_SERVICE_H_
+#ifndef GOOGLEAPIS_SERVICE_CLIENT_SERVICE_H_
+#define GOOGLEAPIS_SERVICE_CLIENT_SERVICE_H_
 
 #include <memory>
 #include <string>
 using std::string;
-#include "googleapis/base/macros.h"
 #include "googleapis/client/transport/http_transport.h"
+#include "googleapis/client/util/status.h"
+#include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -182,7 +182,7 @@ class ClientServiceRequest {
    * @see mutable_http_request
    * @see http_response
    */
-  virtual util::Status Execute();
+  virtual googleapis::util::Status Execute();
 
   /*
    * Ask the service to execute the request asynchronously.
@@ -254,7 +254,7 @@ class ClientServiceRequest {
    * @return Failure if the response has no data or cannot be parsed.
    * @see HttpResponse::body_reader()
    */
-  static util::Status ParseResponse(
+  static googleapis::util::Status ParseResponse(
       HttpResponse* response, SerializableJson* data);
 
  protected:
@@ -266,7 +266,7 @@ class ClientServiceRequest {
    * on the underlying request. Specialized classes may have other needs,
    * such as setting the request payload.
    */
-  virtual util::Status PrepareHttpRequest();
+  virtual googleapis::util::Status PrepareHttpRequest();
 
   /*
    * Resolves the templated URL into the actual URL to use.
@@ -285,7 +285,7 @@ class ClientServiceRequest {
    * it is not because so it can used as a callback method where the mechanism
    * does not permit non-const methods.
    */
-  virtual util::Status PrepareUrl(
+  virtual googleapis::util::Status PrepareUrl(
       const StringPiece& templated_url, string* prepared_url);
 
   /*
@@ -301,7 +301,7 @@ class ClientServiceRequest {
    * method.
    * @param[out] target The string to append to.
    */
-  virtual util::Status AppendVariable(
+  virtual googleapis::util::Status AppendVariable(
       const StringPiece& variable_name,
       const UriTemplateConfig& config,
       string* target);
@@ -316,7 +316,7 @@ class ClientServiceRequest {
    * The base method simply returns success. Specialized requests should
    * add any optional query parameters that have been added into the request.
    */
-  virtual util::Status AppendOptionalQueryParameters(string* target);
+  virtual googleapis::util::Status AppendOptionalQueryParameters(string* target);
 
   /*
    * Execute the request synchronously. If the response suggests success then
@@ -334,7 +334,7 @@ class ClientServiceRequest {
    * classes can expose this method by adding a public method that delegates
    * to this implementation.
    */
-  util::Status ExecuteAndParseResponse(SerializableJson* data);
+  googleapis::util::Status ExecuteAndParseResponse(SerializableJson* data);
 
   /*
    * Accessor for the use_media_download attribute.
@@ -408,7 +408,7 @@ class ClientServiceRequest {
    * calls the virtual AppendVariable() method on this instance so that
    * subclasses can feed ther values into the template.
    */
-  util::Status CallAppendVariable(
+  googleapis::util::Status CallAppendVariable(
       const StringPiece& variable_name,
       const UriTemplateConfig& config,
       string* target);
@@ -427,7 +427,7 @@ class ClientServiceRequest {
    *
    * Helper method to handle Execute when there is a media uploader.
    */
-  virtual util::Status ExecuteWithUploader();
+  virtual googleapis::util::Status ExecuteWithUploader();
 
   DISALLOW_COPY_AND_ASSIGN(ClientServiceRequest);
 };
@@ -521,4 +521,4 @@ class ClientService {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_SERVICE_CLIENT_SERVICE_H_
+#endif  // GOOGLEAPIS_SERVICE_CLIENT_SERVICE_H_

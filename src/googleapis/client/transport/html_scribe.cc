@@ -61,7 +61,7 @@ void EscapeAndAppendString(const StringPiece& from, string* out) {
   }
 }
 
-void InitializeHtml(const StringPiece& title, DataWriter* writer) {
+void InitializeHtml(const string& title, DataWriter* writer) {
   const StringPiece javascript =
       "<script type='text/javascript'>\n"
       "function toggle_visibility(id) {\n"
@@ -296,7 +296,7 @@ class HtmlEntry : public HttpEntryScribe::Entry {
         snippet);
   }
 
-  void Failed(const HttpRequest* request, const util::Status& status) {
+  void Failed(const HttpRequest* request, const googleapis::util::Status& status) {
     StrAppend(&request_html_,
               "<tr><td class='error'>",
               TimeOffsetToString(MicrosElapsed()),
@@ -305,7 +305,7 @@ class HtmlEntry : public HttpEntryScribe::Entry {
     title_code_ = "Err";
   }
 
-  void FailedBatch(const HttpRequestBatch* batch, const util::Status& status) {
+  void FailedBatch(const HttpRequestBatch* batch, const googleapis::util::Status& status) {
     string snippet = BuildRequestBatchDetail(scribe_, batch, batch_id_);
     StrAppend(&batch_html_, "<tr><td colspan=2>", snippet);
     StrAppend(&batch_html_,
@@ -533,7 +533,7 @@ class HtmlEntry : public HttpEntryScribe::Entry {
 }  // anonymous namespace
 
 HtmlScribe::HtmlScribe(
-    HttpScribeCensor* censor, const StringPiece& title, DataWriter* writer)
+    HttpScribeCensor* censor, const string& title, DataWriter* writer)
     : HttpEntryScribe(censor), sequence_number_(0), writer_(writer),
       presentation_(EXPANDABLE_REQUEST | COLORIZE) {
   InitializeHtml(title, writer);

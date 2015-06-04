@@ -18,18 +18,15 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_JSON_SCRIBE_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_JSON_SCRIBE_H_
+#ifndef GOOGLEAPIS_TRANSPORT_JSON_SCRIBE_H_
+#define GOOGLEAPIS_TRANSPORT_JSON_SCRIBE_H_
 
 #include <memory>
 #include <string>
 using std::string;
 
 #include "googleapis/client/transport/http_scribe.h"
-#include "googleapis/base/thread_annotations.h"
 #include "googleapis/base/integral_types.h"
-#include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 #include <json/value.h>
 #include <json/writer.h>
 namespace googleapis {
@@ -134,7 +131,7 @@ class JsonScribe : public HttpEntryScribe {
   static const char kHttpCode[];
 
   /*
-   * The transport util::Status::error_code value (int).
+   * The transport googleapis::util::Status::error_code value (int).
    *
    * An error here indicates a transport error when sending the request.
    * The response was either never received or the request was never sent.
@@ -152,7 +149,7 @@ class JsonScribe : public HttpEntryScribe {
   static const char kStatusCode[];
 
   /*
-   * The transport util::Status::error_message value (string).
+   * The transport googleapis::util::Status::error_message value (string).
    *
    * If this is present and not empty then it gives an explanation for the
    * transport status. This is usually an error but not necessarily. The
@@ -207,4 +204,4 @@ class JsonScribe : public HttpEntryScribe {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_JSON_SCRIBE_H_
+#endif  // GOOGLEAPIS_TRANSPORT_JSON_SCRIBE_H_

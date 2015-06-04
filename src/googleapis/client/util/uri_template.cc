@@ -24,6 +24,7 @@
 #include <set>
 #include <string>
 using std::string;
+
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_template.h"
 #include "googleapis/client/util/uri_utils.h"
@@ -124,7 +125,7 @@ static UriTemplateConfig MakeConfig(StringPiece* variable) {
   }
 }
 
-static util::Status ProcessVariable(
+static googleapis::util::Status ProcessVariable(
     StringPiece* variable,
     UriTemplate::AppendVariableCallback* provider,
     string* target) {
@@ -145,7 +146,7 @@ static util::Status ProcessVariable(
 util::Status UriTemplate::Expand(
     const StringPiece& path_uri, AppendVariableCallback* provider,
     string* target, std::set<StringPiece>* vars_found) {
-  util::Status final_status = StatusOk();
+  googleapis::util::Status final_status = StatusOk();
   provider->CheckIsRepeatable();
   int cur = 0;
   int length = path_uri.length();
@@ -165,7 +166,7 @@ util::Status UriTemplate::Expand(
     }
     StringPiece variable(path_uri, next + 1, close - next - 1);
     cur = close + 1;
-    util::Status status = ProcessVariable(&variable, provider, target);
+    googleapis::util::Status status = ProcessVariable(&variable, provider, target);
     if (!status.ok()) {
       // Remember the last status to make a best effort expanding all the
       // variables that we can.

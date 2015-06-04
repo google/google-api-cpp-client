@@ -23,6 +23,7 @@ using std::map;
 
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
+#include "googleapis/util/executor.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/client/transport/http_request.h"
@@ -39,8 +40,7 @@ using std::map;
 #include "googleapis/strings/strip.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/util.h"
-#include "googleapis/util/stl_util.h"
-#include "googleapis/util/executor.h"
+#include "util/gtl/stl_util.h"
 
 namespace googleapis {
 
@@ -69,8 +69,8 @@ string BuildStandardUserAgentString(const string& application) {
 namespace client {
 
 // These global constants are declared in http_types.h
-const StringPiece kCRLF("\r\n");
-const StringPiece kCRLFCRLF("\r\n\r\n");
+const string kCRLF("\r\n");  // NOLINT
+const string kCRLFCRLF("\r\n\r\n");  // NOLINT
 
 
 HttpTransportLayerConfig::HttpTransportLayerConfig() {
@@ -100,9 +100,9 @@ void HttpTransportLayerConfig::ResetDefaultTransportFactory(
   default_transport_factory_.reset(factory);
 }
 
-void HttpTransportOptions::set_cacerts_path(const StringPiece& path) {
+void HttpTransportOptions::set_cacerts_path(const string& path) {
   VLOG(1) << "Initializing cacerts_path=" << path;
-  cacerts_path_ = path.as_string();
+  cacerts_path_ = path;
   ssl_verification_disabled_ = path == kDisableSslVerification;
   if (ssl_verification_disabled_)
     LOG(WARNING) << "Disabled SSL verification";
@@ -121,8 +121,8 @@ void HttpTransportOptions::set_nonstandard_user_agent(const string& agent) {
   user_agent_ = agent;
 }
 
-void HttpTransportOptions::SetApplicationName(const StringPiece& name) {
-  user_agent_ = BuildStandardUserAgentString(name.as_string());
+void HttpTransportOptions::SetApplicationName(const string& name) {
+  user_agent_ = BuildStandardUserAgentString(name);
   VLOG(1) << "Setting ApplicationName = " << name;
 }
 
@@ -193,7 +193,7 @@ bool HttpTransportErrorHandler::HandleHttpError(
       // Only try unauthorized once.
       AuthorizationCredential* credential = request->credential();
       if (credential) {
-        util::Status status = credential->Refresh();
+        googleapis::util::Status status = credential->Refresh();
         if (status.ok()) {
           VLOG(2) << "Refreshed credential";
           status = credential->AuthorizeRequest(request);
@@ -268,7 +268,7 @@ void HttpTransportErrorHandler::HandleHttpErrorAsync(
 void HttpTransportErrorHandler::HandleRefreshAsync(
     Callback1<bool>* callback,
     HttpRequest* request,
-    util::Status status) const {
+    googleapis::util::Status status) const {
   if (status.ok()) {
     VLOG(2) << "Refreshed credential";
     status = request->credential()->AuthorizeRequest(request);
@@ -311,7 +311,7 @@ bool HttpTransportErrorHandler::ShouldRetryRedirect_(
 
   if (HttpStatusCode::IsRedirect(http_code)
       && http_code != HttpStatusCode::MULTIPLE_CHOICES) {
-    util::Status status = request->PrepareRedirect(num_redirects);
+    googleapis::util::Status status = request->PrepareRedirect(num_redirects);
     if (status.ok()) {
       return true;
     }
@@ -350,10 +350,10 @@ thread::Executor* HttpTransportOptions::callback_executor() const {
   return callback_executor_;
 }
 
-const StringPiece HttpTransportOptions::kGoogleApisUserAgent =
+const char HttpTransportOptions::kGoogleApisUserAgent[] =
     "google-api-cpp-client";
 
-const StringPiece HttpTransportOptions::kDisableSslVerification =
+const char HttpTransportOptions::kDisableSslVerification[] =
     "DisableSslVerification";
 
 HttpTransport::HttpTransport(const HttpTransportOptions& options)
@@ -365,7 +365,7 @@ HttpTransport::~HttpTransport() {
 }
 
 HttpTransport* HttpTransportLayerConfig::NewDefaultTransport(
-    util::Status* status) const {
+    googleapis::util::Status* status) const {
   HttpTransportFactory* factory = default_transport_factory_.get();
   if (!factory) {
     *status = StatusInternalError(
@@ -417,7 +417,7 @@ void HttpTransport::ReadResponse(DataReader* reader, HttpResponse* response) {
   HttpRequestState* state = response->mutable_request_state();
   string first_line;
   bool found = reader->ReadUntilPatternInclusive(
-      kCRLF.as_string(), &first_line);
+      kCRLF, &first_line);
   if (!found || !StringPiece(first_line).starts_with(kHttpIdentifier)) {
     state->set_transport_status(StatusUnknown("Expected leading 'HTTP/1.1'"));
     return;
@@ -435,8 +435,8 @@ void HttpTransport::ReadResponse(DataReader* reader, HttpResponse* response) {
   state->set_http_code(http_code);
   do {
     string header_line;
-    if (!reader->ReadUntilPatternInclusive(kCRLF.as_string(), &header_line)) {
-      util::Status error;
+    if (!reader->ReadUntilPatternInclusive(kCRLF, &header_line)) {
+      googleapis::util::Status error;
       if (reader->done()) {
         error = StatusUnknown("Expected headers to end with an empty CRLF");
       } else {
@@ -449,7 +449,7 @@ void HttpTransport::ReadResponse(DataReader* reader, HttpResponse* response) {
 
     int colon = header_line.find(':');
     if (colon == string::npos) {
-      util::Status error = StatusUnknown(
+      googleapis::util::Status error = StatusUnknown(
           StrCat("Expected ':' in header #", response->headers().size()));
       state->set_transport_status(error);
       return;
@@ -460,7 +460,7 @@ void HttpTransport::ReadResponse(DataReader* reader, HttpResponse* response) {
         colon + 1, header_line.size() - colon - 1 - kCRLF.size());
     StripWhitespace(&name);
     StripWhitespace(&value);
-    response->AddHeader(name, value);
+    response->AddHeader(name.as_string(), value.as_string());
   } while (true);  // break above when header_line is empty
 
   // Remainder of reader is the response payload.
@@ -469,7 +469,7 @@ void HttpTransport::ReadResponse(DataReader* reader, HttpResponse* response) {
 
 HttpTransport*
 HttpTransportLayerConfig::NewDefaultTransportOrDie() const {
-  util::Status status;
+  googleapis::util::Status status;
   HttpTransport* result = NewDefaultTransport(&status);
   if (!result) {
     LOG(FATAL) << "Could not create transport.";

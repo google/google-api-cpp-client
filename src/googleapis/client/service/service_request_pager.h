@@ -19,8 +19,8 @@
 // A service request pager acts as a high level iterator for paging
 // through results. Each page involves a round-trip request the the server.
 
-#ifndef APISERVING_CLIENTS_CPP_SERVICE_SERVICE_REQUEST_PAGER_H_
-#define APISERVING_CLIENTS_CPP_SERVICE_SERVICE_REQUEST_PAGER_H_
+#ifndef GOOGLEAPIS_SERVICE_SERVICE_REQUEST_PAGER_H_
+#define GOOGLEAPIS_SERVICE_SERVICE_REQUEST_PAGER_H_
 
 #include <memory>
 
@@ -29,7 +29,6 @@
 #include "googleapis/client/util/status.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -105,7 +104,7 @@ class BaseServiceRequestPager {
    *
    * @return ok or reason for failure.
    */
-  virtual util::Status ExecuteNextPage() = 0;
+  virtual googleapis::util::Status ExecuteNextPage() = 0;
 
   /*
    * Returns the token parameter to use when fetching the next page.
@@ -211,7 +210,7 @@ class ServiceRequestPager : public BaseServiceRequestPager {
    *
    * @return false on failure or when there are no more pages.
    */
-  virtual util::Status ExecuteNextPage() {
+  virtual googleapis::util::Status ExecuteNextPage() {
     // This method is called by the base class which guards with is_done
     // so we dont need to check here. But we'll do so anyway just to be
     // sure it didnt get here through some other route.
@@ -225,7 +224,7 @@ class ServiceRequestPager : public BaseServiceRequestPager {
       request()->set_page_token(next_page_token());
     }
 
-    util::Status status =
+    googleapis::util::Status status =
           request()->mutable_http_request()->PrepareToReuse();
     if (!status.ok()) return status;
 
@@ -279,4 +278,4 @@ class EncapsulatedServiceRequestPager
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_SERVICE_SERVICE_REQUEST_PAGER_H_
+#endif  // GOOGLEAPIS_SERVICE_SERVICE_REQUEST_PAGER_H_

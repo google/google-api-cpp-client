@@ -18,17 +18,17 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_UTIL_URI_TEMPLATE_H_
-#define APISERVING_CLIENTS_CPP_UTIL_URI_TEMPLATE_H_
+#ifndef GOOGLEAPIS_UTIL_URI_TEMPLATE_H_
+#define GOOGLEAPIS_UTIL_URI_TEMPLATE_H_
 
 #include <set>
 #include <string>
 using std::string;
 
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -71,7 +71,7 @@ class UriTemplate {
    * @param[in,out] The target string to append to
    * @return success if the variabel coudl be resolved, or failure if not.
    */
-  typedef ResultCallback3< util::Status,
+  typedef ResultCallback3< googleapis::util::Status,
                           const StringPiece&,
                           const UriTemplateConfig&,
                           string*>
@@ -88,7 +88,7 @@ class UriTemplate {
    *         failure if some unresovled variables still remain in the
    *         target string.
    */
-  static util::Status Expand(
+  static googleapis::util::Status Expand(
       const StringPiece& uri,
       AppendVariableCallback* supplier,
       string* target) {
@@ -109,7 +109,7 @@ class UriTemplate {
    *         failure if some unresovled variables still remain in the
    *         target string.
    */
-  static util::Status Expand(
+  static googleapis::util::Status Expand(
       const StringPiece& uri,
       AppendVariableCallback* supplier,
       string* target,
@@ -233,4 +233,4 @@ inline void UriTemplate::AppendValue<StringPiece>(
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_UTIL_URI_TEMPLATE_H_
+#endif  // GOOGLEAPIS_UTIL_URI_TEMPLATE_H_

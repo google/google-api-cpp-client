@@ -26,14 +26,14 @@ using std::pair;
 #include <vector>
 using std::vector;
 #include "googleapis/client/util/abstract_webserver.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
-#include "googleapis/util/stl_util.h"
+#include "util/gtl/stl_util.h"
 
 namespace googleapis {
 
@@ -41,7 +41,7 @@ namespace client {
 
 util::Status WebServerResponse::SendRedirect(
      int http_code, const StringPiece& url) {
-  util::Status status = AddHeader("Location", url);
+  googleapis::util::Status status = AddHeader("Location", url);
   if (status.ok()) {
     status = SendReply("", http_code, "");
   }

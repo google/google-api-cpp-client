@@ -32,7 +32,6 @@ using std::vector;
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -56,7 +55,7 @@ class MongooseResponse : public WebServerResponse {
 
   struct mg_connection* connection()  { return connection_; }
 
-  virtual util::Status SendReply(
+  virtual googleapis::util::Status SendReply(
       const StringPiece& content_type,
       int http_code, const StringPiece& payload) {
     const string& http_code_msg = HttpCodeToHttpErrorMessage(http_code);
@@ -97,13 +96,13 @@ class MongooseResponse : public WebServerResponse {
     return StatusOk();
   }
 
-  virtual util::Status AddHeader(
+  virtual googleapis::util::Status AddHeader(
       const StringPiece& name, const StringPiece& value) {
     headers_.push_back(std::make_pair(name.as_string(), value.as_string()));
     return StatusOk();
   }
 
-  virtual util::Status AddCookie(
+  virtual googleapis::util::Status AddCookie(
       const StringPiece& name, const StringPiece& value) {
     cookies_.push_back(StrCat(name, "=", value));
     return StatusOk();
@@ -240,9 +239,9 @@ util::Status MongooseWebServer::DoStartup() {
   mg_context_ = mg_start(&callbacks_, this, options.get());
 
   if (mg_context_) {
-    return util::Status();
+    return googleapis::util::Status();
   } else {
-    return util::Status(util::error::UNKNOWN, "Could not start Mongoose");
+    return googleapis::util::Status(util::error::UNKNOWN, "Could not start Mongoose");
   }
 }
 

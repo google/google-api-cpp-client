@@ -57,9 +57,6 @@ const char JsonScribe::kErrorMicros[]     = "ErrorMicros";
 namespace client {
 namespace {
 
-inline void set_json(const StringPiece& piece, Json::Value* value) {
-  *value = piece.as_string().c_str();
-}
 inline void set_json(const string& s, Json::Value* value) {
   *value = s.c_str();
 }
@@ -158,7 +155,7 @@ class JsonEntry : public HttpEntryScribe::Entry {
     HandleResponseBatch(batch, &json_);
   }
 
-  void Failed(const HttpRequest* request, const util::Status& status) {
+  void Failed(const HttpRequest* request, const googleapis::util::Status& status) {
     if (json_.isNull()) {
       ConstructRequestJson(request, &json_);
     }
@@ -167,7 +164,7 @@ class JsonEntry : public HttpEntryScribe::Entry {
     set_json(status.error_message(), &json_[JsonScribe::kStatusMessage]);
   }
 
-  void FailedBatch(const HttpRequestBatch* batch, const util::Status& status) {
+  void FailedBatch(const HttpRequestBatch* batch, const googleapis::util::Status& status) {
     if (json_.isNull()) {
       ConstructRequestBatchJson(batch, &json_);
     }

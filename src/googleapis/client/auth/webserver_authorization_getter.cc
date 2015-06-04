@@ -32,7 +32,6 @@ using std::string;
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/util.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -91,7 +90,7 @@ util::Status WebServerAuthorizationCodeGetter::PromptForAuthorizationCode(
     MutexLock l(&mutex_);
     authorization_code_.clear();
   }
-  util::Status status = AskForAuthorization(url);
+  googleapis::util::Status status = AskForAuthorization(url);
   if (status.ok()) {
     MutexLock l(&mutex_);
     if (authorization_code_.empty()) {
@@ -112,7 +111,7 @@ util::Status WebServerAuthorizationCodeGetter::ReceiveAuthorizationCode(
   const ParsedUrl& parsed_url = request->parsed_url();
   bool have_code = parsed_url.GetQueryParameter("code", &code);
   bool have_error = parsed_url.GetQueryParameter("error", &error);
-  util::Status status;
+  googleapis::util::Status status;
   if (have_error) {
     status = StatusUnknown(StrCat("Did not authorize: ", error));
   }

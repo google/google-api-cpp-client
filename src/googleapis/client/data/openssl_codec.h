@@ -18,26 +18,20 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_DATA_OPENSSL_CODEC_H_
-#define APISERVING_CLIENTS_CPP_DATA_OPENSSL_CODEC_H_
+#ifndef GOOGLEAPIS_DATA_OPENSSL_CODEC_H_
+#define GOOGLEAPIS_DATA_OPENSSL_CODEC_H_
 
 #include <string>
 using std::string;
+
 #include "googleapis/client/data/codec.h"
+#include "googleapis/client/util/status.h"
+#include <glog/logging.h>
 #include "googleapis/base/macros.h"
-// MOE::begin_strip
-// TODO(user): Fix openssl gyp rules so that the include files can be
-// included with the 'third_party/'
-// MOE::end_strip
-#ifdef GOOGLECLIENT
-#include "openssl/ossl_typ.h"
-#endif
 #include "googleapis/strings/stringpiece.h"
-#ifndef GOOGLECLIENT
 #include <openssl/ossl_typ.h>
-#endif
-#include "googleapis/util/status.h"
 namespace googleapis {
+
 
 namespace client {
 
@@ -81,7 +75,7 @@ class OpenSslCodec : public Codec {
    * @param[in] iv           The cipher initialization vector.
    * @return ok or reason for failure.
    */
-  util::Status Init(
+  googleapis::util::Status Init(
        const EVP_CIPHER* cipher_type, const string& key, const string& iv);
 
   /*
@@ -96,7 +90,7 @@ class OpenSslCodec : public Codec {
    *         not be NULL.
    */
   virtual DataReader* NewManagedEncodingReader(
-      DataReader* reader, Closure* deleter, util::Status* status);
+      DataReader* reader, Closure* deleter, googleapis::util::Status* status);
 
   /*
    * Returns a reader that will decode another reader using this codec.
@@ -110,7 +104,7 @@ class OpenSslCodec : public Codec {
    *         not be NULL.
    */
   virtual DataReader* NewManagedDecodingReader(
-      DataReader* reader, Closure* deleter, util::Status* status);
+      DataReader* reader, Closure* deleter, googleapis::util::Status* status);
 
  private:
   const EVP_CIPHER* cipher_type_;
@@ -182,7 +176,7 @@ class OpenSslCodecFactory : public CodecFactory {
    * @param[in] passphrase The passphrase to use.
    * @return ok or reason for failure.
    */
-  util::Status SetPassphrase(const StringPiece& passphrase);
+  googleapis::util::Status SetPassphrase(const StringPiece& passphrase);
 
   /*
    * Constructs and configures a new codec instance.
@@ -208,4 +202,4 @@ class OpenSslCodecFactory : public CodecFactory {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_DATA_OPENSSL_CODEC_H_
+#endif  // GOOGLEAPIS_DATA_OPENSSL_CODEC_H_

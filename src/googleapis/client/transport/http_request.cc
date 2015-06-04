@@ -20,6 +20,7 @@
 
 #include <time.h>
 
+#include <cstdint>
 #include <map>
 using std::map;
 #include <string>
@@ -32,6 +33,7 @@ using std::vector;
 #include "googleapis/base/once.h"
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
+#include "googleapis/util/executor.h"
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_response.h"
@@ -42,8 +44,6 @@ using std::vector;
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/strings/case.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/util/executor.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -51,6 +51,7 @@ namespace {
 
 using client::HttpRequest;
 using client::HttpRequestState;
+using client::HttpScribe;
 
 GoogleOnceType once_init_ = GOOGLE_ONCE_INIT;
 
@@ -67,7 +68,7 @@ GoogleOnceType once_init_ = GOOGLE_ONCE_INIT;
 // about and sorts them first. The underlying transport may still use some
 // other ordering when actually sending, but this will determine the
 // "default order" that we'll present headers in when iterating over the map.
-typedef std::map<StringPiece, int, CaseLess> HeaderSortOrderMap;
+typedef std::map<string, int, StringCaseLess> HeaderSortOrderMap;
 
 // This ordering is initialized in InitGlobalVariables when the comparator
 // is first used.
@@ -145,8 +146,8 @@ bool RequestHeaderLess::operator()(const string& a, const string& b) const {
 }
 
 
-static util::Status DetermineStatus(
-    util::Status transport_status,
+static googleapis::util::Status DetermineStatus(
+    googleapis::util::Status transport_status,
     int http_code,
     HttpRequestState::StateCode state_code) {
   switch (state_code) {
@@ -182,23 +183,23 @@ static util::Status DetermineStatus(
   // not reached
 }
 
-const StringPiece HttpRequest::HttpHeader_AUTHORIZATION("Authorization");
-const StringPiece HttpRequest::HttpHeader_CONTENT_LENGTH("Content-Length");
-const StringPiece HttpRequest::HttpHeader_CONTENT_TYPE("Content-Type");
-const StringPiece HttpRequest::HttpHeader_HOST("Host");
-const StringPiece HttpRequest::HttpHeader_LOCATION("Location");
-const StringPiece HttpRequest::HttpHeader_TRANSFER_ENCODING(
-    "Transfer-Encoding");
-const StringPiece HttpRequest::HttpHeader_USER_AGENT("User-Agent");
+// TODO(user): Examine performance impact of changing these to char[]. If it
+// is negligible, then change, otherwise add NOLINT.
+const string HttpRequest::HttpHeader_AUTHORIZATION("Authorization");
+const string HttpRequest::HttpHeader_CONTENT_LENGTH("Content-Length");
+const string HttpRequest::HttpHeader_CONTENT_TYPE("Content-Type");
+const string HttpRequest::HttpHeader_HOST("Host");
+const string HttpRequest::HttpHeader_LOCATION("Location");
+const string HttpRequest::HttpHeader_TRANSFER_ENCODING("Transfer-Encoding");
+const string HttpRequest::HttpHeader_USER_AGENT("User-Agent");
 
-const StringPiece HttpRequest::ContentType_HTML("text/html");
-const StringPiece HttpRequest::ContentType_JSON("application/json");
-const StringPiece HttpRequest::ContentType_TEXT("text/plain");
-const StringPiece HttpRequest::ContentType_FORM_URL_ENCODED(
+const string HttpRequest::ContentType_HTML("text/html");
+const string HttpRequest::ContentType_JSON("application/json");
+const string HttpRequest::ContentType_TEXT("text/plain");
+const string HttpRequest::ContentType_FORM_URL_ENCODED(
     "application/x-www-form-urlencoded");
-const StringPiece HttpRequest::ContentType_MULTIPART_MIXED("multipart/mixed");
-const StringPiece HttpRequest::ContentType_MULTIPART_RELATED(
-    "multipart/related");
+const string HttpRequest::ContentType_MULTIPART_MIXED("multipart/mixed");
+const string HttpRequest::ContentType_MULTIPART_RELATED("multipart/related");
 
 const HttpRequest::HttpMethod HttpRequest::DELETE("DELETE");
 const HttpRequest::HttpMethod HttpRequest::GET("GET");
@@ -318,14 +319,14 @@ util::Status HttpRequestState::transport_status() const {
   return transport_status_;
 }
 
-void HttpRequestState::set_transport_status(const util::Status& status) {
+void HttpRequestState::set_transport_status(const googleapis::util::Status& status) {
   VLOG(9) << "set_tranport_status=" << status.error_code() << " on " << this;
   MutexLock l(&mutex_);
   transport_status_ = status;
 }
 
 util::Status HttpRequestState::AutoTransitionAndNotifyIfDone() {
-  util::Status status;
+  googleapis::util::Status status;
   HttpRequestState::StateCode code;
   {
     MutexLock l(&mutex_);
@@ -430,17 +431,19 @@ bool HttpRequestState::UnsafeWaitUntilDone(int64 timeout_ms) {
     return true;
   }
 
+  // Bound it to 32 bits worth.
   if (timeout_ms > kint32max) {
     timeout_ms = kint32max;
   }
+  int32_t target_timeout_ms = static_cast<int32_t>(timeout_ms);
 
   // TODO(user): 20130325
-  // Revisit this when there's more mature time support. I dont want to add
+  // Revisit this when there's more mature time support. I do not want to add
   // it yet just for this.
-  const int64 start_time = time(0);
+  const int32_t start_time = time(0);
   do {
-    int64 now = time(0);
-    int64 remaining_ms = timeout_ms - (now - start_time) * 1000;
+    int32_t now = time(0);
+    int32_t remaining_ms = target_timeout_ms - (now - start_time) * 1000;
     VLOG(9) << "WaitWithTimeout " << (remaining_ms) << "ms on " << this
             << "    code=" << state_code_;
     if (IsStateDone(state_code_)) {
@@ -494,7 +497,7 @@ class HttpRequest::HttpRequestProcessor {
    * Provides return result for HttpRequest::Execute().
    * @return The final status of the execution attempts.
    */
-  util::Status final_status() const { return final_status_; }
+  googleapis::util::Status final_status() const { return final_status_; }
 
 
   /*
@@ -523,7 +526,7 @@ class HttpRequest::HttpRequestProcessor {
    */
   void QueueAsync() {
     thread::Executor* executor = request_->transport()->options().executor();
-    util::Status status;
+    googleapis::util::Status status;
     if (!executor) {
       status = StatusInternalError("No default executor configured");
     } else {
@@ -550,7 +553,7 @@ class HttpRequest::HttpRequestProcessor {
   void Prepare() {
     AuthorizationCredential* credential = request_->credential_;
     if (credential) {
-      util::Status status = credential->AuthorizeRequest(request_);
+      googleapis::util::Status status = credential->AuthorizeRequest(request_);
       if (!status.ok()) {
         LOG(ERROR)
             << "Failed authorizing request for url=" << request_->url();
@@ -824,7 +827,7 @@ class HttpRequest::HttpRequestProcessor {
     }
   }
 
-  util::Status final_status_;  // Ultimate execution status.
+  googleapis::util::Status final_status_;  // Ultimate execution status.
   HttpRequest* request_;       // Request to execute owned by caller.
   HttpRequestState* state_;    // Alias to request state.
   HttpScribe* scribe_;         // Alias to request's transport scribe.
@@ -848,7 +851,7 @@ HttpRequest::HttpRequest(
       // If for some reason we didnt trust the censor then we can use this
       // attribute to hide parts of the request. This is used for batch
       // requests since the HttpCensor interface does not know about batching.
-      scribe_restrictions_(client::HttpScribe::ALLOW_EVERYTHING),
+      scribe_restrictions_(HttpScribe::ALLOW_EVERYTHING),
       busy_(false) {
   CHECK_NOTNULL(transport);
 
@@ -868,6 +871,7 @@ void HttpRequest::DestroyWhenDone() {
     options_.set_destroy_when_done(true);
   }
 }
+
 
 void HttpRequest::set_content_reader(DataReader* reader) {
   content_reader_.reset(reader);
@@ -896,18 +900,17 @@ void HttpRequest::Clear() {
   header_map_.clear();
 }
 
-const string* HttpRequest::FindHeaderValue(const StringPiece& name) const {
-  HttpHeaderMap::const_iterator found = header_map_.find(name.as_string());
+const string* HttpRequest::FindHeaderValue(const string& name) const {
+  HttpHeaderMap::const_iterator found = header_map_.find(name);
   return (found == header_map_.end()) ? NULL : &found->second;
 }
 
-void HttpRequest::RemoveHeader(const StringPiece& name) {
-  header_map_.erase(name.as_string());
+void HttpRequest::RemoveHeader(const string& name) {
+  header_map_.erase(name);
 }
 
-void HttpRequest::AddHeader(
-    const StringPiece& name, const StringPiece& value) {
-  header_map_[name.as_string()] = value.as_string();
+void HttpRequest::AddHeader(const string& name, const string& value) {
+  header_map_[name] = value;
 }
 
 void HttpRequest::WillNotExecute(util::Status status) {
@@ -961,7 +964,7 @@ util::Status HttpRequest::PrepareRedirect(int num_redirects) {
 
   const HttpHeaderMultiMap& response_headers = response_->headers();
   HttpHeaderMultiMap::const_iterator location =
-      response_headers.find(HttpRequest::HttpHeader_LOCATION.as_string());
+      response_headers.find(HttpRequest::HttpHeader_LOCATION);
   if (location == response_headers.end()) {
     return StatusUnknown(
         StrCat("Received HTTP ", response_->http_code(),
@@ -981,7 +984,7 @@ util::Status HttpRequest::PrepareRedirect(int num_redirects) {
     }
   }
 
-  util::Status status = PrepareToReuse();
+  googleapis::util::Status status = PrepareToReuse();
   if (status.ok()) {
     // Reauthorize request if network location hasnt changed.
     if (credential_) {
@@ -1008,15 +1011,15 @@ util::Status HttpRequest::PrepareToReuse() {
   state->TransitionAndNotifyIfDone(HttpRequestState::UNSENT);
   response_->ClearHeaders();
 
-  std::vector<StringPiece> remove_headers;
+  std::vector<string> remove_headers;
   string trace;
   for (HttpHeaderMap::const_iterator it = header_map_.begin();
        it != header_map_.end();
        ++it) {
     if (it->first.size() > 3
-        && (CaseEqual(it->first, HttpHeader_AUTHORIZATION)
-            || CaseEqual("if-none-match", it->first)
-            || CaseEqual("if-modified-since", it->first))) {
+        && (StringCaseEqual(it->first, HttpHeader_AUTHORIZATION)
+            || StringCaseEqual("if-none-match", it->first)
+            || StringCaseEqual("if-modified-since", it->first))) {
       remove_headers.push_back(it->first);
       if (VLOG_IS_ON(1)) {
         StrAppend(&trace, " ", it->first);
@@ -1024,7 +1027,7 @@ util::Status HttpRequest::PrepareToReuse() {
     }
   }
   VLOG(1) << "Stripping headers on redirect: " << trace;
-  for (std::vector<StringPiece>::const_iterator it = remove_headers.begin();
+  for (std::vector<string>::const_iterator it = remove_headers.begin();
        it != remove_headers.end();
        ++it) {
     RemoveHeader(*it);
@@ -1041,7 +1044,7 @@ void HttpRequest::AddBuiltinHeaders() {
 
   if (!FindHeaderValue(HttpHeader_HOST)) {
     ParsedUrl parsed_url(url_);
-    AddHeader(HttpHeader_HOST, parsed_url.netloc());
+    AddHeader(HttpHeader_HOST, parsed_url.netloc().as_string());
   }
 
   if (content_reader_.get()) {

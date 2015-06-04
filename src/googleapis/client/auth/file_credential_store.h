@@ -17,15 +17,15 @@
  * @}
  */
 
-#ifndef APISERVING_CLIENTS_CPP_AUTH_FILE_CREDENTIAL_STORE_H_
-#define APISERVING_CLIENTS_CPP_AUTH_FILE_CREDENTIAL_STORE_H_
+#ifndef GOOGLEAPIS_AUTH_FILE_CREDENTIAL_STORE_H_
+#define GOOGLEAPIS_AUTH_FILE_CREDENTIAL_STORE_H_
 
 #include <string>
 using std::string;
 #include "googleapis/client/auth/credential_store.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -90,7 +90,7 @@ class FileCredentialStoreFactory : public CredentialStoreFactory {
    * @return NULL is returned on failure.
    */
   virtual CredentialStore* NewCredentialStore(
-      const string& client_id, util::Status* status) const;
+      const string& client_id, googleapis::util::Status* status) const;
 
   /*
    * Returns the path in the $HOME directory for the googleapis store.
@@ -101,7 +101,7 @@ class FileCredentialStoreFactory : public CredentialStoreFactory {
    * @param[out] path The home directory path for storing credentials.
    * @return ok or reason for directory could not be determined.
    */
-  static util::Status GetSystemHomeDirectoryStorePath(string* path);
+  static googleapis::util::Status GetSystemHomeDirectoryStorePath(string* path);
 
  private:
   const string root_path_;
@@ -111,4 +111,4 @@ class FileCredentialStoreFactory : public CredentialStoreFactory {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_AUTH_FILE_CREDENTIAL_STORE_H_
+#endif  // GOOGLEAPIS_AUTH_FILE_CREDENTIAL_STORE_H_

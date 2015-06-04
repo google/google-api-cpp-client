@@ -18,8 +18,8 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_JSON_PLAYBACK_TRANSPORT_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_JSON_PLAYBACK_TRANSPORT_H_
+#ifndef GOOGLEAPIS_TRANSPORT_JSON_PLAYBACK_TRANSPORT_H_
+#define GOOGLEAPIS_TRANSPORT_JSON_PLAYBACK_TRANSPORT_H_
 
 #include <memory>
 
@@ -111,7 +111,7 @@ class JsonPlaybackTransport : public HttpTransport {
    *
    * @see set_transport
    */
-  util::Status LoadTranscript(DataReader* reader);
+  googleapis::util::Status LoadTranscript(DataReader* reader);
 
   /*
    * Sets the current transcript to the one provdied.
@@ -157,7 +157,7 @@ class JsonPlaybackTransport : public HttpTransport {
   /*
    * The default id() attribute value identifying curl transport instances.
    */
-  static const StringPiece kTransportIdentifier;
+  static const char kTransportIdentifier[];
 
  private:
   std::unique_ptr<JsonPlaybackTranscript> transcript_storage_;
@@ -208,7 +208,7 @@ class JsonPlaybackTransportFactory : public HttpTransportFactory {
    * @param[in] reader The reader containing the data output by a JsonScribe.
    * @return Whether the transcript could be loaded or not.
    */
-  util::Status LoadTranscript(DataReader* reader);
+  googleapis::util::Status LoadTranscript(DataReader* reader);
 
   /*
    * Changes the censor used by this factory.
@@ -243,4 +243,4 @@ class JsonPlaybackTransportFactory : public HttpTransportFactory {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_JSON_PLAYBACK_TRANSPORT_H_
+#endif  // GOOGLEAPIS_TRANSPORT_JSON_PLAYBACK_TRANSPORT_H_

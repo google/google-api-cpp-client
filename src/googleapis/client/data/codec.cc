@@ -28,9 +28,9 @@ using std::reverse;
 using std::swap;
 #include "googleapis/client/data/codec.h"
 #include "googleapis/client/data/data_reader.h"
+#include "googleapis/client/util/status.h"
 #include <glog/logging.h>
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -44,7 +44,7 @@ Codec::~Codec() {
 
 util::Status Codec::Encode(const StringPiece& plain, string* encoded) {
   std::unique_ptr<DataReader> source(NewUnmanagedInMemoryDataReader(plain));
-  util::Status status;
+  googleapis::util::Status status;
   std::unique_ptr<DataReader> reader(
       NewUnmanagedEncodingReader(source.get(), &status));
   if (status.ok()) {
@@ -58,7 +58,7 @@ util::Status Codec::Encode(const StringPiece& plain, string* encoded) {
 
 util::Status Codec::Decode(const StringPiece& encoded, string* plain) {
   std::unique_ptr<DataReader> source(NewUnmanagedInMemoryDataReader(encoded));
-  util::Status status;
+  googleapis::util::Status status;
   std::unique_ptr<DataReader> reader(
       NewUnmanagedDecodingReader(source.get(), &status));
   if (status.ok()) {
@@ -108,7 +108,7 @@ CodecReader::~CodecReader() {
 util::Status CodecReader::Init() {
   buffer_->Clear();
   read_final_ = false;
-  return util::Status();
+  return googleapis::util::Status();
 }
 
 int CodecReader::MaybeFetchNextChunk() {
@@ -121,7 +121,7 @@ int CodecReader::MaybeFetchNextChunk() {
     }
 
     if (read > 0 || (source_->done() && !read_final_)) {
-      util::Status status;
+      googleapis::util::Status status;
       int64 transformed_len = buffer_->allocated;
       bool final_chunk = source_->done();
       if (encoding_) {

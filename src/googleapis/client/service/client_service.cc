@@ -39,7 +39,6 @@ using std::string;
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -63,7 +62,7 @@ ClientServiceRequest::~ClientServiceRequest() {
 }
 
 HttpRequest* ClientServiceRequest::ConvertToHttpRequestAndDestroy() {
-  util::Status status = PrepareHttpRequest();
+  googleapis::util::Status status = PrepareHttpRequest();
   if (!status.ok()) {
     LOG(WARNING) << "Error preparing request: " << status.error_message();
     http_request_->mutable_state()->set_transport_status(status);
@@ -95,7 +94,7 @@ void ClientServiceRequest::DestroyWhenDone() {
 
 util::Status ClientServiceRequest::PrepareHttpRequest() {
   string url;
-  util::Status status = PrepareUrl(uri_template_, &url);
+  googleapis::util::Status status = PrepareUrl(uri_template_, &url);
   http_request_->set_url(url);
   VLOG(1) << "Prepared url:" << url;
   return status;
@@ -107,9 +106,9 @@ util::Status ClientServiceRequest::PrepareUrl(
       NewPermanentCallback(this, &ClientServiceRequest::CallAppendVariable));
 
   // Attempt to expand everything for best effort.
-  util::Status expand_status =
+  googleapis::util::Status expand_status =
       UriTemplate::Expand(templated_url, callback.get(), prepared_url);
-  util::Status query_status = AppendOptionalQueryParameters(prepared_url);
+  googleapis::util::Status query_status = AppendOptionalQueryParameters(prepared_url);
 
   return expand_status.ok() ? query_status : expand_status;
 }
@@ -118,7 +117,7 @@ util::Status ClientServiceRequest::Execute() {
   if (uploader_.get()) {
     return this->ExecuteWithUploader();
   }
-  util::Status status = PrepareHttpRequest();
+  googleapis::util::Status status = PrepareHttpRequest();
   if (!status.ok()) {
     http_request_->WillNotExecute(status);
     return status;
@@ -148,7 +147,7 @@ util::Status ClientServiceRequest::ExecuteAndParseResponse(
      SerializableJson* data) {
   bool destroy_when_done = destroy_when_done_;
   destroy_when_done_ = false;
-  util::Status result = Execute();
+  googleapis::util::Status result = Execute();
   if (result.ok()) {
     result = ParseResponse(http_response(), data);
   }
@@ -193,7 +192,7 @@ void ClientServiceRequest::ExecuteAsync(HttpRequestCallback* callback) {
     http_request_->set_callback(callback);
   }
 
-  util::Status status;
+  googleapis::util::Status status;
   if (uploader_.get()) {
     status = uploader_->BuildRequest(
         http_request_.get(),
@@ -276,7 +275,7 @@ util::Status ClientServiceRequest::AppendOptionalQueryParameters(
 util::Status ClientServiceRequest::CallAppendVariable(
     const StringPiece& variable_name, const UriTemplateConfig& config,
     string* target) {
-  util::Status status = AppendVariable(variable_name, config, target);
+  googleapis::util::Status status = AppendVariable(variable_name, config, target);
   if (!status.ok()) {
     VLOG(1) << "Failed appending variable_name='" << variable_name << "'";
   }

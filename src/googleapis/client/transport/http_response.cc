@@ -27,7 +27,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
 #include "googleapis/strings/strcat.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -71,7 +70,7 @@ util::Status HttpResponse::GetBodyString(string* body) {
   }
 
   *body = body_reader_->RemainderToString();
-  util::Status status = body_reader_->status();
+  googleapis::util::Status status = body_reader_->status();
 
   // Attempt to reset the reader, but dont worry about errors.
   // The reset is just to be friendly to subsequent reads.
@@ -86,8 +85,8 @@ void HttpResponse::Clear() {
   headers_.clear();
 }
 
-const string* HttpResponse::FindHeaderValue(const StringPiece& name) const {
-  HttpHeaderMultiMap::const_iterator found = headers_.find(name.as_string());
+const string* HttpResponse::FindHeaderValue(const string& name) const {
+  HttpHeaderMultiMap::const_iterator found = headers_.find(name);
   return (found == headers_.end()) ? NULL : &found->second;
 }
 

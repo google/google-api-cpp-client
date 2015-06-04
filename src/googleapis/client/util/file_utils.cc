@@ -42,7 +42,6 @@ using std::swap;
 #include "googleapis/base/stringprintf.h"
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -118,7 +117,7 @@ util::Status SensitiveFileUtils::WriteSensitiveStringToFile(
     }
 
     // Delete the old file securely first, then we'll rewrite it fresh.
-    util::Status status = DeleteSensitiveFile(path);
+    googleapis::util::Status status = DeleteSensitiveFile(path);
   }
 
   FileOpenOptions options;
@@ -128,7 +127,7 @@ util::Status SensitiveFileUtils::WriteSensitiveStringToFile(
   if (!file) {
     return StatusUnknown(StrCat("Could not write to ", path));
   }
-  util::Status status = file->WriteString(data);
+  googleapis::util::Status status = file->WriteString(data);
   if (!file->Close()) {
     return StatusUnknown(StrCat("Failed to close path=", path));
   }
@@ -166,7 +165,7 @@ util::Status SensitiveFileUtils::DeleteSensitiveFile(const string& path) {
 
     for (int64 wrote = 0; remaining > 0; remaining -= wrote) {
       int64 this_write = std::min(remaining, buffer_length);
-      util::Status status = file->Write(buffer.get(), this_write);
+      googleapis::util::Status status = file->Write(buffer.get(), this_write);
       if (!status.ok()) {
         LOG(ERROR) << "Error overwriting secure path=" << path
                    << ": " << status.error_message();

@@ -43,8 +43,7 @@ using std::vector;
 #include "googleapis/strings/stringpiece.h"
 #include <json/reader.h>
 #include <json/value.h>
-#include "googleapis/util/stl_util.h"
-#include "googleapis/util/status.h"
+#include "util/gtl/stl_util.h"
 
 namespace googleapis {
 
@@ -56,7 +55,7 @@ using client::HttpHeaderMultiMap;
 using client::HttpScribeCensor;
 using client::JsonScribe;
 
-const StringPiece kFakeUserAgent("PlaybackStrippedUserAgent");
+const char kFakeUserAgent[] = "PlaybackStrippedUserAgent";
 
 namespace {
 
@@ -114,7 +113,7 @@ struct RequestRecord {
         if (StringPiece(name) == HttpRequest::HttpHeader_USER_AGENT) {
           // Dont bother matching user agent headers.
           request_headers.insert(
-              std::make_pair(name, kFakeUserAgent.as_string()));
+              std::make_pair(name, kFakeUserAgent));
           continue;
         }
         request_headers.insert(std::make_pair(name, (*it).asCString()));
@@ -152,7 +151,7 @@ struct RequestRecord {
 namespace client {
 
 // static
-const StringPiece JsonPlaybackTransport::kTransportIdentifier("JSON Playback");
+const char JsonPlaybackTransport::kTransportIdentifier[] = "JSON Playback";
 
 class JsonPlaybackTranscript {
  public:
@@ -168,7 +167,7 @@ class JsonPlaybackTranscript {
     }
   }
 
-  util::Status Load(DataReader* reader);
+  googleapis::util::Status Load(DataReader* reader);
   RequestRecord* GetNextRecord(const HttpRequest& request);
   HttpRequest* NewRequest(
       const HttpRequest::HttpMethod& method, HttpTransport* transport);
@@ -234,7 +233,7 @@ class PlaybackRequest : public HttpRequest {
       }
     } else {
       mutable_state()->set_transport_status(
-          util::Status(record->error_code, record->error_message));
+          googleapis::util::Status(record->error_code, record->error_message));
     }
     for (HttpHeaderMultiMap::const_iterator it =
              record->response_headers.begin();
@@ -340,7 +339,7 @@ RequestRecord* JsonPlaybackTranscript::GetNextRecord(
          it != request.headers().end();
          ++it) {
       if (it->first == HttpRequest::HttpHeader_USER_AGENT) {
-        headers.insert(std::make_pair(it->first, kFakeUserAgent.as_string()));
+        headers.insert(std::make_pair(it->first, kFakeUserAgent));
         continue;
       }
       headers.insert(std::make_pair(
@@ -392,7 +391,7 @@ util::Status JsonPlaybackTransport::LoadTranscript(
   std::unique_ptr<JsonPlaybackTranscript> t(
       new JsonPlaybackTranscript(censor_));
   transcript_ = NULL;
-  util::Status status = t->Load(reader);
+  googleapis::util::Status status = t->Load(reader);
   if (status.ok()) {
     transcript_storage_.reset(t.release());
     transcript_ = transcript_storage_.get();
@@ -432,7 +431,7 @@ util::Status JsonPlaybackTransportFactory::LoadTranscript(
      DataReader* reader) {
   std::unique_ptr<JsonPlaybackTranscript> t(
       new JsonPlaybackTranscript(censor_.get()));
-  util::Status status = t->Load(reader);
+  googleapis::util::Status status = t->Load(reader);
   if (status.ok()) {
     transcript_.reset(t.release());
   }

@@ -43,7 +43,6 @@ namespace googleapis {
 namespace {
 using client::DataReader;
 
-const StringPiece kOauth2Prefix("https://accounts.google.com");
 const StringPiece kCensored("CENSORED");
 
 // Make sure we have a value at base + offset.
@@ -151,8 +150,7 @@ HttpScribeCensor::HttpScribeCensor() {
   censored_query_param_names_.insert("client_secret");
   censored_query_param_names_.insert("Passwd");
 
-  censored_request_header_names_.insert(
-      HttpRequest::HttpHeader_AUTHORIZATION.as_string());
+  censored_request_header_names_.insert(HttpRequest::HttpHeader_AUTHORIZATION);
 }
 HttpScribeCensor::~HttpScribeCensor() {}
 
@@ -184,36 +182,36 @@ string HttpScribeCensor::GetCensoredUrl(
 
 string HttpScribeCensor::GetCensoredRequestHeaderValue(
     const HttpRequest& request,
-    const StringPiece& name, const StringPiece& value,
+    const string& name, const string& value,
     bool* censored) const {
   if (request.scribe_restrictions() & HttpScribe::FLAG_NO_REQUEST_HEADERS) {
     *censored = true;
     return "Request headers was not made available";
   }
-  if (censored_request_header_names_.find(name.as_string())
+  if (censored_request_header_names_.find(name)
       != censored_request_header_names_.end()) {
     *censored = true;
     return kCensored.as_string();
   }
   *censored = false;
-  return value.as_string();
+  return value;
 }
 
 string HttpScribeCensor::GetCensoredResponseHeaderValue(
     const HttpRequest& request,
-    const StringPiece& name, const StringPiece& value,
+    const string& name, const string& value,
     bool* censored) const {
   if (request.scribe_restrictions() & HttpScribe::FLAG_NO_RESPONSE_HEADERS) {
     *censored = true;
     return "Request headers was not made available";
   }
-  if (censored_response_header_names_.find(name.as_string())
+  if (censored_response_header_names_.find(name)
       != censored_response_header_names_.end()) {
     *censored = true;
     return kCensored.as_string();
   }
   *censored = false;
-  return value.as_string();
+  return value;
 }
 
 string HttpScribeCensor::GetCensoredRequestContent(
@@ -462,7 +460,7 @@ class HttpEntryScribe::Internal {
   static void RequestFailedWithTransportError(
       HttpEntryScribe* scribe,
       const HttpRequest* request,
-      const util::Status& status) {
+      const googleapis::util::Status& status) {
     HttpEntryScribe::Entry* entry = scribe->GetEntry(request);
     entry->set_received_request(true);
     entry->Failed(request, status);
@@ -474,7 +472,7 @@ class HttpEntryScribe::Internal {
   static void RequestBatchFailedWithTransportError(
       HttpEntryScribe* scribe,
       const HttpRequestBatch* batch,
-      const util::Status& status) {
+      const googleapis::util::Status& status) {
     HttpEntryScribe::Entry* entry = scribe->GetBatchEntry(batch);
     entry->set_received_batch(true);
     entry->FailedBatch(batch, status);
@@ -492,12 +490,12 @@ void HttpEntryScribe::ReceivedResponseForRequestBatch(
 }
 
 void HttpEntryScribe::RequestFailedWithTransportError(
-    const HttpRequest* request, const util::Status& status) {
+    const HttpRequest* request, const googleapis::util::Status& status) {
   Internal::RequestFailedWithTransportError(this, request, status);
 }
 
 void HttpEntryScribe::RequestBatchFailedWithTransportError(
-    const HttpRequestBatch* batch, const util::Status& status) {
+    const HttpRequestBatch* batch, const googleapis::util::Status& status) {
   Internal::RequestBatchFailedWithTransportError(this, batch, status);
 }
 

@@ -18,19 +18,18 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_RESPONSE_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_RESPONSE_H_
+#ifndef GOOGLEAPIS_TRANSPORT_HTTP_RESPONSE_H_
+#define GOOGLEAPIS_TRANSPORT_HTTP_RESPONSE_H_
 
 #include <memory>
 #include <string>
 using std::string;
 #include "googleapis/client/transport/http_types.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
 #include "googleapis/base/thread_annotations.h"
-#include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -144,14 +143,14 @@ class HttpResponse {
    *
    * This method will block until the body_reader() is done reading.
    */
-  util::Status GetBodyString(string* body);
+  googleapis::util::Status GetBodyString(string* body);
 
   /*
    * Returns the transport status.
    *
    * @see HttpRequestState::transport_status()
    */
-  util::Status transport_status() const {
+  googleapis::util::Status transport_status() const {
     return request_state_->transport_status();
   }
 
@@ -160,7 +159,7 @@ class HttpResponse {
    *
    * @see HttpRequestState::transport_status()
    */
-  util::Status status() const { return request_state_->status(); }
+  googleapis::util::Status status() const { return request_state_->status(); }
 
   /*
    * Sets the HTTP status code for the response.
@@ -202,8 +201,8 @@ class HttpResponse {
    * @param[in] name The header name is not necessarily unique.
    * @param[in] value The value for the header.
    */
-  void AddHeader(const StringPiece& name, const StringPiece& value) {
-    headers_.insert(std::make_pair(name.as_string(), value.as_string()));
+  void AddHeader(const string& name, const string& value) {
+    headers_.insert(std::make_pair(name, value));
   }
 
   /*
@@ -220,7 +219,7 @@ class HttpResponse {
    * A non-NULL result will only be valid until a header is added or removed
    * (or the object is destroyed).
    */
-  const string* FindHeaderValue(const StringPiece& name) const;
+  const string* FindHeaderValue(const string& name) const;
 
   /*
    * Blocks the callers thread until this response is done() or
@@ -251,4 +250,4 @@ class HttpResponse {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_RESPONSE_H_
+#endif  // GOOGLEAPIS_TRANSPORT_HTTP_RESPONSE_H_

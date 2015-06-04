@@ -28,7 +28,9 @@ using std::vector;
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
 #include "googleapis/base/mutex.h"
+#ifndef NO_FILE_STORAGE
 #include "googleapis/util/file.h"
+#endif
 #include "googleapis/client/auth/credential_store.h"
 #include "googleapis/client/auth/oauth2_authorization.h"
 #include "googleapis/client/data/data_reader.h"
@@ -37,7 +39,9 @@ using std::vector;
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/client/util/date_time.h"
+#ifndef NO_FILE_STORAGE
 #include "googleapis/client/util/file_utils.h"
+#endif
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_utils.h"
 
@@ -58,7 +62,6 @@ using std::vector;
 #include "googleapis/strings/split.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/util.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -86,7 +89,7 @@ void OAuth2AuthorizationFlow::ResetCredentialStore(CredentialStore* store) {
 class OAuth2AuthorizationFlow::SimpleJsonData {
  public:
   SimpleJsonData() {}
-  util::Status Init(const StringPiece& json);
+  googleapis::util::Status Init(const StringPiece& json);
   string InitFromContainer(const StringPiece& json);
   bool GetString(const char* field, string* value) const;
   bool GetScalar(const char* field, int* value) const;
@@ -103,7 +106,7 @@ util::Status OAuth2AuthorizationFlow::SimpleJsonData::Init(
   Json::Reader reader;
   std::istringstream stream(json.as_string());
   if (!reader.parse(stream, json_)) {
-    util::Status status(StatusInvalidArgument("Invalid JSON"));
+    googleapis::util::Status status(StatusInvalidArgument("Invalid JSON"));
     LOG(ERROR) << status.error_message();
     return status;
   }
@@ -193,7 +196,7 @@ OAuth2ClientSpec::OAuth2ClientSpec()
 OAuth2ClientSpec::~OAuth2ClientSpec() {
 }
 
-const StringPiece OAuth2Credential::kOAuth2CredentialType = "OAuth2";
+const char OAuth2Credential::kOAuth2CredentialType[] = "OAuth2";
 
 OAuth2Credential::OAuth2Credential()
     : flow_(NULL), email_verified_(false) {
@@ -204,7 +207,7 @@ OAuth2Credential::OAuth2Credential()
 OAuth2Credential::~OAuth2Credential() {
 }
 
-const StringPiece OAuth2Credential::type() const {
+const string OAuth2Credential::type() const {
   return kOAuth2CredentialType;
 }
 
@@ -238,7 +241,7 @@ util::Status OAuth2Credential::Load(DataReader* reader) {
 util::Status OAuth2Credential::Update(DataReader* reader) {
   string json = reader->RemainderToString();
   if (reader->error()) {
-    util::Status status(util::error::UNKNOWN, "Invalid credential");
+    googleapis::util::Status status(util::error::UNKNOWN, "Invalid credential");
     LOG(ERROR) << status.error_message();
     return status;
   }
@@ -291,7 +294,7 @@ util::Status OAuth2Credential::AuthorizeRequest(HttpRequest* request) {
 
 util::Status OAuth2Credential::UpdateFromString(const StringPiece& json) {
   OAuth2AuthorizationFlow::SimpleJsonData data;
-  util::Status status = data.Init(json);
+  googleapis::util::Status status = data.Init(json);
   if (!status.ok()) return status;
 
   string str_value;
@@ -403,7 +406,7 @@ util::Status OAuth2AuthorizationFlow::PerformExchangeAuthorizationCode(
   request->set_content_type(HttpRequest::ContentType_FORM_URL_ENCODED);
   request->set_content_reader(NewUnmanagedInMemoryDataReader(content));
 
-  util::Status status = request->Execute();
+  googleapis::util::Status status = request->Execute();
   if (status.ok()) {
     status = credential->Update(request->response()->body_reader());
     if (status.ok() && check_email_ && !options.email.empty()) {
@@ -420,7 +423,7 @@ util::Status OAuth2AuthorizationFlow::PerformExchangeAuthorizationCode(
 
 util::Status OAuth2AuthorizationFlow::PerformRefreshToken(
      const OAuth2RequestOptions& options, OAuth2Credential* credential) {
-  util::Status tokenStatus = ValidateRefreshToken_(credential);
+  googleapis::util::Status tokenStatus = ValidateRefreshToken_(credential);
   if (!tokenStatus.ok()) {
     return tokenStatus;
   }
@@ -428,7 +431,7 @@ util::Status OAuth2AuthorizationFlow::PerformRefreshToken(
   std::unique_ptr<HttpRequest> request(
       ConstructRefreshTokenRequest_(options, credential));
 
-  util::Status status = request->Execute();
+  googleapis::util::Status status = request->Execute();
   if (status.ok()) {
     status = credential->Update(request->response()->body_reader());
   }
@@ -444,7 +447,7 @@ void OAuth2AuthorizationFlow::PerformRefreshTokenAsync(
     const OAuth2RequestOptions& options,
     OAuth2Credential* credential,
     Callback1<util::Status>* callback) {
-  util::Status status = ValidateRefreshToken_(credential);
+  googleapis::util::Status status = ValidateRefreshToken_(credential);
   if (!status.ok()) {
     callback->Run(status);
     return;
@@ -508,7 +511,7 @@ void OAuth2AuthorizationFlow::UpdateCredentialAsync(
     OAuth2Credential* credential,
     Callback1<util::Status>* callback,
     HttpRequest* request) {
-  util::Status status = request->response()->status();
+  googleapis::util::Status status = request->response()->status();
   if (status.ok()) {
     status = credential->Update(request->response()->body_reader());
   }
@@ -540,7 +543,7 @@ util::Status OAuth2AuthorizationFlow::PerformRevokeToken(
       NewManagedInMemoryDataReader(
           StringPiece(*content), DeletePointerClosure(content)));
 
-  util::Status status = request->Execute();
+  googleapis::util::Status status = request->Execute();
   if (status.ok()) {
     token->set("");
   }
@@ -555,7 +558,7 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
     // If we dont have a refresh token, try reloading from the store.
     // This could because we havent yet loaded the credential.
     // If this fails, we'll just handle it as a first-time case.
-    util::Status status =
+    googleapis::util::Status status =
         credential_store_->InitCredential(options.email, credential);
     if (status.ok()) {
       if (check_email_ && credential->email() != options.email) {
@@ -574,7 +577,7 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
   }
 
   // Default status is not ok, meaning we did not make any attempts yet.
-  util::Status refresh_status = StatusUnknown("Do not have authorization");
+  googleapis::util::Status refresh_status = StatusUnknown("Do not have authorization");
   if (!refresh_token.empty()) {
     if (options.email != credential->email()) {
       string error = "Email does not match credential's email";
@@ -598,7 +601,7 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
   if (refresh_status.ok()) {
     // Do nothing until common code below.
   } else if (!authorization_code_callback_.get()) {
-    StringPiece error = "No prompting mechanism provided to get authorization";
+    const char error[] = "No prompting mechanism provided to get authorization";
     LOG(ERROR) << error;
     return StatusUnimplemented(error);
   } else {
@@ -612,7 +615,7 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
     if (actual_options.redirect_uri.empty()) {
       actual_options.redirect_uri = client_spec_.redirect_uri();
     }
-    util::Status status =
+    googleapis::util::Status status =
           authorization_code_callback_->Run(actual_options, &auth_code);
     if (!status.ok()) return status;
 
@@ -634,7 +637,7 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
     if (credential_store_.get()) {
       // TODO(user): 20130301
       // if we havent verified the email yet, then attempt to do so first.
-      util::Status status =
+      googleapis::util::Status status =
           credential_store_->Store(options.email, *credential);
       if (!status.ok()) {
         LOG(WARNING) << "Could not store credential: "
@@ -682,26 +685,10 @@ string OAuth2AuthorizationFlow::JoinScopes(
 
 // static
 OAuth2AuthorizationFlow*
-OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
-    const StringPiece& path,
-    HttpTransport* transport,
-    util::Status* status) {
-  *status = SensitiveFileUtils::VerifyIsSecureFile(path.as_string(), false);
-  if (!status->ok()) return NULL;
-
-  string json;
-  *status = File::ReadPath(path.as_string(), &json);
-  if (!status->ok()) return NULL;
-
-  return MakeFlowFromClientSecretsJson(json, transport, status);
-}
-
-// static
-OAuth2AuthorizationFlow*
 OAuth2AuthorizationFlow::MakeFlowFromClientSecretsJson(
     const StringPiece& json,
     HttpTransport* transport,
-    util::Status* status) {
+    googleapis::util::Status* status) {
   std::unique_ptr<HttpTransport> transport_deleter(transport);
   if (!transport) {
     *status = StatusInvalidArgument("No transport instance provided");
@@ -733,18 +720,6 @@ OAuth2AuthorizationFlow::MakeFlowFromClientSecretsJson(
     return flow.release();
   }
   return NULL;
-}
-
-util::Status OAuth2AuthorizationFlow::InitFromClientSecretsPath(
-    const string& path) {
-  util::Status status = SensitiveFileUtils::VerifyIsSecureFile(path, false);
-  if (!status.ok()) return status;
-
-  string json;
-  status = File::ReadPath(path, &json);
-  if (!status.ok()) return status;
-
-  return InitFromJson(json);
 }
 
 util::Status OAuth2AuthorizationFlow::InitFromJson(const StringPiece& json) {
@@ -824,7 +799,7 @@ string OAuth2WebApplicationFlow::GenerateAuthorizationCodeRequestUrl(
 
 util::Status OAuth2WebApplicationFlow::InitFromJsonData(
      const OAuth2AuthorizationFlow::SimpleJsonData* data) {
-  util::Status status = OAuth2AuthorizationFlow::InitFromJsonData(data);
+  googleapis::util::Status status = OAuth2AuthorizationFlow::InitFromJsonData(data);
 
   if (status.ok()) {
     string value;
@@ -846,6 +821,36 @@ util::Status OAuth2WebApplicationFlow::InitFromJsonData(
 
   return status;
 }
+
+#ifndef NO_FILE_STORAGE
+// static
+OAuth2AuthorizationFlow*
+OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
+    const StringPiece& path,
+    HttpTransport* transport,
+    googleapis::util::Status* status) {
+  *status = SensitiveFileUtils::VerifyIsSecureFile(path.as_string(), false);
+  if (!status->ok()) return NULL;
+
+  string json;
+  *status = File::ReadPath(path.as_string(), &json);
+  if (!status->ok()) return NULL;
+
+  return MakeFlowFromClientSecretsJson(json, transport, status);
+}
+
+util::Status OAuth2AuthorizationFlow::InitFromClientSecretsPath(
+    const string& path) {
+  googleapis::util::Status status = SensitiveFileUtils::VerifyIsSecureFile(path, false);
+  if (!status.ok()) return status;
+
+  string json;
+  status = File::ReadPath(path, &json);
+  if (!status.ok()) return status;
+
+  return InitFromJson(json);
+}
+#endif  // NO_FILE_STORAGE
 
 }  // namespace client
 

@@ -26,17 +26,17 @@
  * byte sequences or on individual chunks.
  */
 
-#ifndef APISERVING_CLIENTS_CPP_DATA_CODEC_H_
-#define APISERVING_CLIENTS_CPP_DATA_CODEC_H_
+#ifndef GOOGLEAPIS_DATA_CODEC_H_
+#define GOOGLEAPIS_DATA_CODEC_H_
 
 #include <memory>
 #include <string>
 using std::string;
 
 #include "googleapis/client/data/data_reader.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -72,7 +72,7 @@ class Codec {
    *
    * @see Decode
    */
-  virtual util::Status Encode(
+  virtual googleapis::util::Status Encode(
       const StringPiece& decoded, string* encoded);
 
   /*
@@ -87,7 +87,7 @@ class Codec {
    *
    * @see Encode
    */
-  virtual util::Status Decode(
+  virtual googleapis::util::Status Decode(
       const StringPiece& encoded, string* unencoded);
 
   /*
@@ -111,7 +111,7 @@ class Codec {
    * @see NewManagedDecodingReader
    */
   virtual DataReader* NewManagedEncodingReader(
-      DataReader* reader, Closure* deleter, util::Status* status) = 0;
+      DataReader* reader, Closure* deleter, googleapis::util::Status* status) = 0;
 
   /*
    * Creates a reader that decodes all the output of another reader.
@@ -134,7 +134,7 @@ class Codec {
    * @see NewManagedEnccodingReader
    */
   virtual DataReader* NewManagedDecodingReader(
-      DataReader* reader, Closure* deleter, util::Status* status) = 0;
+      DataReader* reader, Closure* deleter, googleapis::util::Status* status) = 0;
 
   /*
    * Creates a reader that encodes the output of another reader.
@@ -145,7 +145,7 @@ class Codec {
    * @see NewManagedEncodingReader
    */
   DataReader* NewUnmanagedEncodingReader(
-      DataReader* reader, util::Status* status) {
+      DataReader* reader, googleapis::util::Status* status) {
     return NewManagedEncodingReader(reader, NULL, status);
   }
 
@@ -158,7 +158,7 @@ class Codec {
    * @see NewManagedDecodingReader
    */
   DataReader* NewUnmanagedDecodingReader(
-      DataReader* reader, util::Status* status) {
+      DataReader* reader, googleapis::util::Status* status) {
     return NewManagedDecodingReader(reader, NULL, status);
   }
 
@@ -231,7 +231,7 @@ class CodecReader : public DataReader {
   /*
    * Called when resetting readers (seeking to start)
    */
-  virtual util::Status Init();
+  virtual googleapis::util::Status Init();
 
  protected:
   /*
@@ -269,7 +269,7 @@ class CodecReader : public DataReader {
    * @param[in,out] to_len The size of the 'to' buffer on input.
    *                       The amount of data written into 'to' on output.
    */
-  virtual util::Status EncodeChunk(
+  virtual googleapis::util::Status EncodeChunk(
       const StringPiece& from, bool final, char* to, int64* to_len) = 0;
 
   /*
@@ -281,7 +281,7 @@ class CodecReader : public DataReader {
    * @param[in,out] to_len The size of the 'to' buffer on input.
    *                       The amount of data written into 'to' on output.
    */
-  virtual util::Status DecodeChunk(
+  virtual googleapis::util::Status DecodeChunk(
       const StringPiece& from, bool final, char* to, int64* to_len) = 0;
 
  private:
@@ -303,4 +303,4 @@ class CodecReader : public DataReader {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_DATA_CODEC_H_
+#endif  // GOOGLEAPIS_DATA_CODEC_H_

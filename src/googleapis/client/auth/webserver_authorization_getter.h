@@ -18,8 +18,8 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_AUTH_WEBSERVER_AUTHORIZATION_GETTER_H_
-#define APISERVING_CLIENTS_CPP_AUTH_WEBSERVER_AUTHORIZATION_GETTER_H_
+#ifndef GOOGLEAPIS_AUTH_WEBSERVER_AUTHORIZATION_GETTER_H_
+#define GOOGLEAPIS_AUTH_WEBSERVER_AUTHORIZATION_GETTER_H_
 #include <memory>
 #include <ostream>  // NOLINT
 #include <string>
@@ -27,13 +27,13 @@ using std::string;
 
 #include "googleapis/client/auth/oauth2_authorization.h"
 #include "googleapis/client/util/abstract_webserver.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
 #include "googleapis/base/thread_annotations.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -53,7 +53,7 @@ class WebServerAuthorizationCodeGetter {
    * Callback used to prompt for authorization.
    * Receiving authorization will happen through a web server handler.
    */
-  typedef ResultCallback1< util::Status, const StringPiece& > AskCallback;
+  typedef ResultCallback1< googleapis::util::Status, const StringPiece& > AskCallback;
 
   /*
    * Standard constructor.
@@ -104,7 +104,7 @@ class WebServerAuthorizationCodeGetter {
   virtual void  AddReceiveAuthorizationCodeUrlPath(
       const StringPiece& path, AbstractWebServer* httpd);
 
-  virtual util::Status PromptForAuthorizationCode(
+  virtual googleapis::util::Status PromptForAuthorizationCode(
       OAuth2AuthorizationFlow* flow,
       const OAuth2RequestOptions& options,
       string* authorization_code);
@@ -112,17 +112,17 @@ class WebServerAuthorizationCodeGetter {
   /*
    * A suitable function for an asker that execute a command (e.g. a browser).
    */
-  static util::Status PromptWithCommand(
+  static googleapis::util::Status PromptWithCommand(
       const string& program, const string& args, const StringPiece& url);
 
   /*
    * A suitable function for an asker that prompts a console.
    */
-  static util::Status PromptWithOstream(
+  static googleapis::util::Status PromptWithOstream(
        std::ostream* ostream, const string& prompt, const StringPiece& url);
 
  protected:
-  virtual util::Status AskForAuthorization(const StringPiece& url);
+  virtual googleapis::util::Status AskForAuthorization(const StringPiece& url);
 
  private:
   int64 timeout_ms_;
@@ -130,9 +130,9 @@ class WebServerAuthorizationCodeGetter {
   Mutex mutex_;
   CondVar authorization_condvar_        GUARDED_BY(mutex_);
   string authorization_code_            GUARDED_BY(mutex_);
-  util::Status authorization_status_  GUARDED_BY(mutex_);
+  googleapis::util::Status authorization_status_  GUARDED_BY(mutex_);
 
-  util::Status ReceiveAuthorizationCode(WebServerRequest* request);
+  googleapis::util::Status ReceiveAuthorizationCode(WebServerRequest* request);
 
   DISALLOW_COPY_AND_ASSIGN(WebServerAuthorizationCodeGetter);
 };
@@ -140,4 +140,4 @@ class WebServerAuthorizationCodeGetter {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_AUTH_WEBSERVER_AUTHORIZATION_GETTER_H_
+#endif  // GOOGLEAPIS_AUTH_WEBSERVER_AUTHORIZATION_GETTER_H_

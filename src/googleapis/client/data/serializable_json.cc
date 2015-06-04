@@ -28,7 +28,6 @@ using std::string;
 #include "googleapis/client/data/serializable_json.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 

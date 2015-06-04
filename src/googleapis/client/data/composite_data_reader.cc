@@ -26,7 +26,6 @@ using std::vector;
 #include "googleapis/base/integral_types.h"
 #include <glog/logging.h>
 #include "googleapis/strings/strcat.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 

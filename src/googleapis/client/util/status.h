@@ -22,12 +22,17 @@
  *
  * These are generic utility classes and functions within the Platform Layer.
  */
-#ifndef APISERVING_CLIENTS_CPP_UTIL_STATUS_H_
-#define APISERVING_CLIENTS_CPP_UTIL_STATUS_H_
+#ifndef GOOGLEAPIS_UTIL_STATUS_H_
+#define GOOGLEAPIS_UTIL_STATUS_H_
+
+#include <string>
+using std::string;
+
 #include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
+
 
 /*
  * Determine status error::Code to use from a standard Posix errno code.
@@ -50,7 +55,7 @@ util::error::Code ErrnoCodeToStatusEnum(int errno_code);
  * @return The status returned will be ok for errno_code 0, otherwise,
  *         it will be some form of failure.
  */
-util::Status StatusFromErrno(int errno_code, const StringPiece& msg = "");
+util::Status StatusFromErrno(int errno_code, const string& msg = "");
 
 /*
  * Determine status error::Code to use from a standard HTTP response status
@@ -83,7 +88,7 @@ const string HttpCodeToHttpErrorMessage(int http_code);
  * @return The status returned will be ok for 2xx series responses, otherwise,
  *         it will be some form of failure.
  */
-util::Status StatusFromHttp(int http_code, const StringPiece& msg = "");
+util::Status StatusFromHttp(int http_code, const string& msg = "");
 
 /*
  * Shorthand notation for creating a status from a standard util::error enum
@@ -91,98 +96,98 @@ util::Status StatusFromHttp(int http_code, const StringPiece& msg = "");
  * namespace stripped from it.
  */
 #define STATUS_FROM_ENUM(symbol, msg) \
-  util::Status(util::error::symbol, msg)
+  googleapis::util::Status(util::error::symbol, msg)
 
 /*
  * Creates a standard OK status.
  */
-inline util::Status  StatusOk() { return util::Status(); }
+inline googleapis::util::Status  StatusOk() { return googleapis::util::Status(); }
 
 /*
  * Creates a standard ABORTED status.
  */
-inline util::Status StatusAborted(const StringPiece& msg) {
+inline googleapis::util::Status StatusAborted(const string& msg) {
   return STATUS_FROM_ENUM(ABORTED, msg);
 }
 
 /*
  * Creates a standard CANCELLED status.
  */
-inline util::Status StatusCanceled(const StringPiece& msg) {
+inline googleapis::util::Status StatusCanceled(const string& msg) {
   return STATUS_FROM_ENUM(CANCELLED, msg);
 }
 
 /*
  * Creates a standard DATA_LOSS status.
  */
-inline util::Status StatusDataLoss(const StringPiece& msg) {
+inline googleapis::util::Status StatusDataLoss(const string& msg) {
   return STATUS_FROM_ENUM(DATA_LOSS, msg);
 }
 
 /*
  * Creates a standard DEADLINE_EXCEEDED status.
  */
-inline util::Status StatusDeadlineExceeded(const StringPiece& msg) {
+inline googleapis::util::Status StatusDeadlineExceeded(const string& msg) {
   return STATUS_FROM_ENUM(DEADLINE_EXCEEDED, msg);
 }
 
 /*
  * Creates a standard INTERNAL status.
  */
-inline util::Status StatusInternalError(const StringPiece& msg) {
+inline googleapis::util::Status StatusInternalError(const string& msg) {
   return STATUS_FROM_ENUM(INTERNAL, msg);
 }
 
 /*
  * Creates a standard INVALID_ARGUMENT status.
  */
-inline util::Status StatusInvalidArgument(const StringPiece& msg) {
+inline googleapis::util::Status StatusInvalidArgument(const string& msg) {
   return STATUS_FROM_ENUM(INVALID_ARGUMENT, msg);
 }
 
 /*
  * Creates a standard OUT_OF_RANGE status.
  */
-inline util::Status StatusOutOfRange(const StringPiece& msg) {
+inline googleapis::util::Status StatusOutOfRange(const string& msg) {
   return STATUS_FROM_ENUM(OUT_OF_RANGE, msg);
 }
 
 /*
  * Creates a standard PERMISSION_DENIED status.
  */
-inline util::Status StatusPermissionDenied(const StringPiece& msg) {
+inline googleapis::util::Status StatusPermissionDenied(const string& msg) {
   return STATUS_FROM_ENUM(PERMISSION_DENIED, msg);
 }
 
 /*
  * Creates a standard UNIMPLEMENTED status.
  */
-inline util::Status StatusUnimplemented(const StringPiece& msg) {
+inline googleapis::util::Status StatusUnimplemented(const string& msg) {
   return STATUS_FROM_ENUM(UNIMPLEMENTED, msg);
 }
 
 /*
  * Creates a standard UNKNOWN status.
  */
-inline util::Status StatusUnknown(const StringPiece& msg) {
+inline googleapis::util::Status StatusUnknown(const string& msg) {
   return STATUS_FROM_ENUM(UNKNOWN, msg);
 }
 
 /*
  * Creates a standard RESOURCE_EXHAUSTED status.
  */
-inline util::Status StatusResourceExhausted(const StringPiece& msg) {
+inline googleapis::util::Status StatusResourceExhausted(const string& msg) {
   return STATUS_FROM_ENUM(RESOURCE_EXHAUSTED, msg);
 }
 
 /*
  * Creates a standard FAILED_PRECONDITION status.
  */
-inline util::Status StatusFailedPrecondition(const StringPiece& msg) {
+inline googleapis::util::Status StatusFailedPrecondition(const string& msg) {
   return STATUS_FROM_ENUM(FAILED_PRECONDITION, msg);
 }
 
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_UTIL_STATUS_H_
+#endif  // GOOGLEAPIS_UTIL_STATUS_H_

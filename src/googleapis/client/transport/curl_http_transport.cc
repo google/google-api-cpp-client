@@ -42,18 +42,10 @@ using std::vector;
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
-#ifdef GOOGLECLIENT
-// Include without third_party so the ABI switching can happen. See curl.gyp.
-// TODO(user): When moving to FoM, we would not want to do this.
 #include "curl/curl.h"
-#endif
 #include "googleapis/strings/case.h"
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/strip.h"
-#ifndef GOOGLECLIENT
-#include <curl/curl.h>
-#endif
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -143,7 +135,7 @@ util::Status StatusFromCurlCode(CURLcode code, const StringPiece& msg) {
       status_code = util::error::UNKNOWN;
   }
 
-  return util::Status(status_code, StrCat(type, ". curl=", code, detail));
+  return googleapis::util::Status(status_code, StrCat(type, ". curl=", code, detail));
 }
 
 // The CurlProcessor is an individual stateful request processor.
@@ -181,13 +173,13 @@ class CurlProcessor {
   int http_code_;
   char error_buffer_[CURL_ERROR_SIZE];
 
-  util::Status LazyInitCurl() {
+  googleapis::util::Status LazyInitCurl() {
     if (!curl_) {
       curl_ = curl_easy_init();
       if (!curl_) {
         return StatusInternalError("Could not initialize curl");
       }
-      util::Status status = InitStandardOptions();
+      googleapis::util::Status status = InitStandardOptions();
       if (!status.ok()) {
         curl_easy_cleanup(curl_);
         curl_ = NULL;
@@ -197,7 +189,7 @@ class CurlProcessor {
     return StatusOk();
   }
 
-  util::Status InitStandardOptions() {
+  googleapis::util::Status InitStandardOptions() {
     bool ok = true;
     ok = ok && !curl_easy_setopt(
         curl_, CURLOPT_HEADERFUNCTION, ResultHeaderCallback);
@@ -211,7 +203,7 @@ class CurlProcessor {
     ok = ok && !curl_easy_setopt(curl_, CURLOPT_READDATA, this);
     ok = ok && !curl_easy_setopt(curl_, CURLOPT_ERRORBUFFER, error_buffer_);
     if (!ok) {
-      StringPiece error = "Unexpected error setting up basic IO helpers";
+      const char error[] = "Unexpected error setting up basic IO helpers";
       LOG(ERROR) << error;
       return StatusInternalError(error);
     }
@@ -225,7 +217,7 @@ class CurlProcessor {
             curl_, CURLOPT_PROXYPORT, options.proxy_port());
       }
       if (!ok) {
-        StringPiece error = "Unexpected error setting proxy";
+        const char error[] = "Unexpected error setting proxy";
         LOG(ERROR) << error;
         return StatusInternalError(error);
       }
@@ -238,7 +230,7 @@ class CurlProcessor {
           << "Disabling SSL_VERIFYPEER.";
       curl_easy_setopt(curl_, CURLOPT_SSL_VERIFYPEER, false);
     } else if (cacerts_path.empty()) {
-      StringPiece error = "Transport options have no caccerts_path.";
+      const char error[] = "Transport options have no caccerts_path.";
       LOG(ERROR) << error;
       return StatusInternalError(error);
     } else if (curl_easy_setopt(curl_, CURLOPT_CAINFO, cacerts_path.c_str())) {
@@ -265,7 +257,7 @@ class CurlProcessor {
     ok = ok && !curl_easy_setopt(curl_, CURLOPT_FOLLOWLOCATION, 0);
 
     if (!ok) {
-      StringPiece error = "Failed some transport configuration";
+      const char error[] = "Failed some transport configuration";
       LOG(ERROR) << error;
       return StatusInternalError(error);
     }
@@ -273,9 +265,9 @@ class CurlProcessor {
     return StatusOk();
   }
 
-  util::Status PrepareRequestOptions(
+  googleapis::util::Status PrepareRequestOptions(
       const HttpRequest* request, struct curl_slist** curl_headers) {
-    util::Status status = LazyInitCurl();
+    googleapis::util::Status status = LazyInitCurl();
     if (!status.ok()) {
       return status;
     }
@@ -371,7 +363,7 @@ class CurlProcessor {
     send_content_reader_ = request->content_reader();
 
     struct curl_slist* curl_headers = NULL;
-    util::Status status = PrepareRequestOptions(request, &curl_headers);
+    googleapis::util::Status status = PrepareRequestOptions(request, &curl_headers);
     HttpRequestState* state = request->mutable_state();
 
     if (status.ok()) {
@@ -470,7 +462,8 @@ class CurlProcessor {
         CHECK_NE(string::npos, colon) << "Header=[" << header << "]";
         StringPiece value = header.substr(colon + 1);
         StripWhitespace(&value);
-        processor->response_->AddHeader(header.substr(0, colon), value);
+        processor->response_->AddHeader(header.substr(0, colon).as_string(),
+                                        value.as_string());
       }
     }
 
@@ -485,7 +478,7 @@ class CurlProcessor {
     if (writer->size() == 0 && data_len > 0) {
       writer->Begin();
     }
-    util::Status status = writer->Write(data_len, static_cast<char*>(data));
+    googleapis::util::Status status = writer->Write(data_len, static_cast<char*>(data));
     if (status.ok()) {
       return data_len;
     }
@@ -527,7 +520,7 @@ void CurlHttpRequest::DoExecute(HttpResponse* response) {
 }
 
 // static
-const StringPiece CurlHttpTransport::kTransportIdentifier("Curl");
+const char CurlHttpTransport::kTransportIdentifier[] = "Curl";
 
 CurlHttpTransport::CurlHttpTransport(const HttpTransportOptions& options)
     : HttpTransport(options) {

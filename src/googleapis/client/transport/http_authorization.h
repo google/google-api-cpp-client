@@ -18,16 +18,15 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_AUTHORIZATION_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_AUTHORIZATION_H_
+#ifndef GOOGLEAPIS_TRANSPORT_HTTP_AUTHORIZATION_H_
+#define GOOGLEAPIS_TRANSPORT_HTTP_AUTHORIZATION_H_
 
 #include <string>
 using std::string;
 
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -55,14 +54,14 @@ class AuthorizationCredential {
   /*
    * Returns the type of credential for tracing/debug purposes.
    */
-  virtual const StringPiece type() const = 0;
+  virtual const string type() const = 0;
 
   /*
    * Refreshes credential.
    *
    * @return ok or reason for failure.
    */
-  virtual util::Status Refresh() = 0;
+  virtual googleapis::util::Status Refresh() = 0;
 
   /*
    * Refreshes credential asynchronously.
@@ -79,7 +78,7 @@ class AuthorizationCredential {
    *
    * @see MakeDataReader
    */
-  virtual util::Status Load(DataReader* serialized_credential) = 0;
+  virtual googleapis::util::Status Load(DataReader* serialized_credential) = 0;
 
   /*
    * Creates a DataReader stream serializing the credential.
@@ -98,10 +97,10 @@ class AuthorizationCredential {
    *         not guarantee that the server will accept the authorization
    *         but a failure guarantees that it will not.
    */
-  virtual util::Status AuthorizeRequest(HttpRequest* request) = 0;
+  virtual googleapis::util::Status AuthorizeRequest(HttpRequest* request) = 0;
 };
 
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_AUTHORIZATION_H_
+#endif  // GOOGLEAPIS_TRANSPORT_HTTP_AUTHORIZATION_H_

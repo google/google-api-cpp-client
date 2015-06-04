@@ -29,8 +29,8 @@
  * Additional transports can be found in among the Transport Layer Testing
  * components.
  */
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_CURL_HTTP_TRANSPORT_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_CURL_HTTP_TRANSPORT_H_
+#ifndef GOOGLEAPIS_TRANSPORT_CURL_HTTP_TRANSPORT_H_
+#define GOOGLEAPIS_TRANSPORT_CURL_HTTP_TRANSPORT_H_
 
 #include <vector>
 using std::vector;
@@ -99,7 +99,7 @@ class CurlHttpTransport : public HttpTransport {
   /*
    * The default id() attribute value identifying curl transport instances.
    */
-  static const StringPiece kTransportIdentifier;
+  static const char kTransportIdentifier[];
 
  private:
   // For efficiency we maintain a free-list of curl processors for use by
@@ -175,4 +175,4 @@ class CurlHttpTransportFactory : public HttpTransportFactory {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_CURL_HTTP_TRANSPORT_H_
+#endif  // GOOGLEAPIS_TRANSPORT_CURL_HTTP_TRANSPORT_H_

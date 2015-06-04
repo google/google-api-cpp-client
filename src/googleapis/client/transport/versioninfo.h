@@ -18,8 +18,8 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_VERSIONINFO_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_VERSIONINFO_H_
+#ifndef GOOGLEAPIS_TRANSPORT_VERSIONINFO_H_
+#define GOOGLEAPIS_TRANSPORT_VERSIONINFO_H_
 
 #include <string>
 namespace googleapis {
@@ -67,4 +67,4 @@ class VersionInfo {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_VERSIONINFO_H_
+#endif  // GOOGLEAPIS_TRANSPORT_VERSIONINFO_H_

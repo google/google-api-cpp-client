@@ -18,15 +18,15 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_DATA_BASE64_CODEC_H_
-#define APISERVING_CLIENTS_CPP_DATA_BASE64_CODEC_H_
+#ifndef GOOGLEAPIS_DATA_BASE64_CODEC_H_
+#define GOOGLEAPIS_DATA_BASE64_CODEC_H_
 
 #include <string>
 using std::string;
 #include "googleapis/client/data/codec.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -67,7 +67,7 @@ class Base64Codec : public Codec {
    * @return The reader  will be an InvalidDataReader on failure, not NULL.
    */
   virtual DataReader* NewManagedEncodingReader(
-      DataReader* reader, Closure* deleter, util::Status* status);
+      DataReader* reader, Closure* deleter, googleapis::util::Status* status);
 
   /*
    * Returns a reader that will decode another reader using this codec.
@@ -80,7 +80,7 @@ class Base64Codec : public Codec {
    * @return The reader will be an InvalidDataReader on failure, not NULL.
    */
   virtual DataReader* NewManagedDecodingReader(
-      DataReader* reader, Closure* deleter, util::Status* status);
+      DataReader* reader, Closure* deleter, googleapis::util::Status* status);
 
  private:
   int chunk_size_;
@@ -148,4 +148,4 @@ class Base64CodecFactory : public CodecFactory {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_DATA_BASE64_CODEC_H_
+#endif  // GOOGLEAPIS_DATA_BASE64_CODEC_H_

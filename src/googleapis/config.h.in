@@ -1,5 +1,5 @@
-#ifndef APISERVING_CLIENTS_CPP_CONFIG_H_
-#define APISERVING_CLIENTS_CPP_CONFIG_H_
+#ifndef GOOGLEAPIS_CONFIG_H_
+#define GOOGLEAPIS_CONFIG_H_
 
 #define googleapis_VERSION_MAJOR @googleapis_VERSION_MAJOR@
 #define googleapis_VERSION_MINOR @googleapis_VERSION_MINOR@
@@ -25,4 +25,4 @@
 // as an embedded http server.
 #cmakedefine HAVE_MONGOOSE  @HAVE_MONGOOSE@
 
-#endif  // APISERVING_CLIENTS_CPP_CONFIG_H_
+#endif  // GOOGLEAPIS_CONFIG_H_

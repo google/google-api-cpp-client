@@ -18,14 +18,15 @@
  */
 
 
-#include "googleapis/util/status.h"
+#include <string>
+using std::string;
 
-#include "googleapis/strings/strcat.h"
+#include "googleapis/util/status.h"
 
 namespace googleapis {
 
 #define CASE(code)  case googleapis::util::error::code:  return #code
-static string CodeToString(googleapis::util::error::Code code) {
+static std::string CodeToString(googleapis::util::error::Code code) {
   switch (code) {
     CASE(OK);
     CASE(CANCELLED);
@@ -43,7 +44,9 @@ static string CodeToString(googleapis::util::error::Code code) {
     CASE(UNAVAILABLE);
     CASE(DATA_LOSS);
     default:
-      return StrCat("Error #", code);
+      std::string result("Error #");
+      result.append(std::to_string(code));
+      return result;
   }
   // not reached
 }
@@ -51,10 +54,11 @@ static string CodeToString(googleapis::util::error::Code code) {
 
 namespace util {
 
-string Status::ToString() const {
-  string result = CodeToString(code_);
+std::string Status::ToString() const {
+  std::string result = CodeToString(code_);
   if (!msg_.empty()) {
-    StrAppend(&result, ": ", msg_);
+    result.append(": ");
+    result.append(msg_);
   }
 
   return result;

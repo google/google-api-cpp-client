@@ -18,8 +18,8 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTML_SCRIBE_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_HTML_SCRIBE_H_
+#ifndef GOOGLEAPIS_TRANSPORT_HTML_SCRIBE_H_
+#define GOOGLEAPIS_TRANSPORT_HTML_SCRIBE_H_
 
 #include <memory>
 #include <string>
@@ -29,7 +29,6 @@ using std::string;
 #include "googleapis/base/thread_annotations.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 namespace client {
@@ -71,7 +70,7 @@ class HtmlScribe : public HttpEntryScribe {
    *            store the transcript.
    */
   HtmlScribe(
-      HttpScribeCensor* censor, const StringPiece& title, DataWriter* writer);
+      HttpScribeCensor* censor, const string& title, DataWriter* writer);
 
   /*
    * Standard destructor.
@@ -162,4 +161,4 @@ class HtmlScribe : public HttpEntryScribe {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTML_SCRIBE_H_
+#endif  // GOOGLEAPIS_TRANSPORT_HTML_SCRIBE_H_

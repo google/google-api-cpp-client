@@ -31,16 +31,16 @@
  * extend that to other consumers that only care about credentials not not
  * necessarily OAuth 2.0 in particular.
  */
-#ifndef APISERVING_CLIENTS_CPP_AUTH_CREDENTIAL_STORE_H_
-#define APISERVING_CLIENTS_CPP_AUTH_CREDENTIAL_STORE_H_
+#ifndef GOOGLEAPIS_AUTH_CREDENTIAL_STORE_H_
+#define GOOGLEAPIS_AUTH_CREDENTIAL_STORE_H_
 
 #include <memory>
 #include <string>
 using std::string;
 #include "googleapis/client/transport/http_authorization.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -112,7 +112,7 @@ class CredentialStore {
    * @return success if the credential could be restored. A successful result
    *         requires that a credential had been stored at some earlier time.
    */
-  virtual util::Status InitCredential(
+  virtual googleapis::util::Status InitCredential(
        const StringPiece& user_name, AuthorizationCredential* credential) = 0;
 
   /*
@@ -125,7 +125,7 @@ class CredentialStore {
    *
    * @returns success if the credential could be stored successfully.
    */
-  virtual util::Status Store(
+  virtual googleapis::util::Status Store(
        const StringPiece& user_name,
        const AuthorizationCredential& credential) = 0;
 
@@ -135,7 +135,7 @@ class CredentialStore {
    * @param[in] user_name The key to remove.
    * @return success if the key no longer exists in the store.
    */
-  virtual util::Status Delete(const StringPiece& user_name) = 0;
+  virtual googleapis::util::Status Delete(const StringPiece& user_name) = 0;
 
  protected:
   /*
@@ -148,7 +148,7 @@ class CredentialStore {
    *         InvalidDataReader if there is an error.
    */
   DataReader* DecodedToEncodingReader(
-      DataReader* reader, util::Status* status);
+      DataReader* reader, googleapis::util::Status* status);
 
   /*
    * Applies the codec (if any) to encode a reader.
@@ -160,7 +160,7 @@ class CredentialStore {
    *         InvalidDataReader if there is an error.
    */
   DataReader* EncodedToDecodingReader(
-      DataReader* reader, util::Status* status);
+      DataReader* reader, googleapis::util::Status* status);
 
  private:
   std::unique_ptr<Codec> codec_;
@@ -212,7 +212,7 @@ class CredentialStoreFactory {
    * @return new store instance on success or NULL on failure.
    */
   virtual CredentialStore* NewCredentialStore(
-      const string& client_id, util::Status* status) const = 0;
+      const string& client_id, googleapis::util::Status* status) const = 0;
 
  private:
   std::unique_ptr<CodecFactory> codec_factory_;
@@ -223,4 +223,4 @@ class CredentialStoreFactory {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_AUTH_CREDENTIAL_STORE_H_
+#endif  // GOOGLEAPIS_AUTH_CREDENTIAL_STORE_H_

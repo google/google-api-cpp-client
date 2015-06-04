@@ -37,8 +37,8 @@
  * provides support for using a CredentialStore.
  */
 
-#ifndef APISERVING_CLIENTS_CPP_AUTH_OAUTH2_AUTHORIZATION_H_
-#define APISERVING_CLIENTS_CPP_AUTH_OAUTH2_AUTHORIZATION_H_
+#ifndef GOOGLEAPIS_AUTH_OAUTH2_AUTHORIZATION_H_
+#define GOOGLEAPIS_AUTH_OAUTH2_AUTHORIZATION_H_
 
 #include <memory>
 #include <string>
@@ -370,7 +370,7 @@ class OAuth2Credential : public AuthorizationCredential {
    *
    * @see Update()
    */
-  virtual util::Status Load(DataReader* reader);
+  virtual googleapis::util::Status Load(DataReader* reader);
 
   /*
    * Updates the credential attributes from the JSON data in the reader.
@@ -382,7 +382,7 @@ class OAuth2Credential : public AuthorizationCredential {
    *            to update.
    * @return status indicating whether the credential values could be updated.
    */
-  virtual util::Status Update(DataReader* reader);
+  virtual googleapis::util::Status Update(DataReader* reader);
 
   /*
    * Serializes the credential as a JSON stream.
@@ -394,14 +394,14 @@ class OAuth2Credential : public AuthorizationCredential {
   /*
    * Identifies this as an kOAuth2Type credential.
    */
-  virtual const StringPiece type() const;
+  virtual const string type() const;
 
   /*
    * Adds the OAuth 2.9 Authorization Bearer header to the request.
    *
    * The value of the header will be the current access token.
    */
-  virtual util::Status AuthorizeRequest(HttpRequest* request);
+  virtual googleapis::util::Status AuthorizeRequest(HttpRequest* request);
 
   /*
    * Updates the credential from a JSON string.
@@ -413,7 +413,7 @@ class OAuth2Credential : public AuthorizationCredential {
    *
    * @see Update()
    */
-  util::Status UpdateFromString(const StringPiece& json);
+  googleapis::util::Status UpdateFromString(const StringPiece& json);
 
   /*
    * Returns the email associated with this credential, if known.
@@ -448,7 +448,7 @@ class OAuth2Credential : public AuthorizationCredential {
   /*
    * The AuthorizationCredential type identfying OAuth 2.0 credentials.
    */
-  static const StringPiece kOAuth2CredentialType;
+  static const char kOAuth2CredentialType[];
 
   /*
    * Attempts to refresh the credential.
@@ -457,7 +457,7 @@ class OAuth2Credential : public AuthorizationCredential {
    *
    * @return ok on success or reason for failure.
    */
-  virtual util::Status Refresh();
+  virtual googleapis::util::Status Refresh();
 
   /*
    * Attempt to refresh the credential asynchronously.
@@ -535,13 +535,13 @@ class OAuth2AuthorizationFlow {
    *
    * Note the Authorization Code is not an access token.
    *
-   * @return util::Status is a failure if the authorization code could not
+   * @return googleapis::util::Status is a failure if the authorization code could not
    *         be obtained, including if the user denies access.
    *
    * @param[in] OAuth2RequestOptions Specifies the scope and redirect_uri.
    * @param[out] string The authorization code if the call is successful.
    */
-  typedef ResultCallback2< util::Status,
+  typedef ResultCallback2< googleapis::util::Status,
                            const OAuth2RequestOptions&, string*>
           AuthorizationCodeCallback;
 
@@ -569,7 +569,7 @@ class OAuth2AuthorizationFlow {
    *
    * @param[in] json JSON-encoded object with the configuraton attributes.
    */
-  util::Status InitFromJson(const StringPiece& json);
+  googleapis::util::Status InitFromJson(const StringPiece& json);
 
   /*
    * Initializes instance from the client secrets json data at the path.
@@ -582,9 +582,9 @@ class OAuth2AuthorizationFlow {
    * link.
    *
    * @param[in] path The path to a file containing the JSON-encoded secrets.
-   * @return ok or explaination of the failure.
+   * @return ok or explanation of the failure.
    */
-  util::Status InitFromClientSecretsPath(const string& path);
+  googleapis::util::Status InitFromClientSecretsPath(const string& path);
 
   /*
    * Sets the callback used to obtain an Authorization Code.
@@ -711,7 +711,7 @@ class OAuth2AuthorizationFlow {
   // updated credentials will still only be for the old scopes. To get around
   // this bug, you need to clear the credential and start all over.
   //
-  virtual util::Status RefreshCredentialWithOptions(
+  virtual googleapis::util::Status RefreshCredentialWithOptions(
       const OAuth2RequestOptions& options, OAuth2Credential* credential);
 
   /*
@@ -766,7 +766,7 @@ class OAuth2AuthorizationFlow {
    *
    * @return ok on success or reason for failure.
    */
-  virtual util::Status PerformRefreshToken(
+  virtual googleapis::util::Status PerformRefreshToken(
       const OAuth2RequestOptions& options, OAuth2Credential* credential);
 
   /*
@@ -804,7 +804,7 @@ class OAuth2AuthorizationFlow {
    *
    * @see RefreshCredentialWithOptions.
    */
-  virtual util::Status PerformExchangeAuthorizationCode(
+  virtual googleapis::util::Status PerformExchangeAuthorizationCode(
       const string& authorization_code,
       const OAuth2RequestOptions& options,
       OAuth2Credential* credential);
@@ -818,7 +818,7 @@ class OAuth2AuthorizationFlow {
    *            refresh and/or access tokens. The tokens will be cleared after
    *            the revoke request executes successfully.
    */
-  virtual util::Status PerformRevokeToken(
+  virtual googleapis::util::Status PerformRevokeToken(
       bool access_token_only, OAuth2Credential* credential);
 
   /*
@@ -855,7 +855,7 @@ class OAuth2AuthorizationFlow {
    */
   static OAuth2AuthorizationFlow* MakeFlowFromClientSecretsPath(
       const StringPiece& path, HttpTransport* transport,
-      util::Status* status);
+      googleapis::util::Status* status);
 
   /*
    * Creates a new flow from a client secrets JSON document.
@@ -881,7 +881,7 @@ class OAuth2AuthorizationFlow {
    */
   static OAuth2AuthorizationFlow* MakeFlowFromClientSecretsJson(
       const StringPiece& json, HttpTransport* transport,
-      util::Status* status);
+      googleapis::util::Status* status);
 
   /*
    * Helper function to produce a ' '-delimited scopes string
@@ -916,7 +916,7 @@ class OAuth2AuthorizationFlow {
    * Called by InitFromJson
    * @param[out] data The data to initialized.
    */
-  virtual util::Status InitFromJsonData(const SimpleJsonData* data);
+  virtual googleapis::util::Status InitFromJsonData(const SimpleJsonData* data);
 
   // These methods are only intended to support oauth2_service_authorization
   // to share common private implementation across files.
@@ -965,7 +965,7 @@ class OAuth2AuthorizationFlow {
    * @return NULL if no validation error, otherwise an appropriate status
    *         based on what client information is invalid.
    */
-  util::Status ValidateRefreshToken_(OAuth2Credential* credential) const;
+  googleapis::util::Status ValidateRefreshToken_(OAuth2Credential* credential) const;
 
   /*
    * Builds the token content used for the refresh token http request.
@@ -995,7 +995,7 @@ class OAuth2InstalledApplicationFlow : public OAuth2AuthorizationFlow {
 
  protected:
   // Called by initFromJson.
-  virtual util::Status InitFromJsonData(const SimpleJsonData* data);
+  virtual googleapis::util::Status InitFromJsonData(const SimpleJsonData* data);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(OAuth2InstalledApplicationFlow);
@@ -1054,7 +1054,7 @@ class OAuth2WebApplicationFlow : public OAuth2AuthorizationFlow {
    *
    * @param[in] data The json data specifying the flow.
    */
-  virtual util::Status InitFromJsonData(const SimpleJsonData* data);
+  virtual googleapis::util::Status InitFromJsonData(const SimpleJsonData* data);
 
  private:
   bool offline_access_type_;
@@ -1066,4 +1066,4 @@ class OAuth2WebApplicationFlow : public OAuth2AuthorizationFlow {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_AUTH_OAUTH2_AUTHORIZATION_H_
+#endif  // GOOGLEAPIS_AUTH_OAUTH2_AUTHORIZATION_H_

@@ -18,17 +18,17 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_UTIL_MONGOOSE_WEBSERVER_H_
-#define APISERVING_CLIENTS_CPP_UTIL_MONGOOSE_WEBSERVER_H_
+#ifndef GOOGLEAPIS_UTIL_MONGOOSE_WEBSERVER_H_
+#define GOOGLEAPIS_UTIL_MONGOOSE_WEBSERVER_H_
 
 #include <map>
 using std::map;
 
 #include "googleapis/client/util/abstract_webserver.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 #include <mongoose/mongoose.h>
 namespace googleapis {
 
@@ -139,7 +139,7 @@ class MongooseWebServer : public AbstractWebServer {
    *
    * @return ok or reason for error.
    */
-  virtual util::Status DoStartup();
+  virtual googleapis::util::Status DoStartup();
 
   /*
    * Stops the server.
@@ -177,4 +177,4 @@ class MongooseWebServer : public AbstractWebServer {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_UTIL_MONGOOSE_WEBSERVER_H_
+#endif  // GOOGLEAPIS_UTIL_MONGOOSE_WEBSERVER_H_

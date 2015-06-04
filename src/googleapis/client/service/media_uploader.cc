@@ -34,7 +34,6 @@ using std::vector;
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 
 namespace googleapis {
 
@@ -97,7 +96,7 @@ void MediaUploader::set_metadata(const SerializableJson& from_json) {
 util::Status MediaUploader::BuildRequest(
     HttpRequest* request, UrlPreparer* preparer) {
   if (ready_) {
-    StringPiece error = "BuildRequest already called";
+    const char error[] = "BuildRequest already called";
     LOG(ERROR) << error;
     return StatusInternalError(error);
   }
@@ -105,12 +104,12 @@ util::Status MediaUploader::BuildRequest(
   string content_type;
   std::unique_ptr<DataReader> payload_reader;
   StringPiece upload_type;
-  util::Status status;
+  googleapis::util::Status status;
 
   // If there is no metadata, then this is just the media content.
   if (!media_content_reader_.get() && media_content_type_.empty()) {
     if (metadata_content_type_.empty()) {
-      StringPiece error = "Neither content nor metadata provided";
+      const char error[] = "Neither content nor metadata provided";
       LOG(ERROR) << error;
       status = StatusInvalidArgument(error);
     } else {
@@ -263,7 +262,7 @@ DataReader* MediaUploader::CreateMultipartPayloadReader(string* content_type) {
 
 util::Status MediaUploader::Upload(HttpRequest* request) {
   if (!is_ready()) {
-    util::Status status = StatusInternalError("Uploader was not prepared");
+    googleapis::util::Status status = StatusInternalError("Uploader was not prepared");
     LOG(ERROR) << status.error_message();
     request->WillNotExecute(status);
     return status;
@@ -274,7 +273,7 @@ util::Status MediaUploader::Upload(HttpRequest* request) {
 void MediaUploader::UploadAsync(HttpRequest* request,
                                 HttpRequestCallback* callback) {
   if (!is_ready()) {
-    util::Status status = StatusInternalError("Uploader was not prepared");
+    googleapis::util::Status status = StatusInternalError("Uploader was not prepared");
     LOG(ERROR) << status.error_message();
     request->WillNotExecute(status);
   }

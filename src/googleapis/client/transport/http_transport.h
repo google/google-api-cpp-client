@@ -49,8 +49,8 @@
  * implementation of OAuth 2.0.
  */
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TRANSPORT_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TRANSPORT_H_
+#ifndef GOOGLEAPIS_TRANSPORT_HTTP_TRANSPORT_H_
+#define GOOGLEAPIS_TRANSPORT_HTTP_TRANSPORT_H_
 
 #include <map>
 using std::map;
@@ -217,7 +217,7 @@ class HttpTransportErrorHandler {
   virtual void HandleRefreshAsync(
       Callback1<bool>* callback,
       HttpRequest* request,
-      util::Status status) const;
+      googleapis::util::Status status) const;
 
  private:
   /*
@@ -352,7 +352,7 @@ class HttpTransportOptions {
    *
    * @see DetermineDefaultApplicationName
    */
-  void SetApplicationName(const StringPiece& name);
+  void SetApplicationName(const string& name);
 
   /*
    * Sets the proxy server host and port.
@@ -360,8 +360,8 @@ class HttpTransportOptions {
    * @param[in] host If empty then there is no proxy server
    * @param[in] port Ignored if the host is empty.
    */
-  void SetProxyServer(const StringPiece& host, int port) {
-    proxy_host_ = host.as_string();
+  void SetProxyServer(const string& host, int port) {
+    proxy_host_ = host;
     proxy_port_ = proxy_host_.empty() ? 0 : port;
   }
 
@@ -403,7 +403,7 @@ class HttpTransportOptions {
    *
    * @see DetermineDefaultCaCertsPath
    */
-  void set_cacerts_path(const StringPiece& path);
+  void set_cacerts_path(const string& path);
 
   /*
    * Returns the timeout permitted for establishing new connections.
@@ -431,13 +431,13 @@ class HttpTransportOptions {
   /*
    * An identifier used to declare this client library within the User-Agent.
    */
-  static const StringPiece kGoogleApisUserAgent;
+  static const char kGoogleApisUserAgent[];
 
   /*
    * A magical cacerts_path value indicating we intend on disabling
    * the ca certificate validation.
    */
-  static const StringPiece kDisableSslVerification;
+  static const char kDisableSslVerification[];
 
   /*
    * Returns the default application name assumed for this process.
@@ -731,7 +731,7 @@ class HttpTransport {
    *
    * The default convention is to use simply the type of transport (ie 'curl').
    */
-  void set_id(const StringPiece& id)  { id_ = id.as_string(); }
+  void set_id(const string& id)  { id_ = id; }
 
   /*
    * Returns the instance id for debug/tracing purposes.
@@ -918,7 +918,7 @@ class HttpTransportFactory {
    *
    * @see HttpTransport::id()
    */
-  void set_default_id(const StringPiece& id) { default_id_ = id.as_string(); }
+  void set_default_id(const string& id) { default_id_ = id; }
 
   /*
    * Sets the scribe to bind to instances.
@@ -964,4 +964,4 @@ class HttpTransportFactory {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_TRANSPORT_H_
+#endif  // GOOGLEAPIS_TRANSPORT_HTTP_TRANSPORT_H_

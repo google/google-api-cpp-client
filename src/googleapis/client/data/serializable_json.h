@@ -28,14 +28,14 @@
  * As far as dependencies go, the JSON Support module lives in the Data Layer.
  */
 
-#ifndef APISERVING_CLIENTS_CPP_DATA_SERIALIZABLE_JSON_H_
-#define APISERVING_CLIENTS_CPP_DATA_SERIALIZABLE_JSON_H_
+#ifndef GOOGLEAPIS_DATA_SERIALIZABLE_JSON_H_
+#define GOOGLEAPIS_DATA_SERIALIZABLE_JSON_H_
 #include <istream>  // NOLINT
 #include <ostream>  // NOLINT
 #include <string>
 using std::string;
 
-#include "googleapis/util/status.h"
+#include "googleapis/client/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -68,7 +68,7 @@ class SerializableJson {
    *
    * @param [in] reader JSON-encoded byte stream.
    */
-  virtual util::Status LoadFromJsonReader(DataReader* reader) = 0;
+  virtual googleapis::util::Status LoadFromJsonReader(DataReader* reader) = 0;
 
   /*
    * Creates a reader that contains the serialized json for this object.
@@ -86,7 +86,7 @@ class SerializableJson {
    * The default implementation creates an IstreamDataReader and calls
    * the Load() method.
    */
-  virtual util::Status LoadFromJsonStream(std::istream* stream);
+  virtual googleapis::util::Status LoadFromJsonStream(std::istream* stream);
 
   /*
    * Serialize the instance as a JSON document to an ostream.
@@ -96,7 +96,7 @@ class SerializableJson {
    * The default implementation calls MakeJsonReader() and writes the
    * byte-stream to the output stream.
    */
-  virtual util::Status StoreToJsonStream(std::ostream* stream) const;
+  virtual googleapis::util::Status StoreToJsonStream(std::ostream* stream) const;
 };
 
 /*
@@ -132,4 +132,4 @@ inline std::ostream& operator <<(
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_DATA_SERIALIZABLE_JSON_H_
+#endif  // GOOGLEAPIS_DATA_SERIALIZABLE_JSON_H_

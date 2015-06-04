@@ -16,8 +16,9 @@
  *
  * @}
  */
-#ifndef THREAD_EXECUTOR_H_  // NOLINT
-#define THREAD_EXECUTOR_H_
+#ifndef GOOGLEAPIS_THREAD_EXECUTOR_H_
+#define GOOGLEAPIS_THREAD_EXECUTOR_H_
+
 
 #include "googleapis/base/macros.h"
 namespace googleapis {
@@ -53,4 +54,4 @@ Executor* SingletonInlineExecutor();
 }  // namespace thread
 
 }  // namespace googleapis
-#endif  // THREAD_EXECUTOR_H_  NOLINT
+#endif  // GOOGLEAPIS_THREAD_EXECUTOR_H_

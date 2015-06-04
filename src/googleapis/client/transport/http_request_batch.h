@@ -18,8 +18,8 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_REQUEST_BATCH_H_
-#define APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_REQUEST_BATCH_H_
+#ifndef GOOGLEAPIS_TRANSPORT_HTTP_REQUEST_BATCH_H_
+#define GOOGLEAPIS_TRANSPORT_HTTP_REQUEST_BATCH_H_
 
 #include <memory>
 #include <string>
@@ -29,9 +29,8 @@ using std::vector;
 
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_types.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -134,7 +133,7 @@ class HttpRequestBatch {
    *                 not in the batch (i.e. even if an error is returned).
    * @return Ok if the request was in the batch and error otherwise.
    */
-  util::Status RemoveAndDestroyRequest(HttpRequest* request);
+  googleapis::util::Status RemoveAndDestroyRequest(HttpRequest* request);
 
   /*
    * Creates a new, empty HttpRequest and adds it to the batch.
@@ -195,7 +194,7 @@ class HttpRequestBatch {
    * @see ExecuteAsync()
    * @see http_request()
    */
-  util::Status Execute();
+  googleapis::util::Status Execute();
 
   /*
    * Asynchronously send the batch of requests to the designated URL then
@@ -218,7 +217,7 @@ class HttpRequestBatch {
    * Can differ from the underling HTTP status if the response that came back
    * didnt correlate to the requests within as we expected it to.
    */
-  util::Status batch_processing_status() const {
+  googleapis::util::Status batch_processing_status() const {
     return batch_processing_status_;
   }
 
@@ -229,7 +228,7 @@ class HttpRequestBatch {
 
   std::unique_ptr<HttpRequest> http_request_;
   string boundary_;
-  util::Status batch_processing_status_;
+  googleapis::util::Status batch_processing_status_;
   BatchedRequestList requests_;
 
  private:
@@ -239,4 +238,4 @@ class HttpRequestBatch {
 }  // namespace client
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_TRANSPORT_HTTP_REQUEST_BATCH_H_
+#endif  // GOOGLEAPIS_TRANSPORT_HTTP_REQUEST_BATCH_H_

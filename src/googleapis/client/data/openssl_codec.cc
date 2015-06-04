@@ -26,19 +26,12 @@ using std::string;
 #include "googleapis/client/data/openssl_codec.h"
 #include "googleapis/client/util/status.h"
 
-#ifdef GOOGLECLIENT
 #include "openssl/ossl_typ.h"
 #include "openssl/evp.h"
 #include "openssl/err.h"
-#endif
 #include "googleapis/strings/strcat.h"
-#ifndef GOOGLECLIENT
-#include <openssl/ossl_typ.h>
-#include <openssl/evp.h>
-#include <openssl/err.h>
 
 namespace googleapis {
-#endif
 
 namespace {
 using client::StatusOk;
@@ -77,7 +70,7 @@ class OpenSslReader : public CodecReader {
     EVP_CIPHER_CTX_cleanup(&ctx_);
   }
 
-  util::Status Init() {
+  googleapis::util::Status Init() {
     EVP_CipherInit_ex(&ctx_, cipher_type_, NULL, NULL, NULL, encoding());
     EVP_CIPHER_CTX_set_key_length(&ctx_, key_.size());
     EVP_CipherInit_ex(
@@ -90,14 +83,14 @@ class OpenSslReader : public CodecReader {
   }
 
  protected:
-  virtual util::Status EncodeChunk(
+  virtual googleapis::util::Status EncodeChunk(
       const StringPiece& chunk, bool is_final_chunk,
       char* to, int64* to_length) {
     return EncodeDecodeChunk(chunk, is_final_chunk, to, to_length);
   }
 
 
-  virtual util::Status DecodeChunk(
+  virtual googleapis::util::Status DecodeChunk(
       const StringPiece& chunk, bool is_final_chunk,
       char* to, int64* to_length) {
     return EncodeDecodeChunk(chunk, is_final_chunk, to, to_length);
@@ -110,7 +103,7 @@ class OpenSslReader : public CodecReader {
   string iv_;
 
  private:
-  util::Status EncodeDecodeChunk(
+  googleapis::util::Status EncodeDecodeChunk(
        const StringPiece& chunk, bool is_final_chunk,
        char* to, int64* to_length) {
     int out_len = 0;
@@ -163,7 +156,7 @@ util::Status OpenSslCodec::Init(
 
 
 DataReader* OpenSslCodec::NewManagedEncodingReader(
-    DataReader* reader, Closure* deleter, util::Status* status) {
+    DataReader* reader, Closure* deleter, googleapis::util::Status* status) {
   if (key_.empty() || iv_.empty() || !cipher_type_) {
     *status = StatusFailedPrecondition("Init not called");
     return NewManagedInvalidDataReader(*status, deleter);
@@ -179,7 +172,7 @@ DataReader* OpenSslCodec::NewManagedEncodingReader(
 }
 
 DataReader* OpenSslCodec::NewManagedDecodingReader(
-    DataReader* reader, Closure* deleter, util::Status* status) {
+    DataReader* reader, Closure* deleter, googleapis::util::Status* status) {
   if (key_.empty() || iv_.empty() || !cipher_type_) {
     *status = StatusFailedPrecondition("Init not called");
     return NewManagedInvalidDataReader(*status, deleter);

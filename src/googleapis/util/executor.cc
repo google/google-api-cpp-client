@@ -16,7 +16,6 @@
  *
  * @}
  */
-#include <glog/logging.h>
 #include "googleapis/base/callback.h"
 #include "googleapis/base/mutex.h"
 #include "googleapis/base/once.h"
