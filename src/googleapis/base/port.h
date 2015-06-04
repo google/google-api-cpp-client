@@ -31,7 +31,19 @@
 #include <string.h>         // for memcpy()
 #include <stdlib.h>         // for free()
 
-#if defined(OS_MACOSX)
+#if defined(__APPLE__)
+// traditionally defined OS_MACOSX themselves via other build systems, since mac
+// TODO(user): Remove this when all toolchains make the proper defines.
+#include <TargetConditionals.h>
+#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+#ifndef OS_IOS
+#define OS_IOS 1
+#endif
+#define SUPPRESS_MOBILE_IOS_BASE_PORT_H
+#endif  // defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+#endif  // defined(__APPLE__)
+
+#if defined(OS_MACOSX) || defined(OS_IOS)
 #include <unistd.h>         // for getpagesize() on mac
 #elif defined(OS_CYGWIN) || defined(__ANDROID__)
 #include <malloc.h>         // for memalign()
@@ -73,10 +85,13 @@
 /* We use SIGPWR since that seems unlikely to be used for other reasons. */
 #define GOOGLE_OBSCURE_SIGNAL  SIGPWR
 
-#if defined OS_LINUX || defined OS_CYGWIN
-
+#if defined OS_LINUX || defined OS_CYGWIN || defined OS_ANDROID || \
+    defined(__ANDROID__)
 // _BIG_ENDIAN
 #include <endian.h>
+#endif
+
+#if defined OS_LINUX || defined OS_CYGWIN
 
 // GLIBC-related macros.
 #include <features.h>
@@ -122,7 +137,7 @@ typedef unsigned long ulong;
 // _BIG_ENDIAN
 #include <machine/endian.h>
 
-#elif defined OS_MACOSX
+#elif defined(OS_MACOSX) || defined(OS_IOS)
 
 // BIG_ENDIAN
 #include <machine/endian.h>  // NOLINT(build/include)
@@ -142,7 +157,7 @@ typedef unsigned long ulong;
 #define bswap_32(x) _byteswap_ulong(x)
 #define bswap_64(x) _byteswap_uint64(x)
 
-#elif defined(OS_MACOSX)
+#elif defined(OS_MACOSX) || defined(OS_IOS)
 // Mac OS X / Darwin features
 #include <libkern/OSByteOrder.h>
 #define bswap_16(x) OSSwapInt16(x)
@@ -242,9 +257,9 @@ typedef int uid_t;
 
 #endif
 
-// Mac OS X / Darwin features
+// Mac OS X / Darwin and iOS features
 
-#if defined(OS_MACOSX)
+#if defined(OS_MACOSX) || defined(OS_IOS)
 
 // For mmap, Linux defines both MAP_ANONYMOUS and MAP_ANON and says MAP_ANON is
 // deprecated. In Darwin, MAP_ANON is all there is.
@@ -326,8 +341,10 @@ inline size_t strnlen(const char *s, size_t maxlen) {
   return maxlen;
 }
 
+#if !defined(OS_IOS)
 namespace std {}  // Avoid error if we didn't see std.
 using namespace std;  // Just like VC++, we need a using here.
+#endif
 
 // Doesn't exist on OSX.
 #define MSG_NOSIGNAL 0
@@ -381,7 +398,8 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 
 // GCC-specific features
 
-#if (defined(COMPILER_GCC3) || defined(OS_MACOSX)) && !defined(SWIG)
+#if (defined(COMPILER_GCC3) || defined(OS_MACOSX) || defined(OS_IOS)) && \
+    !defined(SWIG)
 
 //
 // Tell the compiler to do printf format string checking if the
@@ -516,6 +534,14 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 #define ATTRIBUTE_NO_SANITIZE_MEMORY
 #endif
 
+// Tell ThreadSanitizer to not instrument a given function.
+// If you are adding this attribute, please cc dynamic-tools@ on the cl.
+#ifdef THREAD_SANITIZER
+#define ATTRIBUTE_NO_SANITIZE_THREAD __attribute__((no_sanitize_thread))
+#else
+#define ATTRIBUTE_NO_SANITIZE_THREAD
+#endif
+
 #ifndef HAVE_ATTRIBUTE_SECTION  // may have been pre-set to 0, e.g. for Darwin
 #define HAVE_ATTRIBUTE_SECTION 1
 #endif
@@ -590,6 +616,16 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 #else
 #define MUST_USE_RESULT
 #endif
+
+//
+// Prevent the compiler from padding a structure to natural alignment
+//
+#if __GNUC__ && !defined(SWIG)
+#define ATTRIBUTE_PACKED __attribute__((__packed__))
+#else
+#define ATTRIBUTE_PACKED
+#endif
+
 
 #if defined(COMPILER_GCC3) || defined(__llvm__)
 // Defined behavior on some of the uarchs:
@@ -739,10 +775,12 @@ extern inline void prefetch(const void*) {}
 
 #endif  // GCC
 
-#if ((defined(COMPILER_GCC3) || defined(OS_MACOSX)) && !defined(SWIG)) || \
+#if ((defined(COMPILER_GCC3) || defined(OS_MACOSX) || defined(OS_IOS)) && \
+     !defined(SWIG)) ||                                                   \
     ((__GNUC__ >= 3 || defined(__clang__)) && defined(__ANDROID__))
 
-#if !defined(__cplusplus) && !defined(OS_MACOSX) && !defined(OS_CYGWIN)
+#if !defined(__cplusplus) && !defined(OS_MACOSX) && !defined(OS_IOS) && \
+    !defined(OS_CYGWIN)
 // stdlib.h only declares this in C++, not in C, so we declare it here.
 // Also make sure to avoid declaring it on platforms which don't support it.
 extern int posix_memalign(void **memptr, size_t alignment, size_t size);
@@ -782,8 +820,9 @@ inline void aligned_free(void *aligned_memory) {
 }
 
 #endif
-// #if ((defined(COMPILER_GCC3) || defined(OS_MACOSX)) && !defined(SWIG)) ||
-// ((__GNUC__ >= 3 || defined(__clang__)) && defined(__ANDROID__))
+// #if ((defined(COMPILER_GCC3) || defined(OS_MACOSX) || defined(OS_IOS)) &&
+// !defined(SWIG)) || ((__GNUC__ >= 3 || defined(__clang__)) &&
+// defined(__ANDROID__))
 
 //
 // Provides a char array with the exact same alignment as another type. The
@@ -1102,9 +1141,9 @@ typedef short int16_t;
 struct PortableHashBase { };
 #endif
 
-#if defined(OS_WINDOWS) || defined(OS_MACOSX)
+#if defined(OS_WINDOWS) || defined(OS_MACOSX) || defined(OS_IOS)
 // gethostbyname() *is* thread-safe for Windows native threads. It is also
-// safe on Mac OS X, where it uses thread-local storage, even though the
+// safe on Mac OS X and iOS, where it uses thread-local storage, even though the
 // manpages claim otherwise. For details, see
 // http://lists.apple.com/archives/Darwin-dev/2006/May/msg00008.html
 #else
@@ -1159,7 +1198,8 @@ struct PortableHashBase { };
 #endif
 
 // Our STL-like classes use __STD.
-#if defined(COMPILER_GCC3) || defined(OS_MACOSX) || defined(COMPILER_MSVC)
+#if defined(COMPILER_GCC3) || defined(OS_MACOSX) || defined(OS_IOS) || \
+    defined(COMPILER_MSVC)
 #define __STD std
 #endif
 
@@ -1363,7 +1403,7 @@ inline void UnalignedCopy64(const void *src, void *dst) {
 #endif  // defined(__cpluscplus)
 
 // printf macros for size_t, in the style of inttypes.h
-#ifdef _LP64
+#if defined(_LP64) || defined(OS_IOS)
 #define __PRIS_PREFIX "z"
 #else
 #define __PRIS_PREFIX
@@ -1408,8 +1448,10 @@ std::ostream& operator << (std::ostream& out, const pthread_t& thread_id);
 // in gcc before 4.7 (Crosstool 16) and clang before 3.1, but is
 // defined according to the language version in effect thereafter.  I
 // believe MSVC will also define __cplusplus according to the language
-// version, but haven't checked that.
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L
+// version, but haven't checked that. Stlport is used by many Android projects
+// and does not have full C++11 STL support.
+#if (defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L) && \
+    !defined(STLPORT)
 // Define this to 1 if the code is compiled in C++11 mode; leave it
 // undefined otherwise.  Do NOT define it to 0 -- that causes
 // '#ifdef LANG_CXX11' to behave differently from '#if LANG_CXX11'.
@@ -1510,5 +1552,3 @@ using std::string;
 #endif  // SWIG, __cplusplus
 
 #endif  // BASE_PORT_H_
-
-

@@ -51,9 +51,11 @@
 // of their multi-threaded code. The annotations can also help program
 // analysis tools to identify potential thread safety issues.
 //
+// The primary documentation on these annotations is external:
+// http://clang.llvm.org/docs/ThreadSafetyAnalysis.html
 //
-// The annotations are implemented using GCC's "attributes" extension.
-// Using the macros defined here instead of the raw GCC attributes allows
+// The annotations are implemented using compiler attributes.
+// Using the macros defined here instead of the raw attributes allows
 // for portability and future compatibility.
 //
 // When referring to mutexes in the arguments of the attributes, you should

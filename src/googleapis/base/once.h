@@ -16,14 +16,14 @@
  *
  * @}
  */
-#ifndef GOOGLEAPIS_ONCE_H_
+#ifndef GOOGLEAPIS_ONCE_H_  // NOLINT
 #define GOOGLEAPIS_ONCE_H_
 
 #ifndef _MSC_VER
 #include <pthread.h>
 #endif
-#include "googleapis/base/port.h"
 #include <glog/logging.h>
+#include "googleapis/base/port.h"
 namespace googleapis {
 
 #ifndef _MSC_VER
@@ -47,4 +47,4 @@ void GoogleOnceInit(GoogleOnceType* once, void (*initializer)());
 #endif
 
 }  // namespace googleapis
-#endif  // GOOGLEAPIS_ONCE_H_
+#endif  // GOOGLEAPIS_ONCE_H_  NOLINT
