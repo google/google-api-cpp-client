@@ -43,7 +43,7 @@ static const uint64 kPrimes64[] = {
   GG_ULONGLONG(4294967563), GG_ULONGLONG(4294967569)
 };
 
-uint32 Hash32StringWithSeedReferenceImplementation(const char *s, uint32 len,
+uint32 Hash32StringWithSeedReferenceImplementation(const char *s, size_t len,
                                                    uint32 seed) {
   uint32 n = seed;
   size_t prime1 = 0, prime2 = 8;  // Indices into kPrimes32
