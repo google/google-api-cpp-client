@@ -38,10 +38,6 @@
 //
 // Useful string functions and so forth.  This is a grab-bag file.
 //
-// You might also want to look at memutil.h, which holds mem*()
-// equivalents of a lot of the str*() functions in string.h,
-// eg memstr, mempbrk, etc.
-//
 // These functions work fine for UTF-8 strings as long as you can
 // consider them to be just byte strings.  For example, due to the
 // design of UTF-8 you do not need to worry about accidental matches,
@@ -72,18 +68,15 @@
 #include <functional>
 using std::binary_function;
 using std::less;
-using std::binary_function;
-using std::less;
 #include <string>
 using std::string;
 using std::string;
 #include <vector>
 using std::vector;
-using std::vector;
 
+#include "googleapis/strings/stringpiece.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/port.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 // Newer functions.
@@ -397,7 +390,7 @@ int GlobalReplaceSubstring(StringPiece substring,
 // Removes v[i] for every element i in indices. Does *not* preserve the order of
 // v. indices must be sorted in strict increasing order (no duplicates). Runs in
 // O(indices.size()).
-void RemoveStrings(vector<string>* v, const vector<int>& indices);
+void RemoveStrings(std::vector<string>* v, const std::vector<int>& indices);
 
 // Case-insensitive strstr(); use system strcasestr() instead.
 // WARNING: Removes const-ness of string argument!
@@ -488,7 +481,7 @@ void UniformInsertString(string* s, int interval, const char* separator);
 // Inserts separator into s at each specified index. indices must be sorted in
 // ascending order.
 void InsertString(
-    string* s, const vector<uint32>& indices, char const* separator);
+    string* s, const std::vector<uint32>& indices, char const* separator);
 
 // Finds the nth occurrence of c in s; returns the index in s of that
 // occurrence, or string::npos if fewer than n occurrences.

@@ -21,9 +21,10 @@
 #include <string>
 using std::string;
 
-#include <glog/logging.h>
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/escaping.h"
+
+#include <glog/logging.h>
 
 namespace googleapis {
 

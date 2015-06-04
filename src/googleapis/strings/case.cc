@@ -16,6 +16,23 @@
  *
  * @}
  */
+/*
+ * \license @{
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @}
+ */
 
 // Refactored from contributions of various authors in strings/strutil.cc
 //
@@ -28,8 +45,6 @@
 using std::string;
 
 #include "googleapis/strings/ascii_ctype.h"
-#include "googleapis/strings/memutil.h"
-#include "googleapis/strings/stringpiece.h"
 
 namespace googleapis {
 
@@ -58,27 +73,15 @@ CapsType GetCapitalization(const char* s) {
   return capstype;
 }
 
-int CaseCompare(StringPiece s1, StringPiece s2) {
-  if (s1.size() == s2.size()) {
-    return memcasecmp(s1.data(), s2.data(), s1.size());
-  } else if (s1.size() < s2.size()) {
-    int res = memcasecmp(s1.data(), s2.data(), s1.size());
-    return (res == 0) ? -1 : res;
-  } else {
-    int res = memcasecmp(s1.data(), s2.data(), s2.size());
-    return (res == 0) ? 1 : res;
-  }
-}
-
 void LowerString(char* s) {
   for (; *s; ++s) {
     *s = ascii_tolower(*s);
   }
 }
 
-void LowerString(string* s) {
-  string::iterator end = s->end();
-  for (string::iterator i = s->begin(); i != end; ++i) {
+void LowerString(std::string* s) {
+  auto end = s->end();
+  for (auto i = s->begin(); i != end; ++i) {
     *i = ascii_tolower(*i);
   }
 }
@@ -101,8 +104,8 @@ void UpperString(char* s) {
   }
 }
 
-void UpperString(string* s) {
-  for (string::iterator iter = s->begin(); iter != s->end(); ++iter) {
+void UpperString(std::string* s) {
+  for (auto iter = s->begin(); iter != s->end(); ++iter) {
     *iter = ascii_toupper(*iter);
   }
 }
@@ -117,16 +120,6 @@ void UpperStringToBuf(const char* s, char* buf, int n) {
   }
   if (n > 0)
     buf[n-1] = '\0';
-}
-
-void TitlecaseString(string *s, StringPiece delimiters) {
-  bool upper = true;
-  for (string::iterator ss = s->begin(); ss != s->end(); ++ss) {
-    if (upper) {
-      *ss = ascii_toupper(*ss);
-    }
-    upper = (delimiters.find(*ss) != StringPiece::npos);
-  }
 }
 
 }  // namespace googleapis

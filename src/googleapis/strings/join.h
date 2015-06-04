@@ -17,8 +17,8 @@
  * @}
  */
 
-#ifndef STRINGS_JOIN_H_
-#define STRINGS_JOIN_H_
+#ifndef GOOGLEAPIS_STRINGS_JOIN_H_
+#define GOOGLEAPIS_STRINGS_JOIN_H_
 
 #include <string>
 using std::string;
@@ -78,4 +78,4 @@ inline string Join(const CONTAINER& components, StringPiece delim) {
 
 }  // namespace strings
 }  // namespace googleapis
-#endif  // STRINGS_JOIN_H_
+#endif  // GOOGLEAPIS_STRINGS_JOIN_H_

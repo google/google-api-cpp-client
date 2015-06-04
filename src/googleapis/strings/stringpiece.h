@@ -152,21 +152,19 @@
 #include <assert.h>
 #include <stddef.h>
 #include <string.h>
+
+#include <cstring>
 #include <iosfwd>
-using std::ostream;
 using std::ostream;
 #include <limits>
 using std::numeric_limits;
-using std::numeric_limits;
 #include <string>
 using std::string;
-using std::string;
+#include <type_traits>
 
 #include "googleapis/util/hash.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/port.h"
-#include "googleapis/base/type_traits.h"
-#include "googleapis/strings/fastmem.h"
 namespace googleapis {
 
 // StringPiece has *two* size types.
@@ -397,11 +395,6 @@ class StringPiece {
   StringPiece substr(size_type pos, size_type n = npos) const;
 };
 
-#ifndef SWIG
-// Enable use of StringPiece in small_set and other google collections.
-DECLARE_POD(StringPiece);
-#endif
-
 // This large function is defined inline so that in a fairly common case where
 // one of the arguments is a literal, the compiler can elide a lot of the
 // following comparisons.
@@ -412,7 +405,7 @@ inline bool operator==(StringPiece x, StringPiece y) {
   }
 
   return x.data() == y.data() || len <= 0 ||
-      strings::memeq(x.data(), y.data(), len);
+      memcmp(x.data(), y.data(), len) == 0;
 }
 
 inline bool operator!=(StringPiece x, StringPiece y) {
@@ -454,7 +447,7 @@ template <class X> struct GoodFastHash;
 // GoodFastHash values.
 template<> struct GoodFastHash<StringPiece> {
   size_t operator()(StringPiece s) const {
-    return HashStringThoroughly(s.data(), s.size());
+    return HashStringThoroughly(s.data(), static_cast<size_t>(s.size()));
   }
   // Less than operator, for MSVC.
   bool operator()(const StringPiece& s1, const StringPiece& s2) const {

@@ -64,7 +64,6 @@ using std::vector;
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/stl_util.h"  // for STLAppendToString
 
 namespace googleapis {
 
@@ -545,7 +544,6 @@ const char* strstr_delimited(const char* haystack,
       ++haystack;
     }
   }
-  LOG(FATAL) << "Unreachable statement";
   return NULL;
 }
 
@@ -581,11 +579,6 @@ char* gstrsep(char** stringp, const char* delim) {
 
   return NULL; /* should not happen */
 }
-
-void FastStringAppend(string* s, const char* data, int len) {
-  STLAppendToString(s, data, len);
-}
-
 
 // TODO(user): add a microbenchmark and revisit
 // the optimizations done here.
@@ -643,7 +636,8 @@ char* FastTimeToBuffer(time_t s, char* buffer) {
 
   const char* weekday_name = "Xxx";
   switch (tm.tm_wday) {
-    default: { DLOG(FATAL) << "tm.tm_wday: " << tm.tm_wday; } break;
+    default: {
+    } break;
     case 0:  weekday_name = "Sun"; break;
     case 1:  weekday_name = "Mon"; break;
     case 2:  weekday_name = "Tue"; break;
@@ -655,7 +649,8 @@ char* FastTimeToBuffer(time_t s, char* buffer) {
 
   const char* month_name = "Xxx";
   switch (tm.tm_mon) {
-    default:  { DLOG(FATAL) << "tm.tm_mon: " << tm.tm_mon; } break;
+    default: {
+    } break;
     case 0:   month_name = "Jan"; break;
     case 1:   month_name = "Feb"; break;
     case 2:   month_name = "Mar"; break;
@@ -753,7 +748,7 @@ char* strndup_with_new(const char* the_string, int max_length) {
 //    Precondition: (end_ptr != NULL)
 // ----------------------------------------------------------------------
 const char* ScanForFirstWord(const char* the_string, const char** end_ptr) {
-  CHECK(end_ptr != NULL) << ": precondition violated";
+  CHECK(end_ptr != NULL);
 
   if (the_string == NULL)  // empty string
     return NULL;

@@ -16,39 +16,18 @@
  *
  * @}
  */
-/*
- * \license @{
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @}
- */
 //
 // Copyright (C) 2001 and onwards Google, Inc.
 //
-// (Please see comments in strutil.h near the include of <asm/string.h>
-//  if you feel compelled to try to provide more efficient implementations
-//  of these routines.)
-//
 // These routines provide mem versions of standard C string routines,
-// such a strpbrk.  They function exactly the same as the str version,
+// such as strpbrk.  They function exactly the same as the str versions,
 // so if you wonder what they are, replace the word "mem" by
 // "str" and check out the man page.  I could return void*, as the
 // strutil.h mem*() routines tend to do, but I return char* instead
 // since this is by far the most common way these functions are called.
 //
 // The difference between the mem and str versions is the mem version
-// takes a pointer and a length, rather than a NULL-terminated string.
+// takes a pointer and a length, rather than a '\0'-terminated string.
 // The memcase* routines defined here assume the locale is "C"
 // (they use ascii_tolower instead of tolower).
 //
@@ -85,8 +64,8 @@
 // --                      MEMCASEIS
 // strcount                MEMCOUNT       (strcount is from strutil.h)
 
-#ifndef GOOGLEAPIS_STRINGS_MEMUTIL_H_
-#define GOOGLEAPIS_STRINGS_MEMUTIL_H_
+#ifndef STRINGS_MEMUTIL_H_
+#define STRINGS_MEMUTIL_H_
 
 #include <stddef.h>
 #include <string.h>      // to get the POSIX mem*() routines
@@ -176,15 +155,5 @@ const char *memmatch(const char *phaystack, size_t haylen,
   ( (((len) == strliterallen(literal))                         \
      && memcasecmp(str, literal, strliterallen(literal)) == 0) )
 
-
-inline int memcount(const char* buf, size_t len, char c) {
-  int num = 0;
-  for (size_t i = 0; i < len; i++) {
-    if (buf[i] == c)
-      num++;
-  }
-  return num;
-}
-
 }  // namespace googleapis
-#endif  // GOOGLEAPIS_STRINGS_MEMUTIL_H_
+#endif  // STRINGS_MEMUTIL_H_

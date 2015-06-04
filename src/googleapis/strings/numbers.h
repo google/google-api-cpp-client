@@ -48,26 +48,23 @@
 #include <functional>
 using std::binary_function;
 using std::less;
-using std::binary_function;
-using std::less;
 #include <limits>
-using std::numeric_limits;
 using std::numeric_limits;
 #include <string>
 using std::string;
 using std::string;
 
+#if defined(HAVE_STRING_PRINTF)
+#include "googleapis/base/stringprintf.h"
+#endif  // HAVE_STRING_PRINTF
+#include "googleapis/strings/ascii_ctype.h"
+#include "googleapis/strings/stringpiece.h"
 #if defined(HAVE_INT_128)
 #include "googleapis/base/int128.h"
 #endif  // HAVE_INT_128
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/port.h"
-#if defined(HAVE_STRING_PRINTF)
-#include "googleapis/base/stringprintf.h"
-#endif  // HAVE_STRING_PRINTF
-#include "googleapis/strings/ascii_ctype.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 // START DOXYGEN NumbersFunctions grouping
@@ -190,13 +187,6 @@ bool safe_strtof(const string& str, float* value);
 bool safe_strtod(const char* str, double* value);
 bool safe_strtod(const string& str, double* value);
 
-// Parses text (case insensitive) into a boolean. The following strings are
-// interpreted to boolean true: "true", "t", "yes", "y", "1". The following
-// strings are interpreted to boolean false: "false", "f", "no", "n", "0".
-// Returns true on success. On failure the boolean value will not have been
-// changed.
-bool safe_strtob(StringPiece str, bool* value);
-
 // u64tostr_base36()
 //    The inverse of safe_strtou64_base, converts the number agument to
 //    a string representation in base-36.
@@ -205,10 +195,6 @@ bool safe_strtob(StringPiece str, bool* value);
 //    Returns number of bytes written, not including terminating NUL.
 //    Return value 0 indicates error.
 size_t u64tostr_base36(uint64 number, size_t buf_size, char* buffer);
-
-// Similar to atoi(s), except s could be like "16k", "32M", "2G", "4t".
-uint64 atoi_kmgt(const char* s);
-inline uint64 atoi_kmgt(const string& s) { return atoi_kmgt(s.c_str()); }
 
 // ----------------------------------------------------------------------
 // FastIntToBuffer()
@@ -588,8 +574,7 @@ string SimpleFtoa(float value);
 char* DoubleToBuffer(double i, char* buffer);  // DEPRECATED(mec)
 char* FloatToBuffer(float i, char* buffer);  // DEPRECATED(mec)
 
-// Converts a boolean to a string, which if passed to safe_strtob will produce
-// the exact same original boolean. The returned string will be "true" if
+// Converts a boolean to a string. The returned string will be "true" if
 // value == true, and "false" otherwise.
 string SimpleBtoa(bool value);
 

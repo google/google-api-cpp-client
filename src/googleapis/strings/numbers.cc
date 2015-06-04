@@ -56,20 +56,18 @@ using std::numeric_limits;
 using std::string;
 using std::string;
 
-#if defined(HAVE_INT_128)
-#include "googleapis/base/int128.h"
-#endif
-#include "googleapis/base/integral_types.h"
 #include <glog/logging.h>
 #if defined(HAVE_STRING_PRINTF)
 #include "googleapis/base/stringprintf.h"
 #endif  // HAVE_STRING_PRINTF
-#include "googleapis/base/strtoint.h"
 #include "googleapis/strings/ascii_ctype.h"
-#include "googleapis/strings/case.h"
+#if defined(HAVE_INT_128)
+#include "googleapis/base/int128.h"
+#endif
+#include "googleapis/base/integral_types.h"
+#include "googleapis/base/strtoint.h"
 
 namespace googleapis {
-
 
 // Reads a <double> in *text, which may not be whitespace-initiated.
 // *len is the length, or -1 if text is '\0'-terminated, which is more
@@ -884,51 +882,6 @@ bool safe_strtod(const string& str, double* value) {
   return safe_strtod(str.c_str(), value);
 }
 
-bool safe_strtob(StringPiece str, bool* value) {
-  CHECK(value != NULL) << "NULL output boolean given.";
-  if (CaseEqual(str, "true") || CaseEqual(str, "t") ||
-      CaseEqual(str, "yes") || CaseEqual(str, "y") ||
-      CaseEqual(str, "1")) {
-    *value = true;
-    return true;
-  }
-  if (CaseEqual(str, "false") || CaseEqual(str, "f") ||
-      CaseEqual(str, "no") || CaseEqual(str, "n") ||
-      CaseEqual(str, "0")) {
-    *value = false;
-    return true;
-  }
-  return false;
-}
-
-uint64 atoi_kmgt(const char* s) {
-  char* endptr;
-  uint64 n = strtou64(s, &endptr, 10);
-  uint64 scale = 1;
-  char c = *endptr;
-  if (c != '\0') {
-    c = ascii_toupper(c);
-    switch (c) {
-      case 'K':
-        scale = GG_ULONGLONG(1) << 10;
-        break;
-      case 'M':
-        scale = GG_ULONGLONG(1) << 20;
-        break;
-      case 'G':
-        scale = GG_ULONGLONG(1) << 30;
-        break;
-      case 'T':
-        scale = GG_ULONGLONG(1) << 40;
-        break;
-      default:
-        LOG(FATAL) << "Invalid mnemonic: `" << c << "';"
-                   << " should be one of `K', `M', `G', and `T'.";
-    }
-  }
-  return n * scale;
-}
-
 // ----------------------------------------------------------------------
 // FastHexToBuffer()
 // FastHex64ToBuffer()
@@ -954,7 +907,7 @@ uint64 atoi_kmgt(const char* s) {
 
 
 char *FastHexToBuffer(int i, char* buffer) {
-  CHECK_GE(i, 0) << "FastHexToBuffer() wants non-negative integers, not " << i;
+  CHECK_GE(i, 0);
 
   static const char *hexdigits = "0123456789abcdef";
   char *p = buffer + 21;
@@ -1093,7 +1046,8 @@ char* FastUInt64ToBufferLeft(uint64 u64, char* buffer) {
 
   uint64 top_11_digits = u64 / 1000000000;
   buffer = FastUInt64ToBufferLeft(top_11_digits, buffer);
-  u = u64 - (top_11_digits * 1000000000);
+  // Result must be lest than 1B, so it fits in 32 bits.
+  u = static_cast<uint32>(u64 - (top_11_digits * 1000000000));
 
   uint32 digits = u / 10000000;  // 10,000,000
   memcpy(buffer, two_ASCII_digits[digits], 2);

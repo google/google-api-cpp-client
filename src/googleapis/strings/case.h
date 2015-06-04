@@ -16,6 +16,23 @@
  *
  * @}
  */
+/*
+ * \license @{
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @}
+ */
 
 // Refactored from contributions of various authors in strings/strutil.h
 //
@@ -25,22 +42,21 @@
 // These functions are for ASCII only. If you need to process UTF8 strings,
 // take a look at files in i18n/utf8.
 
-#ifndef STRINGS_CASE_H_
-#define STRINGS_CASE_H_
+#ifndef GOOGLEAPIS_STRINGS_CASE_H_
+#define GOOGLEAPIS_STRINGS_CASE_H_
 
 #include <string.h>
 #ifndef _MSC_VER
+#ifndef _MSC_VER
 #include <strings.h>
+#endif
 #endif
 #include <functional>
 using std::binary_function;
 using std::less;
 #include <string>
-using std::string;
-
-#include "googleapis/strings/memutil.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
+using std::string;
 
 // These are function objects (this is the kind of thing that STL
 // uses).  This provides a comparison function appropriate for
@@ -89,13 +105,13 @@ CapsType GetCapitalization(const char* s);
 //    less than 0:    if s1 < s2
 //    equal to 0:     if s1 == s2
 //    greater than 0: if s1 > s2
-inline int StringCaseCompare(const string& s1, const string& s2) {
+inline int StringCaseCompare(const std::string& s1, const std::string& s2) {
   return strcasecmp(s1.c_str(), s2.c_str());
 }
 
 // Returns true if the two strings are equal, case-insensitively speaking.
 // Uses C/POSIX locale.
-inline bool StringCaseEqual(const string& s1, const string& s2) {
+inline bool StringCaseEqual(const std::string& s1, const std::string& s2) {
   return strcasecmp(s1.c_str(), s2.c_str()) == 0;
 }
 
@@ -103,33 +119,10 @@ inline bool StringCaseEqual(const string& s1, const string& s2) {
 // Useful as a template parameter for STL set/map of strings, if uniqueness of
 // keys is case-insensitive.
 struct StringCaseLess {
-  bool operator()(const string& s1, const string& s2) const {
+  bool operator()(const std::string& s1, const std::string& s2) const {
     return strcasecmp(s1.c_str(), s2.c_str()) < 0;
   }
 };
-
-// Case-insensitive StringPiece comparison.
-// Returns:
-//    less than 0:    if s1 < s2
-//    equal to 0:     if s1 == s2
-//    greater than 0: if s1 > s2
-int CaseCompare(StringPiece s1, StringPiece s2);
-
-// Returns true if the two StringPieces are equal, case-insensitively speaking.
-inline bool CaseEqual(StringPiece s1, StringPiece s2) {
-  if (s1.size() != s2.size()) return false;
-  return memcasecmp(s1.data(), s2.data(), s1.size()) == 0;
-}
-
-// Case-insensitive less-than StringPiece comparison.
-// Useful as a template parameter for STL set/map of StringPiece-compatible
-// types, if uniqueness of keys is case-insensitive.
-struct CaseLess {
-  bool operator()(StringPiece s1, StringPiece s2) const {
-    return CaseCompare(s1, s2) < 0;
-  }
-};
-
 
 // ----------------------------------------------------------------------
 // LowerString()
@@ -143,16 +136,8 @@ struct CaseLess {
 // ----------------------------------------------------------------------
 
 void LowerString(char* s);
-void LowerString(string* s);
+void LowerString(std::string* s);
 void LowerStringToBuf(const char* s, char* buf, int n);
-
-namespace strings {
-inline string ToLower(StringPiece s) {
-  string out(s.data(), s.size());
-  LowerString(&out);
-  return out;
-}
-}  // namespace strings
 
 // ----------------------------------------------------------------------
 // UpperString()
@@ -166,26 +151,8 @@ inline string ToLower(StringPiece s) {
 // ----------------------------------------------------------------------
 
 void UpperString(char* s);
-void UpperString(string* s);
+void UpperString(std::string* s);
 void UpperStringToBuf(const char* s, char* buf, int n);
 
-namespace strings {
-inline string ToUpper(StringPiece s) {
-  string out(s.data(), s.size());
-  UpperString(&out);
-  return out;
-}
-}  // namespace strings
-
-// ---------------------------------------------------------------------
-// TitlecaseString()
-//     Capitalize first character of each word in a string.
-//     delimiters is a set of characters that can be used as word
-//     boundaries.
-//     This function can be implemented using regular expression,
-//     but this version is supposed to be more efficient.
-// ---------------------------------------------------------------------
-void TitlecaseString(string* s, StringPiece delimiters);
-
 }  // namespace googleapis
-#endif  // STRINGS_CASE_H_
+#endif  // GOOGLEAPIS_STRINGS_CASE_H_

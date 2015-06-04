@@ -56,8 +56,8 @@
 //   (including numerical values greater than 127)
 //   then the output is the same as the input.
 
-#ifndef STRINGS_ASCII_CTYPE_H_
-#define STRINGS_ASCII_CTYPE_H_
+#ifndef GOOGLEAPIS_STRINGS_ASCII_CTYPE_H_
+#define GOOGLEAPIS_STRINGS_ASCII_CTYPE_H_
 namespace googleapis {
 
 // Array of character information.  This is an implementation detail.
@@ -113,4 +113,4 @@ static inline unsigned char ascii_toupper(unsigned char c) {
 }
 
 }  // namespace googleapis
-#endif  // STRINGS_ASCII_CTYPE_H_
+#endif  // GOOGLEAPIS_STRINGS_ASCII_CTYPE_H_

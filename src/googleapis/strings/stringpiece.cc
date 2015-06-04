@@ -49,14 +49,10 @@ using std::swap;
 #include <climits>
 #include <string>
 using std::string;
-using std::string;
 
-#include "googleapis/strings/memutil.h"
-#include "googleapis/util/stl_util.h"
 #include <glog/logging.h>
 
 namespace googleapis {
-
 
 std::ostream& operator<<(std::ostream& o, StringPiece piece) {
   o.write(piece.data(), piece.size());
@@ -84,11 +80,11 @@ StringPiece::StringPiece(StringPiece x,
 }
 
 void StringPiece::CopyToString(string* target) const {
-  STLAssignToString(target, ptr_, length_);
+  target->assign(ptr_, length_);
 }
 
 void StringPiece::AppendToString(string* target) const {
-  STLAppendToString(target, ptr_, length_);
+  target->append(ptr_, length_);
 }
 
 stringpiece_ssize_type StringPiece::copy(char* buf,
@@ -108,9 +104,26 @@ stringpiece_ssize_type StringPiece::find(StringPiece s, size_type pos) const {
     if (length_ == 0 && pos == 0 && s.length_ == 0) return 0;
     return npos;
   }
-  const char *result = memmatch(ptr_ + pos, length_ - pos,
-                                s.ptr_, s.length_);
-  return result ? result - ptr_ : npos;
+  const char* start = ptr_ + pos;
+  auto left = length_ - pos;
+  if (s.length_ == 0) {  // "" target matches beginning of search area.
+    return pos;
+  }
+  if (left < s.length_) {
+    return npos;
+  }
+  const char* end_pos = start + left - s.length_ + 1;
+  // The cast is used here to work around the fact that memchr returns a
+  // void* on Posix-compliant systems and const void* on Windows.
+  while (auto match = static_cast<const char*>(memchr(start, s.ptr_[0],
+                                                      end_pos - start))) {
+    if (memcmp(match, s.ptr_, s.length_) == 0) {
+      return match - ptr_;
+    } else {
+      start = match + 1;
+    }
+  }
+  return npos;
 }
 
 stringpiece_ssize_type StringPiece::find(char c, size_type pos) const {

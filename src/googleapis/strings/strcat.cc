@@ -44,7 +44,6 @@
 
 #include <glog/logging.h>
 #include "googleapis/strings/ascii_ctype.h"
-#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 
@@ -92,7 +91,7 @@ static char *Append4(char *out,
 
 string StrCat(const AlphaNum &a, const AlphaNum &b) {
   string result;
-  STLStringResizeUninitialized(&result, a.size() + b.size());
+  result.resize(a.size() + b.size());
   char *const begin = &*result.begin();
   char *out = Append2(begin, a, b);
   DCHECK_EQ(out, begin + result.size());
@@ -101,7 +100,7 @@ string StrCat(const AlphaNum &a, const AlphaNum &b) {
 
 string StrCat(const AlphaNum &a, const AlphaNum &b, const AlphaNum &c) {
   string result;
-  STLStringResizeUninitialized(&result, a.size() + b.size() + c.size());
+  result.resize(a.size() + b.size() + c.size());
   char *const begin = &*result.begin();
   char *out = Append2(begin, a, b);
   out = Append1(out, c);
@@ -112,8 +111,7 @@ string StrCat(const AlphaNum &a, const AlphaNum &b, const AlphaNum &c) {
 string StrCat(const AlphaNum &a, const AlphaNum &b, const AlphaNum &c,
               const AlphaNum &d) {
   string result;
-  STLStringResizeUninitialized(&result,
-                               a.size() + b.size() + c.size() + d.size());
+  result.resize(a.size() + b.size() + c.size() + d.size());
   char *const begin = &*result.begin();
   char *out = Append4(begin, a, b, c, d);
   DCHECK_EQ(out, begin + result.size());
@@ -123,8 +121,7 @@ string StrCat(const AlphaNum &a, const AlphaNum &b, const AlphaNum &c,
 string StrCat(const AlphaNum &a, const AlphaNum &b, const AlphaNum &c,
               const AlphaNum &d, const AlphaNum &e) {
   string result;
-  STLStringResizeUninitialized(&result,
-      a.size() + b.size() + c.size() + d.size() + e.size());
+  result.resize(a.size() + b.size() + c.size() + d.size() + e.size());
   char *const begin = &*result.begin();
   char *out = Append4(begin, a, b, c, d);
   out = Append1(out, e);
@@ -135,8 +132,8 @@ string StrCat(const AlphaNum &a, const AlphaNum &b, const AlphaNum &c,
 string StrCat(const AlphaNum &a, const AlphaNum &b, const AlphaNum &c,
               const AlphaNum &d, const AlphaNum &e, const AlphaNum &f) {
   string result;
-  STLStringResizeUninitialized(&result,
-      a.size() + b.size() + c.size() + d.size() + e.size() + f.size());
+  result.resize(a.size() + b.size() + c.size() + d.size() + e.size()
+                + f.size());
   char *const begin = &*result.begin();
   char *out = Append4(begin, a, b, c, d);
   out = Append2(out, e, f);
@@ -148,7 +145,7 @@ string StrCat(const AlphaNum &a, const AlphaNum &b, const AlphaNum &c,
               const AlphaNum &d, const AlphaNum &e, const AlphaNum &f,
               const AlphaNum &g) {
   string result;
-  STLStringResizeUninitialized(&result,
+  result.resize(
       a.size() + b.size() + c.size() + d.size() + e.size()
                + f.size() + g.size());
   char *const begin = &*result.begin();
@@ -163,9 +160,8 @@ string StrCat(const AlphaNum &a, const AlphaNum &b, const AlphaNum &c,
               const AlphaNum &d, const AlphaNum &e, const AlphaNum &f,
               const AlphaNum &g, const AlphaNum &h) {
   string result;
-  STLStringResizeUninitialized(&result,
-      a.size() + b.size() + c.size() + d.size() + e.size()
-               + f.size() + g.size() + h.size());
+  result.resize(a.size() + b.size() + c.size() + d.size() + e.size() + f.size()
+                + g.size() + h.size());
   char *const begin = &*result.begin();
   char *out = Append4(begin, a, b, c, d);
   out = Append4(out, e, f, g, h);
@@ -188,7 +184,7 @@ string StrCatNineOrMore(const AlphaNum *a, ...) {
   while (const AlphaNum *arg = va_arg(args, const AlphaNum *)) {
     size += arg->size();
   }
-  STLStringResizeUninitialized(&result, size);
+  result.resize(size);
   va_end(args);
   va_start(args, a);
   char *const begin = &*result.begin();
@@ -217,7 +213,7 @@ void StrAppend(string *result, const AlphaNum &a) {
 
 void StrAppend(string *result, const AlphaNum &a, const AlphaNum &b) {
   string::size_type old_size = result->size();
-  STLStringResizeUninitialized(result, old_size + a.size() + b.size());
+  result->resize(old_size + a.size() + b.size());
   char *const begin = &*result->begin();
   char *out = Append2(begin + old_size, a, b);
   DCHECK_EQ(out, begin + result->size());
@@ -226,8 +222,7 @@ void StrAppend(string *result, const AlphaNum &a, const AlphaNum &b) {
 void StrAppend(string *result,
                const AlphaNum &a, const AlphaNum &b, const AlphaNum &c) {
   string::size_type old_size = result->size();
-  STLStringResizeUninitialized(result,
-                               old_size + a.size() + b.size() + c.size());
+  result->resize(old_size + a.size() + b.size() + c.size());
   char *const begin = &*result->begin();
   char *out = Append2(begin + old_size, a, b);
   out = Append1(out, c);
@@ -238,8 +233,7 @@ void StrAppend(string *result,
                const AlphaNum &a, const AlphaNum &b,
                const AlphaNum &c, const AlphaNum &d) {
   string::size_type old_size = result->size();
-  STLStringResizeUninitialized(result,
-      old_size + a.size() + b.size() + c.size() + d.size());
+  result->resize(old_size + a.size() + b.size() + c.size() + d.size());
   char *const begin = &*result->begin();
   char *out = Append4(begin + old_size, a, b, c, d);
   DCHECK_EQ(out, begin + result->size());
@@ -253,9 +247,8 @@ void StrAppend(string *result,
                const AlphaNum &d, const AlphaNum &e, const AlphaNum &f,
                const AlphaNum &g, const AlphaNum &h, const AlphaNum &i) {
   string::size_type old_size = result->size();
-  STLStringResizeUninitialized(result,
-      old_size + a.size() + b.size() + c.size() + d.size()
-               + e.size() + f.size() + g.size() + h.size() + i.size());
+  result->resize(old_size + a.size() + b.size() + c.size() + d.size() + e.size()
+                 + f.size() + g.size() + h.size() + i.size());
   char *const begin = &*result->begin();
   char *out = Append4(begin + old_size, a, b, c, d);
   out = Append4(out, e, f, g, h);
