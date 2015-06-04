@@ -16,18 +16,21 @@
  *
  * @}
  */
-#ifndef GOOGLEAPIS_MUTEX_H_
+#ifndef GOOGLEAPIS_BASE_MUTEX_H_
+#define GOOGLEAPIS_BASE_MUTEX_H_
 #define GOOGLEAPIS_MUTEX_H_
 
 #if defined(_MSC_VER)
 # include <windows.h>
 # include <winbase.h>
-# include <condition_variable>
+# include <condition_variable>  // NOLINT
 #else
 # include <errno.h>
 # include <pthread.h>
 # include <sys/time.h>
 #endif
+#include <stdint.h>
+
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include <glog/logging.h>
@@ -66,7 +69,7 @@ class PThreadCondVar {
   void Wait(PThreadMutex* mu) {
     CHECK_EQ(0, pthread_cond_wait(&cv_, &mu->mutex_));
   }
-  bool WaitWithTimeout(PThreadMutex* mu, int64 millis) {
+  bool WaitWithTimeout(PThreadMutex* mu, int32_t millis) {
     struct timeval tv;
     struct timespec ts;
     gettimeofday(&tv, NULL);
@@ -154,4 +157,4 @@ using base::Mutex;
 using base::MutexLock;
 
 }  // namespace googleapis
-#endif  // GOOGLEAPIS_MUTEX_H_
+#endif  // GOOGLEAPIS_BASE_MUTEX_H_
