@@ -40,7 +40,7 @@ using std::map;
 #include "googleapis/strings/strip.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/util.h"
-#include "util/gtl/stl_util.h"
+#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 

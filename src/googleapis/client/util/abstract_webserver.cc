@@ -33,7 +33,7 @@ using std::vector;
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include "util/gtl/stl_util.h"
+#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 

@@ -43,7 +43,7 @@ using std::vector;
 #include "googleapis/strings/stringpiece.h"
 #include <json/reader.h>
 #include <json/value.h>
-#include "util/gtl/stl_util.h"
+#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 

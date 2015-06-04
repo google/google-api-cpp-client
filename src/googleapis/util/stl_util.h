@@ -105,7 +105,7 @@ using std::vector;
 #include "googleapis/base/macros.h"
 #include "googleapis/base/port.h"
 #include "googleapis/base/template_util.h"
-#include "util/algorithm.h"
+#include "googleapis/util/algorithm.h"
 namespace googleapis {
 
 namespace util {
