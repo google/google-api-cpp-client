@@ -16,8 +16,13 @@
 # It installs all the packages into an "install" subdirectory to pwd.
 """Prepares dependencies for Google APIs Client Library for C++.
 
-This will download, configure, build, and install the libraries in whole or
-part.
+This *might* download, configure, build, and install the libraries we
+depend on in whole or part. It is almost always not exactly you really
+want, because each of the dependencies releases on their own cycle,
+faster than this script will track them. For the most repeatable build
+process, developers should manually pull the individual packages from
+their respective repositories, inspect their licenses, add them to their
+local revision control, and integrate into their build system.
 
 Usage:
     By default, with no args, this will run turnkey doing whatever is needed.
@@ -104,8 +109,7 @@ class ConfigInfo(object):
     return
 
   def SetOptions(self, options):
-    """
-    Sets custom options.
+    """Sets custom options.
 
     Args:
       options: (list[string, string])  name, value pairs of options given
@@ -311,7 +315,6 @@ class PackageInstaller(object):
                 '    It will pick up where it left off, using the new url.'
                 '\n'))
       sys.exit(1)
-
 
   def MaybeTweakAfterUnpackage(self):
     """Extra stuff to do after unpackaging an archive."""
@@ -1017,6 +1020,7 @@ class GLogPackageInstaller(PackageInstaller):
 
 
 class CurlPackageInstaller(PackageInstaller):
+
   def __init__(self, config, url):
     if config.compiler == VS_COMPILER:
       config_type = CMAKE_CONFIG
@@ -1048,7 +1052,7 @@ class Installer(object):
           # Use CMake as our build system for the libraries and some deps
           'cmake': (CMakeExeInstaller(
               config,
-              'http://www.cmake.org/files/v2.8/cmake-2.8.10.2-win32-x86.exe')),
+              'http://www.cmake.org/files/v3.1/cmake-3.1.1-win32-x86.exe')),
 
           'openssl': (IgnorePackageInstaller(config, 'ignoring_openssl')),
       })
@@ -1057,7 +1061,7 @@ class Installer(object):
           # Use CMake as our build system for the libraries and some deps
           'cmake': (PackageInstaller(
               config,
-              'http://www.cmake.org/files/v2.8/cmake-2.8.10.2.tar.gz',
+              'http://www.cmake.org/files/v3.1/cmake-3.1.1.tar.gz',
               config_type=CONFIGURE_CONFIG)),
 
           # This is used both for curl https support and
@@ -1065,7 +1069,7 @@ class Installer(object):
           # The OpenSslCodec is not requird so if you get an https transport
           # from somewhere else then you do not need this dependency.
           'openssl': (OpenSslPackageInstaller(
-              config, 'http://www.openssl.org/source/openssl-1.0.1e.tar.gz')),
+              config, 'http://www.openssl.org/source/openssl-1.0.1m.tar.gz')),
           })
 
     self._url_map.update({
@@ -1095,18 +1099,14 @@ class Installer(object):
             '/jsoncpp/0.5.0/jsoncpp-src-0.5.0.tar.gz')),
 
         # Mongoose is used as webserver for samples.
-        # Note that valenok no longer maintains mongoose, it has moved to
-        # https://github.com/cesanta/mongoose
-        # who maintains it under a GPLv2 license.  The date of tarball
-        # download was 6/6/2013, in case ownership changes again and we need
-        # a new tarball URL.
-        'mongoose': (MongoosePackageInstaller(
-            config,
-            'https://github.com/cesanta/mongoose/tarball'
-            '/a0e54945695118340545f676c95713ce8aec655f')),
+        # The ownership and license style seems to keep changing, so we do not
+        # download it by default.
+        #'mongoose': (MongoosePackageInstaller(
+        #    config,
+        #   'https://github.com/cesanta/mongoose/archive/master.zip')),
 
         'curl': (CurlPackageInstaller(
-            config, 'http://curl.haxx.se/download/curl-7.30.0.tar.gz')),
+            config, 'http://curl.haxx.se/download/curl-7.42.1.tar.gz')),
         })
 
     # make sure cmake occurs first since others may depend on it
