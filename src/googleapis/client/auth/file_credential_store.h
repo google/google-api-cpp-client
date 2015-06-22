@@ -69,7 +69,7 @@ class FileCredentialStoreFactory : public CredentialStoreFactory {
    * @param[in] root_path It is expected, but not required, that root_path
    *            is the result of GetSystemHomeDirectoryStorePath().
    */
-  explicit FileCredentialStoreFactory(const StringPiece& root_path);
+  explicit FileCredentialStoreFactory(const string& root_path);
 
   /*
    * Standard destructor.

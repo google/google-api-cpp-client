@@ -33,8 +33,9 @@ using std::string;
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
 #include "googleapis/base/thread_annotations.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
+
+class StringPiece;
 
 namespace client {
 

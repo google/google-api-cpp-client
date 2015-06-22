@@ -39,6 +39,7 @@ using std::string;
 #include <glog/logging.h>
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
+#include "googleapis/strings/stringpiece.h"
 #include <gmock/gmock.h>
 #include "googleapis/util/canonical_errors.h"
 #include "googleapis/util/status_test_util.h"

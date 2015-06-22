@@ -40,7 +40,6 @@ using std::string;
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 namespace client {
@@ -113,7 +112,7 @@ class CredentialStore {
    *         requires that a credential had been stored at some earlier time.
    */
   virtual googleapis::util::Status InitCredential(
-       const StringPiece& user_name, AuthorizationCredential* credential) = 0;
+       const string& user_name, AuthorizationCredential* credential) = 0;
 
   /*
    * Stores the credential under the given user_name.
@@ -126,7 +125,7 @@ class CredentialStore {
    * @returns success if the credential could be stored successfully.
    */
   virtual googleapis::util::Status Store(
-       const StringPiece& user_name,
+       const string& user_name,
        const AuthorizationCredential& credential) = 0;
 
   /*
@@ -135,7 +134,7 @@ class CredentialStore {
    * @param[in] user_name The key to remove.
    * @return success if the key no longer exists in the store.
    */
-  virtual googleapis::util::Status Delete(const StringPiece& user_name) = 0;
+  virtual googleapis::util::Status Delete(const string& user_name) = 0;
 
  protected:
   /*

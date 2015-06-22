@@ -61,6 +61,7 @@ using std::vector;
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/split.h"
 #include "googleapis/strings/strcat.h"
+#include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/util.h"
 
 namespace googleapis {
@@ -89,8 +90,8 @@ void OAuth2AuthorizationFlow::ResetCredentialStore(CredentialStore* store) {
 class OAuth2AuthorizationFlow::SimpleJsonData {
  public:
   SimpleJsonData() {}
-  googleapis::util::Status Init(const StringPiece& json);
-  string InitFromContainer(const StringPiece& json);
+  googleapis::util::Status Init(const string& json);
+  string InitFromContainer(const string& json);
   bool GetString(const char* field, string* value) const;
   bool GetScalar(const char* field, int* value) const;
   bool GetBool(const char* field, bool* value) const;
@@ -102,9 +103,9 @@ class OAuth2AuthorizationFlow::SimpleJsonData {
 };
 
 util::Status OAuth2AuthorizationFlow::SimpleJsonData::Init(
-     const StringPiece& json) {
+     const string& json) {
   Json::Reader reader;
-  std::istringstream stream(json.as_string());
+  std::istringstream stream(json);
   if (!reader.parse(stream, json_)) {
     googleapis::util::Status status(StatusInvalidArgument("Invalid JSON"));
     LOG(ERROR) << status.error_message();
@@ -113,7 +114,7 @@ util::Status OAuth2AuthorizationFlow::SimpleJsonData::Init(
   return StatusOk();
 }
 string OAuth2AuthorizationFlow::SimpleJsonData::InitFromContainer(
-     const StringPiece& json) {
+     const string& json) {
   if (!Init(json).ok() || json_.begin() == json_.end()) {
     return "";
   }
@@ -154,24 +155,16 @@ bool OAuth2AuthorizationFlow::SimpleJsonData::GetFirstArrayElement(
 
 void OAuth2AuthorizationFlow::AppendJsonStringAttribute(
     string* to,
-    const StringPiece sep,
-    const StringPiece name,
-    const StringPiece value) {
+    const string& sep,
+    const string& name,
+    const string& value) {
   StrAppend(to, sep, "\"", name, "\":\"", value, "\"");
-}
-
-void OAuth2AuthorizationFlow::AppendJsonBooleanAttribute(
-    string* to,
-    const StringPiece sep,
-    const StringPiece name,
-    bool value) {
-  StrAppend(to, sep, "\"", name, "\":", value ? "true" : "false");
 }
 
 void OAuth2AuthorizationFlow::AppendJsonScalarAttribute(
     string* to,
-    const StringPiece sep,
-    const StringPiece name,
+    const string& sep,
+    const string& name,
     int value) {
   StrAppend(to, sep, "\"", name, "\":", value);
 }
@@ -181,6 +174,9 @@ bool OAuth2AuthorizationFlow::GetStringAttribute(
   return data->GetString(key, value);
 }
 
+void OAuth2AuthorizationFlow::set_default_scopes(const StringPiece& scopes) {
+  default_scopes_ = scopes.as_string();
+}
 
 const char OAuth2AuthorizationFlow::kOutOfBandUrl[] =
   "urn:ietf:wg:oauth:2.0:oob";
@@ -194,6 +190,10 @@ OAuth2ClientSpec::OAuth2ClientSpec()
 }
 
 OAuth2ClientSpec::~OAuth2ClientSpec() {
+}
+
+void OAuth2ClientSpec::set_redirect_uri(const StringPiece& uri) {
+  set_redirect_uri(uri.as_string());
 }
 
 const char OAuth2Credential::kOAuth2CredentialType[] = "OAuth2";
@@ -292,7 +292,7 @@ util::Status OAuth2Credential::AuthorizeRequest(HttpRequest* request) {
   return StatusOk();
 }
 
-util::Status OAuth2Credential::UpdateFromString(const StringPiece& json) {
+util::Status OAuth2Credential::UpdateFromString(const string& json) {
   OAuth2AuthorizationFlow::SimpleJsonData data;
   googleapis::util::Status status = data.Init(json);
   if (!status.ok()) return status;
@@ -387,7 +387,7 @@ util::Status OAuth2AuthorizationFlow::PerformExchangeAuthorizationCode(
     return StatusFailedPrecondition("Missing client secret");
   }
 
-  const StringPiece redirect = options.redirect_uri.empty()
+  const string redirect = options.redirect_uri.empty()
       ? client_spec_.redirect_uri()
       : options.redirect_uri;
   string content =
@@ -474,10 +474,7 @@ HttpRequest* OAuth2AuthorizationFlow::ConstructRefreshTokenRequest_(
   request->set_content_type(HttpRequest::ContentType_FORM_URL_ENCODED);
 
   string* content = BuildRefreshTokenContent_(credential);
-  request->set_content_reader(
-      NewManagedInMemoryDataReader(
-          StringPiece(*content), DeletePointerClosure(content)));
-
+  request->set_content_reader(NewManagedInMemoryDataReader(content));
   return request;
 }
 
@@ -539,10 +536,7 @@ util::Status OAuth2AuthorizationFlow::PerformRevokeToken(
       : credential->mutable_refresh_token();
   string* content = new string("token=");
   token->AppendTo(content);
-  request->set_content_reader(
-      NewManagedInMemoryDataReader(
-          StringPiece(*content), DeletePointerClosure(content)));
-
+  request->set_content_reader(NewManagedInMemoryDataReader(content));
   googleapis::util::Status status = request->Execute();
   if (status.ok()) {
     token->set("");
@@ -651,19 +645,19 @@ util::Status OAuth2AuthorizationFlow::RefreshCredentialWithOptions(
 
 string OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrlWithOptions(
     const OAuth2RequestOptions& options) const {
-  StringPiece default_redirect(client_spec_.redirect_uri());
+  string default_redirect(client_spec_.redirect_uri());
   string actual_scopes;
-  StringPiece scopes =
+  string scopes =
       options.scopes.empty() ? default_scopes_ : options.scopes;
   if (check_email_
-      && !scopes.starts_with("email ")
-      && scopes.find(" email") == StringPiece::npos) {
+      && !(scopes.find("email ") == 0)
+      && scopes.find(" email") == string::npos) {
     // Add "email" scope if it isnt already present
     actual_scopes = StrCat("email ", scopes);
     scopes = actual_scopes;
   }
 
-  const StringPiece redirect = options.redirect_uri.empty()
+  const string redirect = options.redirect_uri.empty()
       ? client_spec_.redirect_uri()
       : options.redirect_uri;
 
@@ -679,14 +673,14 @@ string OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrlWithOptions(
 
 // static
 string OAuth2AuthorizationFlow::JoinScopes(
-    const std::vector<StringPiece>& scopes) {
+    const std::vector<string>& scopes) {
   return strings::Join(scopes, " ");
 }
 
 // static
 OAuth2AuthorizationFlow*
 OAuth2AuthorizationFlow::MakeFlowFromClientSecretsJson(
-    const StringPiece& json,
+    const string& json,
     HttpTransport* transport,
     googleapis::util::Status* status) {
   std::unique_ptr<HttpTransport> transport_deleter(transport);
@@ -722,7 +716,7 @@ OAuth2AuthorizationFlow::MakeFlowFromClientSecretsJson(
   return NULL;
 }
 
-util::Status OAuth2AuthorizationFlow::InitFromJson(const StringPiece& json) {
+util::Status OAuth2AuthorizationFlow::InitFromJson(const string& json) {
   SimpleJsonData data;
   string root_name = data.InitFromContainer(json);
   if (root_name.empty()) {
@@ -765,7 +759,7 @@ OAuth2InstalledApplicationFlow::~OAuth2InstalledApplicationFlow() {
 }
 
 string OAuth2InstalledApplicationFlow::GenerateAuthorizationCodeRequestUrl(
-    const StringPiece& scope) const {
+    const string& scope) const {
   return OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrl(scope);
 }
 
@@ -785,7 +779,7 @@ OAuth2WebApplicationFlow::~OAuth2WebApplicationFlow() {
 }
 
 string OAuth2WebApplicationFlow::GenerateAuthorizationCodeRequestUrl(
-    const StringPiece& scope) const {
+    const string& scope) const {
   string url =
       OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrl(scope);
   if (force_approval_prompt_) {
@@ -826,14 +820,14 @@ util::Status OAuth2WebApplicationFlow::InitFromJsonData(
 // static
 OAuth2AuthorizationFlow*
 OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
-    const StringPiece& path,
+    const string& path,
     HttpTransport* transport,
     googleapis::util::Status* status) {
-  *status = SensitiveFileUtils::VerifyIsSecureFile(path.as_string(), false);
+  *status = SensitiveFileUtils::VerifyIsSecureFile(path, false);
   if (!status->ok()) return NULL;
 
   string json;
-  *status = File::ReadPath(path.as_string(), &json);
+  *status = File::ReadPath(path, &json);
   if (!status->ok()) return NULL;
 
   return MakeFlowFromClientSecretsJson(json, transport, status);
@@ -851,6 +845,11 @@ util::Status OAuth2AuthorizationFlow::InitFromClientSecretsPath(
   return InitFromJson(json);
 }
 #endif  // NO_FILE_STORAGE
+
+void ThreadsafeString::set(const StringPiece& value) {
+  MutexLock l(&mutex_);
+  value_ = value.as_string();
+}
 
 }  // namespace client
 

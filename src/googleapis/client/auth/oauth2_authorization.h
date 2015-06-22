@@ -50,8 +50,9 @@ using std::vector;
 #include "googleapis/base/mutex.h"
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/client/transport/http_request.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
+
+class StringPiece;
 
 namespace client {
 class CredentialStore;
@@ -96,7 +97,7 @@ class OAuth2ClientSpec {
   /*
    * Sets the client ID.
    */
-  void set_client_id(const StringPiece& id) { client_id_ = id.as_string(); }
+  void set_client_id(const string& id) { client_id_ = id; }
 
   /*
    * Returns the client secret.
@@ -106,9 +107,8 @@ class OAuth2ClientSpec {
   /*
    * Sets the client secret.
    */
-  void set_client_secret(const StringPiece& secret) {
-    client_secret_ = secret.as_string();
-  }
+  template<typename T>
+  void set_client_secret(const T secret) { client_secret_ = secret; }
 
   /*
    * Returns the redirect url.
@@ -120,10 +120,12 @@ class OAuth2ClientSpec {
    *
    * @see OAuth2AuthorizationFlow::kOutOfBandUrl
    */
-  void set_redirect_uri(const StringPiece& uri) {
-    redirect_uri_ = uri.as_string();
+  template<typename T>
+  void set_redirect_uri(const T uri) {
+    redirect_uri_ = uri;
   }
 
+  void set_redirect_uri(const StringPiece& uri);
 
   /*
    * Returns the url for requesting an OAuth2 Authorization Code for
@@ -134,8 +136,7 @@ class OAuth2ClientSpec {
   /*
    * Sets the url for requesting an OAuth2 Authorization Code for this service.
    */
-  void set_auth_uri(const StringPiece& uri) { auth_uri_ = uri.as_string(); }
-
+  void set_auth_uri(const string& uri) { auth_uri_ = uri; }
 
   /*
    * Returns the url for requesting an OAuth2 Access Token for this service.
@@ -145,8 +146,7 @@ class OAuth2ClientSpec {
   /*
    * Sets the url for requesting an OAuth2 Access Token for this service.
    */
-  void set_token_uri(const StringPiece& uri) { token_uri_ = uri.as_string(); }
-
+  void set_token_uri(const string& uri) { token_uri_ = uri; }
 
   /*
    * Returns url for revoking an OAuth2 Access Token for this service.
@@ -156,7 +156,7 @@ class OAuth2ClientSpec {
   /*
    * Sets the url for revoking an OAuth2 Access Token for this service.
    */
-  void set_revoke_uri(const StringPiece& uri) { revoke_uri_ = uri.as_string(); }
+  void set_revoke_uri(const string& uri) { revoke_uri_ = uri; }
 
  private:
   string client_id_;
@@ -195,10 +195,13 @@ class ThreadsafeString {
     value_.clear();
   }
 
-  void set(const StringPiece& value) {
+  template<typename T>
+  void set(const T value) {
     MutexLock l(&mutex_);
-    value_ = value.as_string();
+    value_ = value;
   }
+
+  void set(const StringPiece& value);
 
   string as_string() const {
     MutexLock l(&mutex_);
@@ -297,7 +300,8 @@ class OAuth2Credential : public AuthorizationCredential {
    * @see OAuth2PerformExchangeAuthorizationCode
    * @see OAuth2PerformRefreshToken
    */
-  void set_access_token(const StringPiece& access_token) {
+  template<typename T>
+  void set_access_token(const T& access_token) {
     access_token_.set(access_token);
   }
 
@@ -309,7 +313,8 @@ class OAuth2Credential : public AuthorizationCredential {
    *
    * @see OAuth2ExchangeAuthorizationCodeRequest
    */
-  void set_refresh_token(const StringPiece& refresh_token) {
+  template<typename T>
+  void set_refresh_token(const T refresh_token) {
     refresh_token_.set(refresh_token);
   }
 
@@ -413,7 +418,7 @@ class OAuth2Credential : public AuthorizationCredential {
    *
    * @see Update()
    */
-  googleapis::util::Status UpdateFromString(const StringPiece& json);
+  googleapis::util::Status UpdateFromString(const string& json);
 
   /*
    * Returns the email associated with this credential, if known.
@@ -440,8 +445,8 @@ class OAuth2Credential : public AuthorizationCredential {
    * @param[in] email The email address will be copied into the credental.
    * @param[in] verified Whether or not the email address has been verified.
    */
-  void set_email(const StringPiece& email, bool verified) {
-    email_ = email.as_string();
+  void set_email(const string& email, bool verified) {
+    email_ = email;
     email_verified_ = verified;
   }
 
@@ -569,7 +574,7 @@ class OAuth2AuthorizationFlow {
    *
    * @param[in] json JSON-encoded object with the configuraton attributes.
    */
-  googleapis::util::Status InitFromJson(const StringPiece& json);
+  googleapis::util::Status InitFromJson(const string& json);
 
   /*
    * Initializes instance from the client secrets json data at the path.
@@ -644,9 +649,11 @@ class OAuth2AuthorizationFlow {
    * @param[in] scopes The specific values are specified by the individual
    *            services that you wish to talk to.
    */
-  void set_default_scopes(const StringPiece& scopes) {
-    default_scopes_ = scopes.as_string();
+  template<typename T>
+  void set_default_scopes(const T scopes) {
+    default_scopes_ = scopes;
   }
+  void set_default_scopes(const StringPiece& scopes);
 
   /*
    * Configure flow to add the email scope to every request.
@@ -728,9 +735,9 @@ class OAuth2AuthorizationFlow {
    * @see RefreshCredentialWithOptions.
    * @see GenerateAuthorizationCodeRequestUrlWithOptions
    */
-  string GenerateAuthorizationCodeRequestUrl(const StringPiece& scopes) const {
+  string GenerateAuthorizationCodeRequestUrl(const string& scopes) const {
     OAuth2RequestOptions options;
-    options.scopes = scopes.as_string();
+    options.scopes = scopes;
     return GenerateAuthorizationCodeRequestUrlWithOptions(options);
   }
 
@@ -743,7 +750,7 @@ class OAuth2AuthorizationFlow {
    * @see GenerateAuthorizationCodeRequestUrl
    */
   string GenerateAuthorizationCodeRequestUrl(
-      const std::vector<StringPiece>& scopes) const;
+      const std::vector<string>& scopes) const;
 
   /*
    * Returns a URL to the OAuth 2.0 server requesting a new Authorization Code.
@@ -854,7 +861,7 @@ class OAuth2AuthorizationFlow {
    * @see MakeFlowFromClientSecretsJson
    */
   static OAuth2AuthorizationFlow* MakeFlowFromClientSecretsPath(
-      const StringPiece& path, HttpTransport* transport,
+      const string& path, HttpTransport* transport,
       googleapis::util::Status* status);
 
   /*
@@ -880,7 +887,7 @@ class OAuth2AuthorizationFlow {
    * @return Ownership of a new authorization flow or NULL on failure.
    */
   static OAuth2AuthorizationFlow* MakeFlowFromClientSecretsJson(
-      const StringPiece& json, HttpTransport* transport,
+      const string& json, HttpTransport* transport,
       googleapis::util::Status* status);
 
   /*
@@ -890,7 +897,7 @@ class OAuth2AuthorizationFlow {
    * @param[in] scopes
    * @return scopes string for OAuth2RequestOptions
    */
-  static string JoinScopes(const std::vector<StringPiece>& scopes);
+  static string JoinScopes(const std::vector<string>& scopes);
 
   /*
    * Returns a new credential instance that will use this flow to refresh.
@@ -922,19 +929,14 @@ class OAuth2AuthorizationFlow {
   // to share common private implementation across files.
   static void AppendJsonStringAttribute(
       string* to,
-      const StringPiece sep,
-      const StringPiece name,
-      const StringPiece value);
+      const string& sep,
+      const string& name,
+      const string& value);
   static void AppendJsonScalarAttribute(
       string* to,
-      const StringPiece sep,
-      const StringPiece name,
+      const string& sep,
+      const string& name,
       int value);
-  static void AppendJsonBooleanAttribute(
-      string* to,
-      const StringPiece sep,
-      const StringPiece name,
-      bool value);
 
   static bool GetStringAttribute(const SimpleJsonData* data,
                                  const char* key,
@@ -991,7 +993,7 @@ class OAuth2InstalledApplicationFlow : public OAuth2AuthorizationFlow {
       HttpTransport* transport);
   virtual ~OAuth2InstalledApplicationFlow();
   virtual string GenerateAuthorizationCodeRequestUrl(
-      const StringPiece& scope) const;
+      const string& scope) const;
 
  protected:
   // Called by initFromJson.
@@ -1016,7 +1018,7 @@ class OAuth2WebApplicationFlow : public OAuth2AuthorizationFlow {
   explicit OAuth2WebApplicationFlow(HttpTransport* transport);
   virtual ~OAuth2WebApplicationFlow();
   virtual string GenerateAuthorizationCodeRequestUrl(
-      const StringPiece& scope) const;
+      const string& scope) const;
 
   /*
    * Returns whether or not the "approval_prompt" should be 'force'.

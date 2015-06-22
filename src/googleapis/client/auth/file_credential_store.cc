@@ -33,7 +33,6 @@ using std::string;
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
 #include "googleapis/util/file.h"
-#include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/strcat.h"
 
 namespace googleapis {
@@ -53,7 +52,7 @@ class FileCredentialStore : public CredentialStore {
   virtual ~FileCredentialStore() {}
 
   googleapis::util::Status InitCredential(
-       const StringPiece& user, AuthorizationCredential* credential) {
+       const string& user, AuthorizationCredential* credential) {
     const string path = UserToPath(user);
     googleapis::util::Status status =
           SensitiveFileUtils::VerifyIsSecureFile(path, true);
@@ -68,7 +67,7 @@ class FileCredentialStore : public CredentialStore {
   }
 
   googleapis::util::Status Store(
-       const StringPiece& user, const AuthorizationCredential& credential) {
+       const string& user, const AuthorizationCredential& credential) {
     std::unique_ptr<DataReader> credential_reader(credential.MakeDataReader());
     string dir_path = UserToDir(user);
     googleapis::util::Status status =
@@ -91,7 +90,7 @@ class FileCredentialStore : public CredentialStore {
         serialized, file_path, true);
   }
 
-  googleapis::util::Status Delete(const StringPiece& user) {
+  googleapis::util::Status Delete(const string& user) {
     return SensitiveFileUtils::DeleteSensitiveFile(UserToPath(user));
   }
 
@@ -102,12 +101,12 @@ class FileCredentialStore : public CredentialStore {
   // Credentials are stored in file with the client_id name in the
   // user directory. This function returns the directory for a user that
   // contains all the credentials. It is a helper function for creating it.
-  string UserToDir(const StringPiece& user) const {
+  string UserToDir(const string& user) const {
     return JoinPath(root_path_, user);
   }
 
   // The path is <root>/<user>/<client_id>
-  string UserToPath(const StringPiece& user) const {
+  string UserToPath(const string& user) const {
     return JoinPath(JoinPath(root_path_, user), client_id_);
   }
   DISALLOW_COPY_AND_ASSIGN(FileCredentialStore);
@@ -140,8 +139,8 @@ util::Status FileCredentialStoreFactory::GetSystemHomeDirectoryStorePath(
 }
 
 // Construct the factory.
-FileCredentialStoreFactory::FileCredentialStoreFactory(
-    const StringPiece& root_path) : root_path_(root_path.as_string()) {
+FileCredentialStoreFactory::FileCredentialStoreFactory(const string& root_path)
+  : root_path_(root_path) {
   if (root_path_.empty()) {
     LOG(WARNING) << "Base path for file credential store is empty";
   }
