@@ -81,7 +81,7 @@ using std::string;
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/util.h"
-#include "googleapis/util/stl_util.h"
+#include "util/gtl/stl_util.h"
 
 namespace googleapis {
 
@@ -313,14 +313,14 @@ class UserRepository {
     return user_data;
   }
 
-  util::Status GetPersonalUserData(
+  googleapis::util::Status GetPersonalUserData(
        OAuth2Credential* cred, client::JsonCppDictionary* dict) {
     CHECK(cred != NULL);
     std::unique_ptr<HttpRequest> request(
         transport_->NewHttpRequest(HttpRequest::GET));
     request->set_credential(cred);
     request->set_url(kMeUrl);
-    util::Status status = request->Execute();
+    googleapis::util::Status status = request->Execute();
     if (!status.ok()) {
       LOG(ERROR)
           << "Failed invoking " << kMeUrl << status.error_message();
@@ -349,7 +349,7 @@ class UserRepository {
    */
   bool AddCredential(
       const string& cookie_id,
-      const util::Status& status,
+      const googleapis::util::Status& status,
       OAuth2Credential* credential) {
     std::unique_ptr<OAuth2Credential> credential_deleter(credential);
     if (!status.ok()) {
@@ -364,7 +364,7 @@ class UserRepository {
     if (new_user) {
       client::JsonCppCapsule<
           client::JsonCppDictionary> capsule;
-      util::Status status = GetPersonalUserData(credential, &capsule);
+      googleapis::util::Status status = GetPersonalUserData(credential, &capsule);
       if (!status.ok()) {
         LOG(ERROR) << "Could not get user data so removing user.";
         RemoveUser(cookie_id);
@@ -387,7 +387,7 @@ class UserRepository {
         // Otherwise just keep the new credential.
         client::JsonCppCapsule<
             client::JsonCppDictionary> capsule;
-        util::Status status = GetPersonalUserData(credential, &capsule);
+        googleapis::util::Status status = GetPersonalUserData(credential, &capsule);
         if (!status.ok()) {
           LOG(ERROR) << "Could not get user data so removing user.";
           RemoveUser(cookie_id);
@@ -470,7 +470,7 @@ class SampleWebApplicationLoginFlow : public BASE {
    */
   virtual bool DoReceiveCredentialForCookieId(
       const string& cookie_id,
-      const util::Status& status,
+      const googleapis::util::Status& status,
       OAuth2Credential* credential) {
     if (credential) {
       return user_repository_->AddCredential(cookie_id, status, credential);
@@ -493,20 +493,20 @@ class SampleWebApplicationLoginFlow : public BASE {
   /*
    * Hook for the base login flow to render a welcome page after login.
    */
-  virtual util::Status DoRespondWithWelcomePage(
+  virtual googleapis::util::Status DoRespondWithWelcomePage(
       const string& cookie_id, WebServerRequest* request);
 
   /*
    * Hook for the base login flow to render a login page.
    */
-  virtual util::Status DoRespondWithNotLoggedInPage(
+  virtual googleapis::util::Status DoRespondWithNotLoggedInPage(
       const string& cookie_id, WebServerRequest* request);
 
   /*
    * Hook for the base login flow to render a login failure page.
    */
-  virtual util::Status DoRespondWithLoginErrorPage(
-      const string& cookie_id, const util::Status& status,
+  virtual googleapis::util::Status DoRespondWithLoginErrorPage(
+      const string& cookie_id, const googleapis::util::Status& status,
       WebServerRequest* request);
 
  private:
@@ -555,7 +555,7 @@ class SampleWebApplication {
         NewPermanentCallback(this,
                              &SampleWebApplication::HandleDefaultUrls));
 
-    util::Status status = httpd_->Startup();
+    googleapis::util::Status status = httpd_->Startup();
     CHECK(status.ok()) << status.error_message();
   }
 
@@ -593,7 +593,7 @@ class SampleWebApplication {
    * This is broken out so we can share it among the different
    * login mechanisms that the sample demonstrates.
    */
-  util::Status RespondWithWelcomePage(
+  googleapis::util::Status RespondWithWelcomePage(
        UserData* user_data, WebServerRequest* request) {
     return RespondWithHtml(user_data, HttpStatusCode::OK, "Welcome!", request);
   }
@@ -604,7 +604,7 @@ class SampleWebApplication {
    * This is broken out so we can share it among the different
    * login mechanisms that the sample demonstrates.
    */
-  util::Status RespondWithNotLoggedInPage(
+  googleapis::util::Status RespondWithNotLoggedInPage(
        UserData* user_data, WebServerRequest* request) {
     string redirect_url;
     request->parsed_url().GetQueryParameter(
@@ -620,9 +620,9 @@ class SampleWebApplication {
    * This is broken out so we can share it among the different login
    * mechanisms that the sample demonstrates.
    */
-  util::Status RespondWithLoginErrorPage(
+  googleapis::util::Status RespondWithLoginErrorPage(
       UserData* user_data,
-      const util::Status& status,
+      const googleapis::util::Status& status,
       WebServerRequest* request) {
     return RespondWithHtml(
         user_data,
@@ -651,7 +651,7 @@ class SampleWebApplication {
   void InitAuthorizationFlow() {
     CHECK(config_.get()) << "Must InitTransportLayer first";
 
-    util::Status status;
+    googleapis::util::Status status;
     flow_.reset(OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
         FLAGS_client_secrets_path,
         config_->NewDefaultTransportOrDie(),
@@ -792,13 +792,13 @@ class SampleWebApplication {
    *
    * @return ok or reason for failure.
    */
-  util::Status RespondWithRedirect(
+  googleapis::util::Status RespondWithRedirect(
       UserData* user_data, const string& url, WebServerRequest* request) {
     LOG(INFO) << "Redirecting cookie=" << user_data->cookie_id()
               << " to " << url;
 
     WebServerResponse* response = request->response();
-    util::Status status =
+    googleapis::util::Status status =
         response->AddCookie(kCookieName, user_data->cookie_id());
     if (!status.ok()) {
       LOG(ERROR) << "Embedded webserver coudlnt add a cookie when redirecting:"
@@ -821,7 +821,7 @@ class SampleWebApplication {
    *
    * @return ok or reason for failure.
    */
-  util::Status RespondWithHtml(
+  googleapis::util::Status RespondWithHtml(
       UserData* user_data, int http_code, const StringPiece& html_body,
       WebServerRequest* request, string redirect_success = "") {
     string html = gplus_login_.get()
@@ -841,7 +841,7 @@ class SampleWebApplication {
     html = StringReplace(html, "$MSG_BODY", html_body, false);
 
     WebServerResponse* response = request->response();
-    util::Status status =
+    googleapis::util::Status status =
         response->AddCookie(kCookieName, user_data->cookie_id());
     if (!status.ok()) {
       LOG(ERROR) << "Embedded webserver couldnt add a cookie. "
@@ -859,7 +859,7 @@ class SampleWebApplication {
    *
    * @return ok or reason for failure.
    */
-  util::Status ProcessQuitCommand(WebServerRequest* request) {
+  googleapis::util::Status ProcessQuitCommand(WebServerRequest* request) {
     MutexLock l(&mutex_);
     condvar_.Signal();
     return request->response()->SendText(
@@ -875,7 +875,7 @@ class SampleWebApplication {
    *
    * @return ok or reason for failure.
    */
-  util::Status ProcessMeCommand(
+  googleapis::util::Status ProcessMeCommand(
       UserData* user_data, WebServerRequest* request) {
     std::unique_ptr<HttpRequest> http_request(
         transport_->NewHttpRequest(HttpRequest::GET));
@@ -901,7 +901,7 @@ class SampleWebApplication {
    *
    * @return ok or reason for failure.
    */
-  util::Status HandleDefaultUrls(WebServerRequest* request) {
+  googleapis::util::Status HandleDefaultUrls(WebServerRequest* request) {
     VLOG(1) << "Default url handler=" << request->parsed_url().url();
     // Strip leading "/" to get the command.
     StringPiece command = request->parsed_url().path().substr(1);
@@ -970,7 +970,7 @@ util::Status SampleWebApplicationLoginFlow<C>::DoRespondWithNotLoggedInPage(
 template<class C>
 util::Status SampleWebApplicationLoginFlow<C>::DoRespondWithLoginErrorPage(
     const string& cookie_id,
-    const util::Status& status,
+    const googleapis::util::Status& status,
     WebServerRequest* request) {
   UserData* user_data =
       user_repository()->GetUserDataFromCookieId(cookie_id);

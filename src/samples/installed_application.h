@@ -31,8 +31,8 @@
 // explore it a bit more first. Especially to generalize it
 // so that it has a sibling class WebApplication.
 //
-#ifndef APISERVING_CLIENTS_CPP_SAMPLES_INSTALLED_APPLICATION_H_
-#define APISERVING_CLIENTS_CPP_SAMPLES_INSTALLED_APPLICATION_H_
+#ifndef GOOGLEAPIS_SAMPLES_INSTALLED_APPLICATION_H_
+#define GOOGLEAPIS_SAMPLES_INSTALLED_APPLICATION_H_
 
 #include <iostream>
 using std::cout;
@@ -50,7 +50,6 @@ using std::vector;
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 // Maybe this will folded into the toolkit, but for now it's outside.
@@ -95,11 +94,11 @@ class InstalledApplication {
   // Returns the OAuth2 flow created during Init()
   OAuth2AuthorizationFlow* flow() { return flow_.get(); }
 
-  const vector<StringPiece>& default_oauth2_scopes() const {
+  const vector<string>& default_oauth2_scopes() const {
     return default_scopes_;
   }
 
-  vector<StringPiece>* mutable_default_oauth2_scopes() {
+  vector<string>* mutable_default_oauth2_scopes() {
     return &default_scopes_;
   }
 
@@ -112,21 +111,21 @@ class InstalledApplication {
 
   // Change to the given user_name persona.
   // This will clear the current credential and load a new one.
-  virtual util::Status ChangeUser(const StringPiece& user_name);
+  virtual googleapis::util::Status ChangeUser(const string& user_name);
 
   // Sets up flow and stuff. If you arent using a client_secrets file then
   // you at least need to create one defining the flow type then set the
   // Oauth2ClientSpec in flow()->mutable_client_spec().
-  util::Status Init(const StringPiece& client_secrets_path);
+  googleapis::util::Status Init(const string& client_secrets_path);
 
   // This isnt needed if the client_secrets path has a refresh token in it.
   // But if it doesnt, or was revoked, then you'll need to obtain another one.
   // This method assists that.
-  virtual util::Status AuthorizeClient();
-  virtual util::Status RevokeClient();
+  virtual googleapis::util::Status AuthorizeClient();
+  virtual googleapis::util::Status RevokeClient();
 
-  virtual util::Status StartupHttpd(
-      int port, const StringPiece& path,
+  virtual googleapis::util::Status StartupHttpd(
+      int port, const string& path,
       client::WebServerAuthorizationCodeGetter::AskCallback* ask);
   virtual void ShutdownHttpd();
 
@@ -141,7 +140,7 @@ class InstalledApplication {
 
  protected:
   // Hook for derived classes to augment Init()
-  virtual util::Status InitHelper();
+  virtual googleapis::util::Status InitHelper();
 
 
  private:
@@ -150,7 +149,7 @@ class InstalledApplication {
   // Credentials for implied user.
   std::unique_ptr<OAuth2Credential> credential_;
   std::unique_ptr<OAuth2AuthorizationFlow> flow_;   // The OAuth2 flow
-  vector<StringPiece> default_scopes_;         // When creating credentials
+  vector<string> default_scopes_;         // When creating credentials
   std::unique_ptr<client::HttpTransportLayerConfig> config_;
 
   std::unique_ptr<AbstractWebServer> httpd_;        // Webserver for getter_
@@ -176,12 +175,12 @@ class InstalledServiceApplication : public InstalledApplication {
  protected:
   // Hook for derived classes to augment Init().
   // This is instead of using InitHelper() offered by the base class.
-  virtual util::Status InitServiceHelper() {
+  virtual googleapis::util::Status InitServiceHelper() {
     return client::StatusOk();
   }
 
   // Derived classes should override InitServiceHelper instead.
-  virtual util::Status InitHelper() {
+  virtual googleapis::util::Status InitHelper() {
     HttpTransportFactory* factory = config()->default_transport_factory();
     // This shouldn't happen since the Init method calling
     // this already checks.
@@ -190,7 +189,7 @@ class InstalledServiceApplication : public InstalledApplication {
     HttpTransport* transport = factory->New();
     service_.reset(new SERVICE(transport));
 
-    util::Status status = InitServiceHelper();
+    googleapis::util::Status status = InitServiceHelper();
     if (!status.ok()) {
       delete service_.release();
     }
@@ -207,4 +206,4 @@ class InstalledServiceApplication : public InstalledApplication {
 }  // namespace sample
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_SAMPLES_INSTALLED_APPLICATION_H_
+#endif  // GOOGLEAPIS_SAMPLES_INSTALLED_APPLICATION_H_

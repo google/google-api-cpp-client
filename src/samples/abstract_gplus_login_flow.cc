@@ -263,7 +263,7 @@ util::Status AbstractGplusLoginFlow::DoHandleAccessTokenUrl(
   } else {
     OAuth2Credential* credential = flow()->NewCredential();
     credential->set_access_token(access_token);
-    util::Status status;
+    googleapis::util::Status status;
     if (!DoReceiveCredentialForCookieId(
             cookie_id, client::StatusOk(), credential)) {
       msg = "LOGIN";

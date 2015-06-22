@@ -19,11 +19,6 @@
 
 
 #include <algorithm>
-using std::copy;
-using std::max;
-using std::min;
-using std::reverse;
-using std::swap;
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -93,7 +88,7 @@ void CommandProcessor::AddCommand(StringPiece name, CommandEntry* details) {
 }
 
 bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
-  util::Status transport_status = response->transport_status();
+  googleapis::util::Status transport_status = response->transport_status();
 
   // Rewind the stream before we dump it since this could get called after
   // ExecuteAndParseResponse which will have read the result.
@@ -104,7 +99,7 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
     return false;
   } else if (!response->ok()) {
     string body;
-    util::Status status = response->GetBodyString(&body);
+    googleapis::util::Status status = response->GetBodyString(&body);
     if (!status.ok()) {
       StrAppend(&body, "ERROR reading HTTP response body: ",
                 status.error_message());
@@ -115,7 +110,7 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
     cout << "OK(" << response->http_code() << ")" << std::endl;
     if (log_success_bodies_) {
       string body;
-      util::Status status = response->GetBodyString(&body);
+      googleapis::util::Status status = response->GetBodyString(&body);
       if (!status.ok()) {
         StrAppend(&body, "ERROR reading HTTP response body: ",
                   status.error_message());

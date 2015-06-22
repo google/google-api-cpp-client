@@ -21,8 +21,8 @@
 // Command Processor class provides a basic shell interpreter for writing apps.
 // It might be useful for writing experimental code that makes API calls.
 // I use it in some samples.
-#ifndef APISERVING_CLIENTS_CPP_SAMPLES_COMMAND_PROCESSOR_H_
-#define APISERVING_CLIENTS_CPP_SAMPLES_COMMAND_PROCESSOR_H_
+#ifndef GOOGLEAPIS_SAMPLES_COMMAND_PROCESSOR_H_
+#define GOOGLEAPIS_SAMPLES_COMMAND_PROCESSOR_H_
 
 #include <map>
 using std::map;
@@ -130,4 +130,4 @@ class CommandProcessor {
 }  // namespace sample
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_SAMPLES_COMMAND_PROCESSOR_H_
+#endif  // GOOGLEAPIS_SAMPLES_COMMAND_PROCESSOR_H_

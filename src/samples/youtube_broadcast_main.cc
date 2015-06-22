@@ -127,9 +127,9 @@ class YouTubeBroadcastSampleApplication
  public:
   YouTubeBroadcastSampleApplication()
       : InstalledServiceApplication<YouTubeService>("YouTubeBroadcastSample") {
-    vector<StringPiece>* scopes = mutable_default_oauth2_scopes();
-    scopes->push_back(YouTubeService::SCOPES::YOUTUBE);
-    scopes->push_back(YouTubeService::SCOPES::YOUTUBE_READONLY);
+    vector<string>* scopes = mutable_default_oauth2_scopes();
+    scopes->push_back(YouTubeService::SCOPES::YOUTUBE.as_string());
+    scopes->push_back(YouTubeService::SCOPES::YOUTUBE_READONLY.as_string());
   }
 
  private:
@@ -219,7 +219,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
       return;
     }
 
-    util::Status status = app_->ChangeUser(args[0]);
+    googleapis::util::Status status = app_->ChangeUser(args[0]);
     if (status.ok()) {
       status = app_->AuthorizeClient();
     }
@@ -506,10 +506,10 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
 using namespace googleapis;
 int main(int argc, char** argv) {
 
-  QCHECK(!FLAGS_client_secrets_path.empty())
+  CHECK(!FLAGS_client_secrets_path.empty())
       << "--client_secrets_path not given";
   YouTubeBroadcastSampleApplication app;
-  util::Status status = app.Init(FLAGS_client_secrets_path);
+  googleapis::util::Status status = app.Init(FLAGS_client_secrets_path);
   if (!status.ok()) {
     cerr << "Could not initialize application." << endl;
     cerr << status.error_message() << endl;

@@ -18,16 +18,16 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_LOGIN_FLOW_H_
-#define APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_LOGIN_FLOW_H_
+#ifndef GOOGLEAPIS_SAMPLES_ABSTRACT_LOGIN_FLOW_H_
+#define GOOGLEAPIS_SAMPLES_ABSTRACT_LOGIN_FLOW_H_
 
 #include <string>
 using std::string;
 #include "googleapis/client/util/abstract_webserver.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -118,7 +118,7 @@ class AbstractLoginFlow {
    */
   virtual ~AbstractLoginFlow();
 
-  util::Status InitiateAuthorizationFlow(
+  googleapis::util::Status InitiateAuthorizationFlow(
       WebServerRequest* request, const StringPiece& redirect_url = "");
 
   /*
@@ -181,7 +181,7 @@ class AbstractLoginFlow {
    */
   virtual bool DoReceiveCredentialForCookieId(
       const string& cookie_id,
-      const util::Status& status,
+      const googleapis::util::Status& status,
       client::OAuth2Credential* credential) = 0;
 
   /*
@@ -194,7 +194,7 @@ class AbstractLoginFlow {
   virtual client::OAuth2Credential*
   DoGetCredentialForCookieId(const string& cookie_id) = 0;
 
-  virtual util::Status DoInitiateAuthorizationFlow(
+  virtual googleapis::util::Status DoInitiateAuthorizationFlow(
       WebServerRequest* request, const StringPiece& redirect_url)  = 0;
 
   /*
@@ -210,7 +210,7 @@ class AbstractLoginFlow {
    *
    * @see AddLoginUrl
    */
-  virtual util::Status DoRespondWithWelcomePage(
+  virtual googleapis::util::Status DoRespondWithWelcomePage(
       const string& cookie_id, WebServerRequest* request) = 0;
 
   /*
@@ -224,7 +224,7 @@ class AbstractLoginFlow {
    *
    * @return ok or reason for failure.
    */
-  virtual util::Status DoRespondWithNotLoggedInPage(
+  virtual googleapis::util::Status DoRespondWithNotLoggedInPage(
       const string& cookie_id,
       WebServerRequest* request) = 0;
 
@@ -239,14 +239,14 @@ class AbstractLoginFlow {
    *
    * @return ok or reason for failure.
    */
-  virtual util::Status DoRespondWithLoginErrorPage(
+  virtual googleapis::util::Status DoRespondWithLoginErrorPage(
       const string& cookie_id,
-      const util::Status& status,
+      const googleapis::util::Status& status,
       WebServerRequest* request) = 0;
 
-  virtual util::Status DoHandleAccessTokenUrl(WebServerRequest* request);
-  virtual util::Status DoHandleLoginUrl(WebServerRequest* request);
-  virtual util::Status DoHandleLogoutUrl(WebServerRequest* request);
+  virtual googleapis::util::Status DoHandleAccessTokenUrl(WebServerRequest* request);
+  virtual googleapis::util::Status DoHandleLoginUrl(WebServerRequest* request);
+  virtual googleapis::util::Status DoHandleLogoutUrl(WebServerRequest* request);
 
  protected:
   /*
@@ -258,11 +258,11 @@ class AbstractLoginFlow {
    *
    * @return ok or reason for failure.
    */
-  util::Status RedirectToUrl(
+  googleapis::util::Status RedirectToUrl(
       const string& url, const string& cookie_id,
       WebServerRequest* request);
 
-  util::Status ReceiveAuthorizationCode(
+  googleapis::util::Status ReceiveAuthorizationCode(
     const string& cookie_id, const string& want_url,
     WebServerRequest* request);
 
@@ -297,17 +297,17 @@ class AbstractLoginFlow {
    * This callback is used to resolve the requests from the OAuth 2.0 server
    * that gives us the authentication codes (or responses) that we asked for.
    */
-  util::Status HandleAccessTokenUrl(WebServerRequest* request);
+  googleapis::util::Status HandleAccessTokenUrl(WebServerRequest* request);
 
   /*
    * This callback implements the login process flow added by AddLoginUrl
    */
-  util::Status HandleLoginUrl(WebServerRequest* request);
+  googleapis::util::Status HandleLoginUrl(WebServerRequest* request);
 
   /*
    * This callback implements the logout process flow added by AddLogoutUrl
    */
-  util::Status HandleLogoutUrl(WebServerRequest* request);
+  googleapis::util::Status HandleLogoutUrl(WebServerRequest* request);
 
   DISALLOW_COPY_AND_ASSIGN(AbstractLoginFlow);
 };
@@ -315,4 +315,4 @@ class AbstractLoginFlow {
 }  // namespace sample
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_LOGIN_FLOW_H_
+#endif  // GOOGLEAPIS_SAMPLES_ABSTRACT_LOGIN_FLOW_H_

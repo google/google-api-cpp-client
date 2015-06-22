@@ -17,6 +17,7 @@ if (HAVE_OPENSSL)
 target_link_libraries(calendar_sample googleapis_openssl_codec)
 endif()
 target_link_libraries(calendar_sample ${GFLAGS_LIBRARY})
+target_link_libraries(calendar_sample pthread)
 
 
 # A helper library used by other samples

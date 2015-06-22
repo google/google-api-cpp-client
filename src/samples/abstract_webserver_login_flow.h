@@ -18,18 +18,18 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_WEBSERVER_LOGIN_FLOW_H_
-#define APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_WEBSERVER_LOGIN_FLOW_H_
+#ifndef GOOGLEAPIS_SAMPLES_ABSTRACT_WEBSERVER_LOGIN_FLOW_H_
+#define GOOGLEAPIS_SAMPLES_ABSTRACT_WEBSERVER_LOGIN_FLOW_H_
 
 #include <memory>
 #include <string>
 using std::string;
-#include "samples/abstract_login_flow.h"
 #include "googleapis/client/auth/oauth2_pending_authorizations.h"
+#include "samples/abstract_login_flow.h"
+#include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/status.h"
 namespace googleapis {
 
 namespace client {
@@ -73,7 +73,7 @@ class AbstractWebServerLoginFlow : public AbstractLoginFlow {
    * @param[in] RequestData The request received when resolved.
    * @return ok or reason for failure.
    */
-  typedef ResultCallback1< util::Status, WebServerRequest*>
+  typedef ResultCallback1< googleapis::util::Status, WebServerRequest*>
       PendingAuthorizationHandler;
 
   /*
@@ -99,7 +99,7 @@ class AbstractWebServerLoginFlow : public AbstractLoginFlow {
    * This callback is used to resolve the requests from the OAuth 2.0 server
    * that gives us the authentication codes (or responses) that we asked for.
    */
-  virtual util::Status DoHandleAccessTokenUrl(WebServerRequest* request);
+  virtual googleapis::util::Status DoHandleAccessTokenUrl(WebServerRequest* request);
 
  private:
   /*
@@ -110,7 +110,7 @@ class AbstractWebServerLoginFlow : public AbstractLoginFlow {
                PendingAuthorizationHandler> >
     pending_;
 
-  virtual util::Status DoInitiateAuthorizationFlow(
+  virtual googleapis::util::Status DoInitiateAuthorizationFlow(
       WebServerRequest* request, const StringPiece& redirect_url);
 
   /*
@@ -126,7 +126,7 @@ class AbstractWebServerLoginFlow : public AbstractLoginFlow {
    *
    * @return ok or reason for failure.
    */
-  util::Status ReceiveAuthorizationCode(
+  googleapis::util::Status ReceiveAuthorizationCode(
       const string& cookie_id, const string& want_url,
       WebServerRequest* request);
 
@@ -136,4 +136,4 @@ class AbstractWebServerLoginFlow : public AbstractLoginFlow {
 }  // namespace sample
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_WEBSERVER_LOGIN_FLOW_H_
+#endif  // GOOGLEAPIS_SAMPLES_ABSTRACT_WEBSERVER_LOGIN_FLOW_H_

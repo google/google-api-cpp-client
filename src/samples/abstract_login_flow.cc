@@ -95,7 +95,7 @@ util::Status AbstractLoginFlow::ReceiveAuthorizationCode(
   const ParsedUrl& parsed_url = request->parsed_url();
   bool have_code = parsed_url.GetQueryParameter("code", &code);
   bool have_error = parsed_url.GetQueryParameter("error", &error);
-  util::Status status;
+  googleapis::util::Status status;
   if (have_error) {
     status = StatusUnknown(StrCat("Did not authorize: ", error));
   } else if (!have_code) {
@@ -164,7 +164,7 @@ util::Status AbstractLoginFlow::DoHandleAccessTokenUrl(
   } else {
     OAuth2Credential* credential = flow_->NewCredential();
     credential->set_access_token(access_token);
-    util::Status status;
+    googleapis::util::Status status;
     if (!DoReceiveCredentialForCookieId(
             cookie_id, client::StatusOk(), credential)) {
       msg = "LOGIN";
@@ -225,7 +225,7 @@ util::Status AbstractLoginFlow::DoHandleLogoutUrl(
     if (access_token.empty() && refresh_token.empty()) {
       VLOG(1) << "Not logged into sample app yet";
     } else {
-      util::Status status =
+      googleapis::util::Status status =
           flow_->PerformRevokeToken(refresh_token.empty(), credential);
       VLOG(1) << "Clearing credential for " << cookie_id;
       DoReceiveCredentialForCookieId(
@@ -249,7 +249,7 @@ util::Status AbstractLoginFlow::RedirectToUrl(
   LOG(INFO) << "Redirecting cookie=" << cookie_id << " to " << url;
 
   WebServerResponse* response = request->response();
-  util::Status status = response->AddCookie(cookie_name_, cookie_id);
+  googleapis::util::Status status = response->AddCookie(cookie_name_, cookie_id);
   if (!status.ok()) return status;
 
   return response->SendRedirect(HttpStatusCode::TEMPORARY_REDIRECT, url);

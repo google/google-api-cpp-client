@@ -89,7 +89,7 @@ util::Status AbstractWebServerLoginFlow::ReceiveAuthorizationCode(
   const ParsedUrl& parsed_url = request->parsed_url();
   bool have_code = parsed_url.GetQueryParameter("code", &code);
   bool have_error = parsed_url.GetQueryParameter("error", &error);
-  util::Status status;
+  googleapis::util::Status status;
   if (have_error) {
     status = StatusUnknown(StrCat("Did not authorize: ", error));
   } else if (!have_code) {

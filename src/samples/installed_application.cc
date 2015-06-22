@@ -40,7 +40,6 @@ using std::ostream;  // NOLINT
 #include "googleapis/client/util/status.h"
 
 #include <glog/logging.h>
-#include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/strcat.h"
 
 namespace googleapis {
@@ -65,7 +64,7 @@ using client::StatusOk;
 using client::StatusUnknown;
 using client::WebServerAuthorizationCodeGetter;
 
-static util::Status PromptShellForAuthorizationCode(
+static googleapis::util::Status PromptShellForAuthorizationCode(
     OAuth2AuthorizationFlow* flow,
     const client::OAuth2RequestOptions& options,
     string* authorization_code) {
@@ -85,7 +84,7 @@ static util::Status PromptShellForAuthorizationCode(
   }
 }
 
-static util::Status ValidateUserName(const string& name) {
+static googleapis::util::Status ValidateUserName(const string& name) {
   if (name.find("/") != string::npos) {
     return StatusInvalidArgument("UserNames cannot contain '/'");
   } else if (name == "." || name == "..") {
@@ -108,18 +107,17 @@ InstalledApplication::InstalledApplication(const string& name)
 InstalledApplication::~InstalledApplication() {
   if (revoke_on_exit_) {
     VLOG(1) << "Revoking access on exit";
-    util::Status status = flow_->PerformRevokeToken(true, credential_.get());
+    googleapis::util::Status status = flow_->PerformRevokeToken(true, credential_.get());
     if (!status.ok()) {
       LOG(ERROR) << "Error revoking access token: " << status.error_message();
     }
   }
 }
 
-util::Status InstalledApplication::ChangeUser(
-     const StringPiece& user_name) {
+util::Status InstalledApplication::ChangeUser(const string& user_name) {
   if (user_name != user_name_) {
-    string proposed_name = user_name.as_string();
-    util::Status status = ValidateUserName(proposed_name);
+    string proposed_name = user_name;
+    googleapis::util::Status status = ValidateUserName(proposed_name);
     if (!status.ok()) return status;
 
     credential_.reset(NULL);
@@ -154,8 +152,8 @@ void InstalledApplication::ResetCredential(
 
 util::Status InstalledApplication::InitHelper() { return StatusOk(); }
 
-util::Status InstalledApplication::Init(const StringPiece& secrets_path) {
-  util::Status status;
+util::Status InstalledApplication::Init(const string& secrets_path) {
+  googleapis::util::Status status;
 
   HttpTransport* transport = config_->NewDefaultTransport(&status);
 
@@ -210,7 +208,7 @@ util::Status InstalledApplication::AuthorizeClient() {
   OAuth2RequestOptions options;
   options.scopes = OAuth2AuthorizationFlow::JoinScopes(default_oauth2_scopes());
   options.email = user_name_;
-  util::Status status =
+  googleapis::util::Status status =
         flow_->RefreshCredentialWithOptions(options, credential());
   if (!status.ok()) {
     std::cout << status.error_message() << endl;
@@ -223,9 +221,9 @@ util::Status InstalledApplication::RevokeClient() {
 }
 
 util::Status InstalledApplication::StartupHttpd(
-     int port, const StringPiece& path,
+     int port, const string& path,
      WebServerAuthorizationCodeGetter::AskCallback* asker) {
-  if (!path.starts_with("/")) {
+  if (path.at(0) != '/') {
     return StatusInvalidArgument(
         StrCat("Path must be absolute. got path=", path));
   }
@@ -238,7 +236,7 @@ util::Status InstalledApplication::StartupHttpd(
       new WebServerAuthorizationCodeGetter(asker));
   authorization_code_getter_->AddReceiveAuthorizationCodeUrlPath(
       path, httpd_.get());
-  util::Status status = httpd_->Startup();
+  googleapis::util::Status status = httpd_->Startup();
   if (status.ok()) {
     // Change the flow so that it uses a browser and httpd server.
     flow_->mutable_client_spec()->set_redirect_uri(

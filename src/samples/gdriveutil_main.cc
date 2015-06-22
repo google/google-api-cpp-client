@@ -21,11 +21,11 @@
 // Note that in this example we often IgnoreError when Executing.
 // This is because we look at the status in the response and detect errors
 // there. Checking the result of Execute would be redundant. The IgnoreError
-// calls are just to explicitly acknowledge the util::Status returned by
+// calls are just to explicitly acknowledge the googleapis::util::Status returned by
 // Execute.
 //
 // If we were automatically destroying the request then it would not be
-// valid when Execute() returns and would need to use the util::Status
+// valid when Execute() returns and would need to use the googleapis::util::Status
 // returned by Execute in order to check for errors.
 
 #include <iostream>
@@ -55,7 +55,6 @@ using std::vector;
 #include <glog/logging.h>
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 
 namespace googleapis {
 
@@ -110,7 +109,7 @@ class ProgressMeterDataWriter : public client::FileDataWriter {
     cout << "~ProgressMeterDataWriter" << endl;
   }
 
-  util::Status DoWrite(int64 bytes, const char* buffer) override {
+  googleapis::util::Status DoWrite(int64 bytes, const char* buffer) override {
     // In a real application, we might callback to the UI to display here.
     cout << "*** Got another " << bytes << " bytes." << endl;
     return client::FileDataWriter::DoWrite(bytes, buffer);
@@ -124,16 +123,16 @@ class DriveUtilApplication : public InstalledServiceApplication<DriveService> {
  public:
   DriveUtilApplication()
       : InstalledServiceApplication<DriveService>("GDriveUtil") {
-    vector<StringPiece>* scopes = mutable_default_oauth2_scopes();
-    scopes->push_back(DriveService::SCOPES::DRIVE_READONLY);
-    scopes->push_back(DriveService::SCOPES::DRIVE_FILE);
-    scopes->push_back(DriveService::SCOPES::DRIVE);
+    vector<string>* scopes = mutable_default_oauth2_scopes();
+    scopes->push_back(DriveService::SCOPES::DRIVE_READONLY.as_string());
+    scopes->push_back(DriveService::SCOPES::DRIVE_FILE.as_string());
+    scopes->push_back(DriveService::SCOPES::DRIVE.as_string());
     // Not adding metadata scope because I dont think I'm using
     // anything needing it
   }
 
  protected:
-  virtual util::Status InitServiceHelper() {
+  virtual googleapis::util::Status InitServiceHelper() {
     if (FLAGS_port > 0) {
       client::WebServerAuthorizationCodeGetter::AskCallback*
           asker = NewPermanentCallback(
@@ -261,7 +260,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
       cout << "no user_name provided." << endl;
       return;
     }
-    util::Status status = app_->ChangeUser(args[0]);
+    googleapis::util::Status status = app_->ChangeUser(args[0]);
     if (status.ok()) {
       status = app_->AuthorizeClient();
     }
@@ -563,7 +562,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
         cout << "*** Downloaded to: " << path << endl;
       } else {
         string body;
-        util::Status status = download_response->GetBodyString(&body);
+        googleapis::util::Status status = download_response->GetBodyString(&body);
         cout << "*** Here's what I downloaded:" << endl;
         cout << body << endl;
       }
@@ -590,7 +589,7 @@ google::ParseCommandLineFlags(&argc, &argv, true);
   }
 
   DriveUtilApplication app;
-  util::Status status = app.Init(FLAGS_client_secrets_path);
+  googleapis::util::Status status = app.Init(FLAGS_client_secrets_path);
   if (!status.ok()) {
     LOG(ERROR) << "Could not initialize application: "
                << status.error_message() << endl;;

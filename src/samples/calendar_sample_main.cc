@@ -112,9 +112,9 @@ using client::StatusCanceled;
 using client::StatusInvalidArgument;
 using client::StatusOk;
 
-const StringPiece kSampleStepPrefix = "SAMPLE:  ";
+const char kSampleStepPrefix[] = "SAMPLE:  ";
 
-static util::Status PromptShellForAuthorizationCode(
+static googleapis::util::Status PromptShellForAuthorizationCode(
     OAuth2AuthorizationFlow* flow,
     const OAuth2RequestOptions& options,
     string* authorization_code) {
@@ -132,7 +132,7 @@ static util::Status PromptShellForAuthorizationCode(
   }
 }
 
-static util::Status ValidateUserName(const string& name) {
+static googleapis::util::Status ValidateUserName(const string& name) {
   if (name.find("/") != string::npos) {
     return StatusInvalidArgument("UserNames cannot contain '/'");
   } else if (name == "." || name == "..") {
@@ -215,12 +215,12 @@ void DisplayList(
 
 class CalendarSample {
  public:
-  static util::Status Startup(int argc, char* argv[]);
+  static googleapis::util::Status Startup(int argc, char* argv[]);
   void Run();
 
  private:
   // Gets authorization to access the user's personal calendar data.
-  util::Status Authorize();
+  googleapis::util::Status Authorize();
 
   // Prints some current calendar data to the console to show the effects
   // from the calls that the sample has made.
@@ -254,7 +254,7 @@ class CalendarSample {
   // For this example, it is a calendar event.
   // Returns the final status for the request. If not ok() then event wasn't
   // populated.
-  util::Status GetEvent(
+  googleapis::util::Status GetEvent(
       const string& calendar_id, const StringPiece& event_id, Event* event);
 
   // Demonstrates patching a resource.
@@ -287,7 +287,7 @@ util::Status CalendarSample::Startup(int argc, char* argv[]) {
   }
 
   // Set up HttpTransportLayer.
-  util::Status status;
+  googleapis::util::Status status;
   config_.reset(new HttpTransportLayerConfig);
   client::HttpTransportFactory* factory =
       new client::CurlHttpTransportFactory(config_.get());
@@ -297,12 +297,12 @@ util::Status CalendarSample::Startup(int argc, char* argv[]) {
   }
 
   // Set up OAuth 2.0 flow for getting credentials to access personal data.
-  const StringPiece client_secrets_file = argv[1];
+  const string client_secrets_file = argv[1];
   flow_.reset(OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
       client_secrets_file, config_->NewDefaultTransportOrDie(), &status));
   if (!status.ok()) return status;
 
-  flow_->set_default_scopes(CalendarService::SCOPES::CALENDAR);
+  flow_->set_default_scopes(CalendarService::SCOPES::CALENDAR.as_string());
   flow_->mutable_client_spec()->set_redirect_uri(
       OAuth2AuthorizationFlow::kOutOfBandUrl);
   flow_->set_authorization_code_callback(
@@ -353,7 +353,7 @@ util::Status CalendarSample::Authorize() {
   string email;
   std::getline(std::cin, email);
   if (!email.empty()) {
-    util::Status status = ValidateUserName(email);
+    googleapis::util::Status status = ValidateUserName(email);
     if (!status.ok()) {
       return status;
     }
@@ -361,7 +361,7 @@ util::Status CalendarSample::Authorize() {
 
   OAuth2RequestOptions options;
   options.email = email;
-  util::Status status =
+  googleapis::util::Status status =
         flow_->RefreshCredentialWithOptions(options, &credential_);
   if (!status.ok()) {
     return status;
@@ -455,7 +455,7 @@ void CalendarSample::PatchEvent(
   }
 
   std::unique_ptr<Event> cloud_event(Event::New());
-  util::Status status =
+  googleapis::util::Status status =
         GetEvent(calendar_id, event.get_id(), cloud_event.get());
   if (status.ok()) {
     std::cout << "Patched event:" << std::endl;
@@ -479,7 +479,7 @@ void CalendarSample::UpdateEvent(
   }
 
   std::unique_ptr<Event> cloud_event(Event::New());
-  util::Status status =
+  googleapis::util::Status status =
         GetEvent(calendar_id, event.get_id(), cloud_event.get());
   if (status.ok()) {
     std::cout << "Updated event:" << std::endl;
@@ -506,7 +506,7 @@ void CalendarSample::DeleteCalendar(const string& id) {
 
 void CalendarSample::Run() {
   std::cout << kSampleStepPrefix << "Getting User Authorization" << std::endl;
-  util::Status status = Authorize();
+  googleapis::util::Status status = Authorize();
   if (!status.ok()) {
     std::cout << "Could not authorize: " << status.error_message() << std::endl;
     return;
@@ -610,7 +610,7 @@ void CalendarSample::Run() {
 using namespace googleapis;
 int main(int argc, char* argv[]) {
 
-  util::Status status = CalendarSample::Startup(argc, argv);
+  googleapis::util::Status status = CalendarSample::Startup(argc, argv);
   if (!status.ok()) {
     std::cerr << "Could not initialize application." << std::endl;
     std::cerr << status.error_message() << std::endl;

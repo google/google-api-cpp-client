@@ -18,8 +18,8 @@
  */
 
 
-#ifndef APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_GPLUS_LOGIN_FLOW_H_
-#define APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_GPLUS_LOGIN_FLOW_H_
+#ifndef GOOGLEAPIS_SAMPLES_ABSTRACT_GPLUS_LOGIN_FLOW_H_
+#define GOOGLEAPIS_SAMPLES_ABSTRACT_GPLUS_LOGIN_FLOW_H_
 
 #include <string>
 using std::string;
@@ -100,7 +100,7 @@ class AbstractGplusLoginFlow : public AbstractLoginFlow {
   virtual string GetSigninButtonHtml(bool default_visible);
 
  protected:
-  virtual util::Status DoInitiateAuthorizationFlow(
+  virtual googleapis::util::Status DoInitiateAuthorizationFlow(
       WebServerRequest* request, const StringPiece& redirect_url);
 
   /*
@@ -113,7 +113,7 @@ class AbstractGplusLoginFlow : public AbstractLoginFlow {
    *
    * @return MHD_YES or MHD_NO for MicroHttpd API
    */
-  virtual util::Status DoHandleAccessTokenUrl(WebServerRequest* request);
+  virtual googleapis::util::Status DoHandleAccessTokenUrl(WebServerRequest* request);
 
  private:
   string client_id_;
@@ -126,4 +126,4 @@ class AbstractGplusLoginFlow : public AbstractLoginFlow {
 }  // namespace sample
 
 }  // namespace googleapis
-#endif  // APISERVING_CLIENTS_CPP_SAMPLES_ABSTRACT_GPLUS_LOGIN_FLOW_H_
+#endif  // GOOGLEAPIS_SAMPLES_ABSTRACT_GPLUS_LOGIN_FLOW_H_
