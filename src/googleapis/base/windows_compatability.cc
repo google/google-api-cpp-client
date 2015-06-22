@@ -87,6 +87,23 @@ string FromWindowsStr(const TCHAR* windows) {
 #endif
 }
 
+// These call the windows _vsnprintf, but always NUL-terminate.
+int base_port_MSVC_vsnprintf(char *str, size_t size, const char *format,
+                             va_list ap) {
+  if (size == 0)        // not even room for a \0?
+    return -1;          // not what C99 says to do, but what windows does
+  str[size - 1] = '\0';
+  return _vsnprintf(str, size - 1, format, ap);
+}
+
+int base_port_MSVC_snprintf(char *str, size_t size, const char *format, ...) {
+  va_list ap;
+  va_start(ap, format);
+  const int r = base_port_MSVC_vsnprintf(str, size, format, ap);
+  va_end(ap);
+  return r;
+}
+
 #endif  // _MSC_VER
 
 }  // namespace googleapis

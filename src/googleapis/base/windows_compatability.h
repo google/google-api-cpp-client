@@ -35,6 +35,10 @@
 //
 #if defined(_MSC_VER) && !defined(GOOGLEAPIS_BASE_WINDOWS_COMPATABILITY_H_)
 #define GOOGLEAPIS_BASE_WINDOWS_COMPATABILITY_H_
+
+#include <WinSock2.h>
+#include <Windows.h>
+
 #include <time.h>
 
 #include <string>
