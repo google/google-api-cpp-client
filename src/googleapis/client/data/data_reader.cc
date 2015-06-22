@@ -20,6 +20,7 @@
 //
 // Implements the DataReader base class.
 
+#include <algorithm>
 #include <memory>
 #include <string>
 using std::string;
