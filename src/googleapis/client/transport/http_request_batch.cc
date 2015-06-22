@@ -306,6 +306,14 @@ HttpRequestBatch::HttpRequestBatch(HttpTransport* transport)
 
 HttpRequestBatch::~HttpRequestBatch() {
   Clear();
+
+  // In async mode, http_request_ is self-destructing. So to avoid double-free
+  // we must release the unique_ptr. But be careful not to do that if the
+  // request hasn't executed.
+  if (http_request_->state().done()) {
+    http_request_->DestroyWhenDone();
+    http_request_.release();
+  }
 }
 
 void HttpRequestBatch::Clear() {
