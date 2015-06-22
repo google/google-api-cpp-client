@@ -82,13 +82,8 @@ static int mkdir(const string& path, mode_t permissions) {
   return 0;
 }
 
-inline string strerror(int n) {
-  char buffer[128];
-  strerror_s(buffer, sizeof(buffer), n);
-  return string(buffer);
-}
-
 #undef open
+#define open win_open
 static int open(const char* windows_path, int options) {
   int result;
   // permissions would be interesting but ignore for the sake of portability.
@@ -335,9 +330,6 @@ File* File::OpenWithOptions(
 #else
   _sopen_s(&fd, native_path.c_str(), oflags | O_CREAT, _SH_DENYNO,
            options.permissions() & (_S_IREAD | _S_IWRITE));
-  LOG(INFO) << "Created file with "
-            << StringPrintf(
-                "%x", options.permissions() & (_S_IREAD | _S_IWRITE));
 #endif
 
   if (fd < 0) {
