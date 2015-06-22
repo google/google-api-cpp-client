@@ -23,11 +23,6 @@
 #include <sys/stat.h>
 
 #include <algorithm>
-using std::copy;
-using std::max;
-using std::min;
-using std::reverse;
-using std::swap;
 #include <memory>
 #include <sys/types.h>
 #include <errno.h>

@@ -21,11 +21,6 @@
 #include <string>
 using std::string;
 #include <algorithm>
-using std::copy;
-using std::max;
-using std::min;
-using std::reverse;
-using std::swap;
 #include "googleapis/client/data/codec.h"
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/util/status.h"

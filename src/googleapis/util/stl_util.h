@@ -69,11 +69,6 @@ using std::max;
 using std::min;
 using std::reverse;
 using std::swap;
-using std::copy;
-using std::max;
-using std::min;
-using std::reverse;
-using std::swap;
 #include <cassert>
 #include <deque>
 using std::deque;
@@ -105,7 +100,7 @@ using std::vector;
 #include "googleapis/base/macros.h"
 #include "googleapis/base/port.h"
 #include "googleapis/base/template_util.h"
-#include "googleapis/util/algorithm.h"
+#include "util/algorithm.h"
 namespace googleapis {
 
 namespace util {

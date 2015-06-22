@@ -29,6 +29,7 @@ using std::vector;
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/transport/test/mock_http_transport.h"
 #include "googleapis/client/util/status.h"
+#include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/util.h"

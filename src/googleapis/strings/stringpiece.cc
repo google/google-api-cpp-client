@@ -41,11 +41,6 @@
 
 #include <string.h>
 #include <algorithm>
-using std::copy;
-using std::max;
-using std::min;
-using std::reverse;
-using std::swap;
 #include <climits>
 #include <string>
 using std::string;

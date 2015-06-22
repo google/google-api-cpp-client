@@ -20,11 +20,6 @@
 
 #include <memory>
 #include <algorithm>
-using std::copy;
-using std::max;
-using std::min;
-using std::reverse;
-using std::swap;
 #include <string>
 using std::string;
 
