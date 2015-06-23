@@ -6,7 +6,7 @@
 
 // Macros for testing the results of functions that return util::Status.
 
-#define EXPECT_OK(statement) EXPECT_EQ(googleapis::util::Status::OK, (statement))
-#define ASSERT_OK(statement) ASSERT_EQ(googleapis::util::Status::OK, (statement))
+#define EXPECT_OK(statement) EXPECT_EQ(googleapis::util::error::OK, (statement))
+#define ASSERT_OK(statement) ASSERT_EQ(googleapis::util::error::OK, (statement))
 
 #endif  // GOOGLEAPIS_UTIL_STATUS_TEST_UTIL_H__

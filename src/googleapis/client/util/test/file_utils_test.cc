@@ -63,7 +63,7 @@ class FileUtilsTestFixture : public testing::Test {
 TEST_F(FileUtilsTestFixture, TestCreateDir) {
   const string kRoot = StrCat(GetTestingTempDir(), "/test_create_dir");
   File::DeleteDir(kRoot.c_str());
-  ASSERT_TRUE(util::IsNotFound(file::Exists(kRoot, file::Defaults())));
+  ASSERT_TRUE(util::IsNotFound(googleapis::file::File::Exists(kRoot)));
 
   googleapis::util::Status status =
         SensitiveFileUtils::CreateSecureDirectoryRecursively(kRoot);
@@ -92,7 +92,7 @@ EXPECT_TRUE(
 TEST_F(FileUtilsTestFixture, TestStoreFile) {
   const string kPath = StrCat(GetTestingTempDir(), "/test_store");
   File::Delete(kPath);
-  ASSERT_TRUE(util::IsNotFound(file::Exists(kPath, file::Defaults())));
+  ASSERT_TRUE(util::IsNotFound(googleapis::file::File::Exists(kPath)));
 
   const string kOriginalContent = "Sample test data";
   googleapis::util::Status status = SensitiveFileUtils::WriteSensitiveStringToFile(
@@ -122,11 +122,11 @@ TEST_F(FileUtilsTestFixture, TestSecureDelete) {
   googleapis::util::Status status =
         SensitiveFileUtils::WriteSensitiveStringToFile("X", kPath, true);
   EXPECT_TRUE(status.ok()) << status.ToString();
-  EXPECT_OK(file::Exists(kPath, file::Defaults()));
+  EXPECT_OK(googleapis::file::File::Exists(kPath));
 
   // Nonexistant file ok.
   EXPECT_TRUE(SensitiveFileUtils::DeleteSensitiveFile(kPath).ok());
-  EXPECT_TRUE(util::IsNotFound(file::Exists(kPath, file::Defaults())));
+  EXPECT_TRUE(util::IsNotFound(googleapis::file::File::Exists(kPath)));
 
   // Nonexistant file ok.
   EXPECT_TRUE(SensitiveFileUtils::DeleteSensitiveFile(kPath).ok());
@@ -135,7 +135,7 @@ TEST_F(FileUtilsTestFixture, TestSecureDelete) {
 TEST_F(FileUtilsTestFixture, TestValidatePermissions) {
   const string kPath = StrCat(GetTestingTempDir(), "/test_validate");
   File::Delete(kPath);
-  ASSERT_TRUE(util::IsNotFound(file::Exists(kPath, file::Defaults())));
+  ASSERT_TRUE(util::IsNotFound(googleapis::file::File::Exists(kPath)));
   googleapis::util::Status status =
         SensitiveFileUtils::WriteSensitiveStringToFile("X", kPath, false);
   EXPECT_TRUE(status.ok()) << status.ToString();
@@ -168,7 +168,7 @@ TEST_F(FileUtilsTestFixture, TestValidatePermissions) {
 
   const string kLink = StrCat(GetTestingTempDir(), "/link");
   File::Delete(kLink);
-  ASSERT_TRUE(util::IsNotFound(file::Exists(kLink, file::Defaults())));
+  ASSERT_TRUE(util::IsNotFound(googleapis::file::File::Exists(kLink)));
 #ifndef _MSC_VER
   EXPECT_EQ(0, symlink(kPath.c_str(), kLink.c_str()));
 #else
@@ -191,7 +191,7 @@ TEST_F(FileUtilsTestFixture, TestValidatePermissions) {
   }
 #endif
 
-  ASSERT_OK(file::Exists(kLink, file::Defaults()));
+  ASSERT_OK(googleapis::file::File::Exists(kLink));
   EXPECT_EQ(0, chmod(kLink.c_str(), kGoodMode));
   EXPECT_TRUE(SensitiveFileUtils::VerifyIsSecureFile(kLink, true).ok());
 }

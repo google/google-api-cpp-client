@@ -34,13 +34,13 @@ using std::map;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/once.h"
 #include <glog/logging.h>
-#include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/strip.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/util.h"
-#include "util/gtl/stl_util.h"
+#include "googleapis/util/file.h"
+#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 
