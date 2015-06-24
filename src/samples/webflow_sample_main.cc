@@ -81,7 +81,7 @@ using std::string;
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/util.h"
-#include "util/gtl/stl_util.h"
+#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 
