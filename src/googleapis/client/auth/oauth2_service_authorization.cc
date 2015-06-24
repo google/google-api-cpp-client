@@ -20,7 +20,7 @@
 
 #include <memory>
 
-#include "apiserving/clients/cpp/config.h"
+#include "googleapis/config.h"
 #include "googleapis/client/auth/oauth2_service_authorization.h"
 
 #include "googleapis/client/data/data_reader.h"
@@ -35,7 +35,6 @@
 #include "googleapis/strings/escaping.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/util/helpers.h"
 #include "googleapis/util/file.h"
 #include <openssl/ossl_typ.h>
 #include <openssl/bio.h>
