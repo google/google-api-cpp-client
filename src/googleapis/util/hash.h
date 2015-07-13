@@ -20,11 +20,7 @@
 #ifndef UTILS_HASH_HASH_H_  // NOLINT
 #define UTILS_HASH_HASH_H_
 #include <stddef.h>
-#if defined(__APPLE__)
 #include <unordered_set>
-#else
-#include <hash_set>
-#endif
 
 #include <string>
 using std::string;
