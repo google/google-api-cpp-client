@@ -268,7 +268,7 @@ void HttpRequestState::TransitionAndNotifyIfDone(
   // It will be true when the new code is done but the previous code wasnt.
   bool now_done = IsStateDone(code);
   HttpRequestCallback* callback = NULL;
-  thread::Executor* callback_executor = NULL;
+  ::thread::Executor* callback_executor = NULL;
   HttpRequest* request;
   {
     MutexLock l(&mutex_);
@@ -525,7 +525,7 @@ class HttpRequest::HttpRequestProcessor {
    * This will queue into the Executor for the original request.
    */
   void QueueAsync() {
-    thread::Executor* executor = request_->transport()->options().executor();
+    ::thread::Executor* executor = request_->transport()->options().executor();
     googleapis::util::Status status;
     if (!executor) {
       status = StatusInternalError("No default executor configured");

@@ -692,8 +692,10 @@ inline bool safe_parse_sign_and_base(StringPiece* text  /*inout*/,
 //      value = value - digit
 //
 // Overflow checking becomes simple.
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
+#endif
 template<typename IntType>
 inline bool safe_parse_positive_int(
     StringPiece text, int base, IntType* value_p) {
@@ -766,7 +768,9 @@ inline bool safe_parse_negative_int(
   *value_p = value;
   return true;
 }
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 // Input format based on POSIX.1-2008 strtol
 // http://pubs.opengroup.org/onlinepubs/9699919799/functions/strtol.html
@@ -847,7 +851,7 @@ size_t u64tostr_base36(uint64 number, size_t buf_size, char* buffer) {
 
 bool safe_strtof(const char* str, float* value) {
   char* endptr;
-#ifdef COMPILER_MSVC  // has no strtof()
+#ifdef _MSC_VER  // has no strtof()
   *value = strtod(str, &endptr);
 #else
   *value = strtof(str, &endptr);

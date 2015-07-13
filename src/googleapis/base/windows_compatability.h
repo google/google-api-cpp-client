@@ -56,6 +56,12 @@ inline struct tm* gmtime_r(const time_t *timep, struct tm* result) {
 #undef DELETE
 #endif
 
+// windows.h is also #defining ERROR and although it doesn't conflict with
+// of the library.
+#ifdef ERROR
+#undef ERROR
+#endif
+
 // Converts muti-byte utf8 encoding std::string into windows multibyte wide
 // string.
 const WCHAR* ToWindowsWideString(const string& from, string* to);

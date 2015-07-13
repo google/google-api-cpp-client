@@ -21,8 +21,7 @@
 #define GOOGLEAPIS_MUTEX_H_
 
 #if defined(_MSC_VER)
-# include <windows.h>
-# include <winbase.h>
+#include "googleapis/base/windows_compatability.h"
 # include <condition_variable>  // NOLINT
 #else
 # include <errno.h>

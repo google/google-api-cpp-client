@@ -48,13 +48,6 @@ using std::vector;
 
 namespace googleapis {
 
-
-#ifdef COMPILER_MSVC
-enum { IS_COMPILER_MSVC = 1 };
-#else
-enum { IS_COMPILER_MSVC = 0 };
-#endif
-
 void StringAppendV(string* dst, const char* format, va_list ap) {
   // First try with a small fixed size buffer
   static const int kSpaceLength = 1024;
@@ -75,13 +68,13 @@ void StringAppendV(string* dst, const char* format, va_list ap) {
       return;
     }
 
-    if (IS_COMPILER_MSVC) {
-      // Error or MSVC running out of space.  MSVC 8.0 and higher
-      // can be asked about space needed with the special idiom below:
-      va_copy(backup_ap, ap);
-      result = vsnprintf(NULL, 0, format, backup_ap);
-      va_end(backup_ap);
-    }
+#ifdef _MSC_VER
+    // Error or MSVC running out of space.  MSVC 8.0 and higher
+    // can be asked about space needed with the special idiom below:
+    va_copy(backup_ap, ap);
+    result = vsnprintf(NULL, 0, format, backup_ap);
+    va_end(backup_ap);
+#endif
 
     if (result < 0) {
       // Just an error.
@@ -105,7 +98,6 @@ void StringAppendV(string* dst, const char* format, va_list ap) {
   }
   delete[] buf;
 }
-
 
 string StringPrintf(const char* format, ...) {
   va_list ap;

@@ -50,6 +50,8 @@
 #ifndef _MSC_VER
 #include <strings.h>
 #endif
+#else
+#include "googleapis/base/windows_compatability.h"
 #endif
 #include <functional>
 using std::binary_function;

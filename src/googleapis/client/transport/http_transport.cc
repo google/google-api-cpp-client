@@ -34,12 +34,12 @@ using std::map;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/once.h"
 #include <glog/logging.h>
+#include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/strip.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/util.h"
-#include "googleapis/util/file.h"
 #include "googleapis/util/stl_util.h"
 
 namespace googleapis {
@@ -88,7 +88,7 @@ void HttpTransportLayerConfig::ResetDefaultErrorHandler(
 }
 
 void HttpTransportLayerConfig::ResetDefaultExecutor(
-    thread::Executor* executor) {
+    ::thread::Executor* executor) {
   VLOG(1) << "Resetting default executor";
   default_executor_.reset(executor);
   default_options_.set_executor(executor);
@@ -336,16 +336,16 @@ ssl_verification_disabled_ = false;
 
 HttpTransportOptions::~HttpTransportOptions() {}
 
-thread::Executor* HttpTransportOptions::executor() const {
+::thread::Executor* HttpTransportOptions::executor() const {
   if (!executor_) {
-    return thread::Executor::DefaultExecutor();
+    return ::thread::Executor::DefaultExecutor();
   }
   return executor_;
 }
 
-thread::Executor* HttpTransportOptions::callback_executor() const {
+::thread::Executor* HttpTransportOptions::callback_executor() const {
   if (!callback_executor_) {
-    return thread::SingletonInlineExecutor();
+    return ::thread::SingletonInlineExecutor();
   }
   return callback_executor_;
 }

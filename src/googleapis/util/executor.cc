@@ -24,7 +24,7 @@
 namespace googleapis {
 
 namespace {
-using thread::Executor;
+using ::thread::Executor;
 
 static Executor* default_executor_ = NULL;
 static Executor* global_inline_executor_ = NULL;

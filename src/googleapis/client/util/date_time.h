@@ -26,6 +26,7 @@
 #include <sys/time.h>
 #else
 #include <stdlib.h>
+#include "googleapis/base/windows_compatability.h"
 #endif
 #include <string>
 using std::string;
