@@ -83,6 +83,9 @@ add_library(google_youtube_api STATIC
             live_broadcast_snippet.cc
             live_broadcast_statistics.cc
             live_broadcast_status.cc
+            live_broadcast_topic.cc
+            live_broadcast_topic_details.cc
+            live_broadcast_topic_snippet.cc
             live_stream.cc
             live_stream_configuration_issue.cc
             live_stream_content_details.cc
