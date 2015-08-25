@@ -12,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# This script builds dependencies downloaded from wget-dependencies.sh
-# It installs all the packages into an "install" subdirectory to pwd.
 """Prepares dependencies for Google APIs Client Library for C++.
 
 This *might* download, configure, build, and install the libraries we
@@ -23,6 +21,9 @@ faster than this script will track them. For the most repeatable build
 process, developers should manually pull the individual packages from
 their respective repositories, inspect their licenses, add them to their
 local revision control, and integrate into their build system.
+
+Since this script is only marginally maintained, if it does not work for
+you, your best options is to install the required components by hand.
 
 Usage:
     By default, with no args, this will run turnkey doing whatever is needed.
