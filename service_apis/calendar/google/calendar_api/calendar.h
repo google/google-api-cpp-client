@@ -184,7 +184,8 @@ class Calendar : public client::JsonCppData {
   /**
    * Change the '<code>id</code>' attribute.
    *
-   * Identifier of the calendar.
+   * Identifier of the calendar. To retrieve IDs you call the
+   * calendarList.list() method.
    *
    * @param[in] value The new value.
    */

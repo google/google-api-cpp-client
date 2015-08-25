@@ -80,16 +80,16 @@ using namespace googleapis;
  *      <tr><th>API
  *          <td><a href='https://developers.google.com/youtube/v3'>YouTube Data API</a>
  *      <tr><th>API Version<td>v3
- *      <tr><th>API Rev<td>142
+ *      <tr><th>API Rev<td>144
  *      <tr><th>API Docs
  *          <td><a href='https://developers.google.com/youtube/v3'>
  *              https://developers.google.com/youtube/v3</a>
  *      <tr><th>Discovery Name<td>youtube
- *      <tr><th>Generated At<td>2015-07-10 04:52:34 UTC
+ *      <tr><th>Generated At<td>2015-08-17 22:02:35 UTC
  *      <tr><th>C++ Generator<td>google-apis-code-generator
  *      <tr><th>Generator Version
  *          <td>1.5.1 / c++=0.1.3
- *      <tr><th>Generator Build<td>2015-06-30 18:20:40 UTC
+ *      <tr><th>Generator Build<td>2015-08-03 17:34:38 UTC
  *    </table>
  *
  * \section ForMoreInfo For More Information
@@ -963,6 +963,47 @@ class CaptionsResource_DeleteMethod : public YouTubeServiceBaseRequest {
 
 
     /**
+     * Clears the '<code>onBehalfOf</code>' attribute so it is no longer set.
+     */
+    void clear_on_behalf_of() {
+      _have_on_behalf_of_ = false;
+      client::ClearCppValueHelper(&on_behalf_of_);
+    }
+
+
+    /**
+     * Gets the optional '<code>onBehalfOf</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_on_behalf_of() const { return on_behalf_of_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>onBehalfOf</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_onBehalfOf() {
+      _have_on_behalf_of_ = true;
+      return &on_behalf_of_;
+    }
+
+
+    /**
+     * Sets the '<code>onBehalfOf</code>' attribute.
+     *
+     * @param[in] value ID of the Google+ Page for the channel that the request
+     * is be on behalf of.
+     */
+    void set_on_behalf_of(const string& value) {
+      _have_on_behalf_of_ = true;
+      on_behalf_of_ = value;
+    }
+
+
+
+    /**
      * Clears the '<code>onBehalfOfContentOwner</code>' attribute so it is no
      * longer set.
      */
@@ -1012,77 +1053,6 @@ class CaptionsResource_DeleteMethod : public YouTubeServiceBaseRequest {
       on_behalf_of_content_owner_ = value;
     }
 
-
-
-    /**
-     * Clears the '<code>onBehalfOf</code>' attribute so it is no longer set.
-     */
-    void clear_on_behalf_of() {
-      _have_on_behalf_of_ = false;
-      client::ClearCppValueHelper(&on_behalf_of_);
-    }
-
-
-    /**
-     * Gets the optional '<code>onBehalfOf</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    const string& get_on_behalf_of() const { return on_behalf_of_; }
-
-    /**
-     * Gets a modifiable pointer to the optional <code>onBehalfOf</code>'
-     * attribute.
-     *
-     * @return  The value can be set by dereferencing the pointer.
-     */
-    string* mutable_onBehalfOf() {
-      _have_on_behalf_of_ = true;
-      return &on_behalf_of_;
-    }
-
-
-    /**
-     * Sets the '<code>onBehalfOf</code>' attribute.
-     *
-     * @param[in] value ID of the Google+ Page for the channel that the request
-     * is be on behalf of.
-     */
-    void set_on_behalf_of(const string& value) {
-      _have_on_behalf_of_ = true;
-      on_behalf_of_ = value;
-    }
-
-
-
-    /**
-     * Clears the '<code>debugProjectIdOverride</code>' attribute so it is no
-     * longer set.
-     */
-    void clear_debug_project_id_override() {
-      _have_debug_project_id_override_ = false;
-      client::ClearCppValueHelper(&debug_project_id_override_);
-    }
-
-
-    /**
-     * Gets the optional '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    int64 get_debug_project_id_override() const { return debug_project_id_override_; }
-
-    /**
-     * Sets the '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * @param[in] value The debugProjectIdOverride parameter should be used for
-     * mimicking a request for a certain project ID.
-     */
-    void set_debug_project_id_override(int64 value) {
-      _have_debug_project_id_override_ = true;
-      debug_project_id_override_ = value;
-    }
-
   /**
    * Appends variable value to the target string.
    *
@@ -1107,12 +1077,10 @@ class CaptionsResource_DeleteMethod : public YouTubeServiceBaseRequest {
 
  private:
   string id_;
-  string on_behalf_of_content_owner_;
   string on_behalf_of_;
-  int64 debug_project_id_override_;
-  bool _have_on_behalf_of_content_owner_ : 1;
+  string on_behalf_of_content_owner_;
   bool _have_on_behalf_of_ : 1;
-  bool _have_debug_project_id_override_ : 1;
+  bool _have_on_behalf_of_content_owner_ : 1;
   DISALLOW_COPY_AND_ASSIGN(CaptionsResource_DeleteMethod);
 };
 
@@ -1153,53 +1121,42 @@ class CaptionsResource_DownloadMethod : public YouTubeServiceBaseRequest {
 
 
     /**
-     * Clears the '<code>onBehalfOfContentOwner</code>' attribute so it is no
-     * longer set.
+     * Clears the '<code>tfmt</code>' attribute so it is no longer set.
      */
-    void clear_on_behalf_of_content_owner() {
-      _have_on_behalf_of_content_owner_ = false;
-      client::ClearCppValueHelper(&on_behalf_of_content_owner_);
+    void clear_tfmt() {
+      _have_tfmt_ = false;
+      client::ClearCppValueHelper(&tfmt_);
     }
 
 
     /**
-     * Gets the optional '<code>onBehalfOfContentOwner</code>' attribute.
+     * Gets the optional '<code>tfmt</code>' attribute.
      *
      * If the value is not set then the default value will be returned.
      */
-    const string& get_on_behalf_of_content_owner() const { return on_behalf_of_content_owner_; }
+    const string& get_tfmt() const { return tfmt_; }
 
     /**
-     * Gets a modifiable pointer to the optional
-     * <code>onBehalfOfContentOwner</code>' attribute.
+     * Gets a modifiable pointer to the optional <code>tfmt</code>' attribute.
      *
      * @return  The value can be set by dereferencing the pointer.
      */
-    string* mutable_onBehalfOfContentOwner() {
-      _have_on_behalf_of_content_owner_ = true;
-      return &on_behalf_of_content_owner_;
+    string* mutable_tfmt() {
+      _have_tfmt_ = true;
+      return &tfmt_;
     }
 
 
     /**
-     * Sets the '<code>onBehalfOfContentOwner</code>' attribute.
+     * Sets the '<code>tfmt</code>' attribute.
      *
-     * @param[in] value Note: This parameter is intended exclusively for YouTube
-     * content partners.
-     *
-     * The onBehalfOfContentOwner parameter indicates that the request's
-     * authorization credentials identify a YouTube CMS user who is acting on
-     * behalf of the content owner specified in the parameter value. This
-     * parameter is intended for YouTube content partners that own and manage
-     * many different YouTube channels. It allows content owners to authenticate
-     * once and get access to all their video and channel data, without having
-     * to provide authentication credentials for each individual channel. The
-     * actual CMS account that the user authenticates with must be linked to the
-     * specified YouTube content owner.
+     * @param[in] value The tfmt parameter specifies that the caption track
+     * should be returned in a specific format. If the parameter is not included
+     * in the request, the track is returned in its original format.
      */
-    void set_on_behalf_of_content_owner(const string& value) {
-      _have_on_behalf_of_content_owner_ = true;
-      on_behalf_of_content_owner_ = value;
+    void set_tfmt(const string& value) {
+      _have_tfmt_ = true;
+      tfmt_ = value;
     }
 
 
@@ -1241,75 +1198,6 @@ class CaptionsResource_DownloadMethod : public YouTubeServiceBaseRequest {
     void set_on_behalf_of(const string& value) {
       _have_on_behalf_of_ = true;
       on_behalf_of_ = value;
-    }
-
-
-
-    /**
-     * Clears the '<code>debugProjectIdOverride</code>' attribute so it is no
-     * longer set.
-     */
-    void clear_debug_project_id_override() {
-      _have_debug_project_id_override_ = false;
-      client::ClearCppValueHelper(&debug_project_id_override_);
-    }
-
-
-    /**
-     * Gets the optional '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    int64 get_debug_project_id_override() const { return debug_project_id_override_; }
-
-    /**
-     * Sets the '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * @param[in] value The debugProjectIdOverride parameter should be used for
-     * mimicking a request for a certain project ID.
-     */
-    void set_debug_project_id_override(int64 value) {
-      _have_debug_project_id_override_ = true;
-      debug_project_id_override_ = value;
-    }
-
-    /**
-     * Clears the '<code>tfmt</code>' attribute so it is no longer set.
-     */
-    void clear_tfmt() {
-      _have_tfmt_ = false;
-      client::ClearCppValueHelper(&tfmt_);
-    }
-
-
-    /**
-     * Gets the optional '<code>tfmt</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    const string& get_tfmt() const { return tfmt_; }
-
-    /**
-     * Gets a modifiable pointer to the optional <code>tfmt</code>' attribute.
-     *
-     * @return  The value can be set by dereferencing the pointer.
-     */
-    string* mutable_tfmt() {
-      _have_tfmt_ = true;
-      return &tfmt_;
-    }
-
-
-    /**
-     * Sets the '<code>tfmt</code>' attribute.
-     *
-     * @param[in] value The tfmt parameter specifies that the caption track
-     * should be returned in a specific format. If the parameter is not included
-     * in the request, the track is returned in its original format.
-     */
-    void set_tfmt(const string& value) {
-      _have_tfmt_ = true;
-      tfmt_ = value;
     }
 
 
@@ -1355,6 +1243,58 @@ class CaptionsResource_DownloadMethod : public YouTubeServiceBaseRequest {
       tlang_ = value;
     }
 
+
+
+    /**
+     * Clears the '<code>onBehalfOfContentOwner</code>' attribute so it is no
+     * longer set.
+     */
+    void clear_on_behalf_of_content_owner() {
+      _have_on_behalf_of_content_owner_ = false;
+      client::ClearCppValueHelper(&on_behalf_of_content_owner_);
+    }
+
+
+    /**
+     * Gets the optional '<code>onBehalfOfContentOwner</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_on_behalf_of_content_owner() const { return on_behalf_of_content_owner_; }
+
+    /**
+     * Gets a modifiable pointer to the optional
+     * <code>onBehalfOfContentOwner</code>' attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_onBehalfOfContentOwner() {
+      _have_on_behalf_of_content_owner_ = true;
+      return &on_behalf_of_content_owner_;
+    }
+
+
+    /**
+     * Sets the '<code>onBehalfOfContentOwner</code>' attribute.
+     *
+     * @param[in] value Note: This parameter is intended exclusively for YouTube
+     * content partners.
+     *
+     * The onBehalfOfContentOwner parameter indicates that the request's
+     * authorization credentials identify a YouTube CMS user who is acting on
+     * behalf of the content owner specified in the parameter value. This
+     * parameter is intended for YouTube content partners that own and manage
+     * many different YouTube channels. It allows content owners to authenticate
+     * once and get access to all their video and channel data, without having
+     * to provide authentication credentials for each individual channel. The
+     * actual CMS account that the user authenticates with must be linked to the
+     * specified YouTube content owner.
+     */
+    void set_on_behalf_of_content_owner(const string& value) {
+      _have_on_behalf_of_content_owner_ = true;
+      on_behalf_of_content_owner_ = value;
+    }
+
   /**
    * Appends variable value to the target string.
    *
@@ -1397,16 +1337,14 @@ class CaptionsResource_DownloadMethod : public YouTubeServiceBaseRequest {
 
  private:
   string id_;
-  string on_behalf_of_content_owner_;
-  string on_behalf_of_;
-  int64 debug_project_id_override_;
   string tfmt_;
+  string on_behalf_of_;
   string tlang_;
-  bool _have_on_behalf_of_content_owner_ : 1;
-  bool _have_on_behalf_of_ : 1;
-  bool _have_debug_project_id_override_ : 1;
+  string on_behalf_of_content_owner_;
   bool _have_tfmt_ : 1;
+  bool _have_on_behalf_of_ : 1;
   bool _have_tlang_ : 1;
+  bool _have_on_behalf_of_content_owner_ : 1;
   DISALLOW_COPY_AND_ASSIGN(CaptionsResource_DownloadMethod);
 };
 
@@ -1474,40 +1412,6 @@ class CaptionsResource_InsertMethod : public YouTubeServiceBaseRequest {
 
 
     /**
-     * Clears the '<code>sync</code>' attribute so it is no longer set.
-     */
-    void clear_sync() {
-      _have_sync_ = false;
-      client::ClearCppValueHelper(&sync_);
-    }
-
-
-    /**
-     * Gets the optional '<code>sync</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    bool get_sync() const { return sync_; }
-
-    /**
-     * Sets the '<code>sync</code>' attribute.
-     *
-     * @param[in] value The sync parameter indicates whether YouTube should
-     * automatically synchronize the caption file with the audio track of the
-     * video. If you set the value to true, YouTube will disregard any time
-     * codes that are in the uploaded caption file and generate new time codes
-     * for the captions.
-     *
-     * You should set the sync parameter to true if you are uploading a
-     * transcript, which has no time codes, or if you suspect the time codes in
-     * your file are incorrect and want YouTube to try to fix them.
-     */
-    void set_sync(bool value) {
-      _have_sync_ = true;
-      sync_ = value;
-    }
-
-    /**
      * Clears the '<code>onBehalfOf</code>' attribute so it is no longer set.
      */
     void clear_on_behalf_of() {
@@ -1547,34 +1451,6 @@ class CaptionsResource_InsertMethod : public YouTubeServiceBaseRequest {
     }
 
 
-
-    /**
-     * Clears the '<code>debugProjectIdOverride</code>' attribute so it is no
-     * longer set.
-     */
-    void clear_debug_project_id_override() {
-      _have_debug_project_id_override_ = false;
-      client::ClearCppValueHelper(&debug_project_id_override_);
-    }
-
-
-    /**
-     * Gets the optional '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    int64 get_debug_project_id_override() const { return debug_project_id_override_; }
-
-    /**
-     * Sets the '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * @param[in] value The debugProjectIdOverride parameter should be used for
-     * mimicking a request for a certain project ID.
-     */
-    void set_debug_project_id_override(int64 value) {
-      _have_debug_project_id_override_ = true;
-      debug_project_id_override_ = value;
-    }
 
     /**
      * Clears the '<code>onBehalfOfContentOwner</code>' attribute so it is no
@@ -1624,6 +1500,42 @@ class CaptionsResource_InsertMethod : public YouTubeServiceBaseRequest {
     void set_on_behalf_of_content_owner(const string& value) {
       _have_on_behalf_of_content_owner_ = true;
       on_behalf_of_content_owner_ = value;
+    }
+
+
+
+    /**
+     * Clears the '<code>sync</code>' attribute so it is no longer set.
+     */
+    void clear_sync() {
+      _have_sync_ = false;
+      client::ClearCppValueHelper(&sync_);
+    }
+
+
+    /**
+     * Gets the optional '<code>sync</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    bool get_sync() const { return sync_; }
+
+    /**
+     * Sets the '<code>sync</code>' attribute.
+     *
+     * @param[in] value The sync parameter indicates whether YouTube should
+     * automatically synchronize the caption file with the audio track of the
+     * video. If you set the value to true, YouTube will disregard any time
+     * codes that are in the uploaded caption file and generate new time codes
+     * for the captions.
+     *
+     * You should set the sync parameter to true if you are uploading a
+     * transcript, which has no time codes, or if you suspect the time codes in
+     * your file are incorrect and want YouTube to try to fix them.
+     */
+    void set_sync(bool value) {
+      _have_sync_ = true;
+      sync_ = value;
     }
 
   /**
@@ -1679,14 +1591,12 @@ class CaptionsResource_InsertMethod : public YouTubeServiceBaseRequest {
 
  private:
   string part_;
-  bool sync_;
   string on_behalf_of_;
-  int64 debug_project_id_override_;
   string on_behalf_of_content_owner_;
-  bool _have_sync_ : 1;
+  bool sync_;
   bool _have_on_behalf_of_ : 1;
-  bool _have_debug_project_id_override_ : 1;
   bool _have_on_behalf_of_content_owner_ : 1;
+  bool _have_sync_ : 1;
   DISALLOW_COPY_AND_ASSIGN(CaptionsResource_InsertMethod);
 };
 
@@ -1727,6 +1637,88 @@ class CaptionsResource_ListMethod : public YouTubeServiceBaseRequest {
    * Standard destructor.
    */
   virtual ~CaptionsResource_ListMethod();
+
+
+    /**
+     * Clears the '<code>onBehalfOf</code>' attribute so it is no longer set.
+     */
+    void clear_on_behalf_of() {
+      _have_on_behalf_of_ = false;
+      client::ClearCppValueHelper(&on_behalf_of_);
+    }
+
+
+    /**
+     * Gets the optional '<code>onBehalfOf</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_on_behalf_of() const { return on_behalf_of_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>onBehalfOf</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_onBehalfOf() {
+      _have_on_behalf_of_ = true;
+      return &on_behalf_of_;
+    }
+
+
+    /**
+     * Sets the '<code>onBehalfOf</code>' attribute.
+     *
+     * @param[in] value ID of the Google+ Page for the channel that the request
+     * is on behalf of.
+     */
+    void set_on_behalf_of(const string& value) {
+      _have_on_behalf_of_ = true;
+      on_behalf_of_ = value;
+    }
+
+
+
+    /**
+     * Clears the '<code>id</code>' attribute so it is no longer set.
+     */
+    void clear_id() {
+      _have_id_ = false;
+      client::ClearCppValueHelper(&id_);
+    }
+
+
+    /**
+     * Gets the optional '<code>id</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_id() const { return id_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>id</code>' attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_id() {
+      _have_id_ = true;
+      return &id_;
+    }
+
+
+    /**
+     * Sets the '<code>id</code>' attribute.
+     *
+     * @param[in] value The id parameter specifies a comma-separated list of IDs
+     * that identify the caption resources that should be retrieved. Each ID
+     * must identify a caption track associated with the specified video.
+     */
+    void set_id(const string& value) {
+      _have_id_ = true;
+      id_ = value;
+    }
+
 
 
     /**
@@ -1779,116 +1771,6 @@ class CaptionsResource_ListMethod : public YouTubeServiceBaseRequest {
       on_behalf_of_content_owner_ = value;
     }
 
-
-
-    /**
-     * Clears the '<code>onBehalfOf</code>' attribute so it is no longer set.
-     */
-    void clear_on_behalf_of() {
-      _have_on_behalf_of_ = false;
-      client::ClearCppValueHelper(&on_behalf_of_);
-    }
-
-
-    /**
-     * Gets the optional '<code>onBehalfOf</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    const string& get_on_behalf_of() const { return on_behalf_of_; }
-
-    /**
-     * Gets a modifiable pointer to the optional <code>onBehalfOf</code>'
-     * attribute.
-     *
-     * @return  The value can be set by dereferencing the pointer.
-     */
-    string* mutable_onBehalfOf() {
-      _have_on_behalf_of_ = true;
-      return &on_behalf_of_;
-    }
-
-
-    /**
-     * Sets the '<code>onBehalfOf</code>' attribute.
-     *
-     * @param[in] value ID of the Google+ Page for the channel that the request
-     * is on behalf of.
-     */
-    void set_on_behalf_of(const string& value) {
-      _have_on_behalf_of_ = true;
-      on_behalf_of_ = value;
-    }
-
-
-
-    /**
-     * Clears the '<code>debugProjectIdOverride</code>' attribute so it is no
-     * longer set.
-     */
-    void clear_debug_project_id_override() {
-      _have_debug_project_id_override_ = false;
-      client::ClearCppValueHelper(&debug_project_id_override_);
-    }
-
-
-    /**
-     * Gets the optional '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    int64 get_debug_project_id_override() const { return debug_project_id_override_; }
-
-    /**
-     * Sets the '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * @param[in] value The debugProjectIdOverride parameter should be used for
-     * mimicking a request for a certain project ID.
-     */
-    void set_debug_project_id_override(int64 value) {
-      _have_debug_project_id_override_ = true;
-      debug_project_id_override_ = value;
-    }
-
-    /**
-     * Clears the '<code>id</code>' attribute so it is no longer set.
-     */
-    void clear_id() {
-      _have_id_ = false;
-      client::ClearCppValueHelper(&id_);
-    }
-
-
-    /**
-     * Gets the optional '<code>id</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    const string& get_id() const { return id_; }
-
-    /**
-     * Gets a modifiable pointer to the optional <code>id</code>' attribute.
-     *
-     * @return  The value can be set by dereferencing the pointer.
-     */
-    string* mutable_id() {
-      _have_id_ = true;
-      return &id_;
-    }
-
-
-    /**
-     * Sets the '<code>id</code>' attribute.
-     *
-     * @param[in] value The id parameter specifies a comma-separated list of IDs
-     * that identify the caption resources that should be retrieved. Each ID
-     * must identify a caption track associated with the specified video.
-     */
-    void set_id(const string& value) {
-      _have_id_ = true;
-      id_ = value;
-    }
-
   /**
    * Appends variable value to the target string.
    *
@@ -1929,14 +1811,12 @@ class CaptionsResource_ListMethod : public YouTubeServiceBaseRequest {
  private:
   string part_;
   string video_id_;
-  string on_behalf_of_content_owner_;
   string on_behalf_of_;
-  int64 debug_project_id_override_;
   string id_;
-  bool _have_on_behalf_of_content_owner_ : 1;
+  string on_behalf_of_content_owner_;
   bool _have_on_behalf_of_ : 1;
-  bool _have_debug_project_id_override_ : 1;
   bool _have_id_ : 1;
+  bool _have_on_behalf_of_content_owner_ : 1;
   DISALLOW_COPY_AND_ASSIGN(CaptionsResource_ListMethod);
 };
 
@@ -2010,38 +1890,6 @@ class CaptionsResource_UpdateMethod : public YouTubeServiceBaseRequest {
 
 
     /**
-     * Clears the '<code>sync</code>' attribute so it is no longer set.
-     */
-    void clear_sync() {
-      _have_sync_ = false;
-      client::ClearCppValueHelper(&sync_);
-    }
-
-
-    /**
-     * Gets the optional '<code>sync</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    bool get_sync() const { return sync_; }
-
-    /**
-     * Sets the '<code>sync</code>' attribute.
-     *
-     * @param[in] value Note: The API server only processes the parameter value
-     * if the request contains an updated caption file.
-     *
-     * The sync parameter indicates whether YouTube should automatically
-     * synchronize the caption file with the audio track of the video. If you
-     * set the value to true, YouTube will automatically synchronize the caption
-     * track with the audio track.
-     */
-    void set_sync(bool value) {
-      _have_sync_ = true;
-      sync_ = value;
-    }
-
-    /**
      * Clears the '<code>onBehalfOf</code>' attribute so it is no longer set.
      */
     void clear_on_behalf_of() {
@@ -2081,34 +1929,6 @@ class CaptionsResource_UpdateMethod : public YouTubeServiceBaseRequest {
     }
 
 
-
-    /**
-     * Clears the '<code>debugProjectIdOverride</code>' attribute so it is no
-     * longer set.
-     */
-    void clear_debug_project_id_override() {
-      _have_debug_project_id_override_ = false;
-      client::ClearCppValueHelper(&debug_project_id_override_);
-    }
-
-
-    /**
-     * Gets the optional '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    int64 get_debug_project_id_override() const { return debug_project_id_override_; }
-
-    /**
-     * Sets the '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * @param[in] value The debugProjectIdOverride parameter should be used for
-     * mimicking a request for a certain project ID.
-     */
-    void set_debug_project_id_override(int64 value) {
-      _have_debug_project_id_override_ = true;
-      debug_project_id_override_ = value;
-    }
 
     /**
      * Clears the '<code>onBehalfOfContentOwner</code>' attribute so it is no
@@ -2158,6 +1978,40 @@ class CaptionsResource_UpdateMethod : public YouTubeServiceBaseRequest {
     void set_on_behalf_of_content_owner(const string& value) {
       _have_on_behalf_of_content_owner_ = true;
       on_behalf_of_content_owner_ = value;
+    }
+
+
+
+    /**
+     * Clears the '<code>sync</code>' attribute so it is no longer set.
+     */
+    void clear_sync() {
+      _have_sync_ = false;
+      client::ClearCppValueHelper(&sync_);
+    }
+
+
+    /**
+     * Gets the optional '<code>sync</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    bool get_sync() const { return sync_; }
+
+    /**
+     * Sets the '<code>sync</code>' attribute.
+     *
+     * @param[in] value Note: The API server only processes the parameter value
+     * if the request contains an updated caption file.
+     *
+     * The sync parameter indicates whether YouTube should automatically
+     * synchronize the caption file with the audio track of the video. If you
+     * set the value to true, YouTube will automatically synchronize the caption
+     * track with the audio track.
+     */
+    void set_sync(bool value) {
+      _have_sync_ = true;
+      sync_ = value;
     }
 
   /**
@@ -2213,14 +2067,12 @@ class CaptionsResource_UpdateMethod : public YouTubeServiceBaseRequest {
 
  private:
   string part_;
-  bool sync_;
   string on_behalf_of_;
-  int64 debug_project_id_override_;
   string on_behalf_of_content_owner_;
-  bool _have_sync_ : 1;
+  bool sync_;
   bool _have_on_behalf_of_ : 1;
-  bool _have_debug_project_id_override_ : 1;
   bool _have_on_behalf_of_content_owner_ : 1;
+  bool _have_sync_ : 1;
   DISALLOW_COPY_AND_ASSIGN(CaptionsResource_UpdateMethod);
 };
 
@@ -3808,35 +3660,6 @@ class CommentThreadsResource_InsertMethod : public YouTubeServiceBaseRequest {
   virtual ~CommentThreadsResource_InsertMethod();
 
 
-    /**
-     * Clears the '<code>shareOnGooglePlus</code>' attribute so it is no longer
-     * set.
-     */
-    void clear_share_on_google_plus() {
-      _have_share_on_google_plus_ = false;
-      client::ClearCppValueHelper(&share_on_google_plus_);
-    }
-
-
-    /**
-     * Gets the optional '<code>shareOnGooglePlus</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    bool get_share_on_google_plus() const { return share_on_google_plus_; }
-
-    /**
-     * Sets the '<code>shareOnGooglePlus</code>' attribute.
-     *
-     * @param[in] value The shareOnGooglePlus parameter indicates whether the
-     * top-level comment and any replies that are made to that comment should
-     * also be posted to the author's Google+ profile.
-     */
-    void set_share_on_google_plus(bool value) {
-      _have_share_on_google_plus_ = true;
-      share_on_google_plus_ = value;
-    }
-
   /**
    * Appends variable value to the target string.
    *
@@ -3875,9 +3698,7 @@ class CommentThreadsResource_InsertMethod : public YouTubeServiceBaseRequest {
   }
 
  private:
-  string part_;
-  bool share_on_google_plus_;
-  bool _have_share_on_google_plus_ : 1;  string _content_;
+  string part_;  string _content_;
   DISALLOW_COPY_AND_ASSIGN(CommentThreadsResource_InsertMethod);
 };
 
@@ -13467,34 +13288,6 @@ class VideosResource_ListMethod : public YouTubeServiceBaseRequest {
 
 
     /**
-     * Clears the '<code>debugProjectIdOverride</code>' attribute so it is no
-     * longer set.
-     */
-    void clear_debug_project_id_override() {
-      _have_debug_project_id_override_ = false;
-      client::ClearCppValueHelper(&debug_project_id_override_);
-    }
-
-
-    /**
-     * Gets the optional '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    int64 get_debug_project_id_override() const { return debug_project_id_override_; }
-
-    /**
-     * Sets the '<code>debugProjectIdOverride</code>' attribute.
-     *
-     * @param[in] value The debugProjectIdOverride parameter should be used for
-     * mimicking a request for a certain project ID.
-     */
-    void set_debug_project_id_override(int64 value) {
-      _have_debug_project_id_override_ = true;
-      debug_project_id_override_ = value;
-    }
-
-    /**
      * Clears the '<code>hl</code>' attribute so it is no longer set.
      */
     void clear_hl() {
@@ -13668,7 +13461,6 @@ class VideosResource_ListMethod : public YouTubeServiceBaseRequest {
   string chart_;
   uint32 max_results_;
   string page_token_;
-  int64 debug_project_id_override_;
   string hl_;
   string my_rating_;
   string id_;
@@ -13679,7 +13471,6 @@ class VideosResource_ListMethod : public YouTubeServiceBaseRequest {
   bool _have_chart_ : 1;
   bool _have_max_results_ : 1;
   bool _have_page_token_ : 1;
-  bool _have_debug_project_id_override_ : 1;
   bool _have_hl_ : 1;
   bool _have_my_rating_ : 1;
   bool _have_id_ : 1;

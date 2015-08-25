@@ -45,6 +45,7 @@
 #include "google/drive_api/comment_reply_list.h"
 #include "google/drive_api/file.h"
 #include "google/drive_api/file_list.h"
+#include "google/drive_api/generated_ids.h"
 #include "google/drive_api/parent_list.h"
 #include "google/drive_api/parent_reference.h"
 #include "google/drive_api/permission.h"
@@ -67,16 +68,16 @@ using namespace googleapis;
  *      <tr><th>API
  *          <td><a href='https://developers.google.com/drive/'>Drive API</a>
  *      <tr><th>API Version<td>v2
- *      <tr><th>API Rev<td>177
+ *      <tr><th>API Rev<td>182
  *      <tr><th>API Docs
  *          <td><a href='https://developers.google.com/drive/'>
  *              https://developers.google.com/drive/</a>
  *      <tr><th>Discovery Name<td>drive
- *      <tr><th>Generated At<td>2015-07-10 04:17:49 UTC
+ *      <tr><th>Generated At<td>2015-08-20 00:39:25 UTC
  *      <tr><th>C++ Generator<td>google-apis-code-generator
  *      <tr><th>Generator Version
  *          <td>1.5.1 / c++=0.1.3
- *      <tr><th>Generator Build<td>2015-06-30 18:20:40 UTC
+ *      <tr><th>Generator Build<td>2015-08-03 17:34:38 UTC
  *    </table>
  *
  * \section ForMoreInfo For More Information
@@ -466,6 +467,7 @@ class DriveServiceBaseRequest
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class AboutResource_GetMethod : public DriveServiceBaseRequest {
@@ -921,6 +923,7 @@ class AppsResource_ListMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class ChangesResource_GetMethod : public DriveServiceBaseRequest {
@@ -995,6 +998,7 @@ class ChangesResource_GetMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class ChangesResource_ListMethod : public DriveServiceBaseRequest {
@@ -1170,7 +1174,7 @@ class ChangesResource_ListMethod : public DriveServiceBaseRequest {
      * Sets the '<code>spaces</code>' attribute.
      *
      * @param[in] value A comma-separated list of spaces to query. Supported
-     * values are 'drive' and 'appDataFolder'.
+     * values are 'drive', 'appDataFolder' and 'photos'.
      */
     void set_spaces(const string& value) {
       _have_spaces_ = true;
@@ -1279,6 +1283,7 @@ typedef client::ServiceRequestPager<
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class ChangesResource_WatchMethod : public DriveServiceBaseRequest {
@@ -1456,7 +1461,7 @@ class ChangesResource_WatchMethod : public DriveServiceBaseRequest {
      * Sets the '<code>spaces</code>' attribute.
      *
      * @param[in] value A comma-separated list of spaces to query. Supported
-     * values are 'drive' and 'appDataFolder'.
+     * values are 'drive', 'appDataFolder' and 'photos'.
      */
     void set_spaces(const string& value) {
       _have_spaces_ = true;
@@ -1562,6 +1567,7 @@ class ChangesResource_WatchMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class ChannelsResource_StopMethod : public DriveServiceBaseRequest {
@@ -1663,6 +1669,7 @@ class ChildrenResource_DeleteMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class ChildrenResource_GetMethod : public DriveServiceBaseRequest {
@@ -1811,6 +1818,7 @@ class ChildrenResource_InsertMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class ChildrenResource_ListMethod : public DriveServiceBaseRequest {
@@ -1835,40 +1843,48 @@ class ChildrenResource_ListMethod : public DriveServiceBaseRequest {
 
 
     /**
-     * Clears the '<code>q</code>' attribute so it is no longer set.
+     * Clears the '<code>orderBy</code>' attribute so it is no longer set.
      */
-    void clear_q() {
-      _have_q_ = false;
-      client::ClearCppValueHelper(&q_);
+    void clear_order_by() {
+      _have_order_by_ = false;
+      client::ClearCppValueHelper(&order_by_);
     }
 
 
     /**
-     * Gets the optional '<code>q</code>' attribute.
+     * Gets the optional '<code>orderBy</code>' attribute.
      *
      * If the value is not set then the default value will be returned.
      */
-    const string& get_q() const { return q_; }
+    const string& get_order_by() const { return order_by_; }
 
     /**
-     * Gets a modifiable pointer to the optional <code>q</code>' attribute.
+     * Gets a modifiable pointer to the optional <code>orderBy</code>'
+     * attribute.
      *
      * @return  The value can be set by dereferencing the pointer.
      */
-    string* mutable_q() {
-      _have_q_ = true;
-      return &q_;
+    string* mutable_orderBy() {
+      _have_order_by_ = true;
+      return &order_by_;
     }
 
 
     /**
-     * Sets the '<code>q</code>' attribute.
+     * Sets the '<code>orderBy</code>' attribute.
      *
-     * @param[in] value Query string for searching children.
+     * @param[in] value A comma-separated list of sort keys. Valid keys are
+     * 'createdDate', 'folder', 'lastViewedByMeDate', 'modifiedByMeDate',
+     * 'modifiedDate', 'quotaBytesUsed', 'recency', 'sharedWithMeDate',
+     * 'starred', and 'title'. Each key sorts ascending by default, but may be
+     * reversed with the 'desc' modifier. Example usage:
+     * ?orderBy=folder,modifiedDate desc,title. Please note that there is a
+     * current limitation for users with approximately one million files in
+     * which the requested sort order is ignored.
      */
-    void set_q(const string& value) {
-      _have_q_ = true;
-      q_ = value;
+    void set_order_by(const string& value) {
+      _have_order_by_ = true;
+      order_by_ = value;
     }
 
 
@@ -1909,6 +1925,45 @@ class ChildrenResource_ListMethod : public DriveServiceBaseRequest {
     void set_page_token(const string& value) {
       _have_page_token_ = true;
       page_token_ = value;
+    }
+
+
+
+    /**
+     * Clears the '<code>q</code>' attribute so it is no longer set.
+     */
+    void clear_q() {
+      _have_q_ = false;
+      client::ClearCppValueHelper(&q_);
+    }
+
+
+    /**
+     * Gets the optional '<code>q</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_q() const { return q_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>q</code>' attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_q() {
+      _have_q_ = true;
+      return &q_;
+    }
+
+
+    /**
+     * Sets the '<code>q</code>' attribute.
+     *
+     * @param[in] value Query string for searching children.
+     */
+    void set_q(const string& value) {
+      _have_q_ = true;
+      q_ = value;
     }
 
 
@@ -1978,11 +2033,13 @@ class ChildrenResource_ListMethod : public DriveServiceBaseRequest {
 
  private:
   string folder_id_;
-  string q_;
+  string order_by_;
   string page_token_;
+  string q_;
   int32 max_results_;
-  bool _have_q_ : 1;
+  bool _have_order_by_ : 1;
   bool _have_page_token_ : 1;
+  bool _have_q_ : 1;
   bool _have_max_results_ : 1;
   DISALLOW_COPY_AND_ASSIGN(ChildrenResource_ListMethod);
 };
@@ -2624,6 +2681,7 @@ class CommentsResource_UpdateMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.appdata
  * https://www.googleapis.com/auth/drive.apps.readonly
  * https://www.googleapis.com/auth/drive.file
+ * https://www.googleapis.com/auth/drive.photos.readonly
  */
 class FilesResource_CopyMethod : public DriveServiceBaseRequest {
  public:
@@ -3037,6 +3095,148 @@ class FilesResource_EmptyTrashMethod : public DriveServiceBaseRequest {
 };
 
 /**
+ * Implements the generateIds method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/drive
+ * https://www.googleapis.com/auth/drive.appdata
+ * https://www.googleapis.com/auth/drive.file
+ */
+class FilesResource_GenerateIdsMethod : public DriveServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   */
+  FilesResource_GenerateIdsMethod(
+      const DriveService* _service_,
+      client::AuthorizationCredential* _credential_);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~FilesResource_GenerateIdsMethod();
+
+
+    /**
+     * Clears the '<code>maxResults</code>' attribute so it is no longer set.
+     */
+    void clear_max_results() {
+      _have_max_results_ = false;
+      client::ClearCppValueHelper(&max_results_);
+    }
+
+
+    /**
+     * Gets the optional '<code>maxResults</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    int32 get_max_results() const { return max_results_; }
+
+    /**
+     * Sets the '<code>maxResults</code>' attribute.
+     *
+     * @param[in] value Maximum number of IDs to return.
+     */
+    void set_max_results(int32 value) {
+      _have_max_results_ = true;
+      max_results_ = value;
+    }
+
+    /**
+     * Clears the '<code>space</code>' attribute so it is no longer set.
+     */
+    void clear_space() {
+      _have_space_ = false;
+      client::ClearCppValueHelper(&space_);
+    }
+
+
+    /**
+     * Gets the optional '<code>space</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_space() const { return space_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>space</code>' attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_space() {
+      _have_space_ = true;
+      return &space_;
+    }
+
+
+    /**
+     * Sets the '<code>space</code>' attribute.
+     *
+     * @param[in] value The space in which the IDs can be used to create new
+     * files. Supported values are 'drive' and 'appDataFolder'.
+     */
+    void set_space(const string& value) {
+      _have_space_ = true;
+      space_ = value;
+    }
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+  /**
+   * Executes the method and parses the response into a data object on success.
+   *
+   * @param[out] data Loads from the response payload JSON data on success.
+   *
+   * @return Success if an HTTP 2xx response was received. Otherwise the
+   *         status indicates the reason for failure. Finer detail may be
+   *         available from the underlying http_request to distinguish the
+   *         transport_status from the overal HTTP request status.
+   */
+  util::Status ExecuteAndParseResponse(
+      GeneratedIds* data) {
+    return DriveServiceBaseRequest::ExecuteAndParseResponse(data);
+  }
+
+ private:
+  int32 max_results_;
+  string space_;
+  bool _have_max_results_ : 1;
+  bool _have_space_ : 1;
+  DISALLOW_COPY_AND_ASSIGN(FilesResource_GenerateIdsMethod);
+};
+
+/**
  * Implements the get method.
  *
  * @ingroup ServiceMethod
@@ -3052,6 +3252,7 @@ class FilesResource_EmptyTrashMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class FilesResource_GetMethod : public DriveServiceBaseRequest {
@@ -3693,6 +3894,7 @@ class FilesResource_InsertMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class FilesResource_ListMethod : public DriveServiceBaseRequest {
@@ -3712,6 +3914,53 @@ class FilesResource_ListMethod : public DriveServiceBaseRequest {
    * Standard destructor.
    */
   virtual ~FilesResource_ListMethod();
+
+
+    /**
+     * Clears the '<code>orderBy</code>' attribute so it is no longer set.
+     */
+    void clear_order_by() {
+      _have_order_by_ = false;
+      client::ClearCppValueHelper(&order_by_);
+    }
+
+
+    /**
+     * Gets the optional '<code>orderBy</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_order_by() const { return order_by_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>orderBy</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_orderBy() {
+      _have_order_by_ = true;
+      return &order_by_;
+    }
+
+
+    /**
+     * Sets the '<code>orderBy</code>' attribute.
+     *
+     * @param[in] value A comma-separated list of sort keys. Valid keys are
+     * 'createdDate', 'folder', 'lastViewedByMeDate', 'modifiedByMeDate',
+     * 'modifiedDate', 'quotaBytesUsed', 'recency', 'sharedWithMeDate',
+     * 'starred', and 'title'. Each key sorts ascending by default, but may be
+     * reversed with the 'desc' modifier. Example usage:
+     * ?orderBy=folder,modifiedDate desc,title. Please note that there is a
+     * current limitation for users with approximately one million files in
+     * which the requested sort order is ignored.
+     */
+    void set_order_by(const string& value) {
+      _have_order_by_ = true;
+      order_by_ = value;
+    }
+
 
 
     /**
@@ -3890,7 +4139,7 @@ class FilesResource_ListMethod : public DriveServiceBaseRequest {
      * Sets the '<code>spaces</code>' attribute.
      *
      * @param[in] value A comma-separated list of spaces to query. Supported
-     * values are 'drive' and 'appDataFolder'.
+     * values are 'drive', 'appDataFolder' and 'photos'.
      */
     void set_spaces(const string& value) {
       _have_spaces_ = true;
@@ -3975,12 +4224,14 @@ class FilesResource_ListMethod : public DriveServiceBaseRequest {
   }
 
  private:
+  string order_by_;
   string projection_;
   int32 max_results_;
   string q_;
   string page_token_;
   string spaces_;
   string corpus_;
+  bool _have_order_by_ : 1;
   bool _have_projection_ : 1;
   bool _have_max_results_ : 1;
   bool _have_q_ : 1;
@@ -4076,32 +4327,46 @@ class FilesResource_PatchMethod : public DriveServiceBaseRequest {
 
 
     /**
-     * Clears the '<code>updateViewedDate</code>' attribute so it is no longer
-     * set.
+     * Clears the '<code>modifiedDateBehavior</code>' attribute so it is no
+     * longer set.
      */
-    void clear_update_viewed_date() {
-      _have_update_viewed_date_ = false;
-      client::ClearCppValueHelper(&update_viewed_date_);
+    void clear_modified_date_behavior() {
+      _have_modified_date_behavior_ = false;
+      client::ClearCppValueHelper(&modified_date_behavior_);
     }
 
 
     /**
-     * Gets the optional '<code>updateViewedDate</code>' attribute.
+     * Gets the optional '<code>modifiedDateBehavior</code>' attribute.
      *
      * If the value is not set then the default value will be returned.
      */
-    bool get_update_viewed_date() const { return update_viewed_date_; }
+    const string& get_modified_date_behavior() const { return modified_date_behavior_; }
 
     /**
-     * Sets the '<code>updateViewedDate</code>' attribute.
+     * Gets a modifiable pointer to the optional
+     * <code>modifiedDateBehavior</code>' attribute.
      *
-     * @param[in] value Whether to update the view date after successfully
-     * updating the file.
+     * @return  The value can be set by dereferencing the pointer.
      */
-    void set_update_viewed_date(bool value) {
-      _have_update_viewed_date_ = true;
-      update_viewed_date_ = value;
+    string* mutable_modifiedDateBehavior() {
+      _have_modified_date_behavior_ = true;
+      return &modified_date_behavior_;
     }
+
+
+    /**
+     * Sets the '<code>modifiedDateBehavior</code>' attribute.
+     *
+     * @param[in] value How the modifiedDate field should be updated. This
+     * overrides setModifiedDate.
+     */
+    void set_modified_date_behavior(const string& value) {
+      _have_modified_date_behavior_ = true;
+      modified_date_behavior_ = value;
+    }
+
+
 
     /**
      * Clears the '<code>removeParents</code>' attribute so it is no longer set.
@@ -4144,6 +4409,34 @@ class FilesResource_PatchMethod : public DriveServiceBaseRequest {
 
 
     /**
+     * Clears the '<code>updateViewedDate</code>' attribute so it is no longer
+     * set.
+     */
+    void clear_update_viewed_date() {
+      _have_update_viewed_date_ = false;
+      client::ClearCppValueHelper(&update_viewed_date_);
+    }
+
+
+    /**
+     * Gets the optional '<code>updateViewedDate</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    bool get_update_viewed_date() const { return update_viewed_date_; }
+
+    /**
+     * Sets the '<code>updateViewedDate</code>' attribute.
+     *
+     * @param[in] value Whether to update the view date after successfully
+     * updating the file.
+     */
+    void set_update_viewed_date(bool value) {
+      _have_update_viewed_date_ = true;
+      update_viewed_date_ = value;
+    }
+
+    /**
      * Clears the '<code>setModifiedDate</code>' attribute so it is no longer
      * set.
      */
@@ -4172,33 +4465,6 @@ class FilesResource_PatchMethod : public DriveServiceBaseRequest {
     }
 
     /**
-     * Clears the '<code>convert</code>' attribute so it is no longer set.
-     */
-    void clear_convert() {
-      _have_convert_ = false;
-      client::ClearCppValueHelper(&convert_);
-    }
-
-
-    /**
-     * Gets the optional '<code>convert</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    bool get_convert() const { return convert_; }
-
-    /**
-     * Sets the '<code>convert</code>' attribute.
-     *
-     * @param[in] value Whether to convert this file to the corresponding Google
-     * Docs format.
-     */
-    void set_convert(bool value) {
-      _have_convert_ = true;
-      convert_ = value;
-    }
-
-    /**
      * Clears the '<code>useContentAsIndexableText</code>' attribute so it is no
      * longer set.
      */
@@ -4223,6 +4489,33 @@ class FilesResource_PatchMethod : public DriveServiceBaseRequest {
     void set_use_content_as_indexable_text(bool value) {
       _have_use_content_as_indexable_text_ = true;
       use_content_as_indexable_text_ = value;
+    }
+
+    /**
+     * Clears the '<code>convert</code>' attribute so it is no longer set.
+     */
+    void clear_convert() {
+      _have_convert_ = false;
+      client::ClearCppValueHelper(&convert_);
+    }
+
+
+    /**
+     * Gets the optional '<code>convert</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    bool get_convert() const { return convert_; }
+
+    /**
+     * Sets the '<code>convert</code>' attribute.
+     *
+     * @param[in] value Whether to convert this file to the corresponding Google
+     * Docs format.
+     */
+    void set_convert(bool value) {
+      _have_convert_ = true;
+      convert_ = value;
     }
 
     /**
@@ -4471,11 +4764,12 @@ class FilesResource_PatchMethod : public DriveServiceBaseRequest {
  private:
   string file_id_;
   string add_parents_;
-  bool update_viewed_date_;
+  string modified_date_behavior_;
   string remove_parents_;
+  bool update_viewed_date_;
   bool set_modified_date_;
-  bool convert_;
   bool use_content_as_indexable_text_;
+  bool convert_;
   string ocr_language_;
   bool pinned_;
   bool new_revision_;
@@ -4483,11 +4777,12 @@ class FilesResource_PatchMethod : public DriveServiceBaseRequest {
   string timed_text_language_;
   string timed_text_track_name_;
   bool _have_add_parents_ : 1;
-  bool _have_update_viewed_date_ : 1;
+  bool _have_modified_date_behavior_ : 1;
   bool _have_remove_parents_ : 1;
+  bool _have_update_viewed_date_ : 1;
   bool _have_set_modified_date_ : 1;
-  bool _have_convert_ : 1;
   bool _have_use_content_as_indexable_text_ : 1;
+  bool _have_convert_ : 1;
   bool _have_ocr_language_ : 1;
   bool _have_pinned_ : 1;
   bool _have_new_revision_ : 1;
@@ -4817,32 +5112,46 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
 
 
     /**
-     * Clears the '<code>updateViewedDate</code>' attribute so it is no longer
-     * set.
+     * Clears the '<code>modifiedDateBehavior</code>' attribute so it is no
+     * longer set.
      */
-    void clear_update_viewed_date() {
-      _have_update_viewed_date_ = false;
-      client::ClearCppValueHelper(&update_viewed_date_);
+    void clear_modified_date_behavior() {
+      _have_modified_date_behavior_ = false;
+      client::ClearCppValueHelper(&modified_date_behavior_);
     }
 
 
     /**
-     * Gets the optional '<code>updateViewedDate</code>' attribute.
+     * Gets the optional '<code>modifiedDateBehavior</code>' attribute.
      *
      * If the value is not set then the default value will be returned.
      */
-    bool get_update_viewed_date() const { return update_viewed_date_; }
+    const string& get_modified_date_behavior() const { return modified_date_behavior_; }
 
     /**
-     * Sets the '<code>updateViewedDate</code>' attribute.
+     * Gets a modifiable pointer to the optional
+     * <code>modifiedDateBehavior</code>' attribute.
      *
-     * @param[in] value Whether to update the view date after successfully
-     * updating the file.
+     * @return  The value can be set by dereferencing the pointer.
      */
-    void set_update_viewed_date(bool value) {
-      _have_update_viewed_date_ = true;
-      update_viewed_date_ = value;
+    string* mutable_modifiedDateBehavior() {
+      _have_modified_date_behavior_ = true;
+      return &modified_date_behavior_;
     }
+
+
+    /**
+     * Sets the '<code>modifiedDateBehavior</code>' attribute.
+     *
+     * @param[in] value How the modifiedDate field should be updated. This
+     * overrides setModifiedDate.
+     */
+    void set_modified_date_behavior(const string& value) {
+      _have_modified_date_behavior_ = true;
+      modified_date_behavior_ = value;
+    }
+
+
 
     /**
      * Clears the '<code>removeParents</code>' attribute so it is no longer set.
@@ -4885,6 +5194,34 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
 
 
     /**
+     * Clears the '<code>updateViewedDate</code>' attribute so it is no longer
+     * set.
+     */
+    void clear_update_viewed_date() {
+      _have_update_viewed_date_ = false;
+      client::ClearCppValueHelper(&update_viewed_date_);
+    }
+
+
+    /**
+     * Gets the optional '<code>updateViewedDate</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    bool get_update_viewed_date() const { return update_viewed_date_; }
+
+    /**
+     * Sets the '<code>updateViewedDate</code>' attribute.
+     *
+     * @param[in] value Whether to update the view date after successfully
+     * updating the file.
+     */
+    void set_update_viewed_date(bool value) {
+      _have_update_viewed_date_ = true;
+      update_viewed_date_ = value;
+    }
+
+    /**
      * Clears the '<code>setModifiedDate</code>' attribute so it is no longer
      * set.
      */
@@ -4913,33 +5250,6 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
     }
 
     /**
-     * Clears the '<code>convert</code>' attribute so it is no longer set.
-     */
-    void clear_convert() {
-      _have_convert_ = false;
-      client::ClearCppValueHelper(&convert_);
-    }
-
-
-    /**
-     * Gets the optional '<code>convert</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    bool get_convert() const { return convert_; }
-
-    /**
-     * Sets the '<code>convert</code>' attribute.
-     *
-     * @param[in] value Whether to convert this file to the corresponding Google
-     * Docs format.
-     */
-    void set_convert(bool value) {
-      _have_convert_ = true;
-      convert_ = value;
-    }
-
-    /**
      * Clears the '<code>useContentAsIndexableText</code>' attribute so it is no
      * longer set.
      */
@@ -4964,6 +5274,33 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
     void set_use_content_as_indexable_text(bool value) {
       _have_use_content_as_indexable_text_ = true;
       use_content_as_indexable_text_ = value;
+    }
+
+    /**
+     * Clears the '<code>convert</code>' attribute so it is no longer set.
+     */
+    void clear_convert() {
+      _have_convert_ = false;
+      client::ClearCppValueHelper(&convert_);
+    }
+
+
+    /**
+     * Gets the optional '<code>convert</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    bool get_convert() const { return convert_; }
+
+    /**
+     * Sets the '<code>convert</code>' attribute.
+     *
+     * @param[in] value Whether to convert this file to the corresponding Google
+     * Docs format.
+     */
+    void set_convert(bool value) {
+      _have_convert_ = true;
+      convert_ = value;
     }
 
     /**
@@ -5226,11 +5563,12 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
  private:
   string file_id_;
   string add_parents_;
-  bool update_viewed_date_;
+  string modified_date_behavior_;
   string remove_parents_;
+  bool update_viewed_date_;
   bool set_modified_date_;
-  bool convert_;
   bool use_content_as_indexable_text_;
+  bool convert_;
   string ocr_language_;
   bool pinned_;
   bool new_revision_;
@@ -5238,11 +5576,12 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
   string timed_text_language_;
   string timed_text_track_name_;
   bool _have_add_parents_ : 1;
-  bool _have_update_viewed_date_ : 1;
+  bool _have_modified_date_behavior_ : 1;
   bool _have_remove_parents_ : 1;
+  bool _have_update_viewed_date_ : 1;
   bool _have_set_modified_date_ : 1;
-  bool _have_convert_ : 1;
   bool _have_use_content_as_indexable_text_ : 1;
+  bool _have_convert_ : 1;
   bool _have_ocr_language_ : 1;
   bool _have_pinned_ : 1;
   bool _have_new_revision_ : 1;
@@ -5268,6 +5607,7 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class FilesResource_WatchMethod : public DriveServiceBaseRequest {
@@ -5570,6 +5910,7 @@ class ParentsResource_DeleteMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class ParentsResource_GetMethod : public DriveServiceBaseRequest {
@@ -5718,6 +6059,7 @@ class ParentsResource_InsertMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class ParentsResource_ListMethod : public DriveServiceBaseRequest {
@@ -5849,6 +6191,7 @@ class PermissionsResource_DeleteMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class PermissionsResource_GetMethod : public DriveServiceBaseRequest {
@@ -5926,6 +6269,7 @@ class PermissionsResource_GetMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class PermissionsResource_GetIdForEmailMethod : public DriveServiceBaseRequest {
@@ -6149,6 +6493,7 @@ class PermissionsResource_InsertMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class PermissionsResource_ListMethod : public DriveServiceBaseRequest {
@@ -6554,6 +6899,7 @@ class PropertiesResource_DeleteMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class PropertiesResource_GetMethod : public DriveServiceBaseRequest {
@@ -6750,6 +7096,7 @@ class PropertiesResource_InsertMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class PropertiesResource_ListMethod : public DriveServiceBaseRequest {
@@ -7961,6 +8308,7 @@ class RevisionsResource_DeleteMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class RevisionsResource_GetMethod : public DriveServiceBaseRequest {
@@ -8037,6 +8385,7 @@ class RevisionsResource_GetMethod : public DriveServiceBaseRequest {
  * https://www.googleapis.com/auth/drive.file
  * https://www.googleapis.com/auth/drive.metadata
  * https://www.googleapis.com/auth/drive.metadata.readonly
+ * https://www.googleapis.com/auth/drive.photos.readonly
  * https://www.googleapis.com/auth/drive.readonly
  */
 class RevisionsResource_ListMethod : public DriveServiceBaseRequest {
@@ -8768,6 +9117,17 @@ class DriveService : public client::ClientService {
      *           then destroy it when they are finished.
      */
     FilesResource_EmptyTrashMethod* NewEmptyTrashMethod(
+        client::AuthorizationCredential* _credential_) const;
+
+    /**
+     * Creates a new FilesResource_GenerateIdsMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    FilesResource_GenerateIdsMethod* NewGenerateIdsMethod(
         client::AuthorizationCredential* _credential_) const;
 
     /**
@@ -9788,6 +10148,11 @@ class DriveService : public client::ClientService {
      * View metadata for files in your Google Drive.
      */
     static const StringPiece DRIVE_METADATA_READONLY;
+
+    /**
+     * View the photos, videos and albums in your Google Photos.
+     */
+    static const StringPiece DRIVE_PHOTOS_READONLY;
 
     /**
      * View the files in your Google Drive.

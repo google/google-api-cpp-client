@@ -448,7 +448,6 @@ class VideoSnippet : public client::JsonCppData {
    * Gets a reference to a mutable value of the '<code>tags</code>' property.
    *
    * A list of keyword tags associated with the video. Tags may contain spaces.
-   * This field is only visible to the video's uploader.
    *
    * @return The result can be modified to change the attribute value.
    */

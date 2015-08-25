@@ -992,10 +992,10 @@ class About : public client::JsonCppData {
    * Change the '<code>domainSharingPolicy</code>' attribute.
    *
    * The domain sharing policy for the current user. Possible values are:
-   * - ALLOWED
-   * - ALLOWED_WITH_WARNING
-   * - INCOMING_ONLY
-   * - DISALLOWED.
+   * - allowed
+   * - allowedWithWarning
+   * - incomingOnly
+   * - disallowed.
    *
    * @param[in] value The new value.
    */

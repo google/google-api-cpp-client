@@ -41,7 +41,7 @@ using namespace googleapis;
 
 /**
  * Ratings schemes. The country-specific ratings are mostly for movies and
- * shows. NEXT_ID: 65.
+ * shows. NEXT_ID: 66.
  *
  * @ingroup DataObject
  */
@@ -639,6 +639,43 @@ class ContentRating : public client::JsonCppData {
   }
 
   /**
+   * Determine if the '<code>cncRating</code>' attribute was set.
+   *
+   * @return true if the '<code>cncRating</code>' attribute was set.
+   */
+  bool has_cnc_rating() const {
+    return Storage().isMember("cncRating");
+  }
+
+  /**
+   * Clears the '<code>cncRating</code>' attribute.
+   */
+  void clear_cnc_rating() {
+    MutableStorage()->removeMember("cncRating");
+  }
+
+
+  /**
+   * Get the value of the '<code>cncRating</code>' attribute.
+   */
+  const StringPiece get_cnc_rating() const {
+    const Json::Value& v = Storage("cncRating");
+    if (v == Json::Value::null) return StringPiece("");
+    return StringPiece(v.asCString());
+  }
+
+  /**
+   * Change the '<code>cncRating</code>' attribute.
+   *
+   * Rating system in France - Commission de classification cinematographique.
+   *
+   * @param[in] value The new value.
+   */
+  void set_cnc_rating(const StringPiece& value) {
+    *MutableStorage("cncRating") = value.data();
+  }
+
+  /**
    * Determine if the '<code>csaRating</code>' attribute was set.
    *
    * @return true if the '<code>csaRating</code>' attribute was set.
@@ -1038,8 +1075,10 @@ class ContentRating : public client::JsonCppData {
 
   /**
    * Change the '<code>fmocRating</code>' attribute.
+   * @deprecated
    *
-   * Rating system in France - French Minister of Culture.
+   *
+   * Deprecated use CNC rating instead.
    *
    * @param[in] value The new value.
    */

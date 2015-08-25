@@ -495,8 +495,7 @@ class Events : public client::JsonCppData {
   /**
    * Change the '<code>updated</code>' attribute.
    *
-   * Last modification time of the calendar (as a RFC 3339 timestamp). Read-
-   * only.
+   * Last modification time of the calendar (as a RFC3339 timestamp). Read-only.
    *
    * @param[in] value The new value.
    */

@@ -198,7 +198,8 @@ class Event : public client::JsonCppData {
     /**
      * Change the '<code>id</code>' attribute.
      *
-     * The creator's Profile ID, if available.
+     * The creator's Profile ID, if available. It corresponds to theid field in
+     * the People collection of the Google+ API.
      *
      * @param[in] value The new value.
      */
@@ -484,7 +485,8 @@ class Event : public client::JsonCppData {
     /**
      * Change the '<code>height</code>' attribute.
      *
-     * The gadget's height in pixels. Optional.
+     * The gadget's height in pixels. The height must be an integer greater than
+     * 0. Optional.
      *
      * @param[in] value The new value.
      */
@@ -522,7 +524,7 @@ class Event : public client::JsonCppData {
     /**
      * Change the '<code>iconLink</code>' attribute.
      *
-     * The gadget's icon URL.
+     * The gadget's icon URL. The URL scheme must be HTTPS.
      *
      * @param[in] value The new value.
      */
@@ -559,7 +561,7 @@ class Event : public client::JsonCppData {
     /**
      * Change the '<code>link</code>' attribute.
      *
-     * The gadget's URL.
+     * The gadget's URL. The URL scheme must be HTTPS.
      *
      * @param[in] value The new value.
      */
@@ -707,7 +709,8 @@ class Event : public client::JsonCppData {
     /**
      * Change the '<code>width</code>' attribute.
      *
-     * The gadget's width in pixels. Optional.
+     * The gadget's width in pixels. The width must be an integer greater than
+     * 0. Optional.
      *
      * @param[in] value The new value.
      */
@@ -830,7 +833,8 @@ class Event : public client::JsonCppData {
     /**
      * Change the '<code>email</code>' attribute.
      *
-     * The organizer's email address, if available.
+     * The organizer's email address, if available. It must be a valid email
+     * address as per RFC5322.
      *
      * @param[in] value The new value.
      */
@@ -867,7 +871,8 @@ class Event : public client::JsonCppData {
     /**
      * Change the '<code>id</code>' attribute.
      *
-     * The organizer's Profile ID, if available.
+     * The organizer's Profile ID, if available. It corresponds to theid field
+     * in the People collection of the Google+ API.
      *
      * @param[in] value The new value.
      */
@@ -986,7 +991,7 @@ class Event : public client::JsonCppData {
      *
      * If the event doesn't use the default reminders, this lists the reminders
      * specific to the event, or, if not set, indicates that no reminders are
-     * set for this event.
+     * set for this event. The maximum number of override reminders is 5.
      *
      * @return The result can be modified to change the attribute value.
      */
@@ -1033,9 +1038,9 @@ class Event : public client::JsonCppData {
     void operator=(const EventReminders&);
   };  // EventReminders
   /**
-   * Source of an event from which it was created; for example a web page, an
-   * email message or any document identifiable by an URL using HTTP/HTTPS
-   * protocol. Accessible only by the creator of the event.
+   * Source from which the event was created. For example, a web page, an email
+   * message or any document identifiable by an URL with HTTP or HTTPS scheme.
+   * Can only be seen or modified by the creator of the event.
    *
    * @ingroup DataObject
    */
@@ -1143,7 +1148,7 @@ class Event : public client::JsonCppData {
     /**
      * Change the '<code>url</code>' attribute.
      *
-     * URL of the source pointing to a resource. URL's protocol must be HTTP or
+     * URL of the source pointing to a resource. The URL scheme must be HTTP or
      * HTTPS.
      *
      * @param[in] value The new value.
@@ -1290,7 +1295,8 @@ class Event : public client::JsonCppData {
    * Gets a reference to a mutable value of the '<code>attendees</code>'
    * property.
    *
-   * The attendees of the event.
+   * The attendees of the event. See the Events with attendees guide for more
+   * information on scheduling events with other calendar users.
    *
    * @return The result can be modified to change the attribute value.
    */
@@ -1402,7 +1408,7 @@ class Event : public client::JsonCppData {
   /**
    * Change the '<code>created</code>' attribute.
    *
-   * Creation time of the event (as a RFC 3339 timestamp). Read-only.
+   * Creation time of the event (as a RFC3339 timestamp). Read-only.
    *
    * @param[in] value The new value.
    */
@@ -1888,7 +1894,13 @@ class Event : public client::JsonCppData {
   /**
    * Change the '<code>iCalUID</code>' attribute.
    *
-   * Event ID in the iCalendar format.
+   * Event unique identifier as defined in RFC5545. It is used to uniquely
+   * identify events accross calendaring systems and must be supplied when
+   * importing events via the import method.
+   * Note that the icalUID and the id are not identical and only one of them
+   * should be supplied at event creation time. One difference in their
+   * semantics is that in recurring events, all occurrences of one event have
+   * different ids while they all share the same icalUIDs.
    *
    * @param[in] value The new value.
    */
@@ -1925,8 +1937,8 @@ class Event : public client::JsonCppData {
   /**
    * Change the '<code>id</code>' attribute.
    *
-   * Identifier of the event. When creating new single or recurring events, you
-   * can specify their IDs. Provided IDs must follow these rules:
+   * Opaque identifier of the event. When creating new single or recurring
+   * events, you can specify their IDs. Provided IDs must follow these rules:
    * - characters allowed in the ID are those used in base32hex encoding, i.e.
    * lowercase letters a-v and digits 0-9, see section 3.1.2 in RFC2938
    * - the length of the ID must be between 5 and 1024 characters
@@ -1935,6 +1947,12 @@ class Event : public client::JsonCppData {
    * detected at event creation time. To minimize the risk of collisions we
    * recommend using an established UUID algorithm such as one described in
    * RFC4122.
+   * If you do not specify an ID, it will be automatically generated by the
+   * server.
+   * Note that the icalUID and the id are not identical and only one of them
+   * should be supplied at event creation time. One difference in their
+   * semantics is that in recurring events, all occurrences of one event have
+   * different ids while they all share the same icalUIDs.
    *
    * @param[in] value The new value.
    */
@@ -2198,8 +2216,11 @@ class Event : public client::JsonCppData {
    * Gets a reference to a mutable value of the '<code>recurrence</code>'
    * property.
    *
-   * List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event. This
-   * field is omitted for single events or instances of recurring events.
+   * List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as
+   * specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in
+   * this field; event start and end times are specified in the start and end
+   * fields. This field is omitted for single events or instances of recurring
+   * events.
    *
    * @return The result can be modified to change the attribute value.
    */
@@ -2237,8 +2258,8 @@ class Event : public client::JsonCppData {
   /**
    * Change the '<code>recurringEventId</code>' attribute.
    *
-   * For an instance of a recurring event, this is the event ID of the recurring
-   * event itself. Immutable.
+   * For an instance of a recurring event, this is the id of the recurring event
+   * to which this instance belongs. Immutable.
    *
    * @param[in] value The new value.
    */
@@ -2349,9 +2370,9 @@ class Event : public client::JsonCppData {
   /**
    * Gets a reference to a mutable value of the '<code>source</code>' property.
    *
-   * Source of an event from which it was created; for example a web page, an
-   * email message or any document identifiable by an URL using HTTP/HTTPS
-   * protocol. Accessible only by the creator of the event.
+   * Source from which the event was created. For example, a web page, an email
+   * message or any document identifiable by an URL with HTTP or HTTPS scheme.
+   * Can only be seen or modified by the creator of the event.
    *
    * @return The result can be modified to change the attribute value.
    */
@@ -2548,7 +2569,7 @@ class Event : public client::JsonCppData {
   /**
    * Change the '<code>updated</code>' attribute.
    *
-   * Last modification time of the event (as a RFC 3339 timestamp). Read-only.
+   * Last modification time of the event (as a RFC3339 timestamp). Read-only.
    *
    * @param[in] value The new value.
    */

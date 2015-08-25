@@ -57,16 +57,16 @@ using namespace googleapis;
  *      <tr><th>API
  *          <td><a href='https://developers.google.com/google-apps/calendar/firstapp'>Calendar API</a>
  *      <tr><th>API Version<td>v3
- *      <tr><th>API Rev<td>130
+ *      <tr><th>API Rev<td>137
  *      <tr><th>API Docs
  *          <td><a href='https://developers.google.com/google-apps/calendar/firstapp'>
  *              https://developers.google.com/google-apps/calendar/firstapp</a>
  *      <tr><th>Discovery Name<td>calendar
- *      <tr><th>Generated At<td>2015-07-09 17:29:18 UTC
+ *      <tr><th>Generated At<td>2015-08-25 13:53:54 UTC
  *      <tr><th>C++ Generator<td>google-apis-code-generator
  *      <tr><th>Generator Version
  *          <td>1.5.1 / c++=0.1.3
- *      <tr><th>Generator Build<td>2015-06-30 18:20:40 UTC
+ *      <tr><th>Generator Build<td>2015-08-03 17:34:38 UTC
  *    </table>
  *
  * \section ForMoreInfo For More Information
@@ -461,7 +461,9 @@ class AclResource_DeleteMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] rule_id ACL rule identifier.
    */
   AclResource_DeleteMethod(
@@ -518,7 +520,9 @@ class AclResource_GetMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] rule_id ACL rule identifier.
    */
   AclResource_GetMethod(
@@ -589,7 +593,9 @@ class AclResource_InsertMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] _content_ The data object to insert.
    */
   AclResource_InsertMethod(
@@ -659,7 +665,9 @@ class AclResource_ListMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    */
   AclResource_ListMethod(
       const CalendarService* _service_,
@@ -892,7 +900,9 @@ class AclResource_PatchMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] rule_id ACL rule identifier.
    * @param[in] _content_ The data object to patch.
    */
@@ -965,7 +975,9 @@ class AclResource_UpdateMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] rule_id ACL rule identifier.
    * @param[in] _content_ The data object to update.
    */
@@ -1038,7 +1050,9 @@ class AclResource_WatchMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] _content_ The data object to watch.
    */
   AclResource_WatchMethod(
@@ -1270,7 +1284,9 @@ class CalendarListResource_DeleteMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    */
   CalendarListResource_DeleteMethod(
       const CalendarService* _service_,
@@ -1324,7 +1340,9 @@ class CalendarListResource_GetMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    */
   CalendarListResource_GetMethod(
       const CalendarService* _service_,
@@ -1804,7 +1822,9 @@ class CalendarListResource_PatchMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] _content_ The data object to patch.
    */
   CalendarListResource_PatchMethod(
@@ -1913,7 +1933,9 @@ class CalendarListResource_UpdateMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] _content_ The data object to update.
    */
   CalendarListResource_UpdateMethod(
@@ -2327,7 +2349,9 @@ class CalendarsResource_ClearMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    */
   CalendarsResource_ClearMethod(
       const CalendarService* _service_,
@@ -2380,7 +2404,9 @@ class CalendarsResource_DeleteMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    */
   CalendarsResource_DeleteMethod(
       const CalendarService* _service_,
@@ -2434,7 +2460,9 @@ class CalendarsResource_GetMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    */
   CalendarsResource_GetMethod(
       const CalendarService* _service_,
@@ -2554,7 +2582,9 @@ class CalendarsResource_PatchMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] _content_ The data object to patch.
    */
   CalendarsResource_PatchMethod(
@@ -2624,7 +2654,9 @@ class CalendarsResource_UpdateMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] _content_ The data object to update.
    */
   CalendarsResource_UpdateMethod(
@@ -2788,7 +2820,9 @@ class EventsResource_DeleteMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] event_id Event identifier.
    */
   EventsResource_DeleteMethod(
@@ -2882,7 +2916,9 @@ class EventsResource_GetMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] event_id Event identifier.
    */
   EventsResource_GetMethod(
@@ -3067,7 +3103,9 @@ class EventsResource_ImportMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] _content_ The data object to import.
    */
   EventsResource_ImportMethod(
@@ -3174,7 +3212,9 @@ class EventsResource_InsertMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] _content_ The data object to insert.
    */
   EventsResource_InsertMethod(
@@ -3342,7 +3382,9 @@ class EventsResource_InstancesMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] event_id Recurring event identifier.
    */
   EventsResource_InstancesMethod(
@@ -3406,7 +3448,8 @@ class EventsResource_InstancesMethod : public CalendarServiceBaseRequest {
      * Sets the '<code>timeMax</code>' attribute.
      *
      * @param[in] value Upper bound (exclusive) for an event's start time to
-     * filter by. Optional. The default is not to filter by start time.
+     * filter by. Optional. The default is not to filter by start time. Must be
+     * an RFC3339 timestamp with mandatory time zone offset.
      */
     void set_time_max(client::DateTime value) {
       _have_time_max_ = true;
@@ -3533,7 +3576,8 @@ class EventsResource_InstancesMethod : public CalendarServiceBaseRequest {
      * Sets the '<code>timeMin</code>' attribute.
      *
      * @param[in] value Lower bound (inclusive) for an event's end time to
-     * filter by. Optional. The default is not to filter by end time.
+     * filter by. Optional. The default is not to filter by end time. Must be an
+     * RFC3339 timestamp with mandatory time zone offset.
      */
     void set_time_min(client::DateTime value) {
       _have_time_min_ = true;
@@ -3737,7 +3781,9 @@ class EventsResource_ListMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    */
   EventsResource_ListMethod(
       const CalendarService* _service_,
@@ -3971,7 +4017,7 @@ class EventsResource_ListMethod : public CalendarServiceBaseRequest {
      * Sets the '<code>updatedMin</code>' attribute.
      *
      * @param[in] value Lower bound for an event's last modification time (as a
-     * RFC 3339 timestamp) to filter by. When specified, entries deleted since
+     * RFC3339 timestamp) to filter by. When specified, entries deleted since
      * this time will always be included regardless of showDeleted. Optional.
      * The default is not to filter by last modification time.
      */
@@ -4029,7 +4075,10 @@ class EventsResource_ListMethod : public CalendarServiceBaseRequest {
      * Sets the '<code>timeMax</code>' attribute.
      *
      * @param[in] value Upper bound (exclusive) for an event's start time to
-     * filter by. Optional. The default is not to filter by start time.
+     * filter by. Optional. The default is not to filter by start time. Must be
+     * an RFC3339 timestamp with mandatory time zone offset, e.g.,
+     * 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be
+     * provided but will be ignored.
      */
     void set_time_max(client::DateTime value) {
       _have_time_max_ = true;
@@ -4196,7 +4245,10 @@ class EventsResource_ListMethod : public CalendarServiceBaseRequest {
      * Sets the '<code>timeMin</code>' attribute.
      *
      * @param[in] value Lower bound (inclusive) for an event's end time to
-     * filter by. Optional. The default is not to filter by end time.
+     * filter by. Optional. The default is not to filter by end time. Must be an
+     * RFC3339 timestamp with mandatory time zone offset, e.g.,
+     * 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be
+     * provided but will be ignored.
      */
     void set_time_min(client::DateTime value) {
       _have_time_min_ = true;
@@ -4546,7 +4598,9 @@ class EventsResource_PatchMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] event_id Event identifier.
    * @param[in] _content_ The data object to patch.
    */
@@ -4751,7 +4805,9 @@ class EventsResource_QuickAddMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] text The text describing the event to be created.
    */
   EventsResource_QuickAddMethod(
@@ -4859,7 +4915,9 @@ class EventsResource_UpdateMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] event_id Event identifier.
    * @param[in] _content_ The data object to update.
    */
@@ -5065,7 +5123,9 @@ class EventsResource_WatchMethod : public CalendarServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] calendar_id Calendar identifier.
+   * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+   * the calendarList.list method. If you want to access the primary calendar of
+   * the currently logged in user, use the "primary" keyword.
    * @param[in] _content_ The data object to watch.
    */
   EventsResource_WatchMethod(
@@ -5301,7 +5361,7 @@ class EventsResource_WatchMethod : public CalendarServiceBaseRequest {
      * Sets the '<code>updatedMin</code>' attribute.
      *
      * @param[in] value Lower bound for an event's last modification time (as a
-     * RFC 3339 timestamp) to filter by. When specified, entries deleted since
+     * RFC3339 timestamp) to filter by. When specified, entries deleted since
      * this time will always be included regardless of showDeleted. Optional.
      * The default is not to filter by last modification time.
      */
@@ -5359,7 +5419,10 @@ class EventsResource_WatchMethod : public CalendarServiceBaseRequest {
      * Sets the '<code>timeMax</code>' attribute.
      *
      * @param[in] value Upper bound (exclusive) for an event's start time to
-     * filter by. Optional. The default is not to filter by start time.
+     * filter by. Optional. The default is not to filter by start time. Must be
+     * an RFC3339 timestamp with mandatory time zone offset, e.g.,
+     * 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be
+     * provided but will be ignored.
      */
     void set_time_max(client::DateTime value) {
       _have_time_max_ = true;
@@ -5526,7 +5589,10 @@ class EventsResource_WatchMethod : public CalendarServiceBaseRequest {
      * Sets the '<code>timeMin</code>' attribute.
      *
      * @param[in] value Lower bound (inclusive) for an event's end time to
-     * filter by. Optional. The default is not to filter by end time.
+     * filter by. Optional. The default is not to filter by end time. Must be an
+     * RFC3339 timestamp with mandatory time zone offset, e.g.,
+     * 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be
+     * provided but will be ignored.
      */
     void set_time_min(client::DateTime value) {
       _have_time_min_ = true;
@@ -6312,7 +6378,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] rule_id ACL rule identifier.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6327,7 +6395,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] rule_id ACL rule identifier.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6342,7 +6412,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] _content_ The data object to insert.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6357,7 +6429,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
      */
@@ -6368,7 +6442,9 @@ class CalendarService : public client::ClientService {
     /**
      * Creates a pager for iterating over incremental result pages.
      * @param[in] _credential_  NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      *
      *
      * @see googleapis::googleapis::ServiceRequestPager
@@ -6382,7 +6458,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] rule_id ACL rule identifier.
      * @param[in] _content_ The data object to patch.
      * @returns  The caller should <code>Execute</code> the method instance,
@@ -6399,7 +6477,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] rule_id ACL rule identifier.
      * @param[in] _content_ The data object to update.
      * @returns  The caller should <code>Execute</code> the method instance,
@@ -6416,7 +6496,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] _content_ The data object to watch.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6459,7 +6541,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
      */
@@ -6472,7 +6556,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
      */
@@ -6518,7 +6604,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] _content_ The data object to patch.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6533,7 +6621,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] _content_ The data object to update.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6589,7 +6679,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
      */
@@ -6602,7 +6694,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
      */
@@ -6615,7 +6709,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
      */
@@ -6641,7 +6737,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] _content_ The data object to patch.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6656,7 +6754,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] _content_ The data object to update.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6779,7 +6879,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] event_id Event identifier.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6794,7 +6896,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] event_id Event identifier.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6809,7 +6913,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] _content_ The data object to import.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6824,7 +6930,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] _content_ The data object to insert.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6839,7 +6947,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] event_id Recurring event identifier.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6852,7 +6962,9 @@ class CalendarService : public client::ClientService {
     /**
      * Creates a pager for iterating over incremental result pages.
      * @param[in] _credential_  NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      *
      * @param[in] event_id Recurring event identifier.
      *
@@ -6869,7 +6981,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
      */
@@ -6880,7 +6994,9 @@ class CalendarService : public client::ClientService {
     /**
      * Creates a pager for iterating over incremental result pages.
      * @param[in] _credential_  NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      *
      *
      * @see googleapis::googleapis::ServiceRequestPager
@@ -6913,7 +7029,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] event_id Event identifier.
      * @param[in] _content_ The data object to patch.
      * @returns  The caller should <code>Execute</code> the method instance,
@@ -6930,7 +7048,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] text The text describing the event to be created.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
@@ -6945,7 +7065,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] event_id Event identifier.
      * @param[in] _content_ The data object to update.
      * @returns  The caller should <code>Execute</code> the method instance,
@@ -6962,7 +7084,9 @@ class CalendarService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] calendar_id Calendar identifier.
+     * @param[in] calendar_id Calendar identifier. To retrieve calendar IDs call
+     * the calendarList.list method. If you want to access the primary calendar
+     * of the currently logged in user, use the "primary" keyword.
      * @param[in] _content_ The data object to watch.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.

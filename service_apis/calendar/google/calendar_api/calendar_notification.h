@@ -115,10 +115,11 @@ class CalendarNotification : public client::JsonCppData {
    * <dt>"email"
    * <dd>Reminders are sent via email.
    * <dt>"sms"
-   * <dd>Reminders are sent via SMS. This value is read-only and is ignored on
-   * inserts and updates.
+   * <dd>Reminders are sent via SMS.
    * </dl>
-   *
+   *  This value is read-only and is ignored on inserts and updates. SMS
+   * reminders are only available for Google Apps for Work, Education, and
+   * Government customers.
    *
    * @param[in] value The new value.
    */

@@ -24,6 +24,7 @@ add_library(google_drive_api STATIC
             comment_reply_list.cc
             file.cc
             file_list.cc
+            generated_ids.cc
             parent_list.cc
             parent_reference.cc
             permission.cc

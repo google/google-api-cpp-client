@@ -117,10 +117,11 @@ class EventReminder : public client::JsonCppData {
    * <dd>Reminders are sent via email.
    * <dt>"sms"
    * <dd>Reminders are sent via SMS.
-   * <dt>"popup"
-   * <dd>Reminders are sent via a UI popup.
    * </dl>
-   *
+   *  These are only available for Google Apps for Work, Education, and
+   * Government customers. Requests to set SMS reminders for other acco
+   * unt types are ignored.
+   * - "popup" - Reminders are sent via a UI popup.
    *
    * @param[in] value The new value.
    */
@@ -157,7 +158,7 @@ class EventReminder : public client::JsonCppData {
    * Change the '<code>minutes</code>' attribute.
    *
    * Number of minutes before the start of the event when the reminder should
-   * trigger.
+   * trigger. Valid values are between 0 and 40320 (4 weeks in minutes).
    *
    * @param[in] value The new value.
    */

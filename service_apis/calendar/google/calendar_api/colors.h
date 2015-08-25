@@ -110,9 +110,9 @@ class Colors : public client::JsonCppData {
    * Gets a reference to a mutable value of the '<code>calendar</code>'
    * property.
    *
-   * Palette of calendar colors, mapping from the color ID to its definition. A
-   * calendarListEntry resource refers to one of these color IDs in its color
-   * field. Read-only.
+   * A global palette of calendar colors, mapping from the color ID to its
+   * definition. A calendarListEntry resource refers to one of these color IDs
+   * in its color field. Read-only.
    *
    * @return The result can be modified to change the attribute value.
    */
@@ -143,9 +143,9 @@ class Colors : public client::JsonCppData {
   /**
    * Gets a reference to a mutable value of the '<code>event</code>' property.
    *
-   * Palette of event colors, mapping from the color ID to its definition. An
-   * event resource may refer to one of these color IDs in its color field.
-   * Read-only.
+   * A global palette of event colors, mapping from the color ID to its
+   * definition. An event resource may refer to one of these color IDs in its
+   * color field. Read-only.
    *
    * @return The result can be modified to change the attribute value.
    */
@@ -216,8 +216,8 @@ class Colors : public client::JsonCppData {
   /**
    * Change the '<code>updated</code>' attribute.
    *
-   * Last modification time of the color palette (as a RFC 3339 timestamp).
-   * Read-only.
+   * Last modification time of the color palette (as a RFC3339 timestamp). Read-
+   * only.
    *
    * @param[in] value The new value.
    */

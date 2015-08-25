@@ -247,7 +247,9 @@ class CalendarListEntry : public client::JsonCppData {
    * Change the '<code>backgroundColor</code>' attribute.
    *
    * The main color of the calendar in the hexadecimal format "#0088aa". This
-   * property supersedes the index-based colorId property. Optional.
+   * property supersedes the index-based colorId property. To set or change this
+   * property, you need to specify colorRgbFormat=true in the parameters of the
+   * insert, update and patch methods. Optional.
    *
    * @param[in] value The new value.
    */
@@ -285,8 +287,9 @@ class CalendarListEntry : public client::JsonCppData {
    * Change the '<code>colorId</code>' attribute.
    *
    * The color of the calendar. This is an ID referring to an entry in the
-   * calendar section of the colors definition (see the colors endpoint).
-   * Optional.
+   * calendar section of the colors definition (see the colors endpoint). This
+   * property is superseded by the backgroundColor and foregroundColor
+   * properties and can be ignored when using these properties. Optional.
    *
    * @param[in] value The new value.
    */
@@ -469,7 +472,9 @@ class CalendarListEntry : public client::JsonCppData {
    * Change the '<code>foregroundColor</code>' attribute.
    *
    * The foreground color of the calendar in the hexadecimal format "#ffffff".
-   * This property supersedes the index-based colorId property. Optional.
+   * This property supersedes the index-based colorId property. To set or change
+   * this property, you need to specify colorRgbFormat=true in the parameters of
+   * the insert, update and patch methods. Optional.
    *
    * @param[in] value The new value.
    */

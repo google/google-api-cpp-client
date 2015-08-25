@@ -310,9 +310,8 @@ CaptionsResource_DeleteMethod::CaptionsResource_DeleteMethod(
         client::HttpRequest::DELETE,
         StrCat(_service_->service_url(), "captions")),
       id_(id.as_string()),
-      _have_on_behalf_of_content_owner_(false),
       _have_on_behalf_of_(false),
-      _have_debug_project_id_override_(false) {
+      _have_on_behalf_of_content_owner_(false) {
 }
 
 // Standard destructor.
@@ -325,22 +324,16 @@ util::Status CaptionsResource_DeleteMethod::AppendOptionalQueryParameters(string
               client::CppValueToEscapedUrlValue(
                 id_));
     sep = "&";
-  if (_have_on_behalf_of_content_owner_) {
-    StrAppend(target, sep, "onBehalfOfContentOwner=",
-              client::CppValueToEscapedUrlValue(
-                on_behalf_of_content_owner_));
-    sep = "&";
-  }
   if (_have_on_behalf_of_) {
     StrAppend(target, sep, "onBehalfOf=",
               client::CppValueToEscapedUrlValue(
                 on_behalf_of_));
     sep = "&";
   }
-  if (_have_debug_project_id_override_) {
-    StrAppend(target, sep, "debugProjectIdOverride=",
+  if (_have_on_behalf_of_content_owner_) {
+    StrAppend(target, sep, "onBehalfOfContentOwner=",
               client::CppValueToEscapedUrlValue(
-                debug_project_id_override_));
+                on_behalf_of_content_owner_));
     sep = "&";
   }
   return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
@@ -362,11 +355,10 @@ CaptionsResource_DownloadMethod::CaptionsResource_DownloadMethod(
         client::HttpRequest::GET,
         StrCat(_service_->service_url(), "captions/{id}")),
       id_(id.as_string()),
-      _have_on_behalf_of_content_owner_(false),
-      _have_on_behalf_of_(false),
-      _have_debug_project_id_override_(false),
       _have_tfmt_(false),
-      _have_tlang_(false) {
+      _have_on_behalf_of_(false),
+      _have_tlang_(false),
+      _have_on_behalf_of_content_owner_(false) {
 }
 
 // Standard destructor.
@@ -375,10 +367,10 @@ CaptionsResource_DownloadMethod::~CaptionsResource_DownloadMethod() {
 
 util::Status CaptionsResource_DownloadMethod::AppendOptionalQueryParameters(string* target) {
   const char* sep = (target->find('?') == string::npos) ? "?" : "&";
-  if (_have_on_behalf_of_content_owner_) {
-    StrAppend(target, sep, "onBehalfOfContentOwner=",
+  if (_have_tfmt_) {
+    StrAppend(target, sep, "tfmt=",
               client::CppValueToEscapedUrlValue(
-                on_behalf_of_content_owner_));
+                tfmt_));
     sep = "&";
   }
   if (_have_on_behalf_of_) {
@@ -387,22 +379,16 @@ util::Status CaptionsResource_DownloadMethod::AppendOptionalQueryParameters(stri
                 on_behalf_of_));
     sep = "&";
   }
-  if (_have_debug_project_id_override_) {
-    StrAppend(target, sep, "debugProjectIdOverride=",
-              client::CppValueToEscapedUrlValue(
-                debug_project_id_override_));
-    sep = "&";
-  }
-  if (_have_tfmt_) {
-    StrAppend(target, sep, "tfmt=",
-              client::CppValueToEscapedUrlValue(
-                tfmt_));
-    sep = "&";
-  }
   if (_have_tlang_) {
     StrAppend(target, sep, "tlang=",
               client::CppValueToEscapedUrlValue(
                 tlang_));
+    sep = "&";
+  }
+  if (_have_on_behalf_of_content_owner_) {
+    StrAppend(target, sep, "onBehalfOfContentOwner=",
+              client::CppValueToEscapedUrlValue(
+                on_behalf_of_content_owner_));
     sep = "&";
   }
   return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
@@ -442,10 +428,9 @@ CaptionsResource_InsertMethod::CaptionsResource_InsertMethod(
       client::HttpRequest::POST,
       StrCat(_service_->service_url(), "captions")),
       part_(part.as_string()),
-      _have_sync_(false),
       _have_on_behalf_of_(false),
-      _have_debug_project_id_override_(false),
-      _have_on_behalf_of_content_owner_(false) {
+      _have_on_behalf_of_content_owner_(false),
+      _have_sync_(false) {
   uploader_.reset(new client::MediaUploader(
       &SIMPLE_MEDIA_UPLOAD,
       _service_->url_root(),
@@ -460,10 +445,9 @@ CaptionsResource_InsertMethod::CaptionsResource_InsertMethod(
         client::HttpRequest::POST,
         StrCat(_service_->service_url(), "captions")),
       part_(part.as_string()),
-      _have_sync_(false),
       _have_on_behalf_of_(false),
-      _have_debug_project_id_override_(false),
-      _have_on_behalf_of_content_owner_(false) {
+      _have_on_behalf_of_content_owner_(false),
+      _have_sync_(false) {
   if (_media_content_reader_) {
     client::MediaUploader* uploader =
         new client::MediaUploader(
@@ -492,28 +476,22 @@ util::Status CaptionsResource_InsertMethod::AppendOptionalQueryParameters(string
               client::CppValueToEscapedUrlValue(
                 part_));
     sep = "&";
-  if (_have_sync_) {
-    StrAppend(target, sep, "sync=",
-              client::CppValueToEscapedUrlValue(
-                sync_));
-    sep = "&";
-  }
   if (_have_on_behalf_of_) {
     StrAppend(target, sep, "onBehalfOf=",
               client::CppValueToEscapedUrlValue(
                 on_behalf_of_));
     sep = "&";
   }
-  if (_have_debug_project_id_override_) {
-    StrAppend(target, sep, "debugProjectIdOverride=",
-              client::CppValueToEscapedUrlValue(
-                debug_project_id_override_));
-    sep = "&";
-  }
   if (_have_on_behalf_of_content_owner_) {
     StrAppend(target, sep, "onBehalfOfContentOwner=",
               client::CppValueToEscapedUrlValue(
                 on_behalf_of_content_owner_));
+    sep = "&";
+  }
+  if (_have_sync_) {
+    StrAppend(target, sep, "sync=",
+              client::CppValueToEscapedUrlValue(
+                sync_));
     sep = "&";
   }
   return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
@@ -536,10 +514,9 @@ CaptionsResource_ListMethod::CaptionsResource_ListMethod(
         StrCat(_service_->service_url(), "captions")),
       part_(part.as_string()),
       video_id_(video_id.as_string()),
-      _have_on_behalf_of_content_owner_(false),
       _have_on_behalf_of_(false),
-      _have_debug_project_id_override_(false),
-      _have_id_(false) {
+      _have_id_(false),
+      _have_on_behalf_of_content_owner_(false) {
 }
 
 // Standard destructor.
@@ -556,28 +533,22 @@ util::Status CaptionsResource_ListMethod::AppendOptionalQueryParameters(string* 
               client::CppValueToEscapedUrlValue(
                 video_id_));
     sep = "&";
-  if (_have_on_behalf_of_content_owner_) {
-    StrAppend(target, sep, "onBehalfOfContentOwner=",
-              client::CppValueToEscapedUrlValue(
-                on_behalf_of_content_owner_));
-    sep = "&";
-  }
   if (_have_on_behalf_of_) {
     StrAppend(target, sep, "onBehalfOf=",
               client::CppValueToEscapedUrlValue(
                 on_behalf_of_));
     sep = "&";
   }
-  if (_have_debug_project_id_override_) {
-    StrAppend(target, sep, "debugProjectIdOverride=",
-              client::CppValueToEscapedUrlValue(
-                debug_project_id_override_));
-    sep = "&";
-  }
   if (_have_id_) {
     StrAppend(target, sep, "id=",
               client::CppValueToEscapedUrlValue(
                 id_));
+    sep = "&";
+  }
+  if (_have_on_behalf_of_content_owner_) {
+    StrAppend(target, sep, "onBehalfOfContentOwner=",
+              client::CppValueToEscapedUrlValue(
+                on_behalf_of_content_owner_));
     sep = "&";
   }
   return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
@@ -612,10 +583,9 @@ CaptionsResource_UpdateMethod::CaptionsResource_UpdateMethod(
       client::HttpRequest::PUT,
       StrCat(_service_->service_url(), "captions")),
       part_(part.as_string()),
-      _have_sync_(false),
       _have_on_behalf_of_(false),
-      _have_debug_project_id_override_(false),
-      _have_on_behalf_of_content_owner_(false) {
+      _have_on_behalf_of_content_owner_(false),
+      _have_sync_(false) {
   uploader_.reset(new client::MediaUploader(
       &SIMPLE_MEDIA_UPLOAD,
       _service_->url_root(),
@@ -630,10 +600,9 @@ CaptionsResource_UpdateMethod::CaptionsResource_UpdateMethod(
         client::HttpRequest::PUT,
         StrCat(_service_->service_url(), "captions")),
       part_(part.as_string()),
-      _have_sync_(false),
       _have_on_behalf_of_(false),
-      _have_debug_project_id_override_(false),
-      _have_on_behalf_of_content_owner_(false) {
+      _have_on_behalf_of_content_owner_(false),
+      _have_sync_(false) {
   if (_media_content_reader_) {
     client::MediaUploader* uploader =
         new client::MediaUploader(
@@ -662,28 +631,22 @@ util::Status CaptionsResource_UpdateMethod::AppendOptionalQueryParameters(string
               client::CppValueToEscapedUrlValue(
                 part_));
     sep = "&";
-  if (_have_sync_) {
-    StrAppend(target, sep, "sync=",
-              client::CppValueToEscapedUrlValue(
-                sync_));
-    sep = "&";
-  }
   if (_have_on_behalf_of_) {
     StrAppend(target, sep, "onBehalfOf=",
               client::CppValueToEscapedUrlValue(
                 on_behalf_of_));
     sep = "&";
   }
-  if (_have_debug_project_id_override_) {
-    StrAppend(target, sep, "debugProjectIdOverride=",
-              client::CppValueToEscapedUrlValue(
-                debug_project_id_override_));
-    sep = "&";
-  }
   if (_have_on_behalf_of_content_owner_) {
     StrAppend(target, sep, "onBehalfOfContentOwner=",
               client::CppValueToEscapedUrlValue(
                 on_behalf_of_content_owner_));
+    sep = "&";
+  }
+  if (_have_sync_) {
+    StrAppend(target, sep, "sync=",
+              client::CppValueToEscapedUrlValue(
+                sync_));
     sep = "&";
   }
   return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
@@ -1110,9 +1073,7 @@ CommentThreadsResource_InsertMethod::CommentThreadsResource_InsertMethod(
         _service_, _credential_,
         client::HttpRequest::POST,
         StrCat(_service_->service_url(), "commentThreads")),
-      part_(part.as_string()),
-      share_on_google_plus_(false),
-      _have_share_on_google_plus_(false) {
+      part_(part.as_string()) {
   AddJsonContentToRequest(&__request_content__);
 }
 
@@ -1126,12 +1087,6 @@ util::Status CommentThreadsResource_InsertMethod::AppendOptionalQueryParameters(
               client::CppValueToEscapedUrlValue(
                 part_));
     sep = "&";
-  if (_have_share_on_google_plus_) {
-    StrAppend(target, sep, "shareOnGooglePlus=",
-              client::CppValueToEscapedUrlValue(
-                share_on_google_plus_));
-    sep = "&";
-  }
   return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status CommentThreadsResource_InsertMethod::AppendVariable(
@@ -3478,7 +3433,6 @@ VideosResource_ListMethod::VideosResource_ListMethod(
       _have_chart_(false),
       _have_max_results_(false),
       _have_page_token_(false),
-      _have_debug_project_id_override_(false),
       _have_hl_(false),
       _have_my_rating_(false),
       _have_id_(false) {
@@ -3534,12 +3488,6 @@ util::Status VideosResource_ListMethod::AppendOptionalQueryParameters(string* ta
     StrAppend(target, sep, "pageToken=",
               client::CppValueToEscapedUrlValue(
                 page_token_));
-    sep = "&";
-  }
-  if (_have_debug_project_id_override_) {
-    StrAppend(target, sep, "debugProjectIdOverride=",
-              client::CppValueToEscapedUrlValue(
-                debug_project_id_override_));
     sep = "&";
   }
   if (_have_hl_) {

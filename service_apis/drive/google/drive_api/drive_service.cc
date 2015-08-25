@@ -42,6 +42,7 @@
 #include "google/drive_api/comment_reply_list.h"
 #include "google/drive_api/file.h"
 #include "google/drive_api/file_list.h"
+#include "google/drive_api/generated_ids.h"
 #include "google/drive_api/parent_list.h"
 #include "google/drive_api/parent_reference.h"
 #include "google/drive_api/permission.h"
@@ -80,6 +81,8 @@ const StringPiece DriveService::SCOPES::DRIVE_FILE("https://www.googleapis.com/a
 const StringPiece DriveService::SCOPES::DRIVE_METADATA("https://www.googleapis.com/auth/drive.metadata");
 
 const StringPiece DriveService::SCOPES::DRIVE_METADATA_READONLY("https://www.googleapis.com/auth/drive.metadata.readonly");
+
+const StringPiece DriveService::SCOPES::DRIVE_PHOTOS_READONLY("https://www.googleapis.com/auth/drive.photos.readonly");
 
 const StringPiece DriveService::SCOPES::DRIVE_READONLY("https://www.googleapis.com/auth/drive.readonly");
 
@@ -594,8 +597,9 @@ ChildrenResource_ListMethod::ChildrenResource_ListMethod(
         StrCat(_service_->service_url(), "files/{folderId}/children")),
       folder_id_(folder_id.as_string()),
       max_results_(100),
-      _have_q_(false),
+      _have_order_by_(false),
       _have_page_token_(false),
+      _have_q_(false),
       _have_max_results_(false) {
 }
 
@@ -605,16 +609,22 @@ ChildrenResource_ListMethod::~ChildrenResource_ListMethod() {
 
 util::Status ChildrenResource_ListMethod::AppendOptionalQueryParameters(string* target) {
   const char* sep = (target->find('?') == string::npos) ? "?" : "&";
-  if (_have_q_) {
-    StrAppend(target, sep, "q=",
+  if (_have_order_by_) {
+    StrAppend(target, sep, "orderBy=",
               client::CppValueToEscapedUrlValue(
-                q_));
+                order_by_));
     sep = "&";
   }
   if (_have_page_token_) {
     StrAppend(target, sep, "pageToken=",
               client::CppValueToEscapedUrlValue(
                 page_token_));
+    sep = "&";
+  }
+  if (_have_q_) {
+    StrAppend(target, sep, "q=",
+              client::CppValueToEscapedUrlValue(
+                q_));
     sep = "&";
   }
   if (_have_max_results_) {
@@ -1014,6 +1024,48 @@ FilesResource_EmptyTrashMethod::~FilesResource_EmptyTrashMethod() {
 
 
 // Standard constructor.
+FilesResource_GenerateIdsMethod::FilesResource_GenerateIdsMethod(
+    const DriveService* _service_, client::AuthorizationCredential* _credential_)
+    : DriveServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::GET,
+        StrCat(_service_->service_url(), "files/generateIds")),
+      max_results_(10),
+      space_("drive"),
+      _have_max_results_(false),
+      _have_space_(false) {
+}
+
+// Standard destructor.
+FilesResource_GenerateIdsMethod::~FilesResource_GenerateIdsMethod() {
+}
+
+util::Status FilesResource_GenerateIdsMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+  if (_have_max_results_) {
+    StrAppend(target, sep, "maxResults=",
+              client::CppValueToEscapedUrlValue(
+                max_results_));
+    sep = "&";
+  }
+  if (_have_space_) {
+    StrAppend(target, sep, "space=",
+              client::CppValueToEscapedUrlValue(
+                space_));
+    sep = "&";
+  }
+  return DriveServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status FilesResource_GenerateIdsMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return DriveServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
 FilesResource_GetMethod::FilesResource_GetMethod(
     const DriveService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& file_id)
     : DriveServiceBaseRequest(
@@ -1225,6 +1277,7 @@ FilesResource_ListMethod::FilesResource_ListMethod(
         client::HttpRequest::GET,
         StrCat(_service_->service_url(), "files")),
       max_results_(100),
+      _have_order_by_(false),
       _have_projection_(false),
       _have_max_results_(false),
       _have_q_(false),
@@ -1239,6 +1292,12 @@ FilesResource_ListMethod::~FilesResource_ListMethod() {
 
 util::Status FilesResource_ListMethod::AppendOptionalQueryParameters(string* target) {
   const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+  if (_have_order_by_) {
+    StrAppend(target, sep, "orderBy=",
+              client::CppValueToEscapedUrlValue(
+                order_by_));
+    sep = "&";
+  }
   if (_have_projection_) {
     StrAppend(target, sep, "projection=",
               client::CppValueToEscapedUrlValue(
@@ -1296,17 +1355,18 @@ FilesResource_PatchMethod::FilesResource_PatchMethod(
       file_id_(file_id.as_string()),
       update_viewed_date_(true),
       set_modified_date_(false),
-      convert_(false),
       use_content_as_indexable_text_(false),
+      convert_(false),
       pinned_(false),
       new_revision_(true),
       ocr_(false),
       _have_add_parents_(false),
-      _have_update_viewed_date_(false),
+      _have_modified_date_behavior_(false),
       _have_remove_parents_(false),
+      _have_update_viewed_date_(false),
       _have_set_modified_date_(false),
-      _have_convert_(false),
       _have_use_content_as_indexable_text_(false),
+      _have_convert_(false),
       _have_ocr_language_(false),
       _have_pinned_(false),
       _have_new_revision_(false),
@@ -1328,10 +1388,10 @@ util::Status FilesResource_PatchMethod::AppendOptionalQueryParameters(string* ta
                 add_parents_));
     sep = "&";
   }
-  if (_have_update_viewed_date_) {
-    StrAppend(target, sep, "updateViewedDate=",
+  if (_have_modified_date_behavior_) {
+    StrAppend(target, sep, "modifiedDateBehavior=",
               client::CppValueToEscapedUrlValue(
-                update_viewed_date_));
+                modified_date_behavior_));
     sep = "&";
   }
   if (_have_remove_parents_) {
@@ -1340,22 +1400,28 @@ util::Status FilesResource_PatchMethod::AppendOptionalQueryParameters(string* ta
                 remove_parents_));
     sep = "&";
   }
+  if (_have_update_viewed_date_) {
+    StrAppend(target, sep, "updateViewedDate=",
+              client::CppValueToEscapedUrlValue(
+                update_viewed_date_));
+    sep = "&";
+  }
   if (_have_set_modified_date_) {
     StrAppend(target, sep, "setModifiedDate=",
               client::CppValueToEscapedUrlValue(
                 set_modified_date_));
     sep = "&";
   }
-  if (_have_convert_) {
-    StrAppend(target, sep, "convert=",
-              client::CppValueToEscapedUrlValue(
-                convert_));
-    sep = "&";
-  }
   if (_have_use_content_as_indexable_text_) {
     StrAppend(target, sep, "useContentAsIndexableText=",
               client::CppValueToEscapedUrlValue(
                 use_content_as_indexable_text_));
+    sep = "&";
+  }
+  if (_have_convert_) {
+    StrAppend(target, sep, "convert=",
+              client::CppValueToEscapedUrlValue(
+                convert_));
     sep = "&";
   }
   if (_have_ocr_language_) {
@@ -1520,17 +1586,18 @@ FilesResource_UpdateMethod::FilesResource_UpdateMethod(
       file_id_(file_id.as_string()),
       update_viewed_date_(true),
       set_modified_date_(false),
-      convert_(false),
       use_content_as_indexable_text_(false),
+      convert_(false),
       pinned_(false),
       new_revision_(true),
       ocr_(false),
       _have_add_parents_(false),
-      _have_update_viewed_date_(false),
+      _have_modified_date_behavior_(false),
       _have_remove_parents_(false),
+      _have_update_viewed_date_(false),
       _have_set_modified_date_(false),
-      _have_convert_(false),
       _have_use_content_as_indexable_text_(false),
+      _have_convert_(false),
       _have_ocr_language_(false),
       _have_pinned_(false),
       _have_new_revision_(false),
@@ -1553,17 +1620,18 @@ FilesResource_UpdateMethod::FilesResource_UpdateMethod(
       file_id_(file_id.as_string()),
       update_viewed_date_(true),
       set_modified_date_(false),
-      convert_(false),
       use_content_as_indexable_text_(false),
+      convert_(false),
       pinned_(false),
       new_revision_(true),
       ocr_(false),
       _have_add_parents_(false),
-      _have_update_viewed_date_(false),
+      _have_modified_date_behavior_(false),
       _have_remove_parents_(false),
+      _have_update_viewed_date_(false),
       _have_set_modified_date_(false),
-      _have_convert_(false),
       _have_use_content_as_indexable_text_(false),
+      _have_convert_(false),
       _have_ocr_language_(false),
       _have_pinned_(false),
       _have_new_revision_(false),
@@ -1600,10 +1668,10 @@ util::Status FilesResource_UpdateMethod::AppendOptionalQueryParameters(string* t
                 add_parents_));
     sep = "&";
   }
-  if (_have_update_viewed_date_) {
-    StrAppend(target, sep, "updateViewedDate=",
+  if (_have_modified_date_behavior_) {
+    StrAppend(target, sep, "modifiedDateBehavior=",
               client::CppValueToEscapedUrlValue(
-                update_viewed_date_));
+                modified_date_behavior_));
     sep = "&";
   }
   if (_have_remove_parents_) {
@@ -1612,22 +1680,28 @@ util::Status FilesResource_UpdateMethod::AppendOptionalQueryParameters(string* t
                 remove_parents_));
     sep = "&";
   }
+  if (_have_update_viewed_date_) {
+    StrAppend(target, sep, "updateViewedDate=",
+              client::CppValueToEscapedUrlValue(
+                update_viewed_date_));
+    sep = "&";
+  }
   if (_have_set_modified_date_) {
     StrAppend(target, sep, "setModifiedDate=",
               client::CppValueToEscapedUrlValue(
                 set_modified_date_));
     sep = "&";
   }
-  if (_have_convert_) {
-    StrAppend(target, sep, "convert=",
-              client::CppValueToEscapedUrlValue(
-                convert_));
-    sep = "&";
-  }
   if (_have_use_content_as_indexable_text_) {
     StrAppend(target, sep, "useContentAsIndexableText=",
               client::CppValueToEscapedUrlValue(
                 use_content_as_indexable_text_));
+    sep = "&";
+  }
+  if (_have_convert_) {
+    StrAppend(target, sep, "convert=",
+              client::CppValueToEscapedUrlValue(
+                convert_));
     sep = "&";
   }
   if (_have_ocr_language_) {
@@ -3093,6 +3167,11 @@ FilesResource_DeleteMethod* DriveService::FilesResource::NewDeleteMethod(client:
 
 FilesResource_EmptyTrashMethod* DriveService::FilesResource::NewEmptyTrashMethod(client::AuthorizationCredential* _credential_) const {
   return new FilesResource_EmptyTrashMethod(service_, _credential_);
+}
+
+
+FilesResource_GenerateIdsMethod* DriveService::FilesResource::NewGenerateIdsMethod(client::AuthorizationCredential* _credential_) const {
+  return new FilesResource_GenerateIdsMethod(service_, _credential_);
 }
 
 

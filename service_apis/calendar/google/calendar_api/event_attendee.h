@@ -223,7 +223,7 @@ class EventAttendee : public client::JsonCppData {
    * Change the '<code>email</code>' attribute.
    *
    * The attendee's email address, if available. This field must be present when
-   * adding an attendee.
+   * adding an attendee. It must be a valid email address as per RFC5322.
    *
    * @param[in] value The new value.
    */
@@ -260,7 +260,8 @@ class EventAttendee : public client::JsonCppData {
   /**
    * Change the '<code>id</code>' attribute.
    *
-   * The attendee's Profile ID, if available.
+   * The attendee's Profile ID, if available. It corresponds to theid field in
+   * the People collection of the Google+ API.
    *
    * @param[in] value The new value.
    */

@@ -2172,9 +2172,10 @@ class File : public client::JsonCppData {
   /**
    * Change the '<code>fileExtension</code>' attribute.
    *
-   * The file extension used when downloading this file. This field is read
-   * only. To set the extension, include it in the title when creating the file.
-   * This is only populated for files with content stored in Drive.
+   * The final component of fullFileExtension with trailing text that does not
+   * appear to be part of the extension removed. This field is only populated
+   * for files with content stored in Drive; it is not populated for Google Docs
+   * or shortcut files.
    *
    * @param[in] value The new value.
    */
@@ -2210,8 +2211,9 @@ class File : public client::JsonCppData {
   /**
    * Change the '<code>fileSize</code>' attribute.
    *
-   * The size of the file in bytes. This is only populated for files with
-   * content stored in Drive.
+   * The size of the file in bytes. This field is only populated for files with
+   * content stored in Drive; it is not populated for Google Docs or shortcut
+   * files.
    *
    * @param[in] value The new value.
    */
@@ -2261,6 +2263,48 @@ class File : public client::JsonCppData {
   }
 
   /**
+   * Determine if the '<code>fullFileExtension</code>' attribute was set.
+   *
+   * @return true if the '<code>fullFileExtension</code>' attribute was set.
+   */
+  bool has_full_file_extension() const {
+    return Storage().isMember("fullFileExtension");
+  }
+
+  /**
+   * Clears the '<code>fullFileExtension</code>' attribute.
+   */
+  void clear_full_file_extension() {
+    MutableStorage()->removeMember("fullFileExtension");
+  }
+
+
+  /**
+   * Get the value of the '<code>fullFileExtension</code>' attribute.
+   */
+  const StringPiece get_full_file_extension() const {
+    const Json::Value& v = Storage("fullFileExtension");
+    if (v == Json::Value::null) return StringPiece("");
+    return StringPiece(v.asCString());
+  }
+
+  /**
+   * Change the '<code>fullFileExtension</code>' attribute.
+   *
+   * The full file extension; extracted from the title. May contain multiple
+   * concatenated extensions, such as "tar.gz". Removing an extension from the
+   * title does not clear this field; however, changing the extension on the
+   * title does update this field. This field is only populated for files with
+   * content stored in Drive; it is not populated for Google Docs or shortcut
+   * files.
+   *
+   * @param[in] value The new value.
+   */
+  void set_full_file_extension(const StringPiece& value) {
+    *MutableStorage("fullFileExtension") = value.data();
+  }
+
+  /**
    * Determine if the '<code>headRevisionId</code>' attribute was set.
    *
    * @return true if the '<code>headRevisionId</code>' attribute was set.
@@ -2289,8 +2333,9 @@ class File : public client::JsonCppData {
   /**
    * Change the '<code>headRevisionId</code>' attribute.
    *
-   * The ID of the file's head revision. This will only be populated for files
-   * with content stored in Drive.
+   * The ID of the file's head revision. This field is only populated for files
+   * with content stored in Drive; it is not populated for Google Docs or
+   * shortcut files.
    *
    * @param[in] value The new value.
    */
@@ -2698,8 +2743,9 @@ class File : public client::JsonCppData {
   /**
    * Change the '<code>md5Checksum</code>' attribute.
    *
-   * An MD5 checksum for the content of this file. This is populated only for
-   * files with content stored in Drive.
+   * An MD5 checksum for the content of this file. This field is only populated
+   * for files with content stored in Drive; it is not populated for Google Docs
+   * or shortcut files.
    *
    * @param[in] value The new value.
    */
@@ -2893,8 +2939,9 @@ class File : public client::JsonCppData {
    *
    * The original filename if the file was uploaded manually, or the original
    * title if the file was inserted through the API. Note that renames of the
-   * title will not change the original filename. This will only be populated on
-   * files with content stored in Drive.
+   * title will not change the original filename. This field is only populated
+   * for files with content stored in Drive; it is not populated for Google Docs
+   * or shortcut files.
    *
    * @param[in] value The new value.
    */
@@ -3352,8 +3399,8 @@ class File : public client::JsonCppData {
   /**
    * Gets a reference to a mutable value of the '<code>spaces</code>' property.
    *
-   * The list of spaces which contain the file. Supported values are 'drive' and
-   * 'appDataFolder'.
+   * The list of spaces which contain the file. Supported values are 'drive',
+   * 'appDataFolder' and 'photos'.
    *
    * @return The result can be modified to change the attribute value.
    */

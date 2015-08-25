@@ -111,8 +111,8 @@ class EventAttachment : public client::JsonCppData {
    * Change the '<code>fileId</code>' attribute.
    *
    * ID of the attached file. Read-only.
-   * E.g. for Google Drive files this is the ID of the corresponding Files
-   * resource entry in the Drive API.
+   * For Google Drive files, this is the ID of the corresponding Files resource
+   * entry in the Drive API.
    *
    * @param[in] value The new value.
    */

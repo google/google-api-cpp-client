@@ -35,6 +35,7 @@
 #include "google/drive_api/comment_list.h"
 #include "google/drive_api/comment_reply_list.h"
 #include "google/drive_api/file_list.h"
+#include "google/drive_api/generated_ids.h"
 #include "google/drive_api/parent_list.h"
 #include "google/drive_api/permission_id.h"
 #include "google/drive_api/permission_list.h"

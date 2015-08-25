@@ -147,9 +147,9 @@ class EventDateTime : public client::JsonCppData {
   /**
    * Change the '<code>dateTime</code>' attribute.
    *
-   * The time, as a combined date-time value (formatted according to RFC 3339).
-   * A time zone offset is required unless a time zone is explicitly specified
-   * in timeZone.
+   * The time, as a combined date-time value (formatted according to RFC3339). A
+   * time zone offset is required unless a time zone is explicitly specified in
+   * timeZone.
    *
    * @param[in] value The new value.
    */
