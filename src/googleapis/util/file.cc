@@ -156,7 +156,7 @@ string File::GetCurrentProgramFilenamePath() {
   // is consistent, especially when we operate on paths.
   return FromWindowsPath(value);
 #else
-  string  pointer = StrCat("/proc/", getpid(), "/exe");
+  string  pointer = googleapis::StrCat("/proc/", getpid(), "/exe");
   char buf[PATH_MAX];
   int bytes = readlink(pointer.c_str(), buf, sizeof(buf));
   if (bytes <= 0) {
@@ -220,7 +220,7 @@ bool File::RecursivelyDeleteDir(const string& path) {
   std::vector<std::string> subdirs;
   std::vector<std::string> files;
 #ifdef _MSC_VER
-  string windows_path = ToNativePath(StrCat(path, "/*"));
+  string windows_path = ToNativePath(googleapis::StrCat(path, "/*"));
   string dir_str;
   const TCHAR* dir = ToWindowsString(windows_path, &dir_str);
   int len = _tcslen(dir);
@@ -270,12 +270,12 @@ bool File::RecursivelyDeleteDir(const string& path) {
   for (std::vector<std::string>::const_iterator it = subdirs.begin();
        it != subdirs.end();
        ++it) {
-    RecursivelyDeleteDir(StrCat(path, "/", *it));
+    RecursivelyDeleteDir(googleapis::StrCat(path, "/", *it));
   }
   for (std::vector<std::string>::const_iterator it = files.begin();
        it != files.end();
        ++it) {
-    File::Delete(StrCat(path, "/", *it));
+    File::Delete(googleapis::StrCat(path, "/", *it));
   }
   return File::DeleteDir(path);
 }
@@ -301,7 +301,7 @@ util::Status File::RecursivelyCreateDirWithPermissions(
     to_do.pop();
     if (mkdir(new_path.c_str(), permissions) != 0) {
       googleapis::util::Status status(util::error::UNKNOWN,
-                          StrCat("Could not create directory ", new_path,
+                          googleapis::StrCat("Could not create directory ", new_path,
                                  ": ", strerror(errno)));
       LOG(ERROR) << status.error_message();
       return status;
@@ -370,7 +370,7 @@ util::Status File::Flush() {
   } while (errno == EINTR || errno == EAGAIN);
   return googleapis::util::Status(
       util::error::UNKNOWN,
-      StrCat("Could not flush file:", strerror(errno)));
+      googleapis::StrCat("Could not flush file:", strerror(errno)));
 #endif
 }
 
@@ -410,7 +410,7 @@ util::Status File::Read(char* buffer, int64 len, int64* got) {
       }
       googleapis::util::Status status =
           googleapis::util::Status(util::error::UNKNOWN,
-                       StrCat("Error reading from file: ",
+                       googleapis::StrCat("Error reading from file: ",
                               strerror(errno)));
       LOG(ERROR) << status.error_message();
       return status;
@@ -479,7 +479,7 @@ util::Status File::Seek(int64 pos, const file::Options& options) {
       return googleapis::util::Status();
     }
     return googleapis::util::Status(util::error::UNKNOWN,
-                        StrCat("Seek failed. errno=", errno));
+                        googleapis::StrCat("Seek failed. errno=", errno));
   }
 }
 
