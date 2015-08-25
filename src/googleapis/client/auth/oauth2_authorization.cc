@@ -344,7 +344,7 @@ util::Status OAuth2Credential::UpdateFromString(const string& json) {
       return StatusUnknown("Invalid id_token attribute - not a JWT");
     }
     string claims;
-    if (!strings::Base64Unescape(parts[1].data(), parts[1].size(), &claims)) {
+    if (!strings::Base64Unescape(parts[1], &claims)) {
       return StatusUnknown("id_token claims not base-64 encoded");
     }
     return UpdateFromString(claims);
@@ -512,7 +512,6 @@ void OAuth2AuthorizationFlow::UpdateCredentialAsync(
   if (status.ok()) {
     status = credential->Update(request->response()->body_reader());
   }
-  delete request;
 
   if (!status.ok()) {
     LOG(ERROR) << "Refresh failed with " << status.error_message();

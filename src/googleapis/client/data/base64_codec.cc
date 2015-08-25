@@ -111,10 +111,9 @@ class Base64Reader : public CodecReader {
     string decoded;
     bool success;
     if (websafe_) {
-      success = strings::WebSafeBase64Unescape(chunk.data(), chunk.size(),
-                                               &decoded);
+      success = strings::WebSafeBase64Unescape(chunk, &decoded);
     } else {
-      success = strings::Base64Unescape(chunk.data(), chunk.size(), &decoded);
+      success = strings::Base64Unescape(chunk, &decoded);
     }
     if (success && decoded.size() <= *to_length) {
       memcpy(to, decoded.data(), decoded.size());

@@ -20,8 +20,10 @@
 #define GOOGLEAPIS_ESCAPING_H_
 
 #include <string>
-namespace googleapis {
 using std::string;
+
+#include "googleapis/strings/stringpiece.h"
+namespace googleapis {
 
 
 namespace strings {
@@ -39,16 +41,11 @@ void Base64Escape(const string& src, string* dest);
 
 int CalculateBase64EscapedLen(int input_len, bool do_padding = true);
 
+bool Base64Unescape(StringPiece src, string* dest);
 bool Base64Unescape(const char *src, int szsrc, string* dest);
-inline int Base64Unescape(const string& src, string* dest) {
-  return Base64Unescape(src.data(), src.size(), dest);
-}
 
+bool WebSafeBase64Unescape(StringPiece src, string* dest);
 bool WebSafeBase64Unescape(const char *src, int szsrc, string* dest);
-
-inline int WebSafeBase64Unescape(const string& src, string* dest) {
-  return WebSafeBase64Unescape(src.data(), src.size(), dest);
-}
 
 }  // namespace strings
 

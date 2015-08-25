@@ -25,6 +25,7 @@ using std::string;
 #include "googleapis/strings/escaping.h"
 
 #include <glog/logging.h>
+#include "googleapis/strings/stringpiece.h"
 
 namespace googleapis {
 
@@ -517,14 +518,19 @@ static const signed char kUnWebSafeBase64[] = {
 };
 
 
+bool Base64Unescape(StringPiece src, string* dest) {
+  return Base64UnescapeInternal(src.data(), src.size(), dest, kUnBase64);
+}
 bool Base64Unescape(const char* src, int szsrc, string* dest) {
   return Base64UnescapeInternal(src, szsrc, dest, kUnBase64);
 }
 
+bool WebSafeBase64Unescape(StringPiece src, string* dest) {
+  return Base64UnescapeInternal(src.data(), src.size(), dest, kUnWebSafeBase64);
+}
 bool WebSafeBase64Unescape(const char* src, int szsrc, string* dest) {
   return Base64UnescapeInternal(src, szsrc, dest, kUnWebSafeBase64);
 }
-
 
 }  // namespace strings
 

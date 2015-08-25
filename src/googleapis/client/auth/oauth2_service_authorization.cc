@@ -38,6 +38,7 @@
 #include "googleapis/util/file.h"
 #include <openssl/ossl_typ.h>
 #include <openssl/bio.h>
+#include <openssl/buffer.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <openssl/pem.h>
