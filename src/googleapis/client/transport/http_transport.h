@@ -282,7 +282,7 @@ class HttpTransportOptions {
    * retains ownership so should guarantee that the executor will remain
    * valid over the lifetime of these options and any options assigned from it.
    */
-  void set_executor(::thread::Executor* executor)  { executor_ = executor; }
+  void set_executor(thread::Executor* executor)  { executor_ = executor; }
 
   /*
    * Returns the executor that should be used with this transport.
@@ -291,7 +291,7 @@ class HttpTransportOptions {
    *          default will be returned. This might still be NULL if no global
    *          default was set.
    */
-  ::thread::Executor* executor() const;
+  thread::Executor* executor() const;
 
   /*
    * Sets the executor to use for HTTP callback responses.
@@ -303,7 +303,7 @@ class HttpTransportOptions {
    * the executor will remain valid over the lifetime of these options
    * and any optinos assigned from it.
    */
-  void set_callback_executor(::thread::Executor* executor) {
+  void set_callback_executor(thread::Executor* executor) {
     callback_executor_ = executor;
   }
 
@@ -313,7 +313,7 @@ class HttpTransportOptions {
    * @return  If the transport is using the default InlineExecutor then that
    *          default will be returned.
    */
-  ::thread::Executor* callback_executor() const;
+  thread::Executor* callback_executor() const;
 
   /*
    * Returns the error handler for this transport.
@@ -488,12 +488,12 @@ class HttpTransportOptions {
    *
    * Not owned. NULL means use global default.
    */
-  ::thread::Executor* executor_;
+  thread::Executor* executor_;
 
   /*
    * NULL means same-thread executor
    */
-  ::thread::Executor* callback_executor_;
+  thread::Executor* callback_executor_;
 
   /*
    * Specifies the error handler to use.
@@ -628,13 +628,13 @@ class HttpTransportLayerConfig {
    * @param[in] executor Ownership is passed to the configuration.
    *            NULL will unset the default executor in the options as well.
    */
-  void ResetDefaultExecutor(::thread::Executor* executor);
+  void ResetDefaultExecutor(thread::Executor* executor);
 
  private:
   HttpTransportOptions default_options_;
   std::unique_ptr<HttpTransportFactory> default_transport_factory_;
   std::unique_ptr<HttpTransportErrorHandler> default_error_handler_;
-  std::unique_ptr< ::thread::Executor> default_executor_;
+  std::unique_ptr< thread::Executor> default_executor_;
 
   DISALLOW_COPY_AND_ASSIGN(HttpTransportLayerConfig);
 };

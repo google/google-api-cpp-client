@@ -95,8 +95,8 @@ struct BatchTestCase {
                 int code,
                 FakeCredential* cred = NULL,
                 HttpRequestCallback* cb = NULL)
-      : method(meth), http_code(code), credential(cred), callback(cb) {
-    create_directly_in_batch = true;
+      : method(meth), http_code(code), credential(cred), callback(cb),
+        create_directly_in_batch(true), respond_out_of_order(false) {
   }
 
   HttpRequest::HttpMethod method;
@@ -104,11 +104,13 @@ struct BatchTestCase {
   FakeCredential* credential;
   HttpRequestCallback* callback;
   bool create_directly_in_batch;
+  bool respond_out_of_order;  // Defer my response until after the others.
 };
 
-static void DeleteStrings(string* a, string *b) {
+static void DeleteStrings(string* a, string* b, string* c) {
   delete a;
   delete b;
+  delete c;
 }
 
 class BatchTestFixture : public testing::Test {
@@ -130,6 +132,7 @@ class BatchTestFixture : public testing::Test {
 
     const string response_boundary = "_xxxxxx_";
     string* mock_response = new string;
+    string* out_of_order_responses = new string;
     for (int i = 0; i < method_and_response.size(); ++i) {
       const BatchTestCase& test = method_and_response[i];
       const string url = StrCat("http://test/", i);
@@ -152,22 +155,36 @@ class BatchTestFixture : public testing::Test {
                 batched_request, test.callback);
       }
 
-      if (i > 0) {
-        StrAppend(mock_response, kCRLF);
-      }
-
-      StrAppend(mock_response, "--", response_boundary, kCRLF,
+      // The response for this request.
+      string this_mock_response;
+      StrAppend(&this_mock_response, "--", response_boundary, kCRLF,
                 "Content-Type: application/http", kCRLF,
                 StringPrintf("Content-ID: <response-%p>", batched_request),
                 kCRLF);
-      StrAppend(mock_response,
+      StrAppend(&this_mock_response,
                 kCRLF,
                 "HTTP/1.1 ", test.http_code, " StatusSummary", kCRLF);
-      StrAppend(mock_response,
+      StrAppend(&this_mock_response,
                 "ResponseHeaderA: response A.", i, kCRLF,
                 "ResponseHeaderB: response B.", i, kCRLF,
                 kCRLF,
                 "Response Body ", i);
+
+      if (test.respond_out_of_order) {
+        if (!out_of_order_responses->empty()) {
+          StrAppend(out_of_order_responses, kCRLF);
+        }
+        StrAppend(out_of_order_responses, this_mock_response);
+      } else {
+        if (!mock_response->empty()) {
+          StrAppend(mock_response, kCRLF);
+        }
+        StrAppend(mock_response, this_mock_response);
+      }
+    }
+    if (!out_of_order_responses->empty()) {
+      StrAppend(mock_response, kCRLF);
+      StrAppend(mock_response, *out_of_order_responses);
     }
     StrAppend(mock_response, kCRLF, "--", response_boundary, "--", kCRLF);
 
@@ -181,7 +198,8 @@ class BatchTestFixture : public testing::Test {
     Closure* poke_response_body =
         NewCallback(*PokeResponseBody, mock_response, mock_request);
     Closure* delete_strings =
-        NewCallback(&DeleteStrings, mock_response, contenttype);
+        NewCallback(&DeleteStrings, mock_response, out_of_order_responses,
+                    contenttype);
 
     EXPECT_CALL(*mock_request, DoExecute(_))
         .WillOnce(DoAll(
@@ -202,19 +220,23 @@ class BatchTestFixture : public testing::Test {
     for (int i = 0; i < tests.size(); ++i) {
       HttpResponse* response = parts[i]->response();
       EXPECT_EQ(tests[i].http_code, response->http_code());
-      DataReader* reader = response->body_reader();
-      EXPECT_TRUE(reader != NULL);
-      if (reader == NULL) continue;
-
-      EXPECT_EQ(StrCat("Response Body ", i), reader->RemainderToString());
-      const string* value;
-      value = response->FindHeaderValue("ResponseHeaderA");
-      ASSERT_TRUE(value != NULL);
-      EXPECT_EQ(StrCat("response A.", i), *value);
-      value = response->FindHeaderValue("ResponseHeaderB");
-      ASSERT_TRUE(value != NULL);
-      EXPECT_EQ(StrCat("response B.", i), *value);
+      CheckResponseContent(response, i);
     }
+  }
+
+  void CheckResponseContent(HttpResponse* response, int position) {
+    DataReader* reader = response->body_reader();
+    EXPECT_TRUE(reader != NULL);
+    if (reader == NULL) return;
+
+    EXPECT_EQ(StrCat("Response Body ", position), reader->RemainderToString());
+    const string* value;
+    value = response->FindHeaderValue("ResponseHeaderA");
+    ASSERT_TRUE(value != NULL);
+    EXPECT_EQ(StrCat("response A.", position), *value);
+    value = response->FindHeaderValue("ResponseHeaderB");
+    ASSERT_TRUE(value != NULL);
+    EXPECT_EQ(StrCat("response B.", position), *value);
   }
 
   MockHttpTransport transport_;
@@ -372,6 +394,25 @@ TEST_F(BatchTestFixture, TestMissingAndUnexpectedResponse) {
       EXPECT_EQ(tests[i].http_code, request->response()->http_code());
     }
   }
+}
+
+// Make sure that responses get correlated to the proper request.
+TEST_F(BatchTestFixture, TestOutOfOrderResponse) {
+  vector<BatchTestCase> tests;
+  tests.push_back(BatchTestCase(HttpRequest::GET, 200));
+  tests.push_back(BatchTestCase(HttpRequest::GET, 200));
+  tests.push_back(BatchTestCase(HttpRequest::GET, 200));
+  tests.push_back(BatchTestCase(HttpRequest::GET, 200));
+
+  tests.at(1).respond_out_of_order = true;
+
+  std::unique_ptr<HttpRequestBatch> batch(MakeBatchRequest(tests, NULL));
+  EXPECT_EQ("https://www.googleapis.com/batch", batch->http_request().url());
+  CHECK_EQ(batch->requests().size(), tests.size());
+
+  googleapis::util::Status status = batch->Execute();
+  EXPECT_TRUE(status.ok()) << status.error_message();
+  CheckResponse(tests, batch->requests());
 }
 
 }  // namespace googleapis

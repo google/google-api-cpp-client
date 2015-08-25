@@ -268,7 +268,7 @@ void HttpRequestState::TransitionAndNotifyIfDone(
   // It will be true when the new code is done but the previous code wasnt.
   bool now_done = IsStateDone(code);
   HttpRequestCallback* callback = NULL;
-  ::thread::Executor* callback_executor = NULL;
+  thread::Executor* callback_executor = NULL;
   HttpRequest* request;
   {
     MutexLock l(&mutex_);
@@ -525,7 +525,7 @@ class HttpRequest::HttpRequestProcessor {
    * This will queue into the Executor for the original request.
    */
   void QueueAsync() {
-    ::thread::Executor* executor = request_->transport()->options().executor();
+    thread::Executor* executor = request_->transport()->options().executor();
     googleapis::util::Status status;
     if (!executor) {
       status = StatusInternalError("No default executor configured");
@@ -817,13 +817,20 @@ class HttpRequest::HttpRequestProcessor {
    *
    * If the request was configured to self-destruct then it will be
    * destroyed here.
+   *
+   * Note that clients are supposed to either manually delete requests or by
+   * calling DestroyWhenDone(), but not both. DestroyWhenDone() must be called
+   * at most once.
    */
   void Cleanup() {
-    final_status_ = state_->AutoTransitionAndNotifyIfDone();
-    request_->busy_ = false;
+    bool destroy_when_done = request_->options_.destroy_when_done();
 
-    if (request_->options_.destroy_when_done()) {
+    final_status_ = state_->AutoTransitionAndNotifyIfDone();
+
+    if (destroy_when_done) {
       delete request_;  // Caller just needs the response object.
+    } else {
+      request_->busy_ = false;
     }
   }
 
