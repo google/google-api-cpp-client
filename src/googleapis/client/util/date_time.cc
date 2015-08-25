@@ -24,6 +24,12 @@
 #include <string>
 using std::string;
 
+#if defined(ANDROID) && !defined(__LP64__)
+// 32-bit Android has only timegm64() and not timegm().
+#include <time64.h>
+#define timegm timegm64
+#endif
+
 #include "googleapis/client/util/date_time.h"
 #include <glog/logging.h>
 #include "googleapis/base/stringprintf.h"
@@ -221,13 +227,13 @@ string DateTime::ToString() const {
   int micros = t_.tv_usec;
   int millis = micros / 1000;
   if (millis * 1000 == micros) {
-    frac = StringPrintf(".%03d", millis);
+    frac = googleapis::StringPrintf(".%03d", millis);
   } else {
-    frac = StringPrintf(".%06d", micros);
+    frac = googleapis::StringPrintf(".%06d", micros);
   }
 
   gmtime_r(&t_.tv_sec, &utc);
-  return StringPrintf("%04d-%02d-%02dT"
+  return googleapis::StringPrintf("%04d-%02d-%02dT"
                       "%02d:%02d:%02d%sZ",
                       utc.tm_year + 1900, utc.tm_mon + 1, utc.tm_mday,
                       utc.tm_hour, utc.tm_min, utc.tm_sec, frac.c_str());
@@ -269,7 +275,7 @@ Date::Date(const string& yyyymmdd) {
 string Date::ToYYYYMMDD() const {
   struct tm local;
   date_time_.GetLocalTime(&local);
-  return StringPrintf("%04d-%02d-%02d",
+  return googleapis::StringPrintf("%04d-%02d-%02d",
                       local.tm_year + 1900, local.tm_mon + 1, local.tm_mday);
 }
 
