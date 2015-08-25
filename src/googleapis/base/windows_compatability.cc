@@ -36,8 +36,8 @@
 using std::string;
 
 #include <glog/logging.h>
-#include "googleapis/base/port.h"
 #include "googleapis/strings/util.h"
+#include "googleapis/base/port.h"
 
 namespace googleapis {
 

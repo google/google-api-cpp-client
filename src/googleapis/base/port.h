@@ -60,9 +60,9 @@
 #endif
 #endif
 
-// We support MSVC++ 10.0 and later.
-#if defined(_MSC_VER) && _MSC_VER < 1600
-#error "This package requires _MSC_VER of 1600 or higher"
+// We support MSVC++ 12.0 and later.
+#if defined(_MSC_VER) && _MSC_VER < 1800
+#error "This package requires _MSC_VER of 1800 or higher"
 #endif
 
 // We support Apple Xcode clang 4.2.1 (version 421.11.65) and later.
@@ -415,11 +415,6 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 #define SCANF_ATTRIBUTE(string_index, first_to_check) \
     __attribute__((__format__ (__scanf__, string_index, first_to_check)))
 
-//
-// Prevent the compiler from padding a structure to natural alignment
-//
-#define PACKED __attribute__ ((packed))
-
 // Cache line alignment
 #if defined(__i386__) || defined(__x86_64__)
 #define CACHELINE_SIZE 64
@@ -745,7 +740,6 @@ extern inline void prefetch(const void *x) {
 
 #define PRINTF_ATTRIBUTE(string_index, first_to_check)
 #define SCANF_ATTRIBUTE(string_index, first_to_check)
-#define PACKED
 #define CACHELINE_SIZE 64
 #define CACHELINE_ALIGNED
 #define ATTRIBUTE_UNUSED
