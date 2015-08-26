@@ -824,13 +824,12 @@ class HttpRequest::HttpRequestProcessor {
    */
   void Cleanup() {
     bool destroy_when_done = request_->options_.destroy_when_done();
+    request_->busy_ = false;
 
     final_status_ = state_->AutoTransitionAndNotifyIfDone();
 
     if (destroy_when_done) {
       delete request_;  // Caller just needs the response object.
-    } else {
-      request_->busy_ = false;
     }
   }
 
