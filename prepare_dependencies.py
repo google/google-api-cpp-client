@@ -22,8 +22,8 @@ process, developers should manually pull the individual packages from
 their respective repositories, inspect their licenses, add them to their
 local revision control, and integrate into their build system.
 
-Since this script is only marginally maintained, if it does not work for
-you, your best options is to install the required components by hand.
+This script is only marginally maintained. If it does not work for you,
+your best path is to install the required components by hand.
 
 Usage:
     By default, with no args, this will run turnkey doing whatever is needed.
