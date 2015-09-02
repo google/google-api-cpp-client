@@ -65,7 +65,7 @@ uint32 Hash32StringWithSeed(const char *s, uint32 len, uint32 c) {
   return Hash32StringWithSeedReferenceImplementation(s, len, c);
 }
 
-uint64 Hash64StringWithSeed(const char *s, uint32 len, uint64 seed) {
+uint64 Hash64StringWithSeed(const char *s, unsigned long len, uint64 seed) {
   uint64 n = seed;
   size_t prime1 = 0, prime2 = 8;  // Indices into kPrimes64
   union {
