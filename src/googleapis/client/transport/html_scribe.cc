@@ -18,6 +18,13 @@
  */
 
 
+#include <iostream>
+using std::cout;
+using std::endl;
+using std::ostream;
+#include <string>
+using std::string;
+
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
 #include "googleapis/client/transport/html_scribe.h"
@@ -25,7 +32,6 @@
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/util/date_time.h"
 #include "googleapis/client/util/uri_utils.h"
-#include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/strcat.h"
 
@@ -34,12 +40,23 @@ namespace googleapis {
 namespace client {
 namespace {
 
+#ifndef _WIN32
+using std::snprintf;
+#endif
+
 const StringPiece kToggleControl("");
 const StringPiece kBinarySymbol(".");
 
 string Magnitude(int64 value, int64 base) {
   int64 ten_times = value / (base / 10);
   return StrCat(ten_times / 10, ".", ten_times % 10);
+}
+
+template<typename INT_TYPE>
+string ToHex(INT_TYPE x) {
+  stdgoogleapis::stringstream stream;
+  stream << std::hex << x;
+  return stream.str();
 }
 
 void EscapeAndAppendString(const StringPiece& from, string* out) {
@@ -146,7 +163,7 @@ class HtmlEntry : public HttpEntryScribe::Entry {
       int64 id)
       : HttpEntryScribe::Entry(scribe, request),
         scribe_(scribe), writer_(writer),
-        request_id_(StringPrintf("%llx", id)),
+        request_id_(ToHex(id)),
         title_code_("UNK") {
     InitRequestHtml(scribe);
   }
@@ -158,8 +175,8 @@ class HtmlEntry : public HttpEntryScribe::Entry {
       int64 id)
       : HttpEntryScribe::Entry(scribe, batch),
         scribe_(scribe), writer_(writer),
-        request_id_(StringPrintf("%llx", id)),
-        batch_id_(StringPrintf("b%llx", id)),  // just to be distinct
+        request_id_(ToHex(id)),
+        batch_id_(StrCat("b", ToHex(id))),  // just to be distinct
         title_code_("UNK") {
     InitRequestHtml(scribe);
     InitBatchHtml(scribe);
@@ -482,12 +499,19 @@ class HtmlEntry : public HttpEntryScribe::Entry {
     now.GetTimeval(&now_timeval);
 
     double secs = delta_us * 0.0000001;
+    char tmp[30];
     if (secs >= 1.0) {
-      return StringPrintf("%.1fs", secs);  // big values in s precision.
+      // big values in s precision.
+      snprintf(tmp, sizeof(tmp), "%.1fs", secs);
+      return tmp;
     } else if (secs >= 0.1) {
-      return StringPrintf("%.3fs", secs);  // small values in ms precision.
+      // small values in ms precision.
+      snprintf(tmp, sizeof(tmp), "%.3fs", secs);
+      return tmp;
     } else {
-      return StringPrintf("%.6fs", secs);  // tiny values in us precision.
+      // tiny values in us precision.
+      snprintf(tmp, sizeof(tmp), "%.6fs", secs);
+      return tmp;
     }
   }
 

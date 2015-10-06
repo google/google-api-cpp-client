@@ -7,7 +7,6 @@ add_subdirectory(client)
 add_library(googleapis_internal STATIC
 ./base/callback.cc
 ./base/once.cc
-./base/stringprintf.cc
 ./base/strtoint.cc
 ./base/windows_compatability.cc
 ./strings/ascii_ctype.cc
@@ -38,7 +37,6 @@ base/macros.h
 base/mutex.h
 base/once.h
 base/port.h
-base/stringprintf.h
 base/strtoint.h
 base/template_util.h
 base/thread_annotations.h

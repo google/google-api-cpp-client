@@ -18,18 +18,19 @@
  */
 
 
+#include <cstdio>
 #include <utility>
 using std::make_pair;
 using std::pair;
 #include <vector>
 using std::vector;
+
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_request_batch.h"
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/transport/test/mock_http_transport.h"
 #include "googleapis/client/util/status.h"
-#include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/util.h"
@@ -159,8 +160,8 @@ class BatchTestFixture : public testing::Test {
       string this_mock_response;
       StrAppend(&this_mock_response, "--", response_boundary, kCRLF,
                 "Content-Type: application/http", kCRLF,
-                StringPrintf("Content-ID: <response-%p>", batched_request),
-                kCRLF);
+                "Content-ID: <response-",
+                HttpRequestBatch::PointerToHex(batched_request), ">", kCRLF);
       StrAppend(&this_mock_response,
                 kCRLF,
                 "HTTP/1.1 ", test.http_code, " StatusSummary", kCRLF);
@@ -374,7 +375,7 @@ TEST_F(BatchTestFixture, TestMissingAndUnexpectedResponse) {
   std::unique_ptr<HttpRequestBatch> batch(
       MakeBatchRequest(tests, NULL, &mock_response));
 
-  string third_result_id = StringPrintf("%p", batch->requests()[2]);
+  string third_result_id = HttpRequestBatch::PointerToHex(batch->requests()[2]);
   string hacked = StringReplace(
       *mock_response, third_result_id, "INVALID", true);
   *mock_response = hacked;

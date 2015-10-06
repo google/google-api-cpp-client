@@ -52,6 +52,7 @@
 //     quit
 
 #include <stdlib.h>
+#include <cstdio>
 #include <map>
 using std::map;
 #include <memory>
@@ -75,7 +76,6 @@ using std::string;
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include "googleapis/base/mutex.h"
-#include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/split.h"
 #include "googleapis/strings/strip.h"
 #include "googleapis/strings/stringpiece.h"
@@ -158,9 +158,11 @@ class UserData {
   /*
    * Default constructor for new users.
    */
-  UserData()
-      : cookie_id_(StringPrintf("%08lx%08lx%08lx%08lx",
-                              random(), random(), random(), random())) {
+  UserData() {
+    char tmp[40];
+    std::snprintf(tmp, sizeof(tmp), "%08lx%08lx%08lx%08lx",
+                  random(), random(), random(), random());
+    cookie_id_ = tmp;
   }
 
   /*

@@ -57,9 +57,6 @@ using std::string;
 using std::string;
 
 #include <glog/logging.h>
-#if defined(HAVE_STRING_PRINTF)
-#include "googleapis/base/stringprintf.h"
-#endif  // HAVE_STRING_PRINTF
 #include "googleapis/strings/ascii_ctype.h"
 #if defined(HAVE_INT_128)
 #include "googleapis/base/int128.h"
@@ -1301,44 +1298,5 @@ char* FloatToBuffer(float value, char* buffer) {
 string SimpleBtoa(bool value) {
   return value ? string("true") : string("false");
 }
-
-#if HAVE_STRING_PRINTF
-// ----------------------------------------------------------------------
-// ----------------------------------------------------------------------
-// ItoaKMGT()
-//    Description: converts an integer to a string
-//    Truncates values to a readable unit: K, G, M or T
-//    Opposite of atoi_kmgt()
-//    e.g. 100 -> "100" 1500 -> "1500"  4000 -> "3K"   57185920 -> "45M"
-//
-//    Return value: string
-// ----------------------------------------------------------------------
-string ItoaKMGT(int64 i) {
-  const char *sign = "", *suffix = "";
-  if (i < 0) {
-    // We lose some accuracy if the caller passes LONG_LONG_MIN, but
-    // that's OK as this function is only for human readability
-    if (i == std::numeric_limits<int64>::min()) i++;
-    sign = "-";
-    i = -i;
-  }
-
-  int64 val;
-
-  if ((val = (i >> 40)) > 1) {
-    suffix = "T";
-  } else if ((val = (i >> 30)) > 1) {
-    suffix = "G";
-  } else if ((val = (i >> 20)) > 1) {
-    suffix = "M";
-  } else if ((val = (i >> 10)) > 1) {
-    suffix = "K";
-  } else {
-    val = i;
-  }
-
-  return StringPrintf("%s%" GG_LL_FORMAT "d%s", sign, val, suffix);
-}
-#endif  // HAVE_STRING_PRINTF
 
 }  // namespace googleapis

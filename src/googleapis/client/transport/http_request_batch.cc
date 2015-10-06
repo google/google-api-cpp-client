@@ -18,6 +18,7 @@
  */
 
 
+#include <cstdio>
 #include <set>
 #include <vector>
 using std::vector;
@@ -30,13 +31,26 @@ using std::vector;
 #include "googleapis/client/transport/http_scribe.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/util/status.h"
-#include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/case.h"
 #include "googleapis/strings/strcat.h"
 
 namespace googleapis {
 
 namespace client {
+
+#ifndef _WIN32
+using std::snprintf;
+#endif
+
+// TODO(user): In batch request, we encode the pointer to the batch into the
+// request as an identifier, then in ExtractPartResponse we convert back to
+// an address. That is dangerous. Replace that scheme with something where
+// we do not blindly dereference user data.
+string HttpRequestBatch::PointerToHex(void *p) {
+  char tmp[40];  // more than enough for 128 bit address
+  snprintf(tmp, sizeof(tmp), "%p", p);
+  return tmp;
+}
 
 namespace {
 
@@ -393,9 +407,8 @@ void HttpRequestBatch::PrepareFinalHttpRequest() {
     StrAppend(preamble,
               "--", boundary_, kCRLF,
               "Content-Type: application/http", kCRLF,
-              "Content-Transfer-Encoding: binary", kCRLF,
-              StringPrintf("Content-ID: <%p>", *it),
-              kCRLFCRLF);
+              "Content-Transfer-Encoding: binary", kCRLF);
+    StrAppend(preamble, "Content-ID: <", PointerToHex(*it), ">", kCRLFCRLF);
     DataReader* preamble_reader = NewManagedInMemoryDataReader(preamble);
     individual_readers.push_back(preamble_reader);
     readers_to_destroy->push_back(preamble_reader);

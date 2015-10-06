@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 
 #include <algorithm>
+#include <cstdio>
 #include <memory>
 #include <sys/types.h>
 #include <errno.h>
@@ -34,7 +35,6 @@
 #include "googleapis/client/util/file_utils.h"
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
-#include "googleapis/base/stringprintf.h"
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
 
@@ -44,6 +44,9 @@ namespace {
 using client::StatusInvalidArgument;
 using client::StatusOk;
 
+#ifndef _WIN32
+using std::snprintf;
+#endif
 
 util::Status CheckPermissions(
      const string& path, bool expect_file, bool allow_writable) {
@@ -71,11 +74,13 @@ util::Status CheckPermissions(
   }
 
   if (permissions & ~S_IRWXU) {
+    char oct[10];
+    snprintf(oct, sizeof(oct), "%o", permissions);
     return StatusInvalidArgument(
         StrCat(path,
-               " allows permissions for other users ",
-               StringPrintf("(%o octal)", permissions),
-               ". The file should only allow owner access to ensure its"
+               " allows permissions for other users (",
+               oct,
+               " octal). The file should only allow owner access to ensure its"
                " integrity and protect its contents."));
   }
 

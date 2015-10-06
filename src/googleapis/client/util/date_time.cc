@@ -21,6 +21,8 @@
 #include <limits.h>
 #include <time.h>
 #include <stdio.h>
+
+#include <cstdio>
 #include <string>
 using std::string;
 
@@ -32,7 +34,6 @@ using std::string;
 
 #include "googleapis/client/util/date_time.h"
 #include <glog/logging.h>
-#include "googleapis/base/stringprintf.h"
 
 namespace googleapis {
 
@@ -118,6 +119,11 @@ inline struct timeval make_timeval(time_t sec, int usec) {
 }  // anonymous namespace
 
 namespace client {
+
+#ifndef _WIN32
+using std::snprintf;
+#endif
+
 static const struct timeval kInvalidTimeval_ =  make_timeval(-1, 0);
 const time_t DateTime::kInvalidEpoch_ = -1;
 
@@ -222,21 +228,24 @@ void DateTime::MarkInvalid() {
 string DateTime::ToString() const {
   struct tm utc;
   string frac;
+  char tmp[30];  // more than enough for "%04d-%02d-%02dT%02d:%02d:%02d%sZ",
 
   // add fraction as either millis or micros depending on resolution we need.
   int micros = t_.tv_usec;
   int millis = micros / 1000;
   if (millis * 1000 == micros) {
-    frac = googleapis::StringPrintf(".%03d", millis);
+    snprintf(tmp, sizeof(tmp), ".%03d", millis);
+    frac = tmp;
   } else {
-    frac = googleapis::StringPrintf(".%06d", micros);
+    snprintf(tmp, sizeof(tmp), ".%06d", micros);
+    frac = tmp;
   }
 
   gmtime_r(&t_.tv_sec, &utc);
-  return googleapis::StringPrintf("%04d-%02d-%02dT"
-                      "%02d:%02d:%02d%sZ",
-                      utc.tm_year + 1900, utc.tm_mon + 1, utc.tm_mday,
-                      utc.tm_hour, utc.tm_min, utc.tm_sec, frac.c_str());
+  snprintf(tmp, sizeof(tmp), "%04d-%02d-%02dT%02d:%02d:%02d%sZ",
+           utc.tm_year + 1900, utc.tm_mon + 1, utc.tm_mday,
+           utc.tm_hour, utc.tm_min, utc.tm_sec, frac.c_str());
+  return tmp;
 }
 
 Date::Date(const string& yyyymmdd) {
@@ -275,8 +284,10 @@ Date::Date(const string& yyyymmdd) {
 string Date::ToYYYYMMDD() const {
   struct tm local;
   date_time_.GetLocalTime(&local);
-  return googleapis::StringPrintf("%04d-%02d-%02d",
-                      local.tm_year + 1900, local.tm_mon + 1, local.tm_mday);
+  char tmp[20];
+  snprintf(tmp, sizeof(tmp), "%04d-%02d-%02d",
+           local.tm_year + 1900, local.tm_mon + 1, local.tm_mday);
+  return tmp;
 }
 
 }  // namespace client

@@ -28,7 +28,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
-#include "googleapis/base/stringprintf.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/util/hash.h"
 

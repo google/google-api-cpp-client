@@ -54,9 +54,6 @@ using std::numeric_limits;
 using std::string;
 using std::string;
 
-#if defined(HAVE_STRING_PRINTF)
-#include "googleapis/base/stringprintf.h"
-#endif  // HAVE_STRING_PRINTF
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/stringpiece.h"
 #if defined(HAVE_INT_128)
