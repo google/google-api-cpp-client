@@ -54,9 +54,9 @@ string Magnitude(int64 value, int64 base) {
 
 template<typename INT_TYPE>
 string ToHex(INT_TYPE x) {
-  stdgoogleapis::stringstream stream;
-  stream << std::hex << x;
-  return stream.str();
+  std::stringstream temp;
+  temp << std::hex << x;
+  return temp.str();
 }
 
 void EscapeAndAppendString(const StringPiece& from, string* out) {

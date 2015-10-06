@@ -221,6 +221,11 @@ class HttpRequestBatch {
     return batch_processing_status_;
   }
 
+  /*
+   * Internal helper used for building identifiers to batch requests.
+   */
+  static string PointerToHex(void *p);
+
  protected:
   void PrepareFinalHttpRequest();
   void ProcessHttpResponse(
