@@ -32,7 +32,7 @@ using std::map;
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/client/transport/versioninfo.h"
 #include "googleapis/client/util/status.h"
-#include "googleapis/base/once.h"
+#include "googleapis/client/util/program_path.h"
 #include <glog/logging.h>
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
@@ -128,14 +128,14 @@ void HttpTransportOptions::SetApplicationName(const string& name) {
 
 /* static */
 string HttpTransportOptions::DetermineDefaultCaCertsPath() {
-  const string program_path = File::GetCurrentProgramFilenamePath();
+  const string program_path(GetCurrentProgramFilenamePath());
   StringPiece dirname = File::StripBasename(program_path);
   return StrCat(dirname, "roots.pem");  // dirname has ending slash.
 }
 
 /* static */
 string HttpTransportOptions::DetermineDefaultApplicationName() {
-  const string program_path = File::GetCurrentProgramFilenamePath();
+  const string program_path(GetCurrentProgramFilenamePath());
   StringPiece basename = File::Basename(program_path);
   int dot = basename.rfind('.');
   if (dot != StringPiece::npos) {

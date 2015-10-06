@@ -20,9 +20,6 @@
 
 #include "googleapis/config.h"
 
-#if defined(HAVE_LIBPROC)
-#include <libproc.h>
-#endif
 #if !defined(_MSC_VER)
 #include <dirent.h>
 #else
@@ -136,35 +133,6 @@ static int ModeToOflags(const char* mode, bool* maybe_create) {
     default:
       return -1;
   }
-}
-
-/* static */
-string File::GetCurrentProgramFilenamePath() {
-#ifdef HAVE_LIBPROC
-  char buf[PROC_PIDPATHINFO_MAXSIZE];
-  int ret = proc_pidpath(getpid(), buf, sizeof(buf));
-  if (ret <= 0) {
-    LOG(ERROR) << "Could not get pidpath";
-    return "./";
-  }
-  return string(buf);
-#elif defined(_MSC_VER)
-  char* value = NULL;
-  if (_get_pgmptr(&value)) return "./";
-
-  // Convert windows path to unix style path so our public interface
-  // is consistent, especially when we operate on paths.
-  return FromWindowsPath(value);
-#else
-  string  pointer = googleapis::StrCat("/proc/", getpid(), "/exe");
-  char buf[PATH_MAX];
-  int bytes = readlink(pointer.c_str(), buf, sizeof(buf));
-  if (bytes <= 0) {
-    LOG(ERROR) << "Could not read " << pointer;
-    return "./";
-  }
-  return string(buf, bytes);
-#endif
 }
 
 /* static */

@@ -106,14 +106,6 @@ class File {
   static googleapis::util::Status ReadPath(const string& path, string* s);
   static googleapis::util::Status WritePath(const string& path, const StringPiece& s);
 
-  // Returns the path to the current running program.
-  static string GetCurrentProgramFilenamePath();
-
-  // DEPRECATED
-  static bool ReadFileToString(const string& path, string* s) {
-    return ReadPath(path, s).ok();
-  }
-
   // Desroy the file using Close()
   static File* OpenWithOptions(
      const string& path, const char* mode, const FileOpenOptions& options);
@@ -122,7 +114,6 @@ class File {
     return OpenWithOptions(path, mode, FileOpenOptions());
   }
   bool Close();
-
 
   googleapis::util::Status Flush();
   googleapis::util::Status Write(const char* buffer, int64 length) {

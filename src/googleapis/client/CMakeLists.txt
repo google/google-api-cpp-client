@@ -33,6 +33,7 @@ add_library(googleapis_utils STATIC
             data/istream_data_reader.cc
             util/date_time.cc
             util/file_utils.cc
+            util/program_path.cc
             util/status.cc
             util/uri_template.cc
             util/uri_utils.cc)
@@ -46,6 +47,7 @@ install(FILES data/codec.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/data)
 install(FILES util/date_time.h
               util/file_utils.h
+              util/program_path.h
               util/status.h
               util/uri_template.h
               util/uri_utils.h
