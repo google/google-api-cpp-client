@@ -30,7 +30,6 @@ using std::vector;
 
 #include <glog/logging.h>
 #include "googleapis/base/mutex.h"
-#include "googleapis/base/once.h"
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
 #include "googleapis/util/executor.h"
@@ -53,7 +52,7 @@ using client::HttpRequest;
 using client::HttpRequestState;
 using client::HttpScribe;
 
-GoogleOnceType once_init_ = GOOGLE_ONCE_INIT;
+static Mutex initializer_mutex_(base::LINKER_INITIALIZED);
 
 // We need to supply a comparator for the HttpHeaderMap.
 // Given we need one, rather than simply sorting [case-insensitive]
@@ -74,7 +73,7 @@ typedef std::map<string, int, StringCaseLess> HeaderSortOrderMap;
 // is first used.
 std::unique_ptr<HeaderSortOrderMap> header_sort_order_;
 
-const bool state_is_done_[] = {
+static const bool state_is_done_[] = {
   false,  // UNSENT
   false,  // QUEUED
   false,  // PENDING
@@ -89,7 +88,12 @@ COMPILE_ASSERT(
     sizeof(state_is_done_) == HttpRequestState::_NUM_STATES_ * sizeof(bool),
     state_table_out_of_sync);
 
-void InitGlobalVariables() {
+static void InitGlobalVariables() {
+  MutexLock l(&initializer_mutex_);
+  if (header_sort_order_.get() != NULL) {
+    return;
+  }
+
   header_sort_order_.reset(new HeaderSortOrderMap);
   int order = 1;
 
@@ -127,7 +131,7 @@ inline bool IsStateDone(HttpRequestState::StateCode code) {
 namespace client {
 
 RequestHeaderLess::RequestHeaderLess() {
-  GoogleOnceInit(&once_init_, &InitGlobalVariables);
+  InitGlobalVariables();
 }
 
 bool RequestHeaderLess::operator()(const string& a, const string& b) const {
@@ -1013,6 +1017,7 @@ util::Status HttpRequest::PrepareToReuse() {
     LOG(ERROR) << "Could not clear response writer to redirect.";
     return response_->body_writer()->status();
   }
+  state->set_transport_status(StatusOk());
   state->set_http_code(0);
   state->TransitionAndNotifyIfDone(HttpRequestState::UNSENT);
   response_->ClearHeaders();
