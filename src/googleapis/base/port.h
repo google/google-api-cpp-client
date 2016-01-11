@@ -31,6 +31,14 @@
 #include <string.h>         // for memcpy()
 #include <stdlib.h>         // for free()
 
+#if defined(OS_CYGWIN)
+#error "Cygwin is not supported."
+#endif
+
+#if defined(__CYGWIN__)
+#error "Cygwin is not supported."
+#endif
+
 #if defined(__APPLE__)
 // traditionally defined OS_MACOSX themselves via other build systems, since mac
 // TODO(user): Remove this when all toolchains make the proper defines.
@@ -53,16 +61,16 @@
 
 #include "googleapis/base/integral_types.h"
 
-// We support gcc 4.4 and later.
+// We support gcc 4.6 and later.
 #if defined(__GNUC__) && !defined(__clang__)
-#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)
-#error "This package requires gcc 4.4 or higher"
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 6)
+#error "This package requires gcc 4.6 or higher"
 #endif
 #endif
 
-// We support MSVC++ 10.0 and later.
-#if defined(_MSC_VER) && _MSC_VER < 1600
-#error "This package requires _MSC_VER of 1600 or higher"
+// We support MSVC++ 12.0 and later.
+#if defined(_MSC_VER) && _MSC_VER < 1800
+#error "This package requires _MSC_VER of 1800 or higher"
 #endif
 
 // We support Apple Xcode clang 4.2.1 (version 421.11.65) and later.
@@ -237,24 +245,9 @@ const char PATH_SEPARATOR = '/';
 #define O_BINARY 0
 #endif
 
-// va_copy portability definitions
 #ifdef COMPILER_MSVC
-// MSVC before version 12 doesn't have va_copy.
-// This is believed to work for 32-bit msvc.  This may not work at all for
-// other platforms.
-// If va_list uses the single-element-array trick, you will probably get
-// a compiler error here.
-//
-#if (_MSC_VER < 1800)
-#include <stdarg.h>
-inline void va_copy(va_list& a, va_list& b) {
-  a = b;
-}
-#endif  // _MSC_VER < 1800
-
-// Nor does it have uid_t
+// doesn't have uid_t
 typedef int uid_t;
-
 #endif
 
 // Mac OS X / Darwin and iOS features
@@ -341,11 +334,6 @@ inline size_t strnlen(const char *s, size_t maxlen) {
   return maxlen;
 }
 
-#if !defined(OS_IOS)
-namespace std {}  // Avoid error if we didn't see std.
-using namespace std;  // Just like VC++, we need a using here.
-#endif
-
 // Doesn't exist on OSX.
 #define MSG_NOSIGNAL 0
 
@@ -414,11 +402,6 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
     __attribute__((__format__ (__printf__, string_index, first_to_check)))
 #define SCANF_ATTRIBUTE(string_index, first_to_check) \
     __attribute__((__format__ (__scanf__, string_index, first_to_check)))
-
-//
-// Prevent the compiler from padding a structure to natural alignment
-//
-#define PACKED __attribute__ ((packed))
 
 // Cache line alignment
 #if defined(__i386__) || defined(__x86_64__)
@@ -645,6 +628,11 @@ enum PrefetchHint {
 // prefetch is a no-op for this target. Feel free to add more sections above.
 #endif
 
+// The default behavior of prefetch is to speculatively load for read only. This
+// is safe for all currently supported platforms. However, prefetch for store
+// may have problems depending on the target platform (x86, PPC, arm). Check
+// with the platforms team (platforms-servers@) before introducing any changes
+// to this function to identify potential impact on current and future servers.
 extern inline void prefetch(const void *x, int hint) {
 #if defined(__llvm__)
   // In the gcc version of prefetch(), hint is only a constant _after_ inlining
@@ -745,7 +733,6 @@ extern inline void prefetch(const void *x) {
 
 #define PRINTF_ATTRIBUTE(string_index, first_to_check)
 #define SCANF_ATTRIBUTE(string_index, first_to_check)
-#define PACKED
 #define CACHELINE_SIZE 64
 #define CACHELINE_ALIGNED
 #define ATTRIBUTE_UNUSED
@@ -761,6 +748,7 @@ extern inline void prefetch(const void *x) {
 #define ATTRIBUTE_NO_SANITIZE_ADDRESS
 #define ATTRIBUTE_NO_SANITIZE_MEMORY
 #define HAVE_ATTRIBUTE_SECTION 0
+#define ATTRIBUTE_PACKED
 #define ATTRIBUTE_STACK_ALIGN_FOR_OLD_LIBC
 #define REQUIRE_STACK_ALIGN_TRAMPOLINE (0)
 #define MUST_USE_RESULT
@@ -775,8 +763,8 @@ extern inline void prefetch(const void*) {}
 
 #endif  // GCC
 
-#if ((defined(COMPILER_GCC3) || defined(OS_MACOSX) || defined(OS_IOS)) && \
-     !defined(SWIG)) ||                                                   \
+#if ((defined(COMPILER_GCC3) || defined(OS_MACOSX) || defined(OS_IOS) ||  \
+      defined(__NVCC__)) && !defined(SWIG)) ||                            \
     ((__GNUC__ >= 3 || defined(__clang__)) && defined(__ANDROID__))
 
 #if !defined(__cplusplus) && !defined(OS_MACOSX) && !defined(OS_IOS) && \
@@ -820,9 +808,9 @@ inline void aligned_free(void *aligned_memory) {
 }
 
 #endif
-// #if ((defined(COMPILER_GCC3) || defined(OS_MACOSX) || defined(OS_IOS)) &&
-// !defined(SWIG)) || ((__GNUC__ >= 3 || defined(__clang__)) &&
-// defined(__ANDROID__))
+// #if ((defined(COMPILER_GCC3) || defined(OS_MACOSX) || defined(OS_IOS) ||
+// defined(__NVCC__)) && !defined(SWIG)) ||
+// ((__GNUC__ >= 3 || defined(__clang__)) && defined(__ANDROID__))
 
 //
 // Provides a char array with the exact same alignment as another type. The
@@ -995,19 +983,7 @@ BASE_PORT_MSVC_DLL_MACRO
 // You say tomato, I say _tomato
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
-
 #define nextafter _nextafter
-
-// In MSVC >= 12, the redefinitions of hypot and hypotf will cause an
-// inconsistent DLL linkage problem because hypot and hypotf are also defined
-// in xtgmath.h, which is included later via <string>. The redefinitions are,
-// however not necessary any more as both functions are redirected to _hypot
-// and _hypotf in math.h.
-#if (_MSC_VER < 1800)
-#define hypot _hypot
-#define hypotf _hypotf
-#endif  // _MSC_VER < 1800
-
 #define strdup _strdup
 #define tempnam _tempnam
 #define chdir  _chdir
@@ -1034,17 +1010,6 @@ inline void aligned_free(void *aligned_memory) {
 
 // See http://en.wikipedia.org/wiki/IEEE_754 for details of
 // floating point format.
-
-#if (_MSC_VER < 1800)  // MSVC after version 12 has these definitions.
-enum {
-  FP_NAN,  //  is "Not a Number"
-  FP_INFINITE,  //  is either plus or minus infinity.
-  FP_ZERO,
-  FP_SUBNORMAL,  // is too small to be represented in normalized format.
-  FP_NORMAL  // if nothing of the above is correct that it must be a
-  // normal floating-point number.
-};
-#endif  // _MSC_VER < 1800
 
 inline int fpclassify_double(double x) {
   const int float_point_class =_fpclass(x);
@@ -1160,10 +1125,6 @@ struct PortableHashBase { };
 // macros are different from an external definition, you will get a build
 // error.
 //
-// Note that any platform that defines HASH_NAMESPACE to be "std" must also
-// define HASH_NAMESPACE_IS_STD_NAMESPACE_INTERNAL. That macro is an
-// implementation detail of this header; do not use it in your code.
-//
 // TODO(user): always get HASH_NAMESPACE from testing target macros.
 
 #if defined(__GNUC__) && defined(GOOGLE_GLIBCXX_VERSION)
@@ -1172,7 +1133,6 @@ struct PortableHashBase { };
 #elif defined(__GNUC__) && defined(STLPORT)
 // A version of gcc with stlport.
 #define HASH_NAMESPACE std
-#define HASH_NAMESPACE_IS_STD_NAMESPACE_INTERNAL
 #elif defined(_MSC_VER)
 // MSVC.
 // http://msdn.microsoft.com/en-us/library/6x7w9f6z(v=vs.100).aspx
@@ -1214,6 +1174,13 @@ struct PortableHashBase { };
 // Portable handling of unaligned loads, stores, and copies.
 // On some platforms, like ARM, the copy functions can be more efficient
 // then a load and a store.
+//
+// It is possible to implement all of these these using constant-length memcpy
+// calls, which is portable and will usually be inlined into simple loads and
+// stores if the architecture supports it. However, such inlining usually
+// happens in a pass that's quite late in compilation, which means the resulting
+// loads and stores cannot participate in many other optimizations, leading to
+// overall worse code.
 
 #if defined(ADDRESS_SANITIZER) || defined(THREAD_SANITIZER) ||\
     defined(MEMORY_SANITIZER)
@@ -1305,12 +1272,43 @@ inline void UNALIGNED_STORE64(void *p, uint64 v) {
 // so in time, maybe we can move on to that.
 //
 // This is a mess, but there's not much we can do about it.
+//
+// To further complicate matters, only LDR instructions (single reads) are
+// allowed to be unaligned, not LDRD (two reads) or LDM (many reads). Unless we
+// explicitly tell the compiler that these accesses can be unaligned, it can and
+// will combine accesses. On armcc, the way to signal this is done by accessing
+// through the type (uint32 __packed *), but GCC has no such attribute
+// (it ignores __attribute__((packed)) on individual variables). However,
+// we can tell it that a _struct_ is unaligned, which has the same effect,
+// so we do that.
 
-#define UNALIGNED_LOAD16(_p) (*reinterpret_cast<const uint16 *>(_p))
-#define UNALIGNED_LOAD32(_p) (*reinterpret_cast<const uint32 *>(_p))
+namespace base {
+namespace internal {
 
-#define UNALIGNED_STORE16(_p, _val) (*reinterpret_cast<uint16 *>(_p) = (_val))
-#define UNALIGNED_STORE32(_p, _val) (*reinterpret_cast<uint32 *>(_p) = (_val))
+struct Unaligned16Struct {
+  uint16 value;
+  uint8 dummy;  // To make the size non-power-of-two.
+} ATTRIBUTE_PACKED;
+
+struct Unaligned32Struct {
+  uint32 value;
+  uint8 dummy;  // To make the size non-power-of-two.
+} ATTRIBUTE_PACKED;
+
+}  // namespace internal
+}  // namespace base
+
+#define UNALIGNED_LOAD16(_p) \
+    ((reinterpret_cast<const ::base::internal::Unaligned16Struct *>(_p))->value)
+#define UNALIGNED_LOAD32(_p) \
+    ((reinterpret_cast<const ::base::internal::Unaligned32Struct *>(_p))->value)
+
+#define UNALIGNED_STORE16(_p, _val) \
+    ((reinterpret_cast< ::base::internal::Unaligned16Struct *>(_p))->value = \
+         (_val))
+#define UNALIGNED_STORE32(_p, _val) \
+    ((reinterpret_cast< ::base::internal::Unaligned32Struct *>(_p))->value = \
+         (_val))
 
 // TODO(user): NEON supports unaligned 64-bit loads and stores.
 // See if that would be more efficient on platforms supporting it,
@@ -1457,24 +1455,6 @@ std::ostream& operator << (std::ostream& out, const pthread_t& thread_id);
 // '#ifdef LANG_CXX11' to behave differently from '#if LANG_CXX11'.
 #define LANG_CXX11 1
 #endif
-
-// CAN_SPECIALIZE_STD_HASH is a portability macro for specializing std::hash.
-// Portable code should use it to guard any std::hash specializations:
-//
-// #ifdef CAN_SPECIALIZE_STD_HASH
-// namespace std
-// template <> struct hash<Foo> {
-//   ...
-// };
-// }  // namespace std
-// #endif
-#if defined(LANG_CXX11) && !defined(HASH_NAMESPACE_IS_STD_NAMESPACE_INTERNAL)
-#define CAN_SPECIALIZE_STD_HASH
-#endif
-
-// Undefine this internal macro now that we no longer need it, to prevent
-// misuse by clients.
-#undef HASH_NAMESPACE_IS_STD_NAMESPACE_INTERNAL
 
 // On some platforms, a "function pointer" points to a function descriptor
 // rather than directly to the function itself.  Use FUNC_PTR_TO_CHAR_PTR(func)
