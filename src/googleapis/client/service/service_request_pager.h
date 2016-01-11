@@ -27,7 +27,6 @@
 #include "googleapis/base/macros.h"
 #include "googleapis/client/service/client_service.h"
 #include "googleapis/client/util/status.h"
-#include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
@@ -123,7 +122,7 @@ class BaseServiceRequestPager {
     if (token == 0) {
       set_next_page_token("");
     } else {
-      set_next_page_token(StrCat("", token));
+      set_next_page_token(std::to_string(token));
     }
   }
 

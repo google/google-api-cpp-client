@@ -26,8 +26,7 @@ using std::vector;
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/ascii_ctype.h"
-#include "googleapis/strings/split.h"
-#include "googleapis/strings/strcat.h"
+#include "googleapis/strings/numbers.h"
 #include "googleapis/strings/stringpiece.h"
 
 namespace googleapis {
@@ -35,61 +34,67 @@ namespace googleapis {
 
 namespace client {
 
-ParsedUrl::ParsedUrl(const StringPiece& url)
-    : url_(url.as_string()), path_(url_), valid_(true) {
+inline bool EndsWith(string s, const char *x) {
+  int l = strlen(x);
+  if (s.size() < l) return false;
+  return s.compare(s.size()-l, l, x) == 0;
+}
+
+ParsedUrl::ParsedUrl(const string& url)
+    : url_(url), path_(url_), valid_(true) {
   // Section 2.4.1
   int hash = path_.find('#');
-  if (hash != StringPiece::npos && hash != path_.size() - 1) {
-    fragment_ = path_.substr(hash + 1);        // Do not include leading '#'.
-    path_.remove_suffix(path_.size() - hash);  // End before '#'.
+  if (hash != string::npos && hash != path_.size() - 1) {
+    fragment_ = path_.substr(hash + 1);  // Do not include leading '#'.
+    path_.resize(hash);  // End before '#'.
   }
 
   // Section 2.4.2
   int colon = path_.find(':');
-  if (colon != StringPiece::npos) {
+  if (colon != string::npos) {
     scheme_ = path_.substr(0, colon);  // Do not include ':' in the scheme.
-    path_.remove_prefix(colon + 1);     // Start path after ':'.
+    path_ = path_.substr(colon + 1);  // Start path after ':'.
   }
 
   // Section 2.4.3
-  if (path_.starts_with("//")) {
+  if (path_.compare(0, 2, "//") == 0) {
     int slash = path_.find('/', 3);
     // The spec just mentions the slash (for the path)
     // but we'll look for the other component separators as well
     // so we can handle things like scheme:://netloc?query.
     // We'll pretend this is the slash to get by here. The path
     // parsing later will figure out the path is empty.
-    if (slash == StringPiece::npos) {
+    if (slash == string::npos) {
       int sym =  path_.find(';', 3);
-      if (sym == StringPiece::npos) {
+      if (sym == string::npos) {
         sym = path_.find('?', 3);
       }
-      if (sym == StringPiece::npos) {
+      if (sym == string::npos) {
         sym = path_.find('#', 3);
       }
       slash = sym;
     }
-    if (slash == StringPiece::npos) {
+    if (slash == string::npos) {
       netloc_ = path_.substr(2);  // Strip leading '//'.
-      path_.clear();              // Path was empty.
+      path_.clear();  // Path was empty.
     } else {
       netloc_ = path_.substr(2, slash - 2);  // Strip leading '//'.
-      path_.remove_prefix(slash);            // Start with leading '/'
+      path_ = path_.substr(slash);  // Start with leading '/'
     }
   }
 
   // Section 2.4.4
   int question = path_.find('?');
-  if (question != StringPiece::npos) {
-    query_ = path_.substr(question + 1);           // Strip leading '?'.
-    path_.remove_suffix(path_.size() - question);  // End before '?'.
+  if (question != string::npos) {
+    query_ = path_.substr(question + 1);  // Strip leading '?'.
+    path_.resize(question);  // End before '?'.
   }
 
   // Section 2.4.5
   int semi = path_.find(';');
-  if (semi != StringPiece::npos) {
-    params_ = path_.substr(semi + 1);          // Strip leading ';'.
-    path_.remove_suffix(path_.size() - semi);  // End before ';'.
+  if (semi != string::npos) {
+    params_ = path_.substr(semi + 1);  // Strip leading ';'.
+    path_.resize(semi);  // End before ';'.
   }
 }
 
@@ -97,7 +102,7 @@ ParsedUrl::~ParsedUrl() {
 }
 
 bool
-ParsedUrl::GetQueryParameter(const StringPiece& name, string* value) const {
+ParsedUrl::GetQueryParameter(const string& name, string* value) const {
   const std::vector<ParsedUrl::QueryParameterAssignment>& list =
       GetQueryParameterAssignments();
   for (std::vector<ParsedUrl::QueryParameterAssignment>::const_iterator
@@ -127,12 +132,22 @@ ParsedUrl::GetQueryParameterAssignments() const {
     return query_param_assignments_;
   }
 
-  std::vector<StringPiece> parts = strings::Split(query_, "&");
+  std::vector<string> parts;
+  size_t last = 0;
+  for (size_t i = 0; i < query_.size(); ++i) {
+    if (query_[i] == '&') {
+      parts.push_back(query_.substr(last, i-last));
+      last = i+1;
+    }
+  }
+  if (last < query_.size()) {
+    parts.push_back(query_.substr(last));
+  }
   for (int i = 0; i < parts.size(); ++i) {
     int offset = parts[i].find('=');
 
     // Note that query_param_assignments_ is mutable.
-    if (offset == StringPiece::npos) {
+    if (offset == string::npos) {
       query_param_assignments_.push_back(std::make_pair(parts[i], ""));
     } else {
       string unescaped;
@@ -146,16 +161,24 @@ ParsedUrl::GetQueryParameterAssignments() const {
   return query_param_assignments_;
 }
 
-string JoinPath(const StringPiece& base, const StringPiece& path) {
-  if (base.empty()) return path.as_string();
+string JoinPath(const StringPiece& base, const string& path) {
+  if (base.empty()) return path;
   if (path.empty()) return base.as_string();
 
   bool base_has_slash = base[base.size() - 1] == '/';
   bool path_has_slash = path[0] == '/';
 
-  if (base_has_slash != path_has_slash) return StrCat(base, path);
-  if (path_has_slash) return StrCat(base, path.substr(1));
-  return StrCat(base, "/", path);
+  string ret(base.as_string());
+  if (base_has_slash != path_has_slash) {
+    ret.append(path);
+  } else if (path_has_slash) {
+    ret.append(path.substr(1));
+    return ret;
+  } else {
+    ret.append("/");
+    ret.append(path);
+  }
+  return ret;
 }
 
 // http://en.wikipedia.org/wiki/Percent-encoding
@@ -188,7 +211,7 @@ static bool IsNotGraphic(char c) {
   return !ascii_isgraph(c);
 }
 
-static string EscapeReservedCharacters(const StringPiece& from,
+static string EscapeReservedCharacters(const string& from,
                                        bool (*needs_escaping)(char)) {
   const char *hex_digits = "0123456789ABCDEF";
   string escaped;
@@ -206,17 +229,17 @@ static string EscapeReservedCharacters(const StringPiece& from,
   return escaped;
 }
 
-string EscapeForUrl(const StringPiece& from) {
+string EscapeForUrl(const string& from) {
   return EscapeReservedCharacters(from, NeedsEscaping);
 }
 
-string EscapeForReservedExpansion(const StringPiece& from) {
+string EscapeForReservedExpansion(const string& from) {
   // TODO(user): This is not quite precise according to RFC 6570, but it is
   // good enough.
   return EscapeReservedCharacters(from, IsNotGraphic);
 }
 
-bool UnescapeFromUrl(const StringPiece& from, string* to) {
+bool UnescapeFromUrl(const string& from, string* to) {
   const char* ptr = from.data();
   const char* end = ptr + from.size();
   to->clear();
@@ -224,7 +247,7 @@ bool UnescapeFromUrl(const StringPiece& from, string* to) {
     if (*ptr == '%') {
       if (end - ptr >= 2) {
         int32 value;
-        if (safe_strto32_base(StringPiece(ptr + 1, 2), &value, 16)
+        if (safe_strto32_base(string(ptr + 1, 2), &value, 16)
             && value <= 255) {
           ptr += 2;
           to->push_back(static_cast<char>(value));
@@ -242,19 +265,19 @@ bool UnescapeFromUrl(const StringPiece& from, string* to) {
 }
 
 
-string ResolveUrl(const StringPiece& base_url,
-                  const StringPiece& relative_url) {
+string ResolveUrl(const string& base_url,
+                  const string& relative_url) {
   // Implements Section 4 of http://www.ietf.org/rfc/rfc1808.txt
   // Step 1
-  if (base_url.empty()) return relative_url.as_string();
+  if (base_url.empty()) return relative_url;
 
   // Step 2
   // part a
-  if (relative_url.empty()) return base_url.as_string();
+  if (relative_url.empty()) return base_url;
 
   // part b
-  if (relative_url.find(':') != StringPiece::npos) {
-    return relative_url.as_string();
+  if (relative_url.find(':') != string::npos) {
+    return relative_url;
   }
 
   // The segments_handled is an index we'll use for how far along in the
@@ -263,7 +286,7 @@ string ResolveUrl(const StringPiece& base_url,
   // (Step 7 in the RFC).
   int segments_handled = 0;
 
-  // Tthe resolved result url as we build it up.
+  // The resolved result url as we build it up.
   string result;
 
   ParsedUrl parsed_base(base_url);
@@ -279,9 +302,8 @@ string ResolveUrl(const StringPiece& base_url,
     if (!parsed_relative.netloc().empty()) {
       goto step_7;
     }
-    StrAppend(&result,
-              ParsedUrl::SegmentOrEmpty(!parsed_base.netloc().empty(),
-                                        "//", parsed_base.netloc()));
+    result.append(ParsedUrl::SegmentOrEmpty(!parsed_base.netloc().empty(),
+                                             "//", parsed_base.netloc()));
     ++segments_handled;
 
     // Step 4
@@ -292,25 +314,23 @@ string ResolveUrl(const StringPiece& base_url,
 
     // Step 5
     if (parsed_relative.path().empty()) {
-      StrAppend(&result, parsed_base.path());
+      result.append(parsed_base.path());
       ++segments_handled;
 
       // a
       if (!parsed_relative.params().empty()) {
         goto step_7;
       }
-      StrAppend(&result,
-                ParsedUrl::SegmentOrEmpty(!parsed_base.params().empty(),
-                                          ";", parsed_base.params()));
+      result.append(ParsedUrl::SegmentOrEmpty(!parsed_base.params().empty(),
+                                              ";", parsed_base.params()));
       ++segments_handled;
 
       // b
       if (!parsed_relative.query().empty()) {
         goto step_7;
       }
-      StrAppend(&result,
-                ParsedUrl::SegmentOrEmpty(!parsed_base.query().empty(),
-                                          "?", parsed_base.query()));
+      result.append(ParsedUrl::SegmentOrEmpty(!parsed_base.query().empty(),
+                                              "?", parsed_base.query()));
       ++segments_handled;
       goto step_7;
     }
@@ -318,17 +338,17 @@ string ResolveUrl(const StringPiece& base_url,
     // Step 6
     int last_slash = parsed_base.path().rfind('/');
     string path;
-    if (last_slash != StringPiece::npos) {
+    if (last_slash != string::npos) {
       path =
           string(parsed_base.path().data(), last_slash + 1);  // leave slash
     }
-    StrAppend(&path, parsed_relative.path());
+    path.append(parsed_relative.path());
 
     // a
     int offset = 0;
     while (true) {
       int dot = path.find("/./", offset);
-      if (dot == StringPiece::npos) {
+      if (dot == string::npos) {
         break;
       }
       path.erase(dot, 2);
@@ -336,11 +356,11 @@ string ResolveUrl(const StringPiece& base_url,
     }
 
     // b
-    StringPiece path_piece = StringPiece(path);
-    if (path_piece.ends_with("/./")) {
+    string path_piece = string(path);
+    if (EndsWith(path_piece, "/./")) {
       // strip trailing "./"
       path.erase(path.size() - 2, 2);
-    } else if (path_piece.ends_with("/."))  {
+    } else if (EndsWith(path_piece, "/.")) {
       path.erase(path.size() - 1, 1);
     } else if (path.size() == 1 && path.c_str()[0] == '.') {
       path.clear();
@@ -350,7 +370,7 @@ string ResolveUrl(const StringPiece& base_url,
     offset = 0;
     while (true) {
       int dotdot = path.find("/../", offset);
-      if (dotdot == StringPiece::npos) {
+      if (dotdot == string::npos) {
         break;
       }
 
@@ -363,7 +383,7 @@ string ResolveUrl(const StringPiece& base_url,
     }
 
     // d
-    if (StringPiece(path).ends_with("/..")) {
+    if (EndsWith(path, "/..")) {
       int slash = path.rfind('/', path.size() - 4);
       path.erase(slash + 1, path.size() - slash - 1);  // leave last slash
     }
@@ -374,27 +394,24 @@ string ResolveUrl(const StringPiece& base_url,
 step_7:
   switch (segments_handled) {
     case 0:
-      StrAppend(&result,
-                ParsedUrl::SegmentOrEmpty(!parsed_relative.netloc().empty(),
-                                          "//", parsed_relative.netloc()));
+      result.append(ParsedUrl::SegmentOrEmpty(!parsed_relative.netloc().empty(),
+                                              "//", parsed_relative.netloc()));
       FALLTHROUGH_INTENDED;
     case 1:
-      StrAppend(&result, parsed_relative.path());
+      result.append(parsed_relative.path());
       FALLTHROUGH_INTENDED;
     case 2:
-      StrAppend(&result,
-                ParsedUrl::SegmentOrEmpty(!parsed_relative.params().empty(),
-                                          ";", parsed_relative.params()));
+      result.append(ParsedUrl::SegmentOrEmpty(!parsed_relative.params().empty(),
+                                              ";", parsed_relative.params()));
       FALLTHROUGH_INTENDED;
     case 3:
-      StrAppend(&result,
-                ParsedUrl::SegmentOrEmpty(!parsed_relative.query().empty(),
-                                          "?", parsed_relative.query()));
+      result.append(ParsedUrl::SegmentOrEmpty(!parsed_relative.query().empty(),
+                                              "?", parsed_relative.query()));
       FALLTHROUGH_INTENDED;
     case 4:
-      StrAppend(&result,
-                ParsedUrl::SegmentOrEmpty(!parsed_relative.fragment().empty(),
-                                          "#", parsed_relative.fragment()));
+      result.append(
+          ParsedUrl::SegmentOrEmpty(!parsed_relative.fragment().empty(),
+                                    "#", parsed_relative.fragment()));
       break;
     default:
       // This is a programming error above.
@@ -402,6 +419,14 @@ step_7:
   }
 
   return result;
+}
+
+// Bounce from SDK namespace to global namespace.
+string SimpleFtoa(float value) {
+  return ::SimpleFtoa(value);
+}
+string SimpleDtoa(double value) {
+  return ::SimpleDtoa(value);
 }
 
 }  // namespace client

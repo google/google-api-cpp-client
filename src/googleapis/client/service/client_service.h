@@ -409,7 +409,7 @@ class ClientServiceRequest {
    * subclasses can feed ther values into the template.
    */
   googleapis::util::Status CallAppendVariable(
-      const StringPiece& variable_name,
+      const string& variable_name,
       const UriTemplateConfig& config,
       string* target);
 

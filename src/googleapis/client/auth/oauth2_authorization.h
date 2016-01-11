@@ -125,8 +125,6 @@ class OAuth2ClientSpec {
     redirect_uri_ = uri;
   }
 
-  void set_redirect_uri(const StringPiece& uri);
-
   /*
    * Returns the url for requesting an OAuth2 Authorization Code for
    * this service.
@@ -200,7 +198,6 @@ class ThreadsafeString {
     MutexLock l(&mutex_);
     value_ = value;
   }
-
   void set(const StringPiece& value);
 
   string as_string() const {
@@ -653,7 +650,6 @@ class OAuth2AuthorizationFlow {
   void set_default_scopes(const T scopes) {
     default_scopes_ = scopes;
   }
-  void set_default_scopes(const StringPiece& scopes);
 
   /*
    * Configure flow to add the email scope to every request.

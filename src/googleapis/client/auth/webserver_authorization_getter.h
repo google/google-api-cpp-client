@@ -35,8 +35,6 @@ using std::string;
 #include "googleapis/base/thread_annotations.h"
 namespace googleapis {
 
-class StringPiece;
-
 namespace client {
 
 /*
@@ -54,7 +52,7 @@ class WebServerAuthorizationCodeGetter {
    * Callback used to prompt for authorization.
    * Receiving authorization will happen through a web server handler.
    */
-  typedef ResultCallback1< googleapis::util::Status, const StringPiece& > AskCallback;
+  typedef ResultCallback1< googleapis::util::Status, const string& > AskCallback;
 
   /*
    * Standard constructor.
@@ -103,7 +101,7 @@ class WebServerAuthorizationCodeGetter {
    * @param[in] httpd The webserver to process the redirects wtih
    */
   virtual void  AddReceiveAuthorizationCodeUrlPath(
-      const StringPiece& path, AbstractWebServer* httpd);
+      const string& path, AbstractWebServer* httpd);
 
   virtual googleapis::util::Status PromptForAuthorizationCode(
       OAuth2AuthorizationFlow* flow,
@@ -114,16 +112,16 @@ class WebServerAuthorizationCodeGetter {
    * A suitable function for an asker that execute a command (e.g. a browser).
    */
   static googleapis::util::Status PromptWithCommand(
-      const string& program, const string& args, const StringPiece& url);
+      const string& program, const string& args, const string& url);
 
   /*
    * A suitable function for an asker that prompts a console.
    */
   static googleapis::util::Status PromptWithOstream(
-       std::ostream* ostream, const string& prompt, const StringPiece& url);
+       std::ostream* ostream, const string& prompt, const string& url);
 
  protected:
-  virtual googleapis::util::Status AskForAuthorization(const StringPiece& url);
+  virtual googleapis::util::Status AskForAuthorization(const string& url);
 
  private:
   int64 timeout_ms_;

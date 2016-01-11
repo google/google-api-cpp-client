@@ -33,8 +33,9 @@
 #include <string>
 using std::string;
 #include "googleapis/client/util/status.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
+
+class StringPiece;
 
 namespace client {
 

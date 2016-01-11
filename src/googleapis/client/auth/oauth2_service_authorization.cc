@@ -34,7 +34,6 @@
 #include <glog/logging.h>
 #include "googleapis/strings/escaping.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/file.h"
 #include <openssl/ossl_typ.h>
 #include <openssl/bio.h>
@@ -84,12 +83,16 @@ class JwtBuilder {
     return status;
   }
 
-  static void AppendAsBase64(const StringPiece& from, string* to) {
+
+  static void AppendAsBase64(const char* data, size_t size, string* to) {
     string encoded;
     strings::WebSafeBase64Escape(
-        reinterpret_cast<const unsigned char*>(from.data()),
-        from.size(), &encoded, false);
+        reinterpret_cast<const unsigned char*>(data), size, &encoded, false);
     to->append(encoded);
+  }
+
+  static void AppendAsBase64(const string& from, string* to) {
+    AppendAsBase64(from.data(), from.size(), to);
   }
 
   static EVP_PKEY* LoadPkeyFromData(const StringPiece& data) {
@@ -167,7 +170,7 @@ class JwtBuilder {
 
     jwt->swap(data_to_sign);
     jwt->append(".");
-    AppendAsBase64(StringPiece(buffer.get(), buffer_size), jwt);
+    AppendAsBase64(buffer.get(), buffer_size, jwt);
     return StatusOk();
   }
 };
@@ -267,8 +270,8 @@ string OAuth2ServiceAccountFlow::MakeJwtClaims(
 }
 
 util::Status OAuth2ServiceAccountFlow::ConstructSignedJwt(
-    const StringPiece& plain_claims, string* result) const {
-  return MakeJwt(plain_claims.as_string(), result);
+    const string& plain_claims, string* result) const {
+  return MakeJwt(plain_claims, result);
 }
 
 util::Status OAuth2ServiceAccountFlow::MakeJwt(

@@ -42,8 +42,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <glog/logging.h>
 #include "googleapis/strings/ascii_ctype.h"
+#include <glog/logging.h>
 
 namespace googleapis {
 

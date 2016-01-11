@@ -27,8 +27,6 @@ using std::string;
 
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
-#include "googleapis/strings/numbers.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 namespace client {
@@ -66,16 +64,15 @@ class UriTemplate {
    * Append*First method to add the first element (if any) then call
    * Append*Next for each of the remaining elements (if any).
    *
-   * @param[in] StringPiece The name of the variable to append.
+   * @param[in] string The name of the variable to append.
    * @param[in] UriTemplateConfig Opaque pass through argument.
    * @param[in,out] The target string to append to
    * @return success if the variabel coudl be resolved, or failure if not.
    */
   typedef ResultCallback3< googleapis::util::Status,
-                          const StringPiece&,
+                          const string&,
                           const UriTemplateConfig&,
-                          string*>
-  AppendVariableCallback;
+                          string*> AppendVariableCallback;
 
   /*
    * Expand variables without collecting their names.
@@ -89,7 +86,7 @@ class UriTemplate {
    *         target string.
    */
   static googleapis::util::Status Expand(
-      const StringPiece& uri,
+      const string& uri,
       AppendVariableCallback* supplier,
       string* target) {
     return Expand(uri, supplier, target, NULL);
@@ -110,10 +107,10 @@ class UriTemplate {
    *         target string.
    */
   static googleapis::util::Status Expand(
-      const StringPiece& uri,
+      const string& uri,
       AppendVariableCallback* supplier,
       string* target,
-      std::set<StringPiece>* found_parameters);
+      std::set<string>* found_parameters);
 
   /*
    * Appends the first value of a list.
@@ -126,7 +123,7 @@ class UriTemplate {
    * @param[in,out] target The string to append the value to.
    */
   static void AppendListFirst(
-      const StringPiece& value,
+      const string& value,
       const UriTemplateConfig& config,
       string* target);
 
@@ -141,7 +138,7 @@ class UriTemplate {
    * @param[in,out] target The string to append the value to.
    */
   static void AppendListNext(
-      const StringPiece& value,
+      const string& value,
       const UriTemplateConfig& config,
       string* target);
 
@@ -157,8 +154,8 @@ class UriTemplate {
    * @param[in,out] target The string to append the value to.
    */
   static void AppendMapFirst(
-      const StringPiece& key,
-      const StringPiece& value,
+      const string& key,
+      const string& value,
       const UriTemplateConfig& config,
       string* target);
 
@@ -174,8 +171,8 @@ class UriTemplate {
    * @param[in,out] target The string to append the value to.
    */
   static void AppendMapNext(
-      const StringPiece& key,
-      const StringPiece& value,
+      const string& key,
+      const string& value,
       const UriTemplateConfig& config,
       string* target);
 
@@ -199,35 +196,22 @@ class UriTemplate {
   UriTemplate();  // Is never instantiated.
   ~UriTemplate();
 
-  // Implements AppendValue for a StringPiece.
-  static void AppendValueStringPiece(
-      const StringPiece& value,
-      const UriTemplateConfig& config,
-      string* target);
+  // Implements AppendValue for a string.
+  static void AppendValueString(const string& value,
+                                const UriTemplateConfig& config,
+                                string* target);
 };
 
 template<typename T>
 inline void UriTemplate::AppendValue(
-    const T& value,
-    const UriTemplateConfig& config,
-    string* target) {
-  AppendValue(SimpleItoa(value), config, target);
+    const T& value, const UriTemplateConfig& config, string* target) {
+  AppendValueString(std::to_string(value), config, target);
 }
 
 template<>
 inline void UriTemplate::AppendValue<string>(
-    const string& value,
-    const UriTemplateConfig& config,
-    string* target) {
-  AppendValueStringPiece(value, config, target);
-}
-
-template<>
-inline void UriTemplate::AppendValue<StringPiece>(
-    const StringPiece& value,
-    const UriTemplateConfig& config,
-    string* target) {
-  AppendValueStringPiece(value, config, target);
+    const string& value, const UriTemplateConfig& config, string* target) {
+  AppendValueString(value, config, target);
 }
 
 }  // namespace client

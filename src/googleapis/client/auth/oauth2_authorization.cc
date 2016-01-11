@@ -174,10 +174,6 @@ bool OAuth2AuthorizationFlow::GetStringAttribute(
   return data->GetString(key, value);
 }
 
-void OAuth2AuthorizationFlow::set_default_scopes(const StringPiece& scopes) {
-  default_scopes_ = scopes.as_string();
-}
-
 const char OAuth2AuthorizationFlow::kOutOfBandUrl[] =
   "urn:ietf:wg:oauth:2.0:oob";
 const char OAuth2AuthorizationFlow::kGoogleAccountsOauth2Url[] =
@@ -190,10 +186,6 @@ OAuth2ClientSpec::OAuth2ClientSpec()
 }
 
 OAuth2ClientSpec::~OAuth2ClientSpec() {
-}
-
-void OAuth2ClientSpec::set_redirect_uri(const StringPiece& uri) {
-  set_redirect_uri(uri.as_string());
 }
 
 const char OAuth2Credential::kOAuth2CredentialType[] = "OAuth2";
@@ -339,12 +331,22 @@ util::Status OAuth2Credential::UpdateFromString(const string& json) {
     // this is coming from the OAuth2 server and is secure with https.
     // see https://developers.google.com/accounts/docs/OAuth2Login
     //     #validatinganidtoken
-    std::vector<StringPiece> parts = strings::Split(str_value, ".");
-    if (parts.size() != 3) {
+    int dot_positions[3];
+    int n_dots = 0;
+    for (size_t i = 0; i < str_value.size(); ++i) {
+      if (str_value[i] == '.') {
+        dot_positions[n_dots] = i;
+        ++n_dots;
+        if (n_dots == 3) break;
+      }
+    }
+    if (n_dots != 2) {
       return StatusUnknown("Invalid id_token attribute - not a JWT");
     }
     string claims;
-    if (!strings::Base64Unescape(parts[1], &claims)) {
+    if (!strings::Base64Unescape(
+        str_value.substr(dot_positions[0]+1,
+                         dot_positions[1]-dot_positions[0]-1), &claims)) {
       return StatusUnknown("id_token claims not base-64 encoded");
     }
     return UpdateFromString(claims);

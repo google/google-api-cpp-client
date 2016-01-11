@@ -25,7 +25,6 @@ using std::string;
 #include "googleapis/client/auth/credential_store.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 namespace client {

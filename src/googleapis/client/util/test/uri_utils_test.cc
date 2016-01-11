@@ -44,13 +44,13 @@ using client::ResolveUrl;
 using client::UnescapeFromUrl;
 
 TEST(Test, TestParsedUrl) {
-  const StringPiece scheme = "http";
-  const StringPiece netloc = "www.google.com";
-  const StringPiece abs_path = "/abs/b/c";
-  const StringPiece rel_path = "relative/b/c";
-  const StringPiece params = "parameters";
-  const StringPiece query = "a=1&b=2";
-  const StringPiece fragment = "fragment";
+  const string scheme = "http";
+  const string netloc = "www.google.com";
+  const string abs_path = "/abs/b/c";
+  const string rel_path = "relative/b/c";
+  const string params = "parameters";
+  const string query = "a=1&b=2";
+  const string fragment = "fragment";
 
   ParsedUrl simple(StrCat(scheme, "://", netloc));
   EXPECT_EQ(scheme, simple.scheme());
@@ -190,7 +190,7 @@ TEST(Test, TestValueToEscapedUrlValue) {
 }
 
 TEST(Test, TestArrayIteratorExpansion) {
-  const StringPiece kParamName = "test";
+  const string kParamName = "test";
   string expect;
   vector<string> v;
   v.push_back("a=1");
@@ -212,13 +212,15 @@ TEST(Test, TestArrayIteratorExpansion) {
 TEST(Test, TestResolveUrl) {
   // These tests are from.
   // section 5.1 in http://www.ietf.org/rfc/rfc1808.txt
-  StringPiece original_url = "http://a/b/c/d;p?q#f";
+  string original_url = "http://a/b/c/d;p?q#f";
 
-  pair<StringPiece, StringPiece> tests[] = {
-      std::make_pair("g:h", "g:h"), std::make_pair("g", "http://a/b/c/g"),
+  pair<string, string> tests[] = {
+      std::make_pair("g:h", "g:h"),
+      std::make_pair("g", "http://a/b/c/g"),
       std::make_pair("./g", "http://a/b/c/g"),
       std::make_pair("g/", "http://a/b/c/g/"),
-      std::make_pair("/g", "http://a/g"), std::make_pair("//g", "http://g"),
+      std::make_pair("/g", "http://a/g"),
+      std::make_pair("//g", "http://g"),
       std::make_pair("?y", "http://a/b/c/d;p?y"),
       std::make_pair("g?y", "http://a/b/c/g?y"),
       std::make_pair("g?y/./x", "http://a/b/c/g?y/./x"),
@@ -231,7 +233,8 @@ TEST(Test, TestResolveUrl) {
       std::make_pair("g;x?y#s", "http://a/b/c/g;x?y#s"),
       std::make_pair(".", "http://a/b/c/"),
       std::make_pair("./", "http://a/b/c/"),
-      std::make_pair("..", "http://a/b/"), std::make_pair("../", "http://a/b/"),
+      std::make_pair("..", "http://a/b/"),
+      std::make_pair("../", "http://a/b/"),
       std::make_pair("../g", "http://a/b/g"),
       std::make_pair("../..", "http://a/"),
       std::make_pair("../../", "http://a/"),

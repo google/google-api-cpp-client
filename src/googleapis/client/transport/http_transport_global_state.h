@@ -20,8 +20,6 @@
 
 #ifndef GOOGLEAPIS_TRANSPORT_HTTP_TRANSPORT_GLOBAL_STATE_H_
 #define GOOGLEAPIS_TRANSPORT_HTTP_TRANSPORT_GLOBAL_STATE_H_
-
-#include "googleapis/base/macros.h"
 namespace googleapis {
 
 namespace client {

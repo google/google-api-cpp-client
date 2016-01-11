@@ -46,11 +46,11 @@ using std::make_pair;
 using std::pair;
 #include <vector>
 using std::vector;
+
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 namespace client {
@@ -78,7 +78,7 @@ class WebServerResponse {
    *
    * @return ok or reason for failure.
    */
-  googleapis::util::Status SendHtml(int http_code, const StringPiece& body) {
+  googleapis::util::Status SendHtml(int http_code, const string& body) {
     return SendReply("text/html", http_code, body);
   }
 
@@ -90,7 +90,7 @@ class WebServerResponse {
    *
    * @return ok or reason for failure.
    */
-  googleapis::util::Status SendText(int http_code, const StringPiece& body) {
+  googleapis::util::Status SendText(int http_code, const string& body) {
     return SendReply("text/plain", http_code, body);
   }
 
@@ -102,8 +102,7 @@ class WebServerResponse {
    *
    * @return ok or reason for failure.
    */
-  virtual googleapis::util::Status SendRedirect(
-      int http_code, const StringPiece& url);
+  virtual googleapis::util::Status SendRedirect(int http_code, const string& url);
 
   /*
    * Respond with an specified content type and body.
@@ -115,9 +114,9 @@ class WebServerResponse {
    * @return ok or reason for failure.
    */
   virtual googleapis::util::Status SendReply(
-      const StringPiece& content_type,
+      const string& content_type,
       int http_code,
-      const StringPiece& body) = 0;
+      const string& body) = 0;
 
   /*
    * Adds a custom header to the repsonse.
@@ -129,7 +128,7 @@ class WebServerResponse {
    * @param[in] value The value of the header.
    */
   virtual googleapis::util::Status AddHeader(
-      const StringPiece& name, const StringPiece& value) = 0;
+      const string& name, const string& value) = 0;
 
   /*
    * Adds a custom cookie to the repsonse.
@@ -140,7 +139,7 @@ class WebServerResponse {
    * @param[in] value The value of the header.
    */
   virtual googleapis::util::Status AddCookie(
-      const StringPiece& name, const StringPiece& value) = 0;
+      const string& name, const string& value) = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(WebServerResponse);
@@ -166,8 +165,8 @@ class WebServerRequest {
    * @param[in] response_storage The repsonse object to bind to the request.
    */
   WebServerRequest(
-      const StringPiece& method,
-      const StringPiece& url,
+      const string& method,
+      const string& url,
       WebServerResponse* response_storage);
 
   /*
@@ -249,7 +248,7 @@ class AbstractWebServer {
    * @param[in] use_localhost If true use 'localhost' rather than the hostname.
    * @param[in] path The path part of the url to build.
    */
-  string MakeEndpointUrl(bool use_localhost, const StringPiece& path) const;
+  string MakeEndpointUrl(bool use_localhost, const string& path) const;
 
   /*
    * Inject handler for path.

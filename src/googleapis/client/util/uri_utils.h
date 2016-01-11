@@ -36,10 +36,9 @@ using std::pair;
 using std::vector;
 
 #include "googleapis/client/util/date_time.h"
-#include "googleapis/strings/numbers.h"
-#include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
+
+class StringPiece;
 
 namespace  client {
 
@@ -73,12 +72,12 @@ class ParsedUrl {
    * Type used for getting individual query parameter bindings.
    * The values will be unescaped.
    */
-  typedef std::pair<StringPiece, string> QueryParameterAssignment;
+  typedef std::pair<string, string> QueryParameterAssignment;
 
   /*
    * Construct the parsed url from a URL.
    */
-  explicit ParsedUrl(const StringPiece& url);
+  explicit ParsedUrl(const string& url);
 
   /*
    * Standard destructor.
@@ -95,7 +94,7 @@ class ParsedUrl {
    *
    * @return The scheme (e.g. 'https') or empty if none
    */
-  StringPiece scheme() const   { return scheme_; }
+  string scheme() const   { return scheme_; }
 
   /*
    * Returns the URL's network location.
@@ -103,14 +102,14 @@ class ParsedUrl {
    * @return The network location, including port if explicitly specified
    *         (e.g. 'www.googleapis.com'). This might be empty.
    */
-  StringPiece netloc() const   { return netloc_; }
+  string netloc() const   { return netloc_; }
 
   /*
    * Returns the URL's path.
    *
    * @return The URL's path (e.g. '/drive/v2/files'). This might be empty.
    */
-  StringPiece path() const     { return path_; }
+  string path() const     { return path_; }
 
   /*
    * Returns the URL's parameters.
@@ -118,7 +117,7 @@ class ParsedUrl {
    * @return The URL's parameters are the content between the ';' and
    * query parameters or fragment or end of string. It may be empty.
    */
-  StringPiece params() const   { return params_; }
+  string params() const   { return params_; }
 
   /*
    * Returns the URL's query string.
@@ -126,7 +125,7 @@ class ParsedUrl {
    * @return The URL's query string is the URL content between the '?' and
    * fragment (or end of string if no fragment). It may be empty.
    */
-  StringPiece query() const    { return query_; }
+  string query() const    { return query_; }
 
   /*
    * Returns the URL's fragment.
@@ -134,7 +133,7 @@ class ParsedUrl {
    * @return The URL's fragment does not include the leading '#'. It may
    * be empty.
    */
-  StringPiece fragment() const { return fragment_; }
+  string fragment() const { return fragment_; }
 
   /*
    * Returns whether the URL was valid or not.
@@ -156,7 +155,7 @@ class ParsedUrl {
    * @param[out] value The [unescaped] value found.
    * @return true if parameter was present, false if not.
    */
-  bool GetQueryParameter(const StringPiece& name, string* value) const;
+  bool GetQueryParameter(const string& name, string* value) const;
 
   /*
    * Conditionally joins two strings for a URL segment.
@@ -171,18 +170,21 @@ class ParsedUrl {
    * @return  Either a + b or "".
    */
   static string SegmentOrEmpty(
-      bool join, const StringPiece& a, const StringPiece& b) {
-    return join ? StrCat(a, b) : "";
+      bool join, const string& a, const string& b) {
+    if (!join) return "";
+    string ret(a);
+    ret.append(b);
+    return ret;
   }
 
  private:
   string url_;
-  StringPiece scheme_;    // does not include trailing ':'
-  StringPiece netloc_;    // does not include leading '//'
-  StringPiece path_;      // includes leading '/' if absolute
-  StringPiece params_;    // does not include leading ';'
-  StringPiece query_;     // does not include leading '?'
-  StringPiece fragment_;  // does not include leading '#'
+  string scheme_;    // does not include trailing ':'
+  string netloc_;    // does not include leading '//'
+  string path_;      // includes leading '/' if absolute
+  string params_;    // does not include leading ';'
+  string query_;     // does not include leading '?'
+  string fragment_;  // does not include leading '#'
 
   // Constructed on first request, not thread-safe but not typically
   // used in a multi-threaded context and not typically used at all.
@@ -205,7 +207,7 @@ class ParsedUrl {
  * @param[in] new_url The url to be resolved against the base.
  * @return The resolved URL or empty string on failure.
  */
-string ResolveUrl(const StringPiece& base_url, const StringPiece& new_url);
+string ResolveUrl(const string& base_url, const string& new_url);
 
 /*
  * Join two fragments together into a path.
@@ -215,7 +217,7 @@ string ResolveUrl(const StringPiece& base_url, const StringPiece& new_url);
  * @param[in] b The second fragment may or may not have a leading '/'.
  * @return The path "a/b" containing exactly one '/' between fragments a and b.
  */
-string JoinPath(const StringPiece& a, const StringPiece& b);
+string JoinPath(const StringPiece& a, const string& b);
 
 /*
  * Escape a string so that it is valid in a URL.
@@ -224,8 +226,8 @@ string JoinPath(const StringPiece& a, const StringPiece& b);
  * @param[in] s The string to escape.
  * @return the escaped string.
  */
-string EscapeForUrl(const StringPiece& s);
-bool UnescapeFromUrl(const StringPiece& s, string* to);
+string EscapeForUrl(const string& s);
+bool UnescapeFromUrl(const string& s, string* to);
 
 /*
  * Escape a string according to URI Template reserved expansion rules.
@@ -234,7 +236,7 @@ bool UnescapeFromUrl(const StringPiece& s, string* to);
  * @param[in] s The string to escape.
  * @return the escaped string.
  */
-string EscapeForReservedExpansion(const StringPiece& s);
+string EscapeForReservedExpansion(const string& s);
 
 /*
  * Templated function that encodes a primitive C++ value for use in a URL.
@@ -262,7 +264,7 @@ template<typename T> string CppValueToEscapedUrlValue(const T& value);
 template<typename T>
 void AppendIteratorToUrl(
     const T& begin, const T& end,
-    const StringPiece param_name, string *target);
+    const string& param_name, string *target);
 
 /*
  * Implements append a scalar value into a URL.
@@ -271,7 +273,7 @@ void AppendIteratorToUrl(
  */
 template<typename T>
 inline string CppValueToEscapedUrlValue(const T& value) {
-  return SimpleItoa(value);
+  return std::to_string(value);
 }
 
 /*
@@ -293,6 +295,7 @@ inline string CppValueToEscapedUrlValue<bool>(const bool& value) {
 /*
  * Implements append a float value into a URL.
  */
+string SimpleFtoa(float value);
 template<>
 inline string CppValueToEscapedUrlValue<float>(const float& value) {
   return SimpleFtoa(value);
@@ -301,6 +304,7 @@ inline string CppValueToEscapedUrlValue<float>(const float& value) {
 /*
  * Implements append a double value into a URL.
  */
+string SimpleDtoa(double value);
 template<>
 inline string CppValueToEscapedUrlValue<double>(const double& value) {
   return SimpleDtoa(value);
@@ -335,11 +339,14 @@ inline string CppValueToEscapedUrlValue<DateTime>(const DateTime& value) {
  */
 template<typename T>
 void AppendIteratorToUrl(
-    const T& begin, const T& end, const StringPiece param_name,
+    const T& begin, const T& end, const string& param_name,
     string* target) {
   const char* sep = "";
   for (T it = begin; it != end; ++it) {
-    StrAppend(target, sep, param_name, "=", CppValueToEscapedUrlValue(*it));
+    target->append(sep);
+    target->append(param_name);
+    target->append("=");
+    target->append(CppValueToEscapedUrlValue(*it));
     sep = "&";
   }
 }

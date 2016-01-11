@@ -32,15 +32,13 @@ using std::vector;
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 
 namespace client {
 
-util::Status WebServerResponse::SendRedirect(
-     int http_code, const StringPiece& url) {
+util::Status WebServerResponse::SendRedirect(int http_code, const string& url) {
   googleapis::util::Status status = AddHeader("Location", url);
   if (status.ok()) {
     status = SendReply("", http_code, "");
@@ -50,10 +48,10 @@ util::Status WebServerResponse::SendRedirect(
 
 
 WebServerRequest::WebServerRequest(
-    const StringPiece& method,
-    const StringPiece& url,
+    const string& method,
+    const string& url,
     WebServerResponse* response_storage)
-    : method_(method.as_string()),
+    : method_(method),
       parsed_url_(url),
       response_(response_storage) {
 }
@@ -79,7 +77,7 @@ void AbstractWebServer::Shutdown() {
 string AbstractWebServer::url_protocol() const { return "https"; }
 
 string AbstractWebServer::MakeEndpointUrl(
-    bool use_localhost, const StringPiece& path) const {
+    bool use_localhost, const string& path) const {
 string url = StrCat(url_protocol(), "://");
    if (use_localhost) {
      url.append("localhost");
@@ -105,15 +103,15 @@ AbstractWebServer::PathHandler* AbstractWebServer::FindPathHandler(
   for (vector<Hook>::const_iterator it = hooks_.begin();
        it != hooks_.end();
        ++it) {
-    if (request->parsed_url().path().starts_with(it->first)) {
+    if (request->parsed_url().path().compare(
+        0, it->first.size(), it->first) == 0) {
       return it->second;
     }
   }
   return NULL;
 }
 
-util::Status AbstractWebServer::DoHandleRequest(
-     WebServerRequest* request) {
+util::Status AbstractWebServer::DoHandleRequest(WebServerRequest* request) {
   PathHandler* handler = FindPathHandler(request);
   if (handler) {
     return handler->Run(request);

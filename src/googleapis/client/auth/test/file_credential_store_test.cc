@@ -39,7 +39,6 @@ using std::string;
 #include <glog/logging.h>
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 #include <gmock/gmock.h>
 #include "googleapis/util/canonical_errors.h"
 #include "googleapis/util/status_test_util.h"
@@ -89,7 +88,7 @@ class MockCodecFactory : public CodecFactory {
 
 class FileCredentialStoreFixture : public testing::Test {
  public:
-  void ValidateReaderData(const StringPiece& expect, DataReader* reader) {
+  void ValidateReaderData(const string& expect, DataReader* reader) {
     string got = reader->RemainderToString();
     EXPECT_EQ(expect, got);
   }
@@ -99,8 +98,8 @@ class FileCredentialStoreFixture : public testing::Test {
   }
 
   DataReader* NewTransformReader(
-      const StringPiece& expect,
-      const StringPiece& provide,
+      const string& expect,
+      const string& provide,
       DataReader* reader, Closure* deleter, googleapis::util::Status* status) {
     *status = StatusOk();
     EXPECT_EQ(expect, reader->RemainderToString());
@@ -108,15 +107,15 @@ class FileCredentialStoreFixture : public testing::Test {
   }
 
   void TransformString(
-      const StringPiece& value, const StringPiece&, string* target) {
-    *target = value.as_string();
+      const string& value, const string&, string* target) {
+    *target = value;
   }
 };
 
 TEST_F(FileCredentialStoreFixture, TestCreateDir) {
   const string kRoot = StrCat(GetTestingTempDir(), "/test_create_dir");
   const string kClientId = "test_client_id";
-  File::DeleteDir(kRoot.c_str());
+  File::Delete(kRoot);
   ASSERT_TRUE(util::IsNotFound(file::Exists(kRoot, file::Defaults())));
 
   googleapis::util::Status status;
@@ -137,14 +136,14 @@ TEST_F(FileCredentialStoreFixture, TestCreateDir) {
   EXPECT_TRUE(util::IsNotFound(
       file::Exists(JoinPath(kRoot, kClientId), file::Defaults())));
 
-  File::DeleteDir(kRoot.c_str());
+  File::Delete(kRoot);
 }
 
 #ifndef _MSC_VER
 TEST_F(FileCredentialStoreFixture, TestInvalidDir) {
   const string kRoot = StrCat(GetTestingTempDir(), "/test_invalid_dir");
   const string kClientId = "test_client_id";
-  File::DeleteDir(kRoot.c_str());
+  File::Delete(kRoot);
   ASSERT_TRUE(util::IsNotFound(file::Exists(kRoot, file::Defaults())));
 
   const mode_t bad_permissions = S_IRUSR | S_IWUSR | S_IXGRP;
@@ -158,7 +157,7 @@ TEST_F(FileCredentialStoreFixture, TestInvalidDir) {
       factory.NewCredentialStore(kClientId, &status));
   EXPECT_FALSE(status.ok());
   EXPECT_EQ(NULL, store.get());
-  File::DeleteDir(kRoot.c_str());
+  File::Delete(kRoot);
 }
 
 TEST_F(FileCredentialStoreFixture, TestStoreFile) {
@@ -237,8 +236,8 @@ TEST_F(FileCredentialStoreFixture, TestStoreEncodedFile) {
 
   // The encoder expects the kOriginalString and encode it to the
   // kExpectEncode string.
-  const StringPiece kOriginalString("StringToStore");
-  const StringPiece kExpectEncode("TheEncodedValue");
+  const string kOriginalString("StringToStore");
+  const string kExpectEncode("TheEncodedValue");
 
   typedef ResultCallback3<DataReader*, DataReader*, Closure*, googleapis::util::Status*>
       NewTransformReaderCallback;
@@ -255,9 +254,7 @@ TEST_F(FileCredentialStoreFixture, TestStoreEncodedFile) {
   // So the string going into the store should be the encoded one.
   MockAuthorizationCredential mock_credential;
   EXPECT_CALL(mock_credential, MakeDataReader())
-      .WillOnce(
-          Return(
-              NewManagedInMemoryDataReader(kOriginalString.as_string())));
+      .WillOnce(Return(NewManagedInMemoryDataReader(kOriginalString)));
   status = store->Store(kKey, mock_credential);
   EXPECT_TRUE(status.ok()) << status.ToString();
 

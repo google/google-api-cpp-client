@@ -634,7 +634,7 @@ class HttpEntryScribe : public HttpScribe {
   virtual Entry* NewEntry(const HttpRequest* request)
       EXCLUSIVE_LOCKS_REQUIRED(mutex_)
       = 0;
-  virtual Entry* NewBatchEntry(const HttpRequestBatch* batch)
+  virtual Entry* NewBatchEntry(const HttpRequestBatch*)
       EXCLUSIVE_LOCKS_REQUIRED(mutex_) {
     LOG(FATAL) << "Not Implemented";
     return NULL;

@@ -29,7 +29,6 @@ using std::string;
 #include "googleapis/client/util/uri_template.h"
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 
 namespace googleapis {
 
@@ -45,7 +44,7 @@ namespace client {
 // within the UriTemplate and passed back to AppendVariable.
 struct UriTemplateConfig {
  public:
-  StringPiece variable_name_;
+  string variable_name_;
   const char* prefix_;
   const char* joiner_;
   bool requires_variable_assignment_;
@@ -58,7 +57,7 @@ struct UriTemplateConfig {
         reserved_expansion_(reserved), explode_(false) {
   }
 
-  void AppendValue(const StringPiece& value, string* target) const {
+  void AppendValue(const string& value, string* target) const {
     string escaped;
     if (reserved_expansion_) {
       // reserved expansion passes through everything.
@@ -70,7 +69,7 @@ struct UriTemplateConfig {
   }
 
   void AppendKeyValue(
-      const StringPiece& key, const StringPiece& value, string* target) const {
+      const string& key, const string& value, string* target) const {
     const char* pair_joiner = explode_ ? "=" : kNonExplodeJoiner;
     AppendValue(key, target);
     target->append(pair_joiner);
@@ -82,41 +81,41 @@ struct UriTemplateConfig {
 // '{}' in the source. On result the control parameters are stripped off
 // leaving just the variable name that should be passed to the user-supplied
 // AppendVariableCallback.
-static UriTemplateConfig MakeConfig(StringPiece* variable) {
+static UriTemplateConfig MakeConfig(string* variable) {
   switch (*variable->data()) {
     // Reserved expansion.
     case '+':
-      variable->remove_prefix(1);
+      *variable = variable->substr(1);
       return UriTemplateConfig("", ",", false, true);
 
     // Fragment expansion.
     case '#':
-      variable->remove_prefix(1);
+      *variable = variable->substr(1);
       return UriTemplateConfig("#", ",", false, true);
 
     // Label with dot-prefix.
     case '.':
-      variable->remove_prefix(1);
+      *variable = variable->substr(1);
       return UriTemplateConfig(".", ".", false, false);
 
     // Path segment expansion.
     case '/':
-      variable->remove_prefix(1);
+      *variable = variable->substr(1);
       return UriTemplateConfig("/", "/", false, false);
 
     // Path segment parameter expansion.
     case ';':
-      variable->remove_prefix(1);
+      *variable = variable->substr(1);
       return UriTemplateConfig(";", ";", true, false);
 
     // Form-style query expansion.
     case '?':
-      variable->remove_prefix(1);
+      *variable = variable->substr(1);
       return UriTemplateConfig("?", "&", true, false);
 
     // Form-style query continuation.
     case '&':
-      variable->remove_prefix(1);
+      *variable = variable->substr(1);
       return UriTemplateConfig("&", "&", true, false);
 
     // Simple expansion.
@@ -126,12 +125,12 @@ static UriTemplateConfig MakeConfig(StringPiece* variable) {
 }
 
 static googleapis::util::Status ProcessVariable(
-    StringPiece* variable,
+    string* variable,
     UriTemplate::AppendVariableCallback* provider,
     string* target) {
-  bool explode = variable->ends_with("*");
+  bool explode = variable->back() == '*';
   if (explode) {
-    variable->remove_suffix(1);
+    variable->resize(variable->size()-1);
   }
   // Note that this function will modify the template to remove the decorators
   // leaving just the name.
@@ -144,8 +143,8 @@ static googleapis::util::Status ProcessVariable(
 
 // static
 util::Status UriTemplate::Expand(
-    const StringPiece& path_uri, AppendVariableCallback* provider,
-    string* target, std::set<StringPiece>* vars_found) {
+    const string& path_uri, AppendVariableCallback* provider,
+    string* target, std::set<string>* vars_found) {
   googleapis::util::Status final_status = StatusOk();
   provider->CheckIsRepeatable();
   int cur = 0;
@@ -164,7 +163,7 @@ util::Status UriTemplate::Expand(
       string error = StrCat("Malformed variable near ", next, " ", path_uri);
       return StatusInvalidArgument(error);
     }
-    StringPiece variable(path_uri, next + 1, close - next - 1);
+    string variable(path_uri, next + 1, close - next - 1);
     cur = close + 1;
     googleapis::util::Status status = ProcessVariable(&variable, provider, target);
     if (!status.ok()) {
@@ -183,7 +182,7 @@ util::Status UriTemplate::Expand(
 
 // static
 void UriTemplate::AppendListFirst(
-    const StringPiece& value, const UriTemplateConfig& config, string* target) {
+    const string& value, const UriTemplateConfig& config, string* target) {
   target->append(config.prefix_);
   if (config.requires_variable_assignment_) {
     target->append(EscapeForUrl(config.variable_name_));
@@ -194,7 +193,7 @@ void UriTemplate::AppendListFirst(
 
 // static
 void UriTemplate::AppendListNext(
-    const StringPiece& value, const UriTemplateConfig& config, string* target) {
+    const string& value, const UriTemplateConfig& config, string* target) {
   const char* joiner = config.explode_ ? config.joiner_ : kNonExplodeJoiner;
   target->append(joiner);
 
@@ -207,7 +206,7 @@ void UriTemplate::AppendListNext(
 
 // static
 void UriTemplate::AppendMapFirst(
-    const StringPiece& key, const StringPiece& value,
+    const string& key, const string& value,
     const UriTemplateConfig& config, string* target) {
   target->append(config.prefix_);
   if (!config.explode_ && config.requires_variable_assignment_) {
@@ -220,7 +219,7 @@ void UriTemplate::AppendMapFirst(
 
 // static
 void UriTemplate::AppendMapNext(
-    const StringPiece& key, const StringPiece& value,
+    const string& key, const string& value,
     const UriTemplateConfig& config, string* target) {
   const char* joiner = config.explode_ ? config.joiner_ : kNonExplodeJoiner;
   target->append(joiner);
@@ -228,8 +227,8 @@ void UriTemplate::AppendMapNext(
 }
 
 // static
-void UriTemplate::AppendValueStringPiece(
-    const StringPiece& value, const UriTemplateConfig& config, string* target) {
+void UriTemplate::AppendValueString(
+    const string& value, const UriTemplateConfig& config, string* target) {
   config.AppendValue(value, target);
 }
 

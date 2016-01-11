@@ -28,7 +28,6 @@ using std::map;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 #include <mongoose/mongoose.h>
 namespace googleapis {
 
@@ -47,14 +46,14 @@ namespace client {
  */
 class MongooseWebServer : public AbstractWebServer {
  public:
-  static const StringPiece ACCESS_LOG_FILE;
-  static const StringPiece DOCUMENT_ROOT;
-  static const StringPiece ENABLE_KEEP_ALIVE;
-  static const StringPiece ERROR_LOG_FILE;
-  static const StringPiece LISTENING_PORTS;
-  static const StringPiece NUM_THREADS;
-  static const StringPiece REQUEST_TIMEOUT_MS;
-  static const StringPiece SSL_CERTIFICATE;
+  static const char ACCESS_LOG_FILE[];
+  static const char DOCUMENT_ROOT[];
+  static const char ENABLE_KEEP_ALIVE[];
+  static const char ERROR_LOG_FILE[];
+  static const char LISTENING_PORTS[];
+  static const char NUM_THREADS[];
+  static const char REQUEST_TIMEOUT_MS[];
+  static const char SSL_CERTIFICATE[];
 
   /*
    * Constructs an http server on the given port
@@ -104,9 +103,8 @@ class MongooseWebServer : public AbstractWebServer {
    * @param[in] name See the Mongoose Documentation for option names.
    * @param[in] value See the Mongoose Documentation for option values.
    */
-  void set_mongoose_option(
-      const StringPiece& name, const StringPiece& value) {
-    options_.insert(std::make_pair(name.as_string(), value.as_string()));
+  void set_mongoose_option(const string& name, const string& value) {
+    options_.insert(std::make_pair(name, value));
   }
 
   /*
@@ -121,8 +119,8 @@ class MongooseWebServer : public AbstractWebServer {
   /*
    * Clears an overiden Mongoose options back to the default value.
    */
-  void clear_mongoose_option(const StringPiece& name) {
-    std::map<string, string>::iterator it = options_.find(name.as_string());
+  void clear_mongoose_option(const string& name) {
+    std::map<string, string>::iterator it = options_.find(name);
     if (it != options_.end()) {
       options_.erase(it);
     }
@@ -158,9 +156,9 @@ class MongooseWebServer : public AbstractWebServer {
    * @param[in] connection The connection passed to the DoHandleUrl.
    */
   int SendResponse(
-      const StringPiece& content_type,
+      const string& content_type,
       int http_code,
-      const StringPiece& body,
+      const string& body,
       struct mg_connection* connection);
 
  private:

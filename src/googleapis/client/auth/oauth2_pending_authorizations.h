@@ -21,7 +21,6 @@
 #ifndef GOOGLEAPIS_AUTH_OAUTH2_PENDING_AUTHORIZATIONS_H_
 #define GOOGLEAPIS_AUTH_OAUTH2_PENDING_AUTHORIZATIONS_H_
 
-#include <stdlib.h>
 #include <map>
 using std::map;
 #include <string>
@@ -29,15 +28,10 @@ using std::string;
 
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
-#include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
 #include "googleapis/base/thread_annotations.h"
-#include "googleapis/strings/numbers.h"
-#include "googleapis/util/hash.h"
 namespace googleapis {
-
-class StringPiece;
 
 namespace client {
 
@@ -58,7 +52,7 @@ namespace client {
  *                   reason, such as a timeout.
  * @param[in] code The authorization code if ok, otherwise ignored.
  */
-typedef Callback2<const googleapis::util::Status&, const StringPiece&>
+typedef Callback2<const googleapis::util::Status&, const string&>
   OAuth2BasicAuthorizationCodeNotificationHandler;
 
 /*
@@ -78,7 +72,7 @@ class OAuth2PendingAuthorizations {
    * Standard destructor.
    */
   virtual ~OAuth2PendingAuthorizations() {
-    for (typename map<int, CALLBACK*>::iterator it = map_.begin();
+    for (typename std::map<int, CALLBACK*>::iterator it = map_.begin();
          it != map_.end();
          ++it) {
       CancelCallback(it->second);
@@ -116,7 +110,7 @@ class OAuth2PendingAuthorizations {
   CALLBACK* FindAndRemoveHandlerForKey(int key) LOCKS_EXCLUDED(mutex_) {
     CALLBACK* handler = NULL;
     MutexLock l(&mutex_);
-    typename map<int, CALLBACK*>::iterator it = map_.find(key);
+    typename std::map<int, CALLBACK*>::iterator it = map_.find(key);
     if (it != map_.end()) {
       handler = it->second;
       map_.erase(it);
@@ -126,7 +120,7 @@ class OAuth2PendingAuthorizations {
 
  private:
   Mutex mutex_;
-  map<int, CALLBACK*> map_ GUARDED_BY(mutex_);
+  std::map<int, CALLBACK*> map_ GUARDED_BY(mutex_);
 
   DISALLOW_COPY_AND_ASSIGN(OAuth2PendingAuthorizations);
 };

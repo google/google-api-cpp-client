@@ -37,6 +37,7 @@
 #include <glog/logging.h>
 #include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
+#include "googleapis/strings/stringpiece.h"
 
 namespace googleapis {
 

@@ -106,8 +106,8 @@ util::Status ClientServiceRequest::PrepareUrl(
       NewPermanentCallback(this, &ClientServiceRequest::CallAppendVariable));
 
   // Attempt to expand everything for best effort.
-  googleapis::util::Status expand_status =
-      UriTemplate::Expand(templated_url, callback.get(), prepared_url);
+  googleapis::util::Status expand_status = UriTemplate::Expand(
+      templated_url.as_string(), callback.get(), prepared_url);
   googleapis::util::Status query_status = AppendOptionalQueryParameters(prepared_url);
 
   return expand_status.ok() ? query_status : expand_status;
@@ -273,7 +273,7 @@ util::Status ClientServiceRequest::AppendOptionalQueryParameters(
 }
 
 util::Status ClientServiceRequest::CallAppendVariable(
-    const StringPiece& variable_name, const UriTemplateConfig& config,
+    const string& variable_name, const UriTemplateConfig& config,
     string* target) {
   googleapis::util::Status status = AppendVariable(variable_name, config, target);
   if (!status.ok()) {
@@ -307,7 +307,7 @@ void ClientService::ChangeServiceUrl(
   int url_root_extra = url_root.ends_with("/") ? 0 : 1;
   int url_path_trim = url_path.starts_with("/") ? 1 : 0;
 
-  service_url_ = JoinPath(url_root, url_path);
+  service_url_ = JoinPath(url_root.as_string(), url_path.as_string());
   url_root_ = StringPiece(service_url_, 0, url_root.size() + url_root_extra);
   url_path_ = StringPiece(service_url_,
                           url_root_.size(),

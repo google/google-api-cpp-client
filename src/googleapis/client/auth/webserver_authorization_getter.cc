@@ -29,8 +29,8 @@ using std::string;
 #include "googleapis/base/integral_types.h"
 #include <glog/logging.h>
 #include "googleapis/base/mutex.h"
+#include "googleapis/base/time.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/util.h"
 
 namespace googleapis {
@@ -48,7 +48,7 @@ WebServerAuthorizationCodeGetter::~WebServerAuthorizationCodeGetter() {
 
 // static
 util::Status WebServerAuthorizationCodeGetter::PromptWithOstream(
-     std::ostream* ostream, const string& prompt, const StringPiece& url) {
+     std::ostream* ostream, const string& prompt, const string& url) {
   string display = prompt;
   GlobalReplaceSubstring("$URL", url, &display);
   *ostream << display;
@@ -57,7 +57,7 @@ util::Status WebServerAuthorizationCodeGetter::PromptWithOstream(
 
 // static
 util::Status WebServerAuthorizationCodeGetter::PromptWithCommand(
-     const string& program, const string& args, const StringPiece& url) {
+     const string& program, const string& args, const string& url) {
   string real_args = args;
   GlobalReplaceSubstring("$URL", url, &real_args);
 
@@ -69,7 +69,7 @@ util::Status WebServerAuthorizationCodeGetter::PromptWithCommand(
 }
 
 util::Status WebServerAuthorizationCodeGetter::AskForAuthorization(
-     const StringPiece& url) {
+     const string& url) {
   return ask_callback_->Run(url);
 }
 
@@ -96,7 +96,8 @@ util::Status WebServerAuthorizationCodeGetter::PromptForAuthorizationCode(
     if (authorization_code_.empty()) {
       authorization_status_ =
           StatusDeadlineExceeded("Did not receive authorization in time");
-      authorization_condvar_.WaitWithTimeout(&mutex_, timeout_ms_);
+      authorization_condvar_.WaitWithTimeout(&mutex_,
+                                             base::Milliseconds(timeout_ms_));
     }
     status = authorization_status_;
     *authorization_code = authorization_code_;
@@ -149,11 +150,11 @@ util::Status WebServerAuthorizationCodeGetter::ReceiveAuthorizationCode(
 }
 
 void WebServerAuthorizationCodeGetter::AddReceiveAuthorizationCodeUrlPath(
-    const StringPiece& path, AbstractWebServer* httpd) {
+    const string& path, AbstractWebServer* httpd) {
   AbstractWebServer::PathHandler* path_handler =
       NewPermanentCallback(
           this, &WebServerAuthorizationCodeGetter::ReceiveAuthorizationCode);
-  httpd->AddPathHandler(path.as_string(), path_handler);
+  httpd->AddPathHandler(path, path_handler);
 }
 
 }  // namespace client

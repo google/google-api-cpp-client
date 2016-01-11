@@ -62,7 +62,7 @@ class FileUtilsTestFixture : public testing::Test {
 
 TEST_F(FileUtilsTestFixture, TestCreateDir) {
   const string kRoot = StrCat(GetTestingTempDir(), "/test_create_dir");
-  File::DeleteDir(kRoot.c_str());
+  File::Delete(kRoot);
   ASSERT_TRUE(util::IsNotFound(file::Exists(kRoot, file::Defaults())));
 
   googleapis::util::Status status =

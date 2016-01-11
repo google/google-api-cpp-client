@@ -24,7 +24,6 @@
 #ifndef GOOGLEAPIS_UTIL_GOOGLEAPIS_GTEST_H_
 #define GOOGLEAPIS_UTIL_GOOGLEAPIS_GTEST_H_
 
-#include "googleapis/strings/strcat.h"
 #include <gtest/gtest.h>
 namespace googleapis {
 

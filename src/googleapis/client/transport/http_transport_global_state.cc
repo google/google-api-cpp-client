@@ -26,9 +26,10 @@
 // The global state reduces the amount of setup code required, and amount
 // of code needed to remember or propagate configuration information.
 
+#include <mutex>  // NOLINT
+
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/transport/http_transport_global_state.h"
-#include "googleapis/base/once.h"
 
 namespace googleapis {
 
@@ -41,13 +42,14 @@ static void InitModule() {
   configuration_ = new HttpTransportLayerConfig;
 }
 
+std::once_flag g_once_flag;
+
 }  // anonymous namespace
 
 namespace client {
 
 HttpTransportLayerConfig* GetGlobalHttpTransportLayerConfiguration() {
-  static GoogleOnceType once_init_ = GOOGLE_ONCE_INIT;
-  GoogleOnceInit(&once_init_, &InitModule);
+  std::call_once(g_once_flag, &InitModule);
   return configuration_;
 }
 

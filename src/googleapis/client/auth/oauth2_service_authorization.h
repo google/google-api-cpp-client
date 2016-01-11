@@ -20,14 +20,14 @@
 
 #ifndef GOOGLEAPIS_AUTH_OAUTH2_SERVICE_AUTHORIZATION_H_
 #define GOOGLEAPIS_AUTH_OAUTH2_SERVICE_AUTHORIZATION_H_
+
 #include <string>
 using std::string;
+
 #include "googleapis/client/auth/oauth2_authorization.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/macros.h"
 namespace googleapis {
-
-class StringPiece;
 
 namespace client {
 
@@ -88,8 +88,7 @@ class OAuth2ServiceAccountFlow : public OAuth2AuthorizationFlow {
 
   string MakeJwtClaims(const OAuth2RequestOptions& options) const;
   googleapis::util::Status ConstructSignedJwt(
-      const StringPiece& plain_claims,
-      string* result) const;
+      const string& plain_claims, string* result) const;
 
  private:
   string client_email_;

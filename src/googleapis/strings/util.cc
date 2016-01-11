@@ -55,10 +55,10 @@ using std::string;
 #include <vector>
 using std::vector;
 
-#include <glog/logging.h>
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/stringpiece.h"
+#include <glog/logging.h>
 
 namespace googleapis {
 

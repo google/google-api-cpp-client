@@ -56,12 +56,12 @@ using std::numeric_limits;
 using std::string;
 using std::string;
 
-#include <glog/logging.h>
 #include "googleapis/strings/ascii_ctype.h"
 #if defined(HAVE_INT_128)
 #include "googleapis/base/int128.h"
 #endif
 #include "googleapis/base/integral_types.h"
+#include <glog/logging.h>
 #include "googleapis/base/strtoint.h"
 
 namespace googleapis {

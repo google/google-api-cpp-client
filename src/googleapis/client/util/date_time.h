@@ -108,7 +108,7 @@ class DateTime {
   ~DateTime();
 
   /*
-   * Convert the data to an RFC 3330 encoded string.
+   * Convert the date to an RFC 3339 encoded string.
    */
   string ToString() const;
 

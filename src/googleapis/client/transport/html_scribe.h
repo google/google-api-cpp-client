@@ -28,7 +28,6 @@ using std::string;
 #include "googleapis/client/transport/http_scribe.h"
 #include "googleapis/base/thread_annotations.h"
 #include "googleapis/base/integral_types.h"
-#include "googleapis/strings/strcat.h"
 namespace googleapis {
 
 namespace client {

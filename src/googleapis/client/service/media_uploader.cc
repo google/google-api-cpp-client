@@ -176,7 +176,7 @@ util::Status MediaUploader::BuildRequest(
     template_url = JoinPath(base_url_, non_media_upload_path_);
   } else {
     template_url =
-        StrCat(JoinPath(base_url_, spec_->path_template()),
+        StrCat(JoinPath(base_url_, spec_->path_template().as_string()),
                "?uploadType=", upload_type);
   }
 

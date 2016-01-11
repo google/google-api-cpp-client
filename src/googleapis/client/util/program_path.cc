@@ -27,8 +27,12 @@
 #else
 #include <unistd.h>
 #endif
-#if defined(HAVE_LIBPROC)
+#if __APPLE__
+#include "TargetConditionals.h"
+#if !TARGET_OS_IPHONE
+#define HAVE_LIBPROC
 #include <libproc.h>
+#endif
 #endif
 
 #include <string>

@@ -31,7 +31,6 @@ using std::vector;
 #include <glog/logging.h>
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 
 namespace googleapis {
 
@@ -56,8 +55,7 @@ class MongooseResponse : public WebServerResponse {
   struct mg_connection* connection()  { return connection_; }
 
   virtual googleapis::util::Status SendReply(
-      const StringPiece& content_type,
-      int http_code, const StringPiece& payload) {
+      const string& content_type, int http_code, const string& payload) {
     const string& http_code_msg = HttpCodeToHttpErrorMessage(http_code);
     string headers =
         StrCat("HTTP/1.1 ", http_code, " ", http_code_msg, "\r\n");
@@ -96,14 +94,12 @@ class MongooseResponse : public WebServerResponse {
     return StatusOk();
   }
 
-  virtual googleapis::util::Status AddHeader(
-      const StringPiece& name, const StringPiece& value) {
-    headers_.push_back(std::make_pair(name.as_string(), value.as_string()));
+  virtual googleapis::util::Status AddHeader(const string& name, const string& value) {
+    headers_.push_back(std::make_pair(name, value));
     return StatusOk();
   }
 
-  virtual googleapis::util::Status AddCookie(
-      const StringPiece& name, const StringPiece& value) {
+  virtual googleapis::util::Status AddCookie(const string& name, const string& value) {
     cookies_.push_back(StrCat(name, "=", value));
     return StatusOk();
   }
@@ -174,14 +170,14 @@ class MongooseRequest : public WebServerRequest {
 };
 
 
-const StringPiece MongooseWebServer::ACCESS_LOG_FILE("access_log_file");
-const StringPiece MongooseWebServer::DOCUMENT_ROOT("document_root");
-const StringPiece MongooseWebServer::ENABLE_KEEP_ALIVE("enable_keep_alive");
-const StringPiece MongooseWebServer::ERROR_LOG_FILE("error_log_file");
-const StringPiece MongooseWebServer::LISTENING_PORTS("listening_ports");
-const StringPiece MongooseWebServer::NUM_THREADS("num_threads");
-const StringPiece MongooseWebServer::REQUEST_TIMEOUT_MS("request_timeout_ms");
-const StringPiece MongooseWebServer::SSL_CERTIFICATE("ssl_certificate");
+const char MongooseWebServer::ACCESS_LOG_FILE[] = "access_log_file";
+const char MongooseWebServer::DOCUMENT_ROOT[] = "document_root";
+const char MongooseWebServer::ENABLE_KEEP_ALIVE[] = "enable_keep_alive";
+const char MongooseWebServer::ERROR_LOG_FILE[] = "error_log_file";
+const char MongooseWebServer::LISTENING_PORTS[] = "listening_ports";
+const char MongooseWebServer::NUM_THREADS[] = "num_threads";
+const char MongooseWebServer::REQUEST_TIMEOUT_MS[] = "request_timeout_ms";
+const char MongooseWebServer::SSL_CERTIFICATE[] = "ssl_certificate";
 
 int MongooseWebServer::BeginRequestHandler(struct mg_connection* connection) {
   const struct mg_request_info* request_info = mg_get_request_info(connection);
@@ -198,7 +194,7 @@ int MongooseWebServer::BeginRequestHandler(struct mg_connection* connection) {
 
 MongooseWebServer::MongooseWebServer(int port)
     : AbstractWebServer(port),
-      kSslCertificateOption(SSL_CERTIFICATE.as_string()),
+      kSslCertificateOption(SSL_CERTIFICATE),
       mg_context_(NULL) {
   memset(&callbacks_, 0, sizeof(callbacks_));
   callbacks_.begin_request = BeginRequestHandler;
@@ -216,7 +212,7 @@ string MongooseWebServer::url_protocol() const {
 
 util::Status MongooseWebServer::DoStartup() {
   string port_str = SimpleItoa(port());
-  const string kPortOption = LISTENING_PORTS.as_string();
+  const string kPortOption = LISTENING_PORTS;
   string port_option = mongoose_option(kPortOption);
   if (!port_option.empty() && port_option != port_str) {
     return StatusFailedPrecondition("Inconsistent port and LISTENING_PORTS");

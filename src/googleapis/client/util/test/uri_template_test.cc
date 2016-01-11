@@ -25,7 +25,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
-#include "googleapis/strings/stringpiece.h"
 #include <gtest/gtest.h>
 
 namespace googleapis {
@@ -43,7 +42,7 @@ class UriTemplateTestFixture : public testing::Test {
   }
 
   googleapis::util::Status UriTemplateHelper(
-      const StringPiece& name, const UriTemplateConfig& config, string* out) {
+      const string& name, const UriTemplateConfig& config, string* out) {
     if (name == "var") {
       out->append("value");
       return StatusOk();
@@ -78,7 +77,7 @@ class UriTemplateTestFixture : public testing::Test {
  protected:
   std::unique_ptr<UriTemplate::AppendVariableCallback> provider_;
 
-  string Expand(const StringPiece uri) {
+  string Expand(const string uri) {
     string result;
     UriTemplate::Expand(uri, provider_.get(), &result).IgnoreError();
     return result;

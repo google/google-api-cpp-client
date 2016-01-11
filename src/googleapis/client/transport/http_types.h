@@ -176,15 +176,27 @@ class HttpRequestOptions {
    */
   void set_destroy_when_done(bool destroy)  { destroy_when_done_ = destroy; }
 
+  /*
+   * Specify priority of the request being made.
+   * Default value is 0. As value increases priority decreases.
+   */
+  void set_priority(unsigned int priority)  { priority_ = priority; }
+
+  /*
+   * Get the priority value assigned to a request.
+   */
+  unsigned int priority() const   { return priority_; }
+
  private:
   int64 timeout_ms_;        //!< Default is subject to change.
   int max_retries_;         //!< Default is subject to change.
   int max_redirects_;       //!< Default is subject to change.
   bool destroy_when_done_;  //< Default is false.
+  unsigned int priority_;            //< Default is 0.
 };
 
 /*
- * Denotes the current state of an HttpRequest's lifecycel.
+ * Denotes the current state of an HttpRequest's lifecycle.
  * @ingroup TransportLayerCore
  *
  * The state includes the StateCode in its state machine progress as

@@ -214,7 +214,8 @@ const HttpRequest::HttpMethod HttpRequest::PUT("PUT");
 
 HttpRequestOptions::HttpRequestOptions()
     : timeout_ms_(10 * 1000),
-      max_retries_(1), max_redirects_(5), destroy_when_done_(false) {
+      max_retries_(1), max_redirects_(5), destroy_when_done_(false),
+      priority_(0) {
 }
 
 HttpRequestState::HttpRequestState()
@@ -1055,7 +1056,7 @@ void HttpRequest::AddBuiltinHeaders() {
 
   if (!FindHeaderValue(HttpHeader_HOST)) {
     ParsedUrl parsed_url(url_);
-    AddHeader(HttpHeader_HOST, parsed_url.netloc().as_string());
+    AddHeader(HttpHeader_HOST, parsed_url.netloc());
   }
 
   if (content_reader_.get()) {
