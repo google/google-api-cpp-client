@@ -73,7 +73,10 @@ util::Status AbstractWebServerLoginFlow::DoInitiateAuthorizationFlow(
   int key = pending_->AddAuthorizationCodeHandler(
       NewCallback(this, &AbstractWebServerLoginFlow::ReceiveAuthorizationCode,
                   cookie_id, want_url));
-  StringAppendF(&authorize_url, "&state=%x", key);
+  authorize_url.append("&state=%x");
+  char tmp[50];
+  snprintf(tmp, sizeof(tmp), "%x", key);
+  authorize_url.append(tmp);
 
   VLOG(1)
       << "Redirecting cookie=" << cookie_id << " to authorize";
