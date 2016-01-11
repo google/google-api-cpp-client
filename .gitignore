@@ -12,3 +12,4 @@ external_dependencies
 bin
 lib
 export
+local.cmake
