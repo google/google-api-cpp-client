@@ -16,9 +16,17 @@
  *
  * @}
  */
+#include <mutex>  // NOLINT
+
+#if __APPLE__
+
 #include "googleapis/base/callback.h"
 #include "googleapis/base/mutex.h"
-#include "googleapis/base/once.h"
+
+#else
+#include "googleapis/base/callback.h"
+#include "googleapis/base/mutex.h"
+#endif
 #include "googleapis/util/executor.h"
 
 namespace googleapis {
@@ -29,7 +37,7 @@ using thread::Executor;
 static Executor* default_executor_ = NULL;
 static Executor* global_inline_executor_ = NULL;
 
-GoogleOnceType module_init_ = GOOGLE_ONCE_INIT;
+std::once_flag module_init_;
 Mutex module_mutex_(base::LINKER_INITIALIZED);
 
 class InlineExecutor : public Executor {
@@ -62,13 +70,13 @@ Executor::~Executor() {}
 
 // static
 Executor* Executor::DefaultExecutor() {
-  GoogleOnceInit(&module_init_, InitModule);
+  std::call_once(module_init_, InitModule);
   return default_executor_;
 }
 
 // static
 void Executor::SetDefaultExecutor(Executor* executor) {
-  GoogleOnceInit(&module_init_, InitModule);
+  std::call_once(module_init_, InitModule);
   MutexLock l(&module_mutex_);
   default_executor_ = executor;
 }
@@ -80,7 +88,7 @@ Executor* NewInlineExecutor() {
 
 // static
 Executor* SingletonInlineExecutor() {
-  GoogleOnceInit(&module_init_, InitModule);
+  std::call_once(module_init_, InitModule);
   return global_inline_executor_;
 }
 

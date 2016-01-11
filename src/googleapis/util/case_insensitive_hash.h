@@ -31,13 +31,16 @@
 #define UTIL_HASH_CASE_INSENSITIVE_HASH_H_
 
 #include <stddef.h>
+#ifndef _MSC_VER
 #include <strings.h>
+#endif
 
 #include <string>
 using std::string;
 
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
+#include "googleapis/base/port.h"
 #include "googleapis/strings/ascii_ctype.h"
 namespace googleapis {
 
