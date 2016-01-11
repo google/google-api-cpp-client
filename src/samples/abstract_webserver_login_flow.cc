@@ -44,8 +44,8 @@ using client::StatusUnknown;
 namespace sample {
 
 AbstractWebServerLoginFlow::AbstractWebServerLoginFlow(
-    const StringPiece& cookie_name,
-    const StringPiece& redirect_name,
+    const string& cookie_name,
+    const string& redirect_name,
     OAuth2AuthorizationFlow* flow)
     : AbstractLoginFlow(cookie_name, redirect_name, flow) {
   pending_.reset(new OAuth2PendingAuthorizations<PendingAuthorizationHandler>);
@@ -56,13 +56,13 @@ AbstractWebServerLoginFlow::~AbstractWebServerLoginFlow() {
 
 
 util::Status AbstractWebServerLoginFlow::DoInitiateAuthorizationFlow(
-    WebServerRequest* request, const StringPiece& redirect_url) {
+    WebServerRequest* request, const string& redirect_url) {
   string cookie_id = GetCookieId(request);
   string want_url;
   if (redirect_url.empty()) {
     want_url = request->parsed_url().url();
   } else {
-    want_url = redirect_url.as_string();
+    want_url = redirect_url;
   }
   VLOG(1) << "No credential for cookie=" << cookie_id
           << " so save " << want_url << " while we ask";

@@ -27,6 +27,8 @@
 #include <map>
 using std::map;
 #include <memory>
+#include <string>
+using std::string;
 #include <utility>
 using std::make_pair;
 using std::pair;
@@ -35,7 +37,6 @@ using std::vector;
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/client/transport/http_response.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 namespace sample {
@@ -63,27 +64,27 @@ class CommandProcessor {
   // Returns true if args were ok. False if they ended prematurely.
   // Even if false is returned, the list will contain the best interpretation
   // of the args.
-  static bool SplitArgs(const StringPiece& phrase, vector<string>* list);
+  static bool SplitArgs(const string& phrase, vector<string>* list);
 
  protected:
   typedef Callback2<const string&, const vector<string>&> CommandRunner;
   struct CommandEntry {
     CommandEntry(
-        const StringPiece& usage_args,
-        const StringPiece& description,
+        const string& usage_args,
+        const string& description,
         CommandRunner* callback)
         : args(usage_args), help(description), runner(callback) {
       callback->CheckIsRepeatable();
     }
 
     static bool CompareEntry(
-        const pair<const StringPiece, const CommandEntry*>& a,
-        const pair<const StringPiece, const CommandEntry*>& b) {
+        const pair<const string, const CommandEntry*>& a,
+        const pair<const string, const CommandEntry*>& b) {
       return a.first < b.first;
     }
 
-    const StringPiece args;
-    const StringPiece help;
+    const string args;
+    const string help;
     std::unique_ptr<CommandRunner> runner;
 
    private:
@@ -97,7 +98,7 @@ class CommandProcessor {
   // The base method adds the builtin commands (calls AddBulitinCommands)
   virtual void InitCommands();
 
-  void AddCommand(StringPiece name, CommandEntry* details);
+  void AddCommand(string name, CommandEntry* details);
 
   // For displaying errors, etc.
   bool CheckAndLogResponse(HttpResponse* response);
@@ -118,7 +119,7 @@ class CommandProcessor {
 
  private:
   // maps command name to entry map for exeuting it.
-  typedef map<StringPiece, CommandEntry*> CommandEntryMap;
+  typedef map<string, CommandEntry*> CommandEntryMap;
 
   CommandEntryMap commands_;
   string prompt_;

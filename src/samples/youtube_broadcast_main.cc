@@ -34,6 +34,10 @@
  * Type the command "help" for a list of available commands in this sample.
  */
 
+#include <string>
+using std::string;
+
+
 #include "samples/command_processor.h"
 #include "samples/installed_application.h"
 #include "googleapis/client/transport/curl_http_transport.h"
@@ -45,7 +49,6 @@
 #include <gflags/gflags.h>
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
 
 #include "google/youtube_api/youtube_api.h"
@@ -89,9 +92,9 @@ static void DumpLiveBroadcastList(const JsonCppArray<LiveBroadcast>& list) {
     const LiveBroadcast& bcast = *it;
     const LiveBroadcastSnippet& snippet = bcast.get_snippet();
     const LiveBroadcastContentDetails& details = bcast.get_content_details();
-    StringPiece bound_id =
+    string bound_id =
         details.has_bound_stream_id()
-        ? details.get_bound_stream_id()
+        ? details.get_bound_stream_id().as_string()
         : "<No Bound Stream>";
     cout << "  ID=" << bcast.get_id() << "\n"
          << "    StreamID=" << bound_id << "\n"
@@ -106,8 +109,10 @@ static void DumpLiveStreamList(const JsonCppArray<LiveStream>& list) {
        it != list.end();
        ++it) {
     const LiveStream& stream = *it;
-    StringPiece format =
-        stream.has_cdn() ? stream.get_cdn().get_format() : "<No CDN available>";
+    string format =
+        stream.has_cdn()
+        ? stream.get_cdn().get_format().as_string()
+        : "<No CDN available>";
     cout << "  ID=" << stream.get_id() << "\n"
          << "    Format=" << format << "\n"
          << "    ChannelID=" << stream.get_snippet().get_channel_id() << "\n"
@@ -128,8 +133,8 @@ class YouTubeBroadcastSampleApplication
   YouTubeBroadcastSampleApplication()
       : InstalledServiceApplication<YouTubeService>("YouTubeBroadcastSample") {
     vector<string>* scopes = mutable_default_oauth2_scopes();
-    scopes->push_back(YouTubeService::SCOPES::YOUTUBE.as_string());
-    scopes->push_back(YouTubeService::SCOPES::YOUTUBE_READONLY.as_string());
+    scopes->push_back(YouTubeService::SCOPES::YOUTUBE);
+    scopes->push_back(YouTubeService::SCOPES::YOUTUBE_READONLY);
   }
 
  private:
@@ -292,7 +297,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
     std::unique_ptr<LiveStream> stream(LiveStream::New());
 
     LiveStreamSnippet stream_snippet = stream->mutable_snippet();
-    stream_snippet.set_title(StrCat("Stream for ", title));
+    stream_snippet.set_title(string("Stream for ")+title);
 
     CdnSettings stream_cdn = stream->mutable_cdn();
     stream_cdn.set_format("1080p");
@@ -463,7 +468,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
 
   void DeleteLiveBroadcastHandler(
       const string&, const vector<string>& args) {
-    StringPiece id(args[1]);
+    string id(args[1]);
     std::unique_ptr<LiveBroadcastsResource_DeleteMethod> delete_broadcast(
         app_->service()->get_live_broadcasts().NewDeleteMethod(
             app_->credential(), id));
@@ -477,7 +482,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
 
   void DeleteLiveStreamHandler(
       const string&, const vector<string>& args) {
-    StringPiece id(args[1]);
+    string id(args[1]);
     std::unique_ptr<LiveStreamsResource_DeleteMethod> delete_broadcast(
         app_->service()->get_live_streams().NewDeleteMethod(
             app_->credential(), id));

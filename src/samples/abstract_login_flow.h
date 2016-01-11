@@ -27,7 +27,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 namespace client {
@@ -109,8 +108,8 @@ class AbstractLoginFlow {
    *                 need to exchange an authorization code for access token.
    */
   AbstractLoginFlow(
-      const StringPiece& cookie_name,
-      const StringPiece& redirect_name,
+      const string& cookie_name,
+      const string& redirect_name,
       client::OAuth2AuthorizationFlow* flow);
 
   /*
@@ -119,7 +118,7 @@ class AbstractLoginFlow {
   virtual ~AbstractLoginFlow();
 
   googleapis::util::Status InitiateAuthorizationFlow(
-      WebServerRequest* request, const StringPiece& redirect_url = "");
+      WebServerRequest* request, const string& redirect_url = "");
 
   /*
    * Return the cookie_id cooke bound in the constructor.
@@ -146,7 +145,7 @@ class AbstractLoginFlow {
    * @see DoRespondWithNotLoggedInPage
    * @see DoRespondWithLoginErrorPage
    */
-  void AddLoginUrl(const StringPiece& url, AbstractWebServer* httpd);
+  void AddLoginUrl(const string& url, AbstractWebServer* httpd);
 
   /*
    * Adds a logout handler with the given URL to the web server.
@@ -154,7 +153,7 @@ class AbstractLoginFlow {
    * @param[in] url The url that triggers the handler.
    * @param[ni] httpd The webserver to register then handler on.
    */
-  void AddLogoutUrl(const StringPiece& url, AbstractWebServer* httpd);
+  void AddLogoutUrl(const string& url, AbstractWebServer* httpd);
 
   /*
    * Adds the handler receiving OAuth2 access tokens using the given URL.
@@ -163,7 +162,7 @@ class AbstractLoginFlow {
    * @param[ni] httpd The webserver to register then handler on.
    */
   void AddReceiveAccessTokenUrl(
-      const StringPiece& url, AbstractWebServer* httpd);
+      const string& url, AbstractWebServer* httpd);
 
  protected:
   /*
@@ -195,7 +194,7 @@ class AbstractLoginFlow {
   DoGetCredentialForCookieId(const string& cookie_id) = 0;
 
   virtual googleapis::util::Status DoInitiateAuthorizationFlow(
-      WebServerRequest* request, const StringPiece& redirect_url)  = 0;
+      WebServerRequest* request, const string& redirect_url)  = 0;
 
   /*
    * Handler after we've successfully logged in without a redirect.

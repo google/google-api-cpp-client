@@ -26,7 +26,6 @@ using std::string;
 #include "samples/abstract_login_flow.h"
 #include "googleapis/client/util/abstract_webserver.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 namespace client {
@@ -46,8 +45,8 @@ class AbstractGplusLoginFlow : public AbstractLoginFlow {
    * Standard constructor.
    */
   explicit AbstractGplusLoginFlow(
-      const StringPiece& cookie_name,
-      const StringPiece& redirect_name,
+      const string& cookie_name,
+      const string& redirect_name,
       client::OAuth2AuthorizationFlow* flow);
 
   /*
@@ -85,7 +84,7 @@ class AbstractGplusLoginFlow : public AbstractLoginFlow {
    *            Can be empty.
    */
   virtual string GetSigninCallbackJavascriptHtml(
-      const StringPiece& state,
+      const string& state,
       const string& immediate_block,
       const string& success_block,
       const string& failure_block);
@@ -101,7 +100,7 @@ class AbstractGplusLoginFlow : public AbstractLoginFlow {
 
  protected:
   virtual googleapis::util::Status DoInitiateAuthorizationFlow(
-      WebServerRequest* request, const StringPiece& redirect_url);
+      WebServerRequest* request, const string& redirect_url);
 
   /*
    * Handles the poke callback when toens are received.

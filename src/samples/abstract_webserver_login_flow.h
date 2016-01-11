@@ -29,7 +29,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 namespace client {
@@ -85,8 +84,8 @@ class AbstractWebServerLoginFlow : public AbstractLoginFlow {
    * @param[in] notifier The injected callback for pulling out the access codes
    *                     that we obtain for different users.
    */
-  AbstractWebServerLoginFlow(const StringPiece& cookie_name,
-                             const StringPiece& redirect_name,
+  AbstractWebServerLoginFlow(const string& cookie_name,
+                             const string& redirect_name,
                              client::OAuth2AuthorizationFlow* flow);
 
   /*
@@ -111,7 +110,7 @@ class AbstractWebServerLoginFlow : public AbstractLoginFlow {
     pending_;
 
   virtual googleapis::util::Status DoInitiateAuthorizationFlow(
-      WebServerRequest* request, const StringPiece& redirect_url);
+      WebServerRequest* request, const string& redirect_url);
 
   /*
    * AbstractWebServer handler that gets access tokens for authorization codes.

@@ -36,7 +36,6 @@ using std::string;
 #include "googleapis/client/util/abstract_webserver.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/util.h"
 
 namespace googleapis {
@@ -53,8 +52,8 @@ using client::WebServerResponse;
 namespace sample {
 
 AbstractGplusLoginFlow::AbstractGplusLoginFlow(
-    const StringPiece& cookie_name,
-    const StringPiece& redirect_name,
+    const string& cookie_name,
+    const string& redirect_name,
     OAuth2AuthorizationFlow* flow)
     : AbstractLoginFlow(cookie_name, redirect_name, flow) {
 }
@@ -64,7 +63,7 @@ AbstractGplusLoginFlow::~AbstractGplusLoginFlow() {}
 // This is pretty much from Step 2 on:
 // https://developers.google.com/+/web/signin/#using_the_client-side_flow
 string AbstractGplusLoginFlow::GetPrerequisiteHeadHtml() {
-  const StringPiece kFetchScript =
+  const string kFetchScript =
       "<script type='text/javascript'>\n"
       "(function() {\n"
       "  var po = document.createElement('script');\n"
@@ -74,7 +73,7 @@ string AbstractGplusLoginFlow::GetPrerequisiteHeadHtml() {
       "  s.parentNode.insertBefore(po, s);\n"
       "})();\n"
       "</script>\n";
-  return kFetchScript.as_string();
+  return kFetchScript;
 }
 
 // This is pretty much from Step 3 on:
@@ -107,7 +106,7 @@ string AbstractGplusLoginFlow::GetSigninButtonHtml(bool default_visible) {
       " data-scope='", scopes_, "'>"
       "</span>"
       "</span>");
-  StringPiece style = default_visible ? "" : " style='display:none'";
+  string style = default_visible ? "" : " style='display:none'";
   return StringReplace(html, "$VISIBLE", style, false);
 }
 
@@ -125,11 +124,11 @@ string AbstractGplusLoginFlow::GetSigninButtonHtml(bool default_visible) {
 //
 // Success an failure will make the button visible and hidden.
 string AbstractGplusLoginFlow::GetSigninCallbackJavascriptHtml(
-    const StringPiece& state,
+    const string& state,
     const string& immediate_block,
     const string& success_block,
     const string& failure_block) {
-  StringPiece javascript_template =
+  string javascript_template =
       "<script type='text/javascript'>\n"
       "function signinCallback(authResult) {\n"
       "  if (authResult['access_token']) {\n"
@@ -162,9 +161,9 @@ string AbstractGplusLoginFlow::GetSigninCallbackJavascriptHtml(
       "}\n"
       "</script>\n";
 
-  string html = javascript_template.as_string();
+  string html = javascript_template;
   if (!immediate_block.empty()) {
-    const StringPiece reload_javascript =
+    const string reload_javascript =
         "    var url = '$POKE_URL'\n"
         "            + '?state=$STATE'\n"
         "            + '&access_token=' + authResult['access_token']\n"
@@ -234,7 +233,7 @@ string AbstractGplusLoginFlow::GetSigninCallbackJavascriptHtml(
 }
 
 util::Status AbstractGplusLoginFlow::DoInitiateAuthorizationFlow(
-    WebServerRequest* request, const StringPiece& redirect_url) {
+    WebServerRequest* request, const string& redirect_url) {
   return DoRespondWithNotLoggedInPage(GetCookieId(request), request);
 }
 
@@ -268,7 +267,7 @@ util::Status AbstractGplusLoginFlow::DoHandleAccessTokenUrl(
             cookie_id, client::StatusOk(), credential)) {
       msg = "LOGIN";
     } else {
-      msg= "Welcome back.";
+      msg = "Welcome back.";
     }
     http_code = 200;
   }

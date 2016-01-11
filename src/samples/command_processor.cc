@@ -35,9 +35,6 @@ using std::vector;
 #include "samples/command_processor.h"
 #include <glog/logging.h>
 #include "googleapis/strings/ascii_ctype.h"
-#include "googleapis/strings/strcat.h"
-#include "googleapis/strings/stringpiece.h"
-#include "googleapis/strings/strip.h"
 
 namespace googleapis {
 
@@ -83,7 +80,7 @@ void CommandProcessor::AddBuiltinCommands() {
          NewPermanentCallback(this, &CommandProcessor::VerboseHandler, 1)));
 }
 
-void CommandProcessor::AddCommand(StringPiece name, CommandEntry* details) {
+void CommandProcessor::AddCommand(string name, CommandEntry* details) {
   commands_.insert(std::make_pair(name, details));
 }
 
@@ -101,8 +98,8 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
     string body;
     googleapis::util::Status status = response->GetBodyString(&body);
     if (!status.ok()) {
-      StrAppend(&body, "ERROR reading HTTP response body: ",
-                status.error_message());
+      body.append("ERROR reading HTTP response body: ");
+      body.append(status.error_message());
     }
     cerr << "ERROR(" << response->http_code() << "): " << body << std::endl;
     response_was_ok = false;
@@ -112,8 +109,8 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
       string body;
       googleapis::util::Status status = response->GetBodyString(&body);
       if (!status.ok()) {
-        StrAppend(&body, "ERROR reading HTTP response body: ",
-                  status.error_message());
+        body.append("ERROR reading HTTP response body: ");
+        body.append(status.error_message());
       }
       cout << "----------  [begin response body]  ----------" << std::endl;
       cout << body << std::endl;
@@ -147,7 +144,7 @@ void CommandProcessor::QuitHandler(const string&, const vector<string>&) {
 }
 
 void CommandProcessor::HelpHandler(const string&, const vector<string>&) {
-  vector<pair<StringPiece, const CommandEntry*> > all;
+  vector<pair<string, const CommandEntry*> > all;
   for (CommandEntryMap::const_iterator it = commands_.begin();
        it != commands_.end();
        ++it) {
@@ -157,15 +154,18 @@ void CommandProcessor::HelpHandler(const string&, const vector<string>&) {
   std::sort(all.begin(), all.end(), &CommandEntry::CompareEntry);
 
   string help = "Commands:\n";
-  for (vector<pair<StringPiece, const CommandEntry*> >::const_iterator it=
+  for (vector<pair<string, const CommandEntry*> >::const_iterator it=
            all.begin();
        it != all.end();
        ++it) {
-    StrAppend(&help, it->first);
+    help.append(it->first);
     if (!it->second->args.empty()) {
-      StrAppend(&help, " ", it->second->args);
+      help.append(" ");
+      help.append(it->second->args);
     }
-    StrAppend(&help, "\n   ", it->second->help, "\n");
+    help.append("\n   ");
+    help.append(it->second->help);
+    help.append("\n   ");
   }
   cout << help << std::endl;
 }
@@ -197,8 +197,7 @@ void CommandProcessor::RunShell() {
 }
 
 // static
-bool CommandProcessor::SplitArgs(
-    const StringPiece& args, vector<string>* list) {
+bool CommandProcessor::SplitArgs(const string& args, vector<string>* list) {
   bool ok = true;
   string current;
   const char* end = args.data() + args.size();

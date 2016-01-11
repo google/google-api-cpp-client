@@ -193,7 +193,7 @@ void Display(const string& prefix, const Event& event) {
 
 template <class LIST, typename ELEM>
 void DisplayList(
-    const string& prefix, const StringPiece& title, const LIST& list) {
+    const string& prefix, const string& title, const LIST& list) {
   std::cout << prefix << "====  " << title << "  ====" << std::endl;
   string sub_prefix = StrCat(prefix, "  ");
   bool first = true;
@@ -255,7 +255,7 @@ class CalendarSample {
   // Returns the final status for the request. If not ok() then event wasn't
   // populated.
   googleapis::util::Status GetEvent(
-      const string& calendar_id, const StringPiece& event_id, Event* event);
+      const string& calendar_id, const string& event_id, Event* event);
 
   // Demonstrates patching a resource.
   // For this example, it is a calendar event.
@@ -302,7 +302,7 @@ util::Status CalendarSample::Startup(int argc, char* argv[]) {
       client_secrets_file, config_->NewDefaultTransportOrDie(), &status));
   if (!status.ok()) return status;
 
-  flow_->set_default_scopes(CalendarService::SCOPES::CALENDAR.as_string());
+  flow_->set_default_scopes(CalendarService::SCOPES::CALENDAR);
   flow_->mutable_client_spec()->set_redirect_uri(
       OAuth2AuthorizationFlow::kOutOfBandUrl);
   flow_->set_authorization_code_callback(
@@ -435,7 +435,7 @@ void CalendarSample::PageThroughAllEvents(
 
 
 util::Status CalendarSample::GetEvent(
-    const string& calendar_id, const StringPiece& event_id, Event* event) {
+    const string& calendar_id, const string& event_id, Event* event) {
   std::unique_ptr<EventsResource_GetMethod> method(
       service_->get_events().NewGetMethod(
           &credential_, calendar_id, event_id));
@@ -456,7 +456,7 @@ void CalendarSample::PatchEvent(
 
   std::unique_ptr<Event> cloud_event(Event::New());
   googleapis::util::Status status =
-        GetEvent(calendar_id, event.get_id(), cloud_event.get());
+        GetEvent(calendar_id, event.get_id().as_string(), cloud_event.get());
   if (status.ok()) {
     std::cout << "Patched event:" << std::endl;
     Display("  ", *cloud_event);
@@ -480,7 +480,7 @@ void CalendarSample::UpdateEvent(
 
   std::unique_ptr<Event> cloud_event(Event::New());
   googleapis::util::Status status =
-        GetEvent(calendar_id, event.get_id(), cloud_event.get());
+        GetEvent(calendar_id, event.get_id().as_string(), cloud_event.get());
   if (status.ok()) {
     std::cout << "Updated event:" << std::endl;
     Display("  ", *cloud_event);

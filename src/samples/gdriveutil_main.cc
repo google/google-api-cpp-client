@@ -124,9 +124,9 @@ class DriveUtilApplication : public InstalledServiceApplication<DriveService> {
   DriveUtilApplication()
       : InstalledServiceApplication<DriveService>("GDriveUtil") {
     vector<string>* scopes = mutable_default_oauth2_scopes();
-    scopes->push_back(DriveService::SCOPES::DRIVE_READONLY.as_string());
-    scopes->push_back(DriveService::SCOPES::DRIVE_FILE.as_string());
-    scopes->push_back(DriveService::SCOPES::DRIVE.as_string());
+    scopes->push_back(DriveService::SCOPES::DRIVE_READONLY);
+    scopes->push_back(DriveService::SCOPES::DRIVE_FILE);
+    scopes->push_back(DriveService::SCOPES::DRIVE);
     // Not adding metadata scope because I dont think I'm using
     // anything needing it
   }

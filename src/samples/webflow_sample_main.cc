@@ -78,7 +78,6 @@ using std::string;
 #include "googleapis/base/mutex.h"
 #include "googleapis/strings/split.h"
 #include "googleapis/strings/strip.h"
-#include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/util.h"
 #include "googleapis/util/stl_util.h"
@@ -706,7 +705,7 @@ class SampleWebApplication {
       UserData* user_data,
       WebServerRequest* request,
       const string& redirect_success) {
-    const StringPiece generic_template =
+    const string generic_template =
         "<html><head>\n$GOOGLE_PLUS_HEAD\n</head><body>\n"
         "$GOOGLE_PLUS_BUTTON\n"
         "<div>$USER_IDENTITY $LOGIN_CONTROL</div>\n"
@@ -716,7 +715,7 @@ class SampleWebApplication {
     string html;
 
     string success_block;
-    StringPiece redirect_url = redirect_success;
+    string redirect_url = redirect_success;
     if (!user_data->credential() && redirect_success.empty()) {
       redirect_url ="/login";
     }
@@ -761,7 +760,7 @@ class SampleWebApplication {
    */
   string MakeWebServerLoginPageTemplate(
       UserData* user_data, WebServerRequest* request) {
-    const StringPiece generic_template =
+    const string generic_template =
         "<html><body>\n"
         "<div>$USER_IDENTITY ($LOGIN_CONTROL)</div>\n"
         "$MSG_BODY\n"
@@ -824,7 +823,7 @@ class SampleWebApplication {
    * @return ok or reason for failure.
    */
   googleapis::util::Status RespondWithHtml(
-      UserData* user_data, int http_code, const StringPiece& html_body,
+      UserData* user_data, int http_code, const string& html_body,
       WebServerRequest* request, string redirect_success = "") {
     string html = gplus_login_.get()
         ? MakeGplusPageTemplate(user_data, request, redirect_success)
@@ -906,7 +905,7 @@ class SampleWebApplication {
   googleapis::util::Status HandleDefaultUrls(WebServerRequest* request) {
     VLOG(1) << "Default url handler=" << request->parsed_url().url();
     // Strip leading "/" to get the command.
-    StringPiece command = request->parsed_url().path().substr(1);
+    string command = request->parsed_url().path().substr(1);
     if (command == "favicon.ico") {
       VLOG(1) << "Ignoring request=" << request->parsed_url().url();
       return request->response()->SendText(HttpStatusCode::NOT_FOUND, "");

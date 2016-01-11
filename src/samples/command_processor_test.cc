@@ -23,7 +23,6 @@ using std::string;
 #include <vector>
 using std::vector;
 #include "samples/command_processor.h"
-#include "googleapis/strings/stringpiece.h"
 #include <gtest/gtest.h>
 
 namespace googleapis {

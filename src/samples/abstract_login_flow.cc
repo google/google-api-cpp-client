@@ -45,11 +45,11 @@ using client::StatusUnknown;
 
 namespace sample {
 AbstractLoginFlow::AbstractLoginFlow(
-    const StringPiece& cookie_name,
-    const StringPiece& redirect_name,
+    const string& cookie_name,
+    const string& redirect_name,
     OAuth2AuthorizationFlow* flow)
-    : cookie_name_(cookie_name.as_string()),
-      redirect_name_(redirect_name.as_string()),
+    : cookie_name_(cookie_name),
+      redirect_name_(redirect_name),
       flow_(flow) {
 }
 
@@ -57,9 +57,9 @@ AbstractLoginFlow::~AbstractLoginFlow() {
 }
 
 void AbstractLoginFlow::AddLoginUrl(
-    const StringPiece& url, AbstractWebServer* httpd) {
+    const string& url, AbstractWebServer* httpd) {
   CHECK(login_url_.empty());
-  login_url_ = url.as_string();
+  login_url_ = url;
   httpd->AddPathHandler(
       login_url_,
       NewPermanentCallback(
@@ -67,9 +67,9 @@ void AbstractLoginFlow::AddLoginUrl(
 }
 
 void AbstractLoginFlow::AddLogoutUrl(
-    const StringPiece& url, AbstractWebServer* httpd) {
+    const string& url, AbstractWebServer* httpd) {
   CHECK(logout_url_.empty());
-  logout_url_ = url.as_string();
+  logout_url_ = url;
   httpd->AddPathHandler(
       logout_url_,
       NewPermanentCallback(
@@ -77,9 +77,9 @@ void AbstractLoginFlow::AddLogoutUrl(
 }
 
 void AbstractLoginFlow::AddReceiveAccessTokenUrl(
-    const StringPiece& url, AbstractWebServer* httpd) {
+    const string& url, AbstractWebServer* httpd) {
   CHECK(access_token_url_.empty());
-  access_token_url_ = url.as_string();
+  access_token_url_ = url;
   httpd->AddPathHandler(
       access_token_url_,
       NewPermanentCallback(
@@ -132,7 +132,7 @@ util::Status AbstractLoginFlow::ReceiveAuthorizationCode(
 }
 
 util::Status AbstractLoginFlow::InitiateAuthorizationFlow(
-    WebServerRequest* request, const StringPiece& redirect_url) {
+    WebServerRequest* request, const string& redirect_url) {
   return DoInitiateAuthorizationFlow(request, redirect_url);
 }
 
