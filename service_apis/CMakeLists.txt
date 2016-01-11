@@ -1,6 +1,8 @@
 file(GLOB all_valid_subdirs RELATIVE
           ${CMAKE_CURRENT_SOURCE_DIR} "*/CMakeLists.txt")
 
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../src")
+
 foreach(dir ${all_valid_subdirs})
     message(STATUS "path = ${dir}")
     if(${dir} MATCHES "^([^/]*)//CMakeLists.txt")
