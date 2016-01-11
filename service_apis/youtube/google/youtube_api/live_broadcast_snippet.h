@@ -274,6 +274,43 @@ class LiveBroadcastSnippet : public client::JsonCppData {
   }
 
   /**
+   * Determine if the '<code>liveChatId</code>' attribute was set.
+   *
+   * @return true if the '<code>liveChatId</code>' attribute was set.
+   */
+  bool has_live_chat_id() const {
+    return Storage().isMember("liveChatId");
+  }
+
+  /**
+   * Clears the '<code>liveChatId</code>' attribute.
+   */
+  void clear_live_chat_id() {
+    MutableStorage()->removeMember("liveChatId");
+  }
+
+
+  /**
+   * Get the value of the '<code>liveChatId</code>' attribute.
+   */
+  const StringPiece get_live_chat_id() const {
+    const Json::Value& v = Storage("liveChatId");
+    if (v == Json::Value::null) return StringPiece("");
+    return StringPiece(v.asCString());
+  }
+
+  /**
+   * Change the '<code>liveChatId</code>' attribute.
+   *
+   * The id of the live chat for this broadcast.
+   *
+   * @param[in] value The new value.
+   */
+  void set_live_chat_id(const StringPiece& value) {
+    *MutableStorage("liveChatId") = value.data();
+  }
+
+  /**
    * Determine if the '<code>publishedAt</code>' attribute was set.
    *
    * @return true if the '<code>publishedAt</code>' attribute was set.

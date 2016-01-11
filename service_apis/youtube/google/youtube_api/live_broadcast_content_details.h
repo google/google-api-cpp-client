@@ -121,6 +121,40 @@ class LiveBroadcastContentDetails : public client::JsonCppData {
   }
 
   /**
+   * Determine if the '<code>closedCaptionsType</code>' attribute was set.
+   *
+   * @return true if the '<code>closedCaptionsType</code>' attribute was set.
+   */
+  bool has_closed_captions_type() const {
+    return Storage().isMember("closedCaptionsType");
+  }
+
+  /**
+   * Clears the '<code>closedCaptionsType</code>' attribute.
+   */
+  void clear_closed_captions_type() {
+    MutableStorage()->removeMember("closedCaptionsType");
+  }
+
+
+  /**
+   * Get the value of the '<code>closedCaptionsType</code>' attribute.
+   */
+  const StringPiece get_closed_captions_type() const {
+    const Json::Value& v = Storage("closedCaptionsType");
+    if (v == Json::Value::null) return StringPiece("");
+    return StringPiece(v.asCString());
+  }
+
+  /**
+   * Change the '<code>closedCaptionsType</code>' attribute.
+   * @param[in] value The new value.
+   */
+  void set_closed_captions_type(const StringPiece& value) {
+    *MutableStorage("closedCaptionsType") = value.data();
+  }
+
+  /**
    * Determine if the '<code>enableClosedCaptions</code>' attribute was set.
    *
    * @return true if the '<code>enableClosedCaptions</code>' attribute was set.
@@ -148,9 +182,11 @@ class LiveBroadcastContentDetails : public client::JsonCppData {
   /**
    * Change the '<code>enableClosedCaptions</code>' attribute.
    *
-   * This setting indicates whether closed captioning is enabled for this
-   * broadcast. The ingestion URL of the closed captions is returned through the
-   * liveStreams API.
+   * This setting indicates whether HTTP POST closed captioning is enabled for
+   * this broadcast. The ingestion URL of the closed captions is returned
+   * through the liveStreams API. This is mutually exclusive with using the
+   * closed_captions_type property, and is equivalent to setting
+   * closed_captions_type to CLOSED_CAPTIONS_HTTP_POST.
    *
    * @param[in] value The new value.
    */
@@ -311,6 +347,9 @@ class LiveBroadcastContentDetails : public client::JsonCppData {
 
   /**
    * Change the '<code>enableLowLatency</code>' attribute.
+   *
+   * Indicates whether this broadcast has low latency enabled.
+   *
    * @param[in] value The new value.
    */
   void set_enable_low_latency(bool value) {

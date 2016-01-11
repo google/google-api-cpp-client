@@ -59,9 +59,9 @@ const StringPiece CalendarService::googleapis_API_GENERATOR(
   "google-apis-code-generator 1.5.1 / 0.1.3");
 
 
-const StringPiece CalendarService::SCOPES::CALENDAR("https://www.googleapis.com/auth/calendar");
+const string CalendarService::SCOPES::CALENDAR("https://www.googleapis.com/auth/calendar");
 
-const StringPiece CalendarService::SCOPES::CALENDAR_READONLY("https://www.googleapis.com/auth/calendar.readonly");
+const string CalendarService::SCOPES::CALENDAR_READONLY("https://www.googleapis.com/auth/calendar.readonly");
 CalendarServiceBaseRequest::CalendarServiceBaseRequest(
       const client::ClientService* service,
       client::AuthorizationCredential* credential,

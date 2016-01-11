@@ -45,12 +45,18 @@
 #include "google/youtube_api/comment_list_response.h"
 #include "google/youtube_api/comment_thread.h"
 #include "google/youtube_api/comment_thread_list_response.h"
+#include "google/youtube_api/fan_funding_event_list_response.h"
 #include "google/youtube_api/guide_category_list_response.h"
 #include "google/youtube_api/i18n_language_list_response.h"
 #include "google/youtube_api/i18n_region_list_response.h"
 #include "google/youtube_api/invideo_branding.h"
 #include "google/youtube_api/live_broadcast.h"
 #include "google/youtube_api/live_broadcast_list_response.h"
+#include "google/youtube_api/live_chat_ban.h"
+#include "google/youtube_api/live_chat_message.h"
+#include "google/youtube_api/live_chat_message_list_response.h"
+#include "google/youtube_api/live_chat_moderator.h"
+#include "google/youtube_api/live_chat_moderator_list_response.h"
 #include "google/youtube_api/live_stream.h"
 #include "google/youtube_api/live_stream_list_response.h"
 #include "google/youtube_api/playlist.h"
@@ -58,6 +64,7 @@
 #include "google/youtube_api/playlist_item_list_response.h"
 #include "google/youtube_api/playlist_list_response.h"
 #include "google/youtube_api/search_list_response.h"
+#include "google/youtube_api/sponsor_list_response.h"
 #include "google/youtube_api/subscription.h"
 #include "google/youtube_api/subscription_list_response.h"
 #include "google/youtube_api/thumbnail_set_response.h"
@@ -80,16 +87,16 @@ using namespace googleapis;
  *      <tr><th>API
  *          <td><a href='https://developers.google.com/youtube/v3'>YouTube Data API</a>
  *      <tr><th>API Version<td>v3
- *      <tr><th>API Rev<td>144
+ *      <tr><th>API Rev<td>158
  *      <tr><th>API Docs
  *          <td><a href='https://developers.google.com/youtube/v3'>
  *              https://developers.google.com/youtube/v3</a>
  *      <tr><th>Discovery Name<td>youtube
- *      <tr><th>Generated At<td>2015-08-17 22:02:35 UTC
+ *      <tr><th>Generated At<td>2016-01-08 00:11:15 UTC
  *      <tr><th>C++ Generator<td>google-apis-code-generator
  *      <tr><th>Generator Version
  *          <td>1.5.1 / c++=0.1.3
- *      <tr><th>Generator Build<td>2015-08-03 17:34:38 UTC
+ *      <tr><th>Generator Build<td>2015-11-16 19:10:01 UTC
  *    </table>
  *
  * \section ForMoreInfo For More Information
@@ -4993,6 +5000,213 @@ class CommentsResource_UpdateMethod : public YouTubeServiceBaseRequest {
  * https://www.googleapis.com/auth/youtube
  * https://www.googleapis.com/auth/youtube.force-ssl
  * https://www.googleapis.com/auth/youtube.readonly
+ */
+class FanFundingEventsResource_ListMethod : public YouTubeServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   * @param[in] part The part parameter specifies the fanFundingEvent resource
+   * parts that the API response will include. Supported values are id and
+   * snippet.
+   */
+  FanFundingEventsResource_ListMethod(
+      const YouTubeService* _service_,
+      client::AuthorizationCredential* _credential_,
+      const StringPiece& part);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~FanFundingEventsResource_ListMethod();
+
+
+    /**
+     * Clears the '<code>pageToken</code>' attribute so it is no longer set.
+     */
+    void clear_page_token() {
+      _have_page_token_ = false;
+      client::ClearCppValueHelper(&page_token_);
+    }
+
+
+    /**
+     * Gets the optional '<code>pageToken</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_page_token() const { return page_token_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>pageToken</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_pageToken() {
+      _have_page_token_ = true;
+      return &page_token_;
+    }
+
+
+    /**
+     * Sets the '<code>pageToken</code>' attribute.
+     *
+     * @param[in] value The pageToken parameter identifies a specific page in
+     * the result set that should be returned. In an API response, the
+     * nextPageToken and prevPageToken properties identify other pages that
+     * could be retrieved.
+     */
+    void set_page_token(const string& value) {
+      _have_page_token_ = true;
+      page_token_ = value;
+    }
+
+
+
+    /**
+     * Clears the '<code>maxResults</code>' attribute so it is no longer set.
+     */
+    void clear_max_results() {
+      _have_max_results_ = false;
+      client::ClearCppValueHelper(&max_results_);
+    }
+
+
+    /**
+     * Gets the optional '<code>maxResults</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    uint32 get_max_results() const { return max_results_; }
+
+    /**
+     * Sets the '<code>maxResults</code>' attribute.
+     *
+     * @param[in] value The maxResults parameter specifies the maximum number of
+     * items that should be returned in the result set.
+     */
+    void set_max_results(uint32 value) {
+      _have_max_results_ = true;
+      max_results_ = value;
+    }
+
+    /**
+     * Clears the '<code>hl</code>' attribute so it is no longer set.
+     */
+    void clear_hl() {
+      _have_hl_ = false;
+      client::ClearCppValueHelper(&hl_);
+    }
+
+
+    /**
+     * Gets the optional '<code>hl</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_hl() const { return hl_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>hl</code>' attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_hl() {
+      _have_hl_ = true;
+      return &hl_;
+    }
+
+
+    /**
+     * Sets the '<code>hl</code>' attribute.
+     *
+     * @param[in] value The hl parameter instructs the API to retrieve localized
+     * resource metadata for a specific application language that the YouTube
+     * website supports. The parameter value must be a language code included in
+     * the list returned by the i18nLanguages.list method.
+     *
+     * If localized resource details are available in that language, the
+     * resource's snippet.localized object will contain the localized values.
+     * However, if localized details are not available, the snippet.localized
+     * object will contain resource details in the resource's default language.
+     */
+    void set_hl(const string& value) {
+      _have_hl_ = true;
+      hl_ = value;
+    }
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+  /**
+   * Executes the method and parses the response into a data object on success.
+   *
+   * @param[out] data Loads from the response payload JSON data on success.
+   *
+   * @return Success if an HTTP 2xx response was received. Otherwise the
+   *         status indicates the reason for failure. Finer detail may be
+   *         available from the underlying http_request to distinguish the
+   *         transport_status from the overal HTTP request status.
+   */
+  util::Status ExecuteAndParseResponse(
+      FanFundingEventListResponse* data) {
+    return YouTubeServiceBaseRequest::ExecuteAndParseResponse(data);
+  }
+
+ private:
+  string part_;
+  string page_token_;
+  uint32 max_results_;
+  string hl_;
+  bool _have_page_token_ : 1;
+  bool _have_max_results_ : 1;
+  bool _have_hl_ : 1;
+  DISALLOW_COPY_AND_ASSIGN(FanFundingEventsResource_ListMethod);
+};
+
+typedef client::ServiceRequestPager<
+            FanFundingEventsResource_ListMethod,
+            FanFundingEventListResponse>
+        FanFundingEventsResource_ListMethodPager;
+
+
+
+/**
+ * Implements the list method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/youtube
+ * https://www.googleapis.com/auth/youtube.force-ssl
+ * https://www.googleapis.com/auth/youtube.readonly
  * https://www.googleapis.com/auth/youtubepartner
  */
 class GuideCategoriesResource_ListMethod : public YouTubeServiceBaseRequest {
@@ -5673,247 +5887,6 @@ class LiveBroadcastsResource_BindMethod : public YouTubeServiceBaseRequest {
   bool _have_on_behalf_of_content_owner_ : 1;
   bool _have_stream_id_ : 1;
   DISALLOW_COPY_AND_ASSIGN(LiveBroadcastsResource_BindMethod);
-};
-
-/**
- * Implements the bind_direct method.
- *
- * @ingroup ServiceMethod
- *
- * This class uses the Command Pattern. Construct an instance with the required
- * parameters, then set any additional optional parameters by using the
- * attribute setters. To invoke the method, call <code>Execute</code>.
- *
- * One or more of these authorization scopes are required for this method:
- * https://www.googleapis.com/auth/youtube
- * https://www.googleapis.com/auth/youtube.force-ssl
- */
-class LiveBroadcastsResource_BindDirectMethod : public YouTubeServiceBaseRequest {
- public:
-  /**
-   * The standard constructor takes all the required method parameters.
-   * @param[in] _service_  The service instance to send to when executed.
-   * @param[in] _credential_  If not NULL, the credential to authorize with.
-   *            In practice this is supplied by the user code that is
-   *            creating the method instance.
-   * @param[in] id The id parameter specifies the unique ID of the broadcast
-   * that is being bound to a video stream.
-   * @param[in] part The part parameter specifies a comma-separated list of one
-   * or more liveBroadcast resource properties that the API response will
-   * include. The part names that you can include in the parameter value are id,
-   * snippet, contentDetails, and status.
-   */
-  LiveBroadcastsResource_BindDirectMethod(
-      const YouTubeService* _service_,
-      client::AuthorizationCredential* _credential_,
-      const StringPiece& id,
-      const StringPiece& part);
-
-  /**
-   * Standard destructor.
-   */
-  virtual ~LiveBroadcastsResource_BindDirectMethod();
-
-
-    /**
-     * Clears the '<code>onBehalfOfContentOwnerChannel</code>' attribute so it
-     * is no longer set.
-     */
-    void clear_on_behalf_of_content_owner_channel() {
-      _have_on_behalf_of_content_owner_channel_ = false;
-      client::ClearCppValueHelper(&on_behalf_of_content_owner_channel_);
-    }
-
-
-    /**
-     * Gets the optional '<code>onBehalfOfContentOwnerChannel</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    const string& get_on_behalf_of_content_owner_channel() const { return on_behalf_of_content_owner_channel_; }
-
-    /**
-     * Gets a modifiable pointer to the optional
-     * <code>onBehalfOfContentOwnerChannel</code>' attribute.
-     *
-     * @return  The value can be set by dereferencing the pointer.
-     */
-    string* mutable_onBehalfOfContentOwnerChannel() {
-      _have_on_behalf_of_content_owner_channel_ = true;
-      return &on_behalf_of_content_owner_channel_;
-    }
-
-
-    /**
-     * Sets the '<code>onBehalfOfContentOwnerChannel</code>' attribute.
-     *
-     * @param[in] value This parameter can only be used in a properly authorized
-     * request. Note: This parameter is intended exclusively for YouTube content
-     * partners.
-     *
-     * The onBehalfOfContentOwnerChannel parameter specifies the YouTube channel
-     * ID of the channel to which a video is being added. This parameter is
-     * required when a request specifies a value for the onBehalfOfContentOwner
-     * parameter, and it can only be used in conjunction with that parameter. In
-     * addition, the request must be authorized using a CMS account that is
-     * linked to the content owner that the onBehalfOfContentOwner parameter
-     * specifies. Finally, the channel that the onBehalfOfContentOwnerChannel
-     * parameter value specifies must be linked to the content owner that the
-     * onBehalfOfContentOwner parameter specifies.
-     *
-     * This parameter is intended for YouTube content partners that own and
-     * manage many different YouTube channels. It allows content owners to
-     * authenticate once and perform actions on behalf of the channel specified
-     * in the parameter value, without having to provide authentication
-     * credentials for each separate channel.
-     */
-    void set_on_behalf_of_content_owner_channel(const string& value) {
-      _have_on_behalf_of_content_owner_channel_ = true;
-      on_behalf_of_content_owner_channel_ = value;
-    }
-
-
-
-    /**
-     * Clears the '<code>onBehalfOfContentOwner</code>' attribute so it is no
-     * longer set.
-     */
-    void clear_on_behalf_of_content_owner() {
-      _have_on_behalf_of_content_owner_ = false;
-      client::ClearCppValueHelper(&on_behalf_of_content_owner_);
-    }
-
-
-    /**
-     * Gets the optional '<code>onBehalfOfContentOwner</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    const string& get_on_behalf_of_content_owner() const { return on_behalf_of_content_owner_; }
-
-    /**
-     * Gets a modifiable pointer to the optional
-     * <code>onBehalfOfContentOwner</code>' attribute.
-     *
-     * @return  The value can be set by dereferencing the pointer.
-     */
-    string* mutable_onBehalfOfContentOwner() {
-      _have_on_behalf_of_content_owner_ = true;
-      return &on_behalf_of_content_owner_;
-    }
-
-
-    /**
-     * Sets the '<code>onBehalfOfContentOwner</code>' attribute.
-     *
-     * @param[in] value Note: This parameter is intended exclusively for YouTube
-     * content partners.
-     *
-     * The onBehalfOfContentOwner parameter indicates that the request's
-     * authorization credentials identify a YouTube CMS user who is acting on
-     * behalf of the content owner specified in the parameter value. This
-     * parameter is intended for YouTube content partners that own and manage
-     * many different YouTube channels. It allows content owners to authenticate
-     * once and get access to all their video and channel data, without having
-     * to provide authentication credentials for each individual channel. The
-     * CMS account that the user authenticates with must be linked to the
-     * specified YouTube content owner.
-     */
-    void set_on_behalf_of_content_owner(const string& value) {
-      _have_on_behalf_of_content_owner_ = true;
-      on_behalf_of_content_owner_ = value;
-    }
-
-
-
-    /**
-     * Clears the '<code>streamId</code>' attribute so it is no longer set.
-     */
-    void clear_stream_id() {
-      _have_stream_id_ = false;
-      client::ClearCppValueHelper(&stream_id_);
-    }
-
-
-    /**
-     * Gets the optional '<code>streamId</code>' attribute.
-     *
-     * If the value is not set then the default value will be returned.
-     */
-    const string& get_stream_id() const { return stream_id_; }
-
-    /**
-     * Gets a modifiable pointer to the optional <code>streamId</code>'
-     * attribute.
-     *
-     * @return  The value can be set by dereferencing the pointer.
-     */
-    string* mutable_streamId() {
-      _have_stream_id_ = true;
-      return &stream_id_;
-    }
-
-
-    /**
-     * Sets the '<code>streamId</code>' attribute.
-     *
-     * @param[in] value The streamId parameter specifies the unique ID of the
-     * video stream that is being bound to a broadcast. If this parameter is
-     * omitted, the API will remove any existing binding between the broadcast
-     * and a video stream.
-     */
-    void set_stream_id(const string& value) {
-      _have_stream_id_ = true;
-      stream_id_ = value;
-    }
-
-  /**
-   * Appends variable value to the target string.
-   *
-   * This is a helper function used to resolve templated variables in the URI.
-   *
-   * @param[in] variable_name  The name of the templated variable.
-   * @param[in] config  A pass-through parameter used for lists and maps.
-   * @param[in, out] target The string to append the value to.
-   */
-  virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
-        const client::UriTemplateConfig& config,
-        string* target);
-
-  /**
-   * Appends the optional query parameters to the target URL.
-   *
-   * @param[in, out] target  The URL string to append to.
-   */
-  virtual util::Status AppendOptionalQueryParameters(string* target);
-
-
-  /**
-   * Executes the method and parses the response into a data object on success.
-   *
-   * @param[out] data Loads from the response payload JSON data on success.
-   *
-   * @return Success if an HTTP 2xx response was received. Otherwise the
-   *         status indicates the reason for failure. Finer detail may be
-   *         available from the underlying http_request to distinguish the
-   *         transport_status from the overal HTTP request status.
-   */
-  util::Status ExecuteAndParseResponse(
-      LiveBroadcast* data) {
-    return YouTubeServiceBaseRequest::ExecuteAndParseResponse(data);
-  }
-
- private:
-  string id_;
-  string part_;
-  string on_behalf_of_content_owner_channel_;
-  string on_behalf_of_content_owner_;
-  string stream_id_;
-  bool _have_on_behalf_of_content_owner_channel_ : 1;
-  bool _have_on_behalf_of_content_owner_ : 1;
-  bool _have_stream_id_ : 1;
-  DISALLOW_COPY_AND_ASSIGN(LiveBroadcastsResource_BindDirectMethod);
 };
 
 /**
@@ -6875,6 +6848,48 @@ class LiveBroadcastsResource_ListMethod : public YouTubeServiceBaseRequest {
 
 
     /**
+     * Clears the '<code>broadcastType</code>' attribute so it is no longer set.
+     */
+    void clear_broadcast_type() {
+      _have_broadcast_type_ = false;
+      client::ClearCppValueHelper(&broadcast_type_);
+    }
+
+
+    /**
+     * Gets the optional '<code>broadcastType</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_broadcast_type() const { return broadcast_type_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>broadcastType</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_broadcastType() {
+      _have_broadcast_type_ = true;
+      return &broadcast_type_;
+    }
+
+
+    /**
+     * Sets the '<code>broadcastType</code>' attribute.
+     *
+     * @param[in] value The broadcastType parameter filters the API response to
+     * only include broadcasts with the specified type. This is only compatible
+     * with the mine filter for now.
+     */
+    void set_broadcast_type(const string& value) {
+      _have_broadcast_type_ = true;
+      broadcast_type_ = value;
+    }
+
+
+
+    /**
      * Clears the '<code>id</code>' attribute so it is no longer set.
      */
     void clear_id() {
@@ -6958,6 +6973,7 @@ class LiveBroadcastsResource_ListMethod : public YouTubeServiceBaseRequest {
   bool mine_;
   uint32 max_results_;
   string page_token_;
+  string broadcast_type_;
   string id_;
   bool _have_broadcast_status_ : 1;
   bool _have_on_behalf_of_content_owner_ : 1;
@@ -6965,6 +6981,7 @@ class LiveBroadcastsResource_ListMethod : public YouTubeServiceBaseRequest {
   bool _have_mine_ : 1;
   bool _have_max_results_ : 1;
   bool _have_page_token_ : 1;
+  bool _have_broadcast_type_ : 1;
   bool _have_id_ : 1;
   DISALLOW_COPY_AND_ASSIGN(LiveBroadcastsResource_ListMethod);
 };
@@ -7381,6 +7398,839 @@ class LiveBroadcastsResource_UpdateMethod : public YouTubeServiceBaseRequest {
   bool _have_on_behalf_of_content_owner_ : 1;  string _content_;
   DISALLOW_COPY_AND_ASSIGN(LiveBroadcastsResource_UpdateMethod);
 };
+
+
+
+/**
+ * Implements the delete method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/youtube
+ * https://www.googleapis.com/auth/youtube.force-ssl
+ */
+class LiveChatBansResource_DeleteMethod : public YouTubeServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   * @param[in] id The id parameter identifies the chat ban to remove. The value
+   * uniquely identifies both the ban and the chat.
+   */
+  LiveChatBansResource_DeleteMethod(
+      const YouTubeService* _service_,
+      client::AuthorizationCredential* _credential_,
+      const StringPiece& id);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~LiveChatBansResource_DeleteMethod();
+
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+ private:
+  string id_;
+  DISALLOW_COPY_AND_ASSIGN(LiveChatBansResource_DeleteMethod);
+};
+
+/**
+ * Implements the insert method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/youtube
+ * https://www.googleapis.com/auth/youtube.force-ssl
+ */
+class LiveChatBansResource_InsertMethod : public YouTubeServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   * @param[in] part The part parameter serves two purposes in this operation.
+   * It identifies the properties that the write operation will set as well as
+   * the properties that the API response returns. Set the parameter value to
+   * snippet.
+   * @param[in] _content_ The data object to insert.
+   */
+  LiveChatBansResource_InsertMethod(
+      const YouTubeService* _service_,
+      client::AuthorizationCredential* _credential_,
+      const StringPiece& part,
+      const LiveChatBan& _content_);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~LiveChatBansResource_InsertMethod();
+
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+  /**
+   * Executes the method and parses the response into a data object on success.
+   *
+   * @param[out] data Loads from the response payload JSON data on success.
+   *
+   * @return Success if an HTTP 2xx response was received. Otherwise the
+   *         status indicates the reason for failure. Finer detail may be
+   *         available from the underlying http_request to distinguish the
+   *         transport_status from the overal HTTP request status.
+   */
+  util::Status ExecuteAndParseResponse(
+      LiveChatBan* data) {
+    return YouTubeServiceBaseRequest::ExecuteAndParseResponse(data);
+  }
+
+ private:
+  string part_;  string _content_;
+  DISALLOW_COPY_AND_ASSIGN(LiveChatBansResource_InsertMethod);
+};
+
+
+
+/**
+ * Implements the delete method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/youtube
+ * https://www.googleapis.com/auth/youtube.force-ssl
+ */
+class LiveChatMessagesResource_DeleteMethod : public YouTubeServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   * @param[in] id The id parameter specifies the YouTube chat message ID of the
+   * resource that is being deleted.
+   */
+  LiveChatMessagesResource_DeleteMethod(
+      const YouTubeService* _service_,
+      client::AuthorizationCredential* _credential_,
+      const StringPiece& id);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~LiveChatMessagesResource_DeleteMethod();
+
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+ private:
+  string id_;
+  DISALLOW_COPY_AND_ASSIGN(LiveChatMessagesResource_DeleteMethod);
+};
+
+/**
+ * Implements the insert method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/youtube
+ * https://www.googleapis.com/auth/youtube.force-ssl
+ */
+class LiveChatMessagesResource_InsertMethod : public YouTubeServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   * @param[in] part The part parameter serves two purposes. It identifies the
+   * properties that the write operation will set as well as the properties that
+   * the API response will include. Set the parameter value to snippet.
+   * @param[in] _content_ The data object to insert.
+   */
+  LiveChatMessagesResource_InsertMethod(
+      const YouTubeService* _service_,
+      client::AuthorizationCredential* _credential_,
+      const StringPiece& part,
+      const LiveChatMessage& _content_);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~LiveChatMessagesResource_InsertMethod();
+
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+  /**
+   * Executes the method and parses the response into a data object on success.
+   *
+   * @param[out] data Loads from the response payload JSON data on success.
+   *
+   * @return Success if an HTTP 2xx response was received. Otherwise the
+   *         status indicates the reason for failure. Finer detail may be
+   *         available from the underlying http_request to distinguish the
+   *         transport_status from the overal HTTP request status.
+   */
+  util::Status ExecuteAndParseResponse(
+      LiveChatMessage* data) {
+    return YouTubeServiceBaseRequest::ExecuteAndParseResponse(data);
+  }
+
+ private:
+  string part_;  string _content_;
+  DISALLOW_COPY_AND_ASSIGN(LiveChatMessagesResource_InsertMethod);
+};
+
+/**
+ * Implements the list method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/youtube
+ * https://www.googleapis.com/auth/youtube.force-ssl
+ * https://www.googleapis.com/auth/youtube.readonly
+ */
+class LiveChatMessagesResource_ListMethod : public YouTubeServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   * @param[in] live_chat_id The liveChatId parameter specifies the ID of the
+   * chat whose messages will be returned.
+   * @param[in] part The part parameter specifies the liveChatComment resource
+   * parts that the API response will include. Supported values are id and
+   * snippet.
+   */
+  LiveChatMessagesResource_ListMethod(
+      const YouTubeService* _service_,
+      client::AuthorizationCredential* _credential_,
+      const StringPiece& live_chat_id,
+      const StringPiece& part);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~LiveChatMessagesResource_ListMethod();
+
+
+    /**
+     * Clears the '<code>profileImageSize</code>' attribute so it is no longer
+     * set.
+     */
+    void clear_profile_image_size() {
+      _have_profile_image_size_ = false;
+      client::ClearCppValueHelper(&profile_image_size_);
+    }
+
+
+    /**
+     * Gets the optional '<code>profileImageSize</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    uint32 get_profile_image_size() const { return profile_image_size_; }
+
+    /**
+     * Sets the '<code>profileImageSize</code>' attribute.
+     *
+     * @param[in] value The profileImageSize parameter specifies the size of the
+     * user profile pictures that should be returned in the result set. Default:
+     * 88.
+     */
+    void set_profile_image_size(uint32 value) {
+      _have_profile_image_size_ = true;
+      profile_image_size_ = value;
+    }
+
+    /**
+     * Clears the '<code>pageToken</code>' attribute so it is no longer set.
+     */
+    void clear_page_token() {
+      _have_page_token_ = false;
+      client::ClearCppValueHelper(&page_token_);
+    }
+
+
+    /**
+     * Gets the optional '<code>pageToken</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_page_token() const { return page_token_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>pageToken</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_pageToken() {
+      _have_page_token_ = true;
+      return &page_token_;
+    }
+
+
+    /**
+     * Sets the '<code>pageToken</code>' attribute.
+     *
+     * @param[in] value The pageToken parameter identifies a specific page in
+     * the result set that should be returned. In an API response, the
+     * nextPageToken property identify other pages that could be retrieved.
+     */
+    void set_page_token(const string& value) {
+      _have_page_token_ = true;
+      page_token_ = value;
+    }
+
+
+
+    /**
+     * Clears the '<code>maxResults</code>' attribute so it is no longer set.
+     */
+    void clear_max_results() {
+      _have_max_results_ = false;
+      client::ClearCppValueHelper(&max_results_);
+    }
+
+
+    /**
+     * Gets the optional '<code>maxResults</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    uint32 get_max_results() const { return max_results_; }
+
+    /**
+     * Sets the '<code>maxResults</code>' attribute.
+     *
+     * @param[in] value The maxResults parameter specifies the maximum number of
+     * messages that should be returned in the result set.
+     */
+    void set_max_results(uint32 value) {
+      _have_max_results_ = true;
+      max_results_ = value;
+    }
+
+    /**
+     * Clears the '<code>hl</code>' attribute so it is no longer set.
+     */
+    void clear_hl() {
+      _have_hl_ = false;
+      client::ClearCppValueHelper(&hl_);
+    }
+
+
+    /**
+     * Gets the optional '<code>hl</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_hl() const { return hl_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>hl</code>' attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_hl() {
+      _have_hl_ = true;
+      return &hl_;
+    }
+
+
+    /**
+     * Sets the '<code>hl</code>' attribute.
+     *
+     * @param[in] value The hl parameter instructs the API to retrieve localized
+     * resource metadata for a specific application language that the YouTube
+     * website supports. The parameter value must be a language code included in
+     * the list returned by the i18nLanguages.list method.
+     *
+     * If localized resource details are available in that language, the
+     * resource's snippet.localized object will contain the localized values.
+     * However, if localized details are not available, the snippet.localized
+     * object will contain resource details in the resource's default language.
+     */
+    void set_hl(const string& value) {
+      _have_hl_ = true;
+      hl_ = value;
+    }
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+  /**
+   * Executes the method and parses the response into a data object on success.
+   *
+   * @param[out] data Loads from the response payload JSON data on success.
+   *
+   * @return Success if an HTTP 2xx response was received. Otherwise the
+   *         status indicates the reason for failure. Finer detail may be
+   *         available from the underlying http_request to distinguish the
+   *         transport_status from the overal HTTP request status.
+   */
+  util::Status ExecuteAndParseResponse(
+      LiveChatMessageListResponse* data) {
+    return YouTubeServiceBaseRequest::ExecuteAndParseResponse(data);
+  }
+
+ private:
+  string live_chat_id_;
+  string part_;
+  uint32 profile_image_size_;
+  string page_token_;
+  uint32 max_results_;
+  string hl_;
+  bool _have_profile_image_size_ : 1;
+  bool _have_page_token_ : 1;
+  bool _have_max_results_ : 1;
+  bool _have_hl_ : 1;
+  DISALLOW_COPY_AND_ASSIGN(LiveChatMessagesResource_ListMethod);
+};
+
+typedef client::ServiceRequestPager<
+            LiveChatMessagesResource_ListMethod,
+            LiveChatMessageListResponse>
+        LiveChatMessagesResource_ListMethodPager;
+
+
+
+/**
+ * Implements the delete method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/youtube
+ * https://www.googleapis.com/auth/youtube.force-ssl
+ */
+class LiveChatModeratorsResource_DeleteMethod : public YouTubeServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   * @param[in] id The id parameter identifies the chat moderator to remove. The
+   * value uniquely identifies both the moderator and the chat.
+   */
+  LiveChatModeratorsResource_DeleteMethod(
+      const YouTubeService* _service_,
+      client::AuthorizationCredential* _credential_,
+      const StringPiece& id);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~LiveChatModeratorsResource_DeleteMethod();
+
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+ private:
+  string id_;
+  DISALLOW_COPY_AND_ASSIGN(LiveChatModeratorsResource_DeleteMethod);
+};
+
+/**
+ * Implements the insert method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/youtube
+ * https://www.googleapis.com/auth/youtube.force-ssl
+ */
+class LiveChatModeratorsResource_InsertMethod : public YouTubeServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   * @param[in] part The part parameter serves two purposes in this operation.
+   * It identifies the properties that the write operation will set as well as
+   * the properties that the API response returns. Set the parameter value to
+   * snippet.
+   * @param[in] _content_ The data object to insert.
+   */
+  LiveChatModeratorsResource_InsertMethod(
+      const YouTubeService* _service_,
+      client::AuthorizationCredential* _credential_,
+      const StringPiece& part,
+      const LiveChatModerator& _content_);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~LiveChatModeratorsResource_InsertMethod();
+
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+  /**
+   * Executes the method and parses the response into a data object on success.
+   *
+   * @param[out] data Loads from the response payload JSON data on success.
+   *
+   * @return Success if an HTTP 2xx response was received. Otherwise the
+   *         status indicates the reason for failure. Finer detail may be
+   *         available from the underlying http_request to distinguish the
+   *         transport_status from the overal HTTP request status.
+   */
+  util::Status ExecuteAndParseResponse(
+      LiveChatModerator* data) {
+    return YouTubeServiceBaseRequest::ExecuteAndParseResponse(data);
+  }
+
+ private:
+  string part_;  string _content_;
+  DISALLOW_COPY_AND_ASSIGN(LiveChatModeratorsResource_InsertMethod);
+};
+
+/**
+ * Implements the list method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/youtube
+ * https://www.googleapis.com/auth/youtube.force-ssl
+ * https://www.googleapis.com/auth/youtube.readonly
+ */
+class LiveChatModeratorsResource_ListMethod : public YouTubeServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   * @param[in] live_chat_id The liveChatId parameter specifies the YouTube live
+   * chat for which the API should return moderators.
+   * @param[in] part The part parameter specifies the liveChatModerator resource
+   * parts that the API response will include. Supported values are id and
+   * snippet.
+   */
+  LiveChatModeratorsResource_ListMethod(
+      const YouTubeService* _service_,
+      client::AuthorizationCredential* _credential_,
+      const StringPiece& live_chat_id,
+      const StringPiece& part);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~LiveChatModeratorsResource_ListMethod();
+
+
+    /**
+     * Clears the '<code>maxResults</code>' attribute so it is no longer set.
+     */
+    void clear_max_results() {
+      _have_max_results_ = false;
+      client::ClearCppValueHelper(&max_results_);
+    }
+
+
+    /**
+     * Gets the optional '<code>maxResults</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    uint32 get_max_results() const { return max_results_; }
+
+    /**
+     * Sets the '<code>maxResults</code>' attribute.
+     *
+     * @param[in] value The maxResults parameter specifies the maximum number of
+     * items that should be returned in the result set.
+     */
+    void set_max_results(uint32 value) {
+      _have_max_results_ = true;
+      max_results_ = value;
+    }
+
+    /**
+     * Clears the '<code>pageToken</code>' attribute so it is no longer set.
+     */
+    void clear_page_token() {
+      _have_page_token_ = false;
+      client::ClearCppValueHelper(&page_token_);
+    }
+
+
+    /**
+     * Gets the optional '<code>pageToken</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_page_token() const { return page_token_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>pageToken</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_pageToken() {
+      _have_page_token_ = true;
+      return &page_token_;
+    }
+
+
+    /**
+     * Sets the '<code>pageToken</code>' attribute.
+     *
+     * @param[in] value The pageToken parameter identifies a specific page in
+     * the result set that should be returned. In an API response, the
+     * nextPageToken and prevPageToken properties identify other pages that
+     * could be retrieved.
+     */
+    void set_page_token(const string& value) {
+      _have_page_token_ = true;
+      page_token_ = value;
+    }
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+  /**
+   * Executes the method and parses the response into a data object on success.
+   *
+   * @param[out] data Loads from the response payload JSON data on success.
+   *
+   * @return Success if an HTTP 2xx response was received. Otherwise the
+   *         status indicates the reason for failure. Finer detail may be
+   *         available from the underlying http_request to distinguish the
+   *         transport_status from the overal HTTP request status.
+   */
+  util::Status ExecuteAndParseResponse(
+      LiveChatModeratorListResponse* data) {
+    return YouTubeServiceBaseRequest::ExecuteAndParseResponse(data);
+  }
+
+ private:
+  string live_chat_id_;
+  string part_;
+  uint32 max_results_;
+  string page_token_;
+  bool _have_max_results_ : 1;
+  bool _have_page_token_ : 1;
+  DISALLOW_COPY_AND_ASSIGN(LiveChatModeratorsResource_ListMethod);
+};
+
+typedef client::ServiceRequestPager<
+            LiveChatModeratorsResource_ListMethod,
+            LiveChatModeratorListResponse>
+        LiveChatModeratorsResource_ListMethodPager;
 
 
 
@@ -11217,6 +12067,207 @@ typedef client::ServiceRequestPager<
 
 
 /**
+ * Implements the list method.
+ *
+ * @ingroup ServiceMethod
+ *
+ * This class uses the Command Pattern. Construct an instance with the required
+ * parameters, then set any additional optional parameters by using the
+ * attribute setters. To invoke the method, call <code>Execute</code>.
+ *
+ * One or more of these authorization scopes are required for this method:
+ * https://www.googleapis.com/auth/youtube
+ * https://www.googleapis.com/auth/youtube.force-ssl
+ * https://www.googleapis.com/auth/youtube.readonly
+ */
+class SponsorsResource_ListMethod : public YouTubeServiceBaseRequest {
+ public:
+  /**
+   * The standard constructor takes all the required method parameters.
+   * @param[in] _service_  The service instance to send to when executed.
+   * @param[in] _credential_  If not NULL, the credential to authorize with.
+   *            In practice this is supplied by the user code that is
+   *            creating the method instance.
+   * @param[in] part The part parameter specifies the sponsor resource parts
+   * that the API response will include. Supported values are id and snippet.
+   */
+  SponsorsResource_ListMethod(
+      const YouTubeService* _service_,
+      client::AuthorizationCredential* _credential_,
+      const StringPiece& part);
+
+  /**
+   * Standard destructor.
+   */
+  virtual ~SponsorsResource_ListMethod();
+
+
+    /**
+     * Clears the '<code>filter</code>' attribute so it is no longer set.
+     */
+    void clear_filter() {
+      _have_filter_ = false;
+      client::ClearCppValueHelper(&filter_);
+    }
+
+
+    /**
+     * Gets the optional '<code>filter</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_filter() const { return filter_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>filter</code>' attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_filter() {
+      _have_filter_ = true;
+      return &filter_;
+    }
+
+
+    /**
+     * Sets the '<code>filter</code>' attribute.
+     *
+     * @param[in] value The filter parameter specifies which channel sponsors to
+     * return.
+     */
+    void set_filter(const string& value) {
+      _have_filter_ = true;
+      filter_ = value;
+    }
+
+
+
+    /**
+     * Clears the '<code>pageToken</code>' attribute so it is no longer set.
+     */
+    void clear_page_token() {
+      _have_page_token_ = false;
+      client::ClearCppValueHelper(&page_token_);
+    }
+
+
+    /**
+     * Gets the optional '<code>pageToken</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_page_token() const { return page_token_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>pageToken</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_pageToken() {
+      _have_page_token_ = true;
+      return &page_token_;
+    }
+
+
+    /**
+     * Sets the '<code>pageToken</code>' attribute.
+     *
+     * @param[in] value The pageToken parameter identifies a specific page in
+     * the result set that should be returned. In an API response, the
+     * nextPageToken and prevPageToken properties identify other pages that
+     * could be retrieved.
+     */
+    void set_page_token(const string& value) {
+      _have_page_token_ = true;
+      page_token_ = value;
+    }
+
+
+
+    /**
+     * Clears the '<code>maxResults</code>' attribute so it is no longer set.
+     */
+    void clear_max_results() {
+      _have_max_results_ = false;
+      client::ClearCppValueHelper(&max_results_);
+    }
+
+
+    /**
+     * Gets the optional '<code>maxResults</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    uint32 get_max_results() const { return max_results_; }
+
+    /**
+     * Sets the '<code>maxResults</code>' attribute.
+     *
+     * @param[in] value The maxResults parameter specifies the maximum number of
+     * items that should be returned in the result set.
+     */
+    void set_max_results(uint32 value) {
+      _have_max_results_ = true;
+      max_results_ = value;
+    }
+
+  /**
+   * Appends variable value to the target string.
+   *
+   * This is a helper function used to resolve templated variables in the URI.
+   *
+   * @param[in] variable_name  The name of the templated variable.
+   * @param[in] config  A pass-through parameter used for lists and maps.
+   * @param[in, out] target The string to append the value to.
+   */
+  virtual util::Status AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
+
+
+  /**
+   * Executes the method and parses the response into a data object on success.
+   *
+   * @param[out] data Loads from the response payload JSON data on success.
+   *
+   * @return Success if an HTTP 2xx response was received. Otherwise the
+   *         status indicates the reason for failure. Finer detail may be
+   *         available from the underlying http_request to distinguish the
+   *         transport_status from the overal HTTP request status.
+   */
+  util::Status ExecuteAndParseResponse(
+      SponsorListResponse* data) {
+    return YouTubeServiceBaseRequest::ExecuteAndParseResponse(data);
+  }
+
+ private:
+  string part_;
+  string filter_;
+  string page_token_;
+  uint32 max_results_;
+  bool _have_filter_ : 1;
+  bool _have_page_token_ : 1;
+  bool _have_max_results_ : 1;
+  DISALLOW_COPY_AND_ASSIGN(SponsorsResource_ListMethod);
+};
+
+typedef client::ServiceRequestPager<
+            SponsorsResource_ListMethod,
+            SponsorListResponse>
+        SponsorsResource_ListMethodPager;
+
+
+
+/**
  * Implements the delete method.
  *
  * @ingroup ServiceMethod
@@ -14864,6 +15915,63 @@ class YouTubeService : public client::ClientService {
    *
    * @ingroup ServiceClass
    */
+  class FanFundingEventsResource {
+   public:
+    /**
+     * Standard constructor.
+     *
+     * @param[in] service  The service instance is used to bind to the
+     *            methods created from this resource instance.  This will be
+     *            the service that methods are invoked on.
+     */
+    explicit FanFundingEventsResource(YouTubeService* service);
+
+    /**
+     * Standard destructor.
+     */
+    ~FanFundingEventsResource() {}
+
+
+    /**
+     * Creates a new FanFundingEventsResource_ListMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @param[in] part The part parameter specifies the fanFundingEvent resource
+     * parts that the API response will include. Supported values are id and
+     * snippet.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    FanFundingEventsResource_ListMethod* NewListMethod(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& part) const;
+
+    /**
+     * Creates a pager for iterating over incremental result pages.
+     * @param[in] _credential_  NULL credentials will not authorize the request.
+     * @param[in] part The part parameter specifies the fanFundingEvent resource
+     * parts that the API response will include. Supported values are id and
+     * snippet.
+     *
+     *
+     * @see googleapis::googleapis::ServiceRequestPager
+     */
+    FanFundingEventsResource_ListMethodPager* NewListMethodPager(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& part) const;
+
+   private:
+    YouTubeService* service_;
+
+    DISALLOW_COPY_AND_ASSIGN(FanFundingEventsResource);
+  };
+
+  /**
+   * Acts as message factory for accessing  data.
+   *
+   * @ingroup ServiceClass
+   */
   class GuideCategoriesResource {
    public:
     /**
@@ -15030,25 +16138,6 @@ class YouTubeService : public client::ClientService {
         const StringPiece& part) const;
 
     /**
-     * Creates a new LiveBroadcastsResource_BindDirectMethod instance.
-     *
-     * @param[in] _credential_  Can be NULL.
-     *            NULL credentials will not authorize the request.
-     * @param[in] id The id parameter specifies the unique ID of the broadcast
-     * that is being bound to a video stream.
-     * @param[in] part The part parameter specifies a comma-separated list of
-     * one or more liveBroadcast resource properties that the API response will
-     * include. The part names that you can include in the parameter value are
-     * id, snippet, contentDetails, and status.
-     * @returns  The caller should <code>Execute</code> the method instance,
-     *           then destroy it when they are finished.
-     */
-    LiveBroadcastsResource_BindDirectMethod* NewBindDirectMethod(
-        client::AuthorizationCredential* _credential_,
-        const StringPiece& id,
-        const StringPiece& part) const;
-
-    /**
      * Creates a new LiveBroadcastsResource_ControlMethod instance.
      *
      * @param[in] _credential_  Can be NULL.
@@ -15191,6 +16280,257 @@ class YouTubeService : public client::ClientService {
     YouTubeService* service_;
 
     DISALLOW_COPY_AND_ASSIGN(LiveBroadcastsResource);
+  };
+
+  /**
+   * Acts as message factory for accessing  data.
+   *
+   * @ingroup ServiceClass
+   */
+  class LiveChatBansResource {
+   public:
+    /**
+     * Standard constructor.
+     *
+     * @param[in] service  The service instance is used to bind to the
+     *            methods created from this resource instance.  This will be
+     *            the service that methods are invoked on.
+     */
+    explicit LiveChatBansResource(YouTubeService* service);
+
+    /**
+     * Standard destructor.
+     */
+    ~LiveChatBansResource() {}
+
+
+    /**
+     * Creates a new LiveChatBansResource_DeleteMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @param[in] id The id parameter identifies the chat ban to remove. The
+     * value uniquely identifies both the ban and the chat.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    LiveChatBansResource_DeleteMethod* NewDeleteMethod(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& id) const;
+
+    /**
+     * Creates a new LiveChatBansResource_InsertMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @param[in] part The part parameter serves two purposes in this operation.
+     * It identifies the properties that the write operation will set as well as
+     * the properties that the API response returns. Set the parameter value to
+     * snippet.
+     * @param[in] _content_ The data object to insert.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    LiveChatBansResource_InsertMethod* NewInsertMethod(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& part,
+        const LiveChatBan& _content_) const;
+
+   private:
+    YouTubeService* service_;
+
+    DISALLOW_COPY_AND_ASSIGN(LiveChatBansResource);
+  };
+
+  /**
+   * Acts as message factory for accessing  data.
+   *
+   * @ingroup ServiceClass
+   */
+  class LiveChatMessagesResource {
+   public:
+    /**
+     * Standard constructor.
+     *
+     * @param[in] service  The service instance is used to bind to the
+     *            methods created from this resource instance.  This will be
+     *            the service that methods are invoked on.
+     */
+    explicit LiveChatMessagesResource(YouTubeService* service);
+
+    /**
+     * Standard destructor.
+     */
+    ~LiveChatMessagesResource() {}
+
+
+    /**
+     * Creates a new LiveChatMessagesResource_DeleteMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @param[in] id The id parameter specifies the YouTube chat message ID of
+     * the resource that is being deleted.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    LiveChatMessagesResource_DeleteMethod* NewDeleteMethod(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& id) const;
+
+    /**
+     * Creates a new LiveChatMessagesResource_InsertMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @param[in] part The part parameter serves two purposes. It identifies the
+     * properties that the write operation will set as well as the properties
+     * that the API response will include. Set the parameter value to snippet.
+     * @param[in] _content_ The data object to insert.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    LiveChatMessagesResource_InsertMethod* NewInsertMethod(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& part,
+        const LiveChatMessage& _content_) const;
+
+    /**
+     * Creates a new LiveChatMessagesResource_ListMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @param[in] live_chat_id The liveChatId parameter specifies the ID of the
+     * chat whose messages will be returned.
+     * @param[in] part The part parameter specifies the liveChatComment resource
+     * parts that the API response will include. Supported values are id and
+     * snippet.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    LiveChatMessagesResource_ListMethod* NewListMethod(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& live_chat_id,
+        const StringPiece& part) const;
+
+    /**
+     * Creates a pager for iterating over incremental result pages.
+     * @param[in] _credential_  NULL credentials will not authorize the request.
+     * @param[in] live_chat_id The liveChatId parameter specifies the ID of the
+     * chat whose messages will be returned.
+     *
+     * @param[in] part The part parameter specifies the liveChatComment resource
+     * parts that the API response will include. Supported values are id and
+     * snippet.
+     *
+     *
+     * @see googleapis::googleapis::ServiceRequestPager
+     */
+    LiveChatMessagesResource_ListMethodPager* NewListMethodPager(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& live_chat_id,
+        const StringPiece& part) const;
+
+   private:
+    YouTubeService* service_;
+
+    DISALLOW_COPY_AND_ASSIGN(LiveChatMessagesResource);
+  };
+
+  /**
+   * Acts as message factory for accessing  data.
+   *
+   * @ingroup ServiceClass
+   */
+  class LiveChatModeratorsResource {
+   public:
+    /**
+     * Standard constructor.
+     *
+     * @param[in] service  The service instance is used to bind to the
+     *            methods created from this resource instance.  This will be
+     *            the service that methods are invoked on.
+     */
+    explicit LiveChatModeratorsResource(YouTubeService* service);
+
+    /**
+     * Standard destructor.
+     */
+    ~LiveChatModeratorsResource() {}
+
+
+    /**
+     * Creates a new LiveChatModeratorsResource_DeleteMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @param[in] id The id parameter identifies the chat moderator to remove.
+     * The value uniquely identifies both the moderator and the chat.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    LiveChatModeratorsResource_DeleteMethod* NewDeleteMethod(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& id) const;
+
+    /**
+     * Creates a new LiveChatModeratorsResource_InsertMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @param[in] part The part parameter serves two purposes in this operation.
+     * It identifies the properties that the write operation will set as well as
+     * the properties that the API response returns. Set the parameter value to
+     * snippet.
+     * @param[in] _content_ The data object to insert.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    LiveChatModeratorsResource_InsertMethod* NewInsertMethod(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& part,
+        const LiveChatModerator& _content_) const;
+
+    /**
+     * Creates a new LiveChatModeratorsResource_ListMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @param[in] live_chat_id The liveChatId parameter specifies the YouTube
+     * live chat for which the API should return moderators.
+     * @param[in] part The part parameter specifies the liveChatModerator
+     * resource parts that the API response will include. Supported values are
+     * id and snippet.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    LiveChatModeratorsResource_ListMethod* NewListMethod(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& live_chat_id,
+        const StringPiece& part) const;
+
+    /**
+     * Creates a pager for iterating over incremental result pages.
+     * @param[in] _credential_  NULL credentials will not authorize the request.
+     * @param[in] live_chat_id The liveChatId parameter specifies the YouTube
+     * live chat for which the API should return moderators.
+     *
+     * @param[in] part The part parameter specifies the liveChatModerator
+     * resource parts that the API response will include. Supported values are
+     * id and snippet.
+     *
+     *
+     * @see googleapis::googleapis::ServiceRequestPager
+     */
+    LiveChatModeratorsResource_ListMethodPager* NewListMethodPager(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& live_chat_id,
+        const StringPiece& part) const;
+
+   private:
+    YouTubeService* service_;
+
+    DISALLOW_COPY_AND_ASSIGN(LiveChatModeratorsResource);
   };
 
   /**
@@ -15623,6 +16963,61 @@ class YouTubeService : public client::ClientService {
     YouTubeService* service_;
 
     DISALLOW_COPY_AND_ASSIGN(SearchResource);
+  };
+
+  /**
+   * Acts as message factory for accessing  data.
+   *
+   * @ingroup ServiceClass
+   */
+  class SponsorsResource {
+   public:
+    /**
+     * Standard constructor.
+     *
+     * @param[in] service  The service instance is used to bind to the
+     *            methods created from this resource instance.  This will be
+     *            the service that methods are invoked on.
+     */
+    explicit SponsorsResource(YouTubeService* service);
+
+    /**
+     * Standard destructor.
+     */
+    ~SponsorsResource() {}
+
+
+    /**
+     * Creates a new SponsorsResource_ListMethod instance.
+     *
+     * @param[in] _credential_  Can be NULL.
+     *            NULL credentials will not authorize the request.
+     * @param[in] part The part parameter specifies the sponsor resource parts
+     * that the API response will include. Supported values are id and snippet.
+     * @returns  The caller should <code>Execute</code> the method instance,
+     *           then destroy it when they are finished.
+     */
+    SponsorsResource_ListMethod* NewListMethod(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& part) const;
+
+    /**
+     * Creates a pager for iterating over incremental result pages.
+     * @param[in] _credential_  NULL credentials will not authorize the request.
+     * @param[in] part The part parameter specifies the sponsor resource parts
+     * that the API response will include. Supported values are id and snippet.
+     *
+     *
+     * @see googleapis::googleapis::ServiceRequestPager
+     */
+    SponsorsResource_ListMethodPager* NewListMethodPager(
+        client::AuthorizationCredential* _credential_,
+        const StringPiece& part) const;
+
+   private:
+    YouTubeService* service_;
+
+    DISALLOW_COPY_AND_ASSIGN(SponsorsResource);
   };
 
   /**
@@ -16250,6 +17645,16 @@ class YouTubeService : public client::ClientService {
   /**
    * Gets the  resource method factory.
    *
+   * @return FanFundingEventsResource for creating methods.
+   */
+  const FanFundingEventsResource& get_fan_funding_events() const {
+    return fan_funding_events_;
+  }
+
+
+  /**
+   * Gets the  resource method factory.
+   *
    * @return GuideCategoriesResource for creating methods.
    */
   const GuideCategoriesResource& get_guide_categories() const {
@@ -16290,6 +17695,36 @@ class YouTubeService : public client::ClientService {
   /**
    * Gets the  resource method factory.
    *
+   * @return LiveChatBansResource for creating methods.
+   */
+  const LiveChatBansResource& get_live_chat_bans() const {
+    return live_chat_bans_;
+  }
+
+
+  /**
+   * Gets the  resource method factory.
+   *
+   * @return LiveChatMessagesResource for creating methods.
+   */
+  const LiveChatMessagesResource& get_live_chat_messages() const {
+    return live_chat_messages_;
+  }
+
+
+  /**
+   * Gets the  resource method factory.
+   *
+   * @return LiveChatModeratorsResource for creating methods.
+   */
+  const LiveChatModeratorsResource& get_live_chat_moderators() const {
+    return live_chat_moderators_;
+  }
+
+
+  /**
+   * Gets the  resource method factory.
+   *
    * @return LiveStreamsResource for creating methods.
    */
   const LiveStreamsResource& get_live_streams() const {
@@ -16324,6 +17759,16 @@ class YouTubeService : public client::ClientService {
    */
   const SearchResource& get_search() const {
     return search_;
+  }
+
+
+  /**
+   * Gets the  resource method factory.
+   *
+   * @return SponsorsResource for creating methods.
+   */
+  const SponsorsResource& get_sponsors() const {
+    return sponsors_;
   }
 
 
@@ -16397,33 +17842,33 @@ class YouTubeService : public client::ClientService {
     /**
      * Manage your YouTube account.
      */
-    static const StringPiece YOUTUBE;
+    static const string YOUTUBE;
 
     /**
      * Manage your YouTube account.
      */
-    static const StringPiece YOUTUBE_FORCE_SSL;
+    static const string YOUTUBE_FORCE_SSL;
 
     /**
      * View your YouTube account.
      */
-    static const StringPiece YOUTUBE_READONLY;
+    static const string YOUTUBE_READONLY;
 
     /**
      * Manage your YouTube videos.
      */
-    static const StringPiece YOUTUBE_UPLOAD;
+    static const string YOUTUBE_UPLOAD;
 
     /**
      * View and manage your assets and associated content on YouTube.
      */
-    static const StringPiece YOUTUBEPARTNER;
+    static const string YOUTUBEPARTNER;
 
     /**
      * View private information of your YouTube channel relevant during the
      * audit process with a YouTube partner.
      */
-    static const StringPiece YOUTUBEPARTNER_CHANNEL_AUDIT;
+    static const string YOUTUBEPARTNER_CHANNEL_AUDIT;
 
    private:
     SCOPES();  // Never instantiated.
@@ -16438,14 +17883,19 @@ class YouTubeService : public client::ClientService {
   ChannelsResource channels_;
   CommentThreadsResource comment_threads_;
   CommentsResource comments_;
+  FanFundingEventsResource fan_funding_events_;
   GuideCategoriesResource guide_categories_;
   I18nLanguagesResource i18n_languages_;
   I18nRegionsResource i18n_regions_;
   LiveBroadcastsResource live_broadcasts_;
+  LiveChatBansResource live_chat_bans_;
+  LiveChatMessagesResource live_chat_messages_;
+  LiveChatModeratorsResource live_chat_moderators_;
   LiveStreamsResource live_streams_;
   PlaylistItemsResource playlist_items_;
   PlaylistsResource playlists_;
   SearchResource search_;
+  SponsorsResource sponsors_;
   SubscriptionsResource subscriptions_;
   ThumbnailsResource thumbnails_;
   VideoAbuseReportReasonsResource video_abuse_report_reasons_;

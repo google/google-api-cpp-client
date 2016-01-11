@@ -1225,7 +1225,8 @@ class File : public client::JsonCppData {
     /**
      * Change the '<code>restricted</code>' attribute.
      *
-     * Whether viewers are prevented from downloading this file.
+     * Whether viewers and commenters are prevented from downloading, printing,
+     * and copying this file.
      *
      * @param[in] value The new value.
      */
@@ -2703,9 +2704,10 @@ class File : public client::JsonCppData {
 
   /**
    * Change the '<code>markedViewedByMeDate</code>' attribute.
+   * @deprecated
    *
-   * Time this file was explicitly marked viewed by the user (formatted RFC 3339
-   * timestamp).
+   *
+   * Deprecated.
    *
    * @param[in] value The new value.
    */

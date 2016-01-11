@@ -27,6 +27,7 @@
 #ifndef  GOOGLE_YOUTUBE_API_VIDEO_LIVE_STREAMING_DETAILS_H_
 #define  GOOGLE_YOUTUBE_API_VIDEO_LIVE_STREAMING_DETAILS_H_
 
+#include <string>
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/client/data/jsoncpp_data.h"
@@ -80,6 +81,48 @@ class VideoLiveStreamingDetails : public client::JsonCppData {
    */
   const StringPiece GetTypeName() const {
     return StringPiece("google_youtube_api::VideoLiveStreamingDetails");
+  }
+
+  /**
+   * Determine if the '<code>activeLiveChatId</code>' attribute was set.
+   *
+   * @return true if the '<code>activeLiveChatId</code>' attribute was set.
+   */
+  bool has_active_live_chat_id() const {
+    return Storage().isMember("activeLiveChatId");
+  }
+
+  /**
+   * Clears the '<code>activeLiveChatId</code>' attribute.
+   */
+  void clear_active_live_chat_id() {
+    MutableStorage()->removeMember("activeLiveChatId");
+  }
+
+
+  /**
+   * Get the value of the '<code>activeLiveChatId</code>' attribute.
+   */
+  const StringPiece get_active_live_chat_id() const {
+    const Json::Value& v = Storage("activeLiveChatId");
+    if (v == Json::Value::null) return StringPiece("");
+    return StringPiece(v.asCString());
+  }
+
+  /**
+   * Change the '<code>activeLiveChatId</code>' attribute.
+   *
+   * The ID of the currently active live chat attached to this video. This field
+   * is filled only if the video is a currently live broadcast that has live
+   * chat. Once the broadcast transitions to complete this field will be removed
+   * and the live chat closed down. For persistent broadcasts that live chat id
+   * will no longer be tied to this video but rather to the new video being
+   * displayed at the persistent page.
+   *
+   * @param[in] value The new value.
+   */
+  void set_active_live_chat_id(const StringPiece& value) {
+    *MutableStorage("activeLiveChatId") = value.data();
   }
 
   /**

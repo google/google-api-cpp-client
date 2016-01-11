@@ -40,7 +40,7 @@ namespace google_drive_api {
 using namespace googleapis;
 
 /**
- * The JSON template for a user.
+ * Information about a Drive user.
  *
  * @ingroup DataObject
  */

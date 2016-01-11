@@ -111,7 +111,9 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>acbRating</code>' attribute.
    *
-   * Rating system in Australia - Australian Classification Board.
+   * The video's Australian Classification Board (ACB) or Australian
+   * Communications and Media Authority (ACMA) rating. ACMA ratings are used to
+   * classify children's television programming.
    *
    * @param[in] value The new value.
    */
@@ -148,7 +150,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>agcomRating</code>' attribute.
    *
-   * Rating system for Italy - Autorit� per le Garanzie nelle Comunicazioni.
+   * The video's rating from Italy's Autorità per le Garanzie nelle
+   * Comunicazioni (AGCOM).
    *
    * @param[in] value The new value.
    */
@@ -185,7 +188,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>anatelRating</code>' attribute.
    *
-   * Rating system for Chile - Asociaci�n Nacional de Televisi�n.
+   * The video's Anatel (Asociación Nacional de Televisión) rating for Chilean
+   * television.
    *
    * @param[in] value The new value.
    */
@@ -222,7 +226,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>bbfcRating</code>' attribute.
    *
-   * British Board of Film Classification.
+   * The video's British Board of Film Classification (BBFC) rating.
    *
    * @param[in] value The new value.
    */
@@ -259,7 +263,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>bfvcRating</code>' attribute.
    *
-   * Rating system for Thailand - Board of Filmand Video Censors.
+   * The video's rating from Thailand's Board of Film and Video Censors.
    *
    * @param[in] value The new value.
    */
@@ -296,8 +300,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>bmukkRating</code>' attribute.
    *
-   * Rating system for Austria - Bundesministerium f�r Unterricht, Kunst und
-   * Kultur.
+   * The video's rating from the Austrian Board of Media Classification
+   * (Bundesministerium für Unterricht, Kunst und Kultur).
    *
    * @param[in] value The new value.
    */
@@ -334,7 +338,10 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>catvRating</code>' attribute.
    *
-   * Rating system for Canadian TV - Canadian TV Classification System.
+   * Rating system for Canadian TV - Canadian TV Classification System The
+   * video's rating from the Canadian Radio-Television and Telecommunications
+   * Commission (CRTC) for Canadian English-language broadcasts. For more
+   * information, see the Canadian Broadcast Standards Council website.
    *
    * @param[in] value The new value.
    */
@@ -371,7 +378,10 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>catvfrRating</code>' attribute.
    *
-   * Rating system for French Canadian TV - Regie du cinema.
+   * The video's rating from the Canadian Radio-Television and
+   * Telecommunications Commission (CRTC) for Canadian French-language
+   * broadcasts. For more information, see the Canadian Broadcast Standards
+   * Council website.
    *
    * @param[in] value The new value.
    */
@@ -408,7 +418,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>cbfcRating</code>' attribute.
    *
-   * Rating system in India - Central Board of Film Certification.
+   * The video's Central Board of Film Certification (CBFC - India) rating.
    *
    * @param[in] value The new value.
    */
@@ -445,7 +455,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>cccRating</code>' attribute.
    *
-   * Rating system for Chile - Consejo de Calificaci�n Cinematogr�fica.
+   * The video's Consejo de Calificación Cinematográfica (Chile) rating.
    *
    * @param[in] value The new value.
    */
@@ -482,7 +492,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>cceRating</code>' attribute.
    *
-   * Rating system for Portugal - Comiss�o de Classifica��o de Espect�culos.
+   * The video's rating from Portugal's Comissão de Classificação de
+   * Espect´culos.
    *
    * @param[in] value The new value.
    */
@@ -519,7 +530,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>chfilmRating</code>' attribute.
    *
-   * Rating system for Switzerland - Switzerland Rating System.
+   * The video's rating in Switzerland.
    *
    * @param[in] value The new value.
    */
@@ -556,7 +567,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>chvrsRating</code>' attribute.
    *
-   * Canadian Home Video Rating System.
+   * The video's Canadian Home Video Rating System (CHVRS) rating.
    *
    * @param[in] value The new value.
    */
@@ -593,7 +604,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>cicfRating</code>' attribute.
    *
-   * Rating system for Belgium - Belgium Rating System.
+   * The video's rating from the Commission de Contrôle des Films (Belgium).
    *
    * @param[in] value The new value.
    */
@@ -630,7 +641,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>cnaRating</code>' attribute.
    *
-   * Rating system for Romania - CONSILIUL NATIONAL AL AUDIOVIZUALULUI - CNA.
+   * The video's rating from Romania's CONSILIUL NATIONAL AL AUDIOVIZUALULUI
+   * (CNA).
    *
    * @param[in] value The new value.
    */
@@ -704,7 +716,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>csaRating</code>' attribute.
    *
-   * Rating system for France - Conseil sup�rieur de l?audiovisuel.
+   * The video's rating from France's Conseil supérieur de l?audiovisuel, which
+   * rates broadcast content.
    *
    * @param[in] value The new value.
    */
@@ -741,8 +754,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>cscfRating</code>' attribute.
    *
-   * Rating system for Luxembourg - Commission de surveillance de la
-   * classification des films.
+   * The video's rating from Luxembourg's Commission de surveillance de la
+   * classification des films (CSCF).
    *
    * @param[in] value The new value.
    */
@@ -779,7 +792,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>czfilmRating</code>' attribute.
    *
-   * Rating system for Czech republic - Czech republic Rating System.
+   * The video's rating in the Czech Republic.
    *
    * @param[in] value The new value.
    */
@@ -816,8 +829,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>djctqRating</code>' attribute.
    *
-   * Rating system in Brazil - Department of Justice, Rating, Titles and
-   * Qualification.
+   * The video's Departamento de Justiça, Classificação, Qualificação e Títulos
+   * (DJCQT - Brazil) rating.
    *
    * @param[in] value The new value.
    */
@@ -854,6 +867,9 @@ class ContentRating : public client::JsonCppData {
   /**
    * Gets a reference to a mutable value of the
    * '<code>djctqRatingReasons</code>' property.
+   *
+   * Reasons that explain why the video received its DJCQT (Brazil) rating.
+   *
    * @return The result can be modified to change the attribute value.
    */
   client::JsonCppArray<string > mutable_djctqRatingReasons() {
@@ -890,7 +906,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>eefilmRating</code>' attribute.
    *
-   * Rating system for Estonia - Estonia Rating System.
+   * The video's rating in Estonia.
    *
    * @param[in] value The new value.
    */
@@ -927,7 +943,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>egfilmRating</code>' attribute.
    *
-   * Rating system for Egypt - Egypt Rating System.
+   * The video's rating in Egypt.
    *
    * @param[in] value The new value.
    */
@@ -964,7 +980,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>eirinRating</code>' attribute.
    *
-   * Rating system in Japan - Eiga Rinri Kanri Iinkai.
+   * The video's Eirin (映倫) rating. Eirin is the Japanese rating system.
    *
    * @param[in] value The new value.
    */
@@ -1001,7 +1017,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>fcbmRating</code>' attribute.
    *
-   * Rating system for Malaysia - Film Censorship Board of Malaysia.
+   * The video's rating from Malaysia's Film Censorship Board.
    *
    * @param[in] value The new value.
    */
@@ -1038,7 +1054,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>fcoRating</code>' attribute.
    *
-   * Rating system for Hong kong - Office for Film, Newspaper and Article
+   * The video's rating from Hong Kong's Office for Film, Newspaper and Article
    * Administration.
    *
    * @param[in] value The new value.
@@ -1075,10 +1091,9 @@ class ContentRating : public client::JsonCppData {
 
   /**
    * Change the '<code>fmocRating</code>' attribute.
-   * @deprecated
    *
-   *
-   * Deprecated use CNC rating instead.
+   * This property has been deprecated. Use the
+   * contentDetails.contentRating.cncRating instead.
    *
    * @param[in] value The new value.
    */
@@ -1115,7 +1130,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>fpbRating</code>' attribute.
    *
-   * Rating system for South africa - Film & Publication Board.
+   * The video's rating from South Africa's Film and Publication Board.
    *
    * @param[in] value The new value.
    */
@@ -1152,7 +1167,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>fskRating</code>' attribute.
    *
-   * Rating system in Germany - Voluntary Self Regulation of the Movie Industry.
+   * The video's Freiwillige Selbstkontrolle der Filmwirtschaft (FSK - Germany)
+   * rating.
    *
    * @param[in] value The new value.
    */
@@ -1189,7 +1205,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>grfilmRating</code>' attribute.
    *
-   * Rating system for Greece - Greece Rating System.
+   * The video's rating in Greece.
    *
    * @param[in] value The new value.
    */
@@ -1226,8 +1242,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>icaaRating</code>' attribute.
    *
-   * Rating system in Spain - Instituto de Cinematografia y de las Artes
-   * Audiovisuales.
+   * The video's Instituto de la Cinematografía y de las Artes Audiovisuales
+   * (ICAA - Spain) rating.
    *
    * @param[in] value The new value.
    */
@@ -1264,7 +1280,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>ifcoRating</code>' attribute.
    *
-   * Rating system in Ireland - Irish Film Classification Office.
+   * The video's Irish Film Classification Office (IFCO - Ireland) rating. See
+   * the IFCO website for more information.
    *
    * @param[in] value The new value.
    */
@@ -1301,7 +1318,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>ilfilmRating</code>' attribute.
    *
-   * Rating system for Israel - Israel Rating System.
+   * The video's rating in Israel.
    *
    * @param[in] value The new value.
    */
@@ -1338,8 +1355,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>incaaRating</code>' attribute.
    *
-   * Rating system for Argentina - Instituto Nacional de Cine y Artes
-   * Audiovisuales.
+   * The video's INCAA (Instituto Nacional de Cine y Artes Audiovisuales -
+   * Argentina) rating.
    *
    * @param[in] value The new value.
    */
@@ -1376,7 +1393,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>kfcbRating</code>' attribute.
    *
-   * Rating system for Kenya - Kenya Film Classification Board.
+   * The video's rating from the Kenya Film Classification Board.
    *
    * @param[in] value The new value.
    */
@@ -1413,8 +1430,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>kijkwijzerRating</code>' attribute.
    *
-   * Rating system for Netherlands - Nederlands Instituut voor de Classificatie
-   * van Audiovisuele Media.
+   * voor de Classificatie van Audiovisuele Media (Netherlands).
    *
    * @param[in] value The new value.
    */
@@ -1451,7 +1467,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>kmrbRating</code>' attribute.
    *
-   * Rating system in South Korea - Korea Media Rating Board.
+   * The video's Korea Media Rating Board (영상물등급위원회) rating. The KMRB rates
+   * videos in South Korea.
    *
    * @param[in] value The new value.
    */
@@ -1488,7 +1505,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>lsfRating</code>' attribute.
    *
-   * Rating system for Indonesia - Lembaga Sensor Film.
+   * The video's rating from Indonesia's Lembaga Sensor Film.
    *
    * @param[in] value The new value.
    */
@@ -1525,7 +1542,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>mccaaRating</code>' attribute.
    *
-   * Rating system for Malta - Film Age-Classification Board.
+   * The video's rating from Malta's Film Age-Classification Board.
    *
    * @param[in] value The new value.
    */
@@ -1562,8 +1579,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>mccypRating</code>' attribute.
    *
-   * Rating system for Denmark - The Media Council for Children and Young
-   * People.
+   * The video's rating from the Danish Film Institute's (Det Danske
+   * Filminstitut) Media Council for Children and Young People.
    *
    * @param[in] value The new value.
    */
@@ -1600,7 +1617,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>mdaRating</code>' attribute.
    *
-   * Rating system for Singapore - Media Development Authority.
+   * The video's rating from Singapore's Media Development Authority (MDA) and,
+   * specifically, it's Board of Film Censors (BFC).
    *
    * @param[in] value The new value.
    */
@@ -1637,7 +1655,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>medietilsynetRating</code>' attribute.
    *
-   * Rating system for Norway - Medietilsynet.
+   * The video's rating from Medietilsynet, the Norwegian Media Authority.
    *
    * @param[in] value The new value.
    */
@@ -1674,8 +1692,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>mekuRating</code>' attribute.
    *
-   * Rating system for Finland - Finnish Centre for Media Education and
-   * Audiovisual Media.
+   * The video's rating from Finland's Kansallinen Audiovisuaalinen Instituutti
+   * (National Audiovisual Institute).
    *
    * @param[in] value The new value.
    */
@@ -1712,8 +1730,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>mibacRating</code>' attribute.
    *
-   * Rating system in Italy - Ministero dei Beni e delle Attivita Culturali e
-   * del Turismo.
+   * The video's rating from the Ministero dei Beni e delle Attività Culturali e
+   * del Turismo (Italy).
    *
    * @param[in] value The new value.
    */
@@ -1750,7 +1768,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>mocRating</code>' attribute.
    *
-   * Rating system for Colombia - MoC.
+   * The video's Ministerio de Cultura (Colombia) rating.
    *
    * @param[in] value The new value.
    */
@@ -1787,7 +1805,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>moctwRating</code>' attribute.
    *
-   * Rating system for Taiwan - Ministry of Culture - Tawan.
+   * The video's rating from Taiwan's Ministry of Culture (文化部).
    *
    * @param[in] value The new value.
    */
@@ -1824,7 +1842,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>mpaaRating</code>' attribute.
    *
-   * Motion Picture Association of America rating for the content.
+   * The video's Motion Picture Association of America (MPAA) rating.
    *
    * @param[in] value The new value.
    */
@@ -1861,8 +1879,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>mtrcbRating</code>' attribute.
    *
-   * Rating system for Philippines - MOVIE AND TELEVISION REVIEW AND
-   * CLASSIFICATION BOARD.
+   * The video's rating from the Movie and Television Review and Classification
+   * Board (Philippines).
    *
    * @param[in] value The new value.
    */
@@ -1899,7 +1917,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>nbcRating</code>' attribute.
    *
-   * Rating system for Maldives - National Bureau of Classification.
+   * The video's rating from the Maldives National Bureau of Classification.
    *
    * @param[in] value The new value.
    */
@@ -1936,7 +1954,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>nbcplRating</code>' attribute.
    *
-   * Rating system for Poland - National Broadcasting Council.
+   * The video's rating in Poland.
    *
    * @param[in] value The new value.
    */
@@ -1973,7 +1991,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>nfrcRating</code>' attribute.
    *
-   * Rating system for Bulgaria - National Film Centre.
+   * The video's rating from the Bulgarian National Film Center.
    *
    * @param[in] value The new value.
    */
@@ -2010,7 +2028,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>nfvcbRating</code>' attribute.
    *
-   * Rating system for Nigeria - National Film and Video Censors Board.
+   * The video's rating from Nigeria's National Film and Video Censors Board.
    *
    * @param[in] value The new value.
    */
@@ -2047,7 +2065,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>nkclvRating</code>' attribute.
    *
-   * Rating system for Latvia - National Film Center of Latvia.
+   * The video's rating from the Nacionãlais Kino centrs (National Film Centre
+   * of Latvia).
    *
    * @param[in] value The new value.
    */
@@ -2084,8 +2103,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>oflcRating</code>' attribute.
    *
-   * Rating system in New Zealand - Office of Film and Literature
-   * Classification.
+   * The video's Office of Film and Literature Classification (OFLC - New
+   * Zealand) rating.
    *
    * @param[in] value The new value.
    */
@@ -2122,7 +2141,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>pefilmRating</code>' attribute.
    *
-   * Rating system for Peru - Peru Rating System.
+   * The video's rating in Peru.
    *
    * @param[in] value The new value.
    */
@@ -2159,8 +2178,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>rcnofRating</code>' attribute.
    *
-   * Rating system for Hungary - Rating Committee of the National Office of
-   * Film.
+   * The video's rating from the Hungarian Nemzeti Filmiroda, the Rating
+   * Committee of the National Office of Film.
    *
    * @param[in] value The new value.
    */
@@ -2198,7 +2217,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>resorteviolenciaRating</code>' attribute.
    *
-   * Rating system for Venezuela - SiBCI.
+   * The video's rating in Venezuela.
    *
    * @param[in] value The new value.
    */
@@ -2235,8 +2254,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>rtcRating</code>' attribute.
    *
-   * Rating system in Mexico - General Directorate of Radio, Television and
-   * Cinematography.
+   * The video's General Directorate of Radio, Television and Cinematography
+   * (Mexico) rating.
    *
    * @param[in] value The new value.
    */
@@ -2273,7 +2292,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>rteRating</code>' attribute.
    *
-   * Rating system for Ireland - Raidi� Teilif�s �ireann.
+   * The video's rating from Ireland's Raidió Teilifís Éireann.
    *
    * @param[in] value The new value.
    */
@@ -2310,7 +2329,8 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>russiaRating</code>' attribute.
    *
-   * Rating system in Russia.
+   * The video's National Film Registry of the Russian Federation (MKRF -
+   * Russia) rating.
    *
    * @param[in] value The new value.
    */
@@ -2347,7 +2367,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>skfilmRating</code>' attribute.
    *
-   * Rating system for Slovakia - Slovakia Rating System.
+   * The video's rating in Slovakia.
    *
    * @param[in] value The new value.
    */
@@ -2384,7 +2404,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>smaisRating</code>' attribute.
    *
-   * Rating system for Iceland - SMAIS.
+   * The video's rating in Iceland.
    *
    * @param[in] value The new value.
    */
@@ -2421,7 +2441,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>smsaRating</code>' attribute.
    *
-   * Rating system for Sweden - Statens medier�d (National Media Council).
+   * The video's rating from Statens medieråd (Sweden's National Media Council).
    *
    * @param[in] value The new value.
    */
@@ -2458,7 +2478,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>tvpgRating</code>' attribute.
    *
-   * TV Parental Guidelines rating of the content.
+   * The video's TV Parental Guidelines (TVPG) rating.
    *
    * @param[in] value The new value.
    */
@@ -2495,7 +2515,7 @@ class ContentRating : public client::JsonCppData {
   /**
    * Change the '<code>ytRating</code>' attribute.
    *
-   * Internal YouTube rating.
+   * A rating that YouTube uses to identify age-restricted content.
    *
    * @param[in] value The new value.
    */

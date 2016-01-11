@@ -42,8 +42,7 @@ namespace google_drive_api {
 using namespace googleapis;
 
 /**
- * A JSON representation of a list of replies to a comment on a file in Google
- * Drive.
+ * A list of replies to a comment on a file in Google Drive.
  *
  * @ingroup DataObject
  */

@@ -42,12 +42,18 @@
 #include "google/youtube_api/comment_list_response.h"
 #include "google/youtube_api/comment_thread.h"
 #include "google/youtube_api/comment_thread_list_response.h"
+#include "google/youtube_api/fan_funding_event_list_response.h"
 #include "google/youtube_api/guide_category_list_response.h"
 #include "google/youtube_api/i18n_language_list_response.h"
 #include "google/youtube_api/i18n_region_list_response.h"
 #include "google/youtube_api/invideo_branding.h"
 #include "google/youtube_api/live_broadcast.h"
 #include "google/youtube_api/live_broadcast_list_response.h"
+#include "google/youtube_api/live_chat_ban.h"
+#include "google/youtube_api/live_chat_message.h"
+#include "google/youtube_api/live_chat_message_list_response.h"
+#include "google/youtube_api/live_chat_moderator.h"
+#include "google/youtube_api/live_chat_moderator_list_response.h"
 #include "google/youtube_api/live_stream.h"
 #include "google/youtube_api/live_stream_list_response.h"
 #include "google/youtube_api/playlist.h"
@@ -55,6 +61,7 @@
 #include "google/youtube_api/playlist_item_list_response.h"
 #include "google/youtube_api/playlist_list_response.h"
 #include "google/youtube_api/search_list_response.h"
+#include "google/youtube_api/sponsor_list_response.h"
 #include "google/youtube_api/subscription.h"
 #include "google/youtube_api/subscription_list_response.h"
 #include "google/youtube_api/thumbnail_set_response.h"
@@ -82,17 +89,17 @@ const StringPiece YouTubeService::googleapis_API_GENERATOR(
   "google-apis-code-generator 1.5.1 / 0.1.3");
 
 
-const StringPiece YouTubeService::SCOPES::YOUTUBE("https://www.googleapis.com/auth/youtube");
+const string YouTubeService::SCOPES::YOUTUBE("https://www.googleapis.com/auth/youtube");
 
-const StringPiece YouTubeService::SCOPES::YOUTUBE_FORCE_SSL("https://www.googleapis.com/auth/youtube.force-ssl");
+const string YouTubeService::SCOPES::YOUTUBE_FORCE_SSL("https://www.googleapis.com/auth/youtube.force-ssl");
 
-const StringPiece YouTubeService::SCOPES::YOUTUBE_READONLY("https://www.googleapis.com/auth/youtube.readonly");
+const string YouTubeService::SCOPES::YOUTUBE_READONLY("https://www.googleapis.com/auth/youtube.readonly");
 
-const StringPiece YouTubeService::SCOPES::YOUTUBE_UPLOAD("https://www.googleapis.com/auth/youtube.upload");
+const string YouTubeService::SCOPES::YOUTUBE_UPLOAD("https://www.googleapis.com/auth/youtube.upload");
 
-const StringPiece YouTubeService::SCOPES::YOUTUBEPARTNER("https://www.googleapis.com/auth/youtubepartner");
+const string YouTubeService::SCOPES::YOUTUBEPARTNER("https://www.googleapis.com/auth/youtubepartner");
 
-const StringPiece YouTubeService::SCOPES::YOUTUBEPARTNER_CHANNEL_AUDIT("https://www.googleapis.com/auth/youtubepartner-channel-audit");
+const string YouTubeService::SCOPES::YOUTUBEPARTNER_CHANNEL_AUDIT("https://www.googleapis.com/auth/youtubepartner-channel-audit");
 YouTubeServiceBaseRequest::YouTubeServiceBaseRequest(
       const client::ClientService* service,
       client::AuthorizationCredential* credential,
@@ -1474,6 +1481,59 @@ util::Status CommentsResource_UpdateMethod::AppendVariable(
 
 
 // Standard constructor.
+FanFundingEventsResource_ListMethod::FanFundingEventsResource_ListMethod(
+    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& part)
+    : YouTubeServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::GET,
+        StrCat(_service_->service_url(), "fanFundingEvents")),
+      part_(part.as_string()),
+      max_results_(5),
+      _have_page_token_(false),
+      _have_max_results_(false),
+      _have_hl_(false) {
+}
+
+// Standard destructor.
+FanFundingEventsResource_ListMethod::~FanFundingEventsResource_ListMethod() {
+}
+
+util::Status FanFundingEventsResource_ListMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+    StrAppend(target, sep, "part=",
+              client::CppValueToEscapedUrlValue(
+                part_));
+    sep = "&";
+  if (_have_page_token_) {
+    StrAppend(target, sep, "pageToken=",
+              client::CppValueToEscapedUrlValue(
+                page_token_));
+    sep = "&";
+  }
+  if (_have_max_results_) {
+    StrAppend(target, sep, "maxResults=",
+              client::CppValueToEscapedUrlValue(
+                max_results_));
+    sep = "&";
+  }
+  if (_have_hl_) {
+    StrAppend(target, sep, "hl=",
+              client::CppValueToEscapedUrlValue(
+                hl_));
+    sep = "&";
+  }
+  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status FanFundingEventsResource_ListMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return YouTubeServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
 GuideCategoriesResource_ListMethod::GuideCategoriesResource_ListMethod(
     const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& part)
     : YouTubeServiceBaseRequest(
@@ -1662,63 +1722,6 @@ util::Status LiveBroadcastsResource_BindMethod::AppendVariable(
 
 
 // Standard constructor.
-LiveBroadcastsResource_BindDirectMethod::LiveBroadcastsResource_BindDirectMethod(
-    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& id, const StringPiece& part)
-    : YouTubeServiceBaseRequest(
-        _service_, _credential_,
-        client::HttpRequest::POST,
-        StrCat(_service_->service_url(), "liveBroadcasts/bind/direct")),
-      id_(id.as_string()),
-      part_(part.as_string()),
-      _have_on_behalf_of_content_owner_channel_(false),
-      _have_on_behalf_of_content_owner_(false),
-      _have_stream_id_(false) {
-}
-
-// Standard destructor.
-LiveBroadcastsResource_BindDirectMethod::~LiveBroadcastsResource_BindDirectMethod() {
-}
-
-util::Status LiveBroadcastsResource_BindDirectMethod::AppendOptionalQueryParameters(string* target) {
-  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
-    StrAppend(target, sep, "id=",
-              client::CppValueToEscapedUrlValue(
-                id_));
-    sep = "&";
-    StrAppend(target, sep, "part=",
-              client::CppValueToEscapedUrlValue(
-                part_));
-    sep = "&";
-  if (_have_on_behalf_of_content_owner_channel_) {
-    StrAppend(target, sep, "onBehalfOfContentOwnerChannel=",
-              client::CppValueToEscapedUrlValue(
-                on_behalf_of_content_owner_channel_));
-    sep = "&";
-  }
-  if (_have_on_behalf_of_content_owner_) {
-    StrAppend(target, sep, "onBehalfOfContentOwner=",
-              client::CppValueToEscapedUrlValue(
-                on_behalf_of_content_owner_));
-    sep = "&";
-  }
-  if (_have_stream_id_) {
-    StrAppend(target, sep, "streamId=",
-              client::CppValueToEscapedUrlValue(
-                stream_id_));
-    sep = "&";
-  }
-  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
-}
-util::Status LiveBroadcastsResource_BindDirectMethod::AppendVariable(
-        const StringPiece& variable_name,
-        const client::UriTemplateConfig& config,
-        string* target) {
-  return YouTubeServiceBaseRequest::AppendVariable(
-      variable_name, config, target);
-}
-
-
-// Standard constructor.
 LiveBroadcastsResource_ControlMethod::LiveBroadcastsResource_ControlMethod(
     const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& id, const StringPiece& part)
     : YouTubeServiceBaseRequest(
@@ -1889,12 +1892,14 @@ LiveBroadcastsResource_ListMethod::LiveBroadcastsResource_ListMethod(
         StrCat(_service_->service_url(), "liveBroadcasts")),
       part_(part.as_string()),
       max_results_(5),
+      broadcast_type_("BROADCAST_TYPE_FILTER_EVENT"),
       _have_broadcast_status_(false),
       _have_on_behalf_of_content_owner_(false),
       _have_on_behalf_of_content_owner_channel_(false),
       _have_mine_(false),
       _have_max_results_(false),
       _have_page_token_(false),
+      _have_broadcast_type_(false),
       _have_id_(false) {
 }
 
@@ -1942,6 +1947,12 @@ util::Status LiveBroadcastsResource_ListMethod::AppendOptionalQueryParameters(st
     StrAppend(target, sep, "pageToken=",
               client::CppValueToEscapedUrlValue(
                 page_token_));
+    sep = "&";
+  }
+  if (_have_broadcast_type_) {
+    StrAppend(target, sep, "broadcastType=",
+              client::CppValueToEscapedUrlValue(
+                broadcast_type_));
     sep = "&";
   }
   if (_have_id_) {
@@ -2054,6 +2065,311 @@ util::Status LiveBroadcastsResource_UpdateMethod::AppendOptionalQueryParameters(
   return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status LiveBroadcastsResource_UpdateMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return YouTubeServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
+LiveChatBansResource_DeleteMethod::LiveChatBansResource_DeleteMethod(
+    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& id)
+    : YouTubeServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::DELETE,
+        StrCat(_service_->service_url(), "liveChat/bans")),
+      id_(id.as_string()) {
+}
+
+// Standard destructor.
+LiveChatBansResource_DeleteMethod::~LiveChatBansResource_DeleteMethod() {
+}
+
+util::Status LiveChatBansResource_DeleteMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+    StrAppend(target, sep, "id=",
+              client::CppValueToEscapedUrlValue(
+                id_));
+    sep = "&";
+  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status LiveChatBansResource_DeleteMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return YouTubeServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
+LiveChatBansResource_InsertMethod::LiveChatBansResource_InsertMethod(
+    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& part, const LiveChatBan& __request_content__)
+    : YouTubeServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::POST,
+        StrCat(_service_->service_url(), "liveChat/bans")),
+      part_(part.as_string()) {
+  AddJsonContentToRequest(&__request_content__);
+}
+
+// Standard destructor.
+LiveChatBansResource_InsertMethod::~LiveChatBansResource_InsertMethod() {
+}
+
+util::Status LiveChatBansResource_InsertMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+    StrAppend(target, sep, "part=",
+              client::CppValueToEscapedUrlValue(
+                part_));
+    sep = "&";
+  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status LiveChatBansResource_InsertMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return YouTubeServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
+LiveChatMessagesResource_DeleteMethod::LiveChatMessagesResource_DeleteMethod(
+    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& id)
+    : YouTubeServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::DELETE,
+        StrCat(_service_->service_url(), "liveChat/messages")),
+      id_(id.as_string()) {
+}
+
+// Standard destructor.
+LiveChatMessagesResource_DeleteMethod::~LiveChatMessagesResource_DeleteMethod() {
+}
+
+util::Status LiveChatMessagesResource_DeleteMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+    StrAppend(target, sep, "id=",
+              client::CppValueToEscapedUrlValue(
+                id_));
+    sep = "&";
+  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status LiveChatMessagesResource_DeleteMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return YouTubeServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
+LiveChatMessagesResource_InsertMethod::LiveChatMessagesResource_InsertMethod(
+    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& part, const LiveChatMessage& __request_content__)
+    : YouTubeServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::POST,
+        StrCat(_service_->service_url(), "liveChat/messages")),
+      part_(part.as_string()) {
+  AddJsonContentToRequest(&__request_content__);
+}
+
+// Standard destructor.
+LiveChatMessagesResource_InsertMethod::~LiveChatMessagesResource_InsertMethod() {
+}
+
+util::Status LiveChatMessagesResource_InsertMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+    StrAppend(target, sep, "part=",
+              client::CppValueToEscapedUrlValue(
+                part_));
+    sep = "&";
+  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status LiveChatMessagesResource_InsertMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return YouTubeServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
+LiveChatMessagesResource_ListMethod::LiveChatMessagesResource_ListMethod(
+    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& live_chat_id, const StringPiece& part)
+    : YouTubeServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::GET,
+        StrCat(_service_->service_url(), "liveChat/messages")),
+      live_chat_id_(live_chat_id.as_string()),
+      part_(part.as_string()),
+      max_results_(200),
+      _have_profile_image_size_(false),
+      _have_page_token_(false),
+      _have_max_results_(false),
+      _have_hl_(false) {
+}
+
+// Standard destructor.
+LiveChatMessagesResource_ListMethod::~LiveChatMessagesResource_ListMethod() {
+}
+
+util::Status LiveChatMessagesResource_ListMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+    StrAppend(target, sep, "liveChatId=",
+              client::CppValueToEscapedUrlValue(
+                live_chat_id_));
+    sep = "&";
+    StrAppend(target, sep, "part=",
+              client::CppValueToEscapedUrlValue(
+                part_));
+    sep = "&";
+  if (_have_profile_image_size_) {
+    StrAppend(target, sep, "profileImageSize=",
+              client::CppValueToEscapedUrlValue(
+                profile_image_size_));
+    sep = "&";
+  }
+  if (_have_page_token_) {
+    StrAppend(target, sep, "pageToken=",
+              client::CppValueToEscapedUrlValue(
+                page_token_));
+    sep = "&";
+  }
+  if (_have_max_results_) {
+    StrAppend(target, sep, "maxResults=",
+              client::CppValueToEscapedUrlValue(
+                max_results_));
+    sep = "&";
+  }
+  if (_have_hl_) {
+    StrAppend(target, sep, "hl=",
+              client::CppValueToEscapedUrlValue(
+                hl_));
+    sep = "&";
+  }
+  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status LiveChatMessagesResource_ListMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return YouTubeServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
+LiveChatModeratorsResource_DeleteMethod::LiveChatModeratorsResource_DeleteMethod(
+    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& id)
+    : YouTubeServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::DELETE,
+        StrCat(_service_->service_url(), "liveChat/moderators")),
+      id_(id.as_string()) {
+}
+
+// Standard destructor.
+LiveChatModeratorsResource_DeleteMethod::~LiveChatModeratorsResource_DeleteMethod() {
+}
+
+util::Status LiveChatModeratorsResource_DeleteMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+    StrAppend(target, sep, "id=",
+              client::CppValueToEscapedUrlValue(
+                id_));
+    sep = "&";
+  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status LiveChatModeratorsResource_DeleteMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return YouTubeServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
+LiveChatModeratorsResource_InsertMethod::LiveChatModeratorsResource_InsertMethod(
+    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& part, const LiveChatModerator& __request_content__)
+    : YouTubeServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::POST,
+        StrCat(_service_->service_url(), "liveChat/moderators")),
+      part_(part.as_string()) {
+  AddJsonContentToRequest(&__request_content__);
+}
+
+// Standard destructor.
+LiveChatModeratorsResource_InsertMethod::~LiveChatModeratorsResource_InsertMethod() {
+}
+
+util::Status LiveChatModeratorsResource_InsertMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+    StrAppend(target, sep, "part=",
+              client::CppValueToEscapedUrlValue(
+                part_));
+    sep = "&";
+  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status LiveChatModeratorsResource_InsertMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return YouTubeServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
+LiveChatModeratorsResource_ListMethod::LiveChatModeratorsResource_ListMethod(
+    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& live_chat_id, const StringPiece& part)
+    : YouTubeServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::GET,
+        StrCat(_service_->service_url(), "liveChat/moderators")),
+      live_chat_id_(live_chat_id.as_string()),
+      part_(part.as_string()),
+      max_results_(5),
+      _have_max_results_(false),
+      _have_page_token_(false) {
+}
+
+// Standard destructor.
+LiveChatModeratorsResource_ListMethod::~LiveChatModeratorsResource_ListMethod() {
+}
+
+util::Status LiveChatModeratorsResource_ListMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+    StrAppend(target, sep, "liveChatId=",
+              client::CppValueToEscapedUrlValue(
+                live_chat_id_));
+    sep = "&";
+    StrAppend(target, sep, "part=",
+              client::CppValueToEscapedUrlValue(
+                part_));
+    sep = "&";
+  if (_have_max_results_) {
+    StrAppend(target, sep, "maxResults=",
+              client::CppValueToEscapedUrlValue(
+                max_results_));
+    sep = "&";
+  }
+  if (_have_page_token_) {
+    StrAppend(target, sep, "pageToken=",
+              client::CppValueToEscapedUrlValue(
+                page_token_));
+    sep = "&";
+  }
+  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status LiveChatModeratorsResource_ListMethod::AppendVariable(
         const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
@@ -2896,6 +3212,60 @@ util::Status SearchResource_ListMethod::AppendOptionalQueryParameters(string* ta
   return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status SearchResource_ListMethod::AppendVariable(
+        const StringPiece& variable_name,
+        const client::UriTemplateConfig& config,
+        string* target) {
+  return YouTubeServiceBaseRequest::AppendVariable(
+      variable_name, config, target);
+}
+
+
+// Standard constructor.
+SponsorsResource_ListMethod::SponsorsResource_ListMethod(
+    const YouTubeService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& part)
+    : YouTubeServiceBaseRequest(
+        _service_, _credential_,
+        client::HttpRequest::GET,
+        StrCat(_service_->service_url(), "sponsors")),
+      part_(part.as_string()),
+      filter_("POLL_NEWEST"),
+      max_results_(5),
+      _have_filter_(false),
+      _have_page_token_(false),
+      _have_max_results_(false) {
+}
+
+// Standard destructor.
+SponsorsResource_ListMethod::~SponsorsResource_ListMethod() {
+}
+
+util::Status SponsorsResource_ListMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+    StrAppend(target, sep, "part=",
+              client::CppValueToEscapedUrlValue(
+                part_));
+    sep = "&";
+  if (_have_filter_) {
+    StrAppend(target, sep, "filter=",
+              client::CppValueToEscapedUrlValue(
+                filter_));
+    sep = "&";
+  }
+  if (_have_page_token_) {
+    StrAppend(target, sep, "pageToken=",
+              client::CppValueToEscapedUrlValue(
+                page_token_));
+    sep = "&";
+  }
+  if (_have_max_results_) {
+    StrAppend(target, sep, "maxResults=",
+              client::CppValueToEscapedUrlValue(
+                max_results_));
+    sep = "&";
+  }
+  return YouTubeServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
+util::Status SponsorsResource_ListMethod::AppendVariable(
         const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
@@ -3750,7 +4120,7 @@ util::Status WatermarksResource_UnsetMethod::AppendVariable(
 
 
 YouTubeService::YouTubeService(client::HttpTransport* transport)
-  : ClientService("https://www.googleapis.com/", "youtube/v3/", transport), activities_(this), captions_(this), channel_banners_(this), channel_sections_(this), channels_(this), comment_threads_(this), comments_(this), guide_categories_(this), i18n_languages_(this), i18n_regions_(this), live_broadcasts_(this), live_streams_(this), playlist_items_(this), playlists_(this), search_(this), subscriptions_(this), thumbnails_(this), video_abuse_report_reasons_(this), video_categories_(this), videos_(this), watermarks_(this) {
+  : ClientService("https://www.googleapis.com/", "youtube/v3/", transport), activities_(this), captions_(this), channel_banners_(this), channel_sections_(this), channels_(this), comment_threads_(this), comments_(this), fan_funding_events_(this), guide_categories_(this), i18n_languages_(this), i18n_regions_(this), live_broadcasts_(this), live_chat_bans_(this), live_chat_messages_(this), live_chat_moderators_(this), live_streams_(this), playlist_items_(this), playlists_(this), search_(this), sponsors_(this), subscriptions_(this), thumbnails_(this), video_abuse_report_reasons_(this), video_categories_(this), videos_(this), watermarks_(this) {
 }
 
 YouTubeService::~YouTubeService() {
@@ -3948,6 +4318,21 @@ CommentsResource_UpdateMethod* YouTubeService::CommentsResource::NewUpdateMethod
   return new CommentsResource_UpdateMethod(service_, _credential_, part, __request_content__);
 }
 
+YouTubeService::FanFundingEventsResource::FanFundingEventsResource(YouTubeService* service)
+  : service_(service) {
+}
+
+
+
+FanFundingEventsResource_ListMethod* YouTubeService::FanFundingEventsResource::NewListMethod(client::AuthorizationCredential* _credential_, const StringPiece& part) const {
+  return new FanFundingEventsResource_ListMethod(service_, _credential_, part);
+}
+
+
+FanFundingEventsResource_ListMethodPager* YouTubeService::FanFundingEventsResource::NewListMethodPager(client::AuthorizationCredential* _credential_, const StringPiece& part) const {
+  return new client::EncapsulatedServiceRequestPager<FanFundingEventsResource_ListMethod, FanFundingEventListResponse>(new FanFundingEventsResource_ListMethod(service_, _credential_, part));
+}
+
 YouTubeService::GuideCategoriesResource::GuideCategoriesResource(YouTubeService* service)
   : service_(service) {
 }
@@ -3989,11 +4374,6 @@ LiveBroadcastsResource_BindMethod* YouTubeService::LiveBroadcastsResource::NewBi
 }
 
 
-LiveBroadcastsResource_BindDirectMethod* YouTubeService::LiveBroadcastsResource::NewBindDirectMethod(client::AuthorizationCredential* _credential_, const StringPiece& id, const StringPiece& part) const {
-  return new LiveBroadcastsResource_BindDirectMethod(service_, _credential_, id, part);
-}
-
-
 LiveBroadcastsResource_ControlMethod* YouTubeService::LiveBroadcastsResource::NewControlMethod(client::AuthorizationCredential* _credential_, const StringPiece& id, const StringPiece& part) const {
   return new LiveBroadcastsResource_ControlMethod(service_, _credential_, id, part);
 }
@@ -4026,6 +4406,71 @@ LiveBroadcastsResource_TransitionMethod* YouTubeService::LiveBroadcastsResource:
 
 LiveBroadcastsResource_UpdateMethod* YouTubeService::LiveBroadcastsResource::NewUpdateMethod(client::AuthorizationCredential* _credential_, const StringPiece& part, const LiveBroadcast& __request_content__) const {
   return new LiveBroadcastsResource_UpdateMethod(service_, _credential_, part, __request_content__);
+}
+
+YouTubeService::LiveChatBansResource::LiveChatBansResource(YouTubeService* service)
+  : service_(service) {
+}
+
+
+
+LiveChatBansResource_DeleteMethod* YouTubeService::LiveChatBansResource::NewDeleteMethod(client::AuthorizationCredential* _credential_, const StringPiece& id) const {
+  return new LiveChatBansResource_DeleteMethod(service_, _credential_, id);
+}
+
+
+LiveChatBansResource_InsertMethod* YouTubeService::LiveChatBansResource::NewInsertMethod(client::AuthorizationCredential* _credential_, const StringPiece& part, const LiveChatBan& __request_content__) const {
+  return new LiveChatBansResource_InsertMethod(service_, _credential_, part, __request_content__);
+}
+
+YouTubeService::LiveChatMessagesResource::LiveChatMessagesResource(YouTubeService* service)
+  : service_(service) {
+}
+
+
+
+LiveChatMessagesResource_DeleteMethod* YouTubeService::LiveChatMessagesResource::NewDeleteMethod(client::AuthorizationCredential* _credential_, const StringPiece& id) const {
+  return new LiveChatMessagesResource_DeleteMethod(service_, _credential_, id);
+}
+
+
+LiveChatMessagesResource_InsertMethod* YouTubeService::LiveChatMessagesResource::NewInsertMethod(client::AuthorizationCredential* _credential_, const StringPiece& part, const LiveChatMessage& __request_content__) const {
+  return new LiveChatMessagesResource_InsertMethod(service_, _credential_, part, __request_content__);
+}
+
+
+LiveChatMessagesResource_ListMethod* YouTubeService::LiveChatMessagesResource::NewListMethod(client::AuthorizationCredential* _credential_, const StringPiece& live_chat_id, const StringPiece& part) const {
+  return new LiveChatMessagesResource_ListMethod(service_, _credential_, live_chat_id, part);
+}
+
+
+LiveChatMessagesResource_ListMethodPager* YouTubeService::LiveChatMessagesResource::NewListMethodPager(client::AuthorizationCredential* _credential_, const StringPiece& live_chat_id, const StringPiece& part) const {
+  return new client::EncapsulatedServiceRequestPager<LiveChatMessagesResource_ListMethod, LiveChatMessageListResponse>(new LiveChatMessagesResource_ListMethod(service_, _credential_, live_chat_id, part));
+}
+
+YouTubeService::LiveChatModeratorsResource::LiveChatModeratorsResource(YouTubeService* service)
+  : service_(service) {
+}
+
+
+
+LiveChatModeratorsResource_DeleteMethod* YouTubeService::LiveChatModeratorsResource::NewDeleteMethod(client::AuthorizationCredential* _credential_, const StringPiece& id) const {
+  return new LiveChatModeratorsResource_DeleteMethod(service_, _credential_, id);
+}
+
+
+LiveChatModeratorsResource_InsertMethod* YouTubeService::LiveChatModeratorsResource::NewInsertMethod(client::AuthorizationCredential* _credential_, const StringPiece& part, const LiveChatModerator& __request_content__) const {
+  return new LiveChatModeratorsResource_InsertMethod(service_, _credential_, part, __request_content__);
+}
+
+
+LiveChatModeratorsResource_ListMethod* YouTubeService::LiveChatModeratorsResource::NewListMethod(client::AuthorizationCredential* _credential_, const StringPiece& live_chat_id, const StringPiece& part) const {
+  return new LiveChatModeratorsResource_ListMethod(service_, _credential_, live_chat_id, part);
+}
+
+
+LiveChatModeratorsResource_ListMethodPager* YouTubeService::LiveChatModeratorsResource::NewListMethodPager(client::AuthorizationCredential* _credential_, const StringPiece& live_chat_id, const StringPiece& part) const {
+  return new client::EncapsulatedServiceRequestPager<LiveChatModeratorsResource_ListMethod, LiveChatModeratorListResponse>(new LiveChatModeratorsResource_ListMethod(service_, _credential_, live_chat_id, part));
 }
 
 YouTubeService::LiveStreamsResource::LiveStreamsResource(YouTubeService* service)
@@ -4131,6 +4576,21 @@ SearchResource_ListMethod* YouTubeService::SearchResource::NewListMethod(client:
 
 SearchResource_ListMethodPager* YouTubeService::SearchResource::NewListMethodPager(client::AuthorizationCredential* _credential_, const StringPiece& part) const {
   return new client::EncapsulatedServiceRequestPager<SearchResource_ListMethod, SearchListResponse>(new SearchResource_ListMethod(service_, _credential_, part));
+}
+
+YouTubeService::SponsorsResource::SponsorsResource(YouTubeService* service)
+  : service_(service) {
+}
+
+
+
+SponsorsResource_ListMethod* YouTubeService::SponsorsResource::NewListMethod(client::AuthorizationCredential* _credential_, const StringPiece& part) const {
+  return new SponsorsResource_ListMethod(service_, _credential_, part);
+}
+
+
+SponsorsResource_ListMethodPager* YouTubeService::SponsorsResource::NewListMethodPager(client::AuthorizationCredential* _credential_, const StringPiece& part) const {
+  return new client::EncapsulatedServiceRequestPager<SponsorsResource_ListMethod, SponsorListResponse>(new SponsorsResource_ListMethod(service_, _credential_, part));
 }
 
 YouTubeService::SubscriptionsResource::SubscriptionsResource(YouTubeService* service)

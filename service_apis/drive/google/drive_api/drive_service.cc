@@ -70,23 +70,23 @@ const StringPiece DriveService::googleapis_API_GENERATOR(
   "google-apis-code-generator 1.5.1 / 0.1.3");
 
 
-const StringPiece DriveService::SCOPES::DRIVE("https://www.googleapis.com/auth/drive");
+const string DriveService::SCOPES::DRIVE("https://www.googleapis.com/auth/drive");
 
-const StringPiece DriveService::SCOPES::DRIVE_APPDATA("https://www.googleapis.com/auth/drive.appdata");
+const string DriveService::SCOPES::DRIVE_APPDATA("https://www.googleapis.com/auth/drive.appdata");
 
-const StringPiece DriveService::SCOPES::DRIVE_APPS_READONLY("https://www.googleapis.com/auth/drive.apps.readonly");
+const string DriveService::SCOPES::DRIVE_APPS_READONLY("https://www.googleapis.com/auth/drive.apps.readonly");
 
-const StringPiece DriveService::SCOPES::DRIVE_FILE("https://www.googleapis.com/auth/drive.file");
+const string DriveService::SCOPES::DRIVE_FILE("https://www.googleapis.com/auth/drive.file");
 
-const StringPiece DriveService::SCOPES::DRIVE_METADATA("https://www.googleapis.com/auth/drive.metadata");
+const string DriveService::SCOPES::DRIVE_METADATA("https://www.googleapis.com/auth/drive.metadata");
 
-const StringPiece DriveService::SCOPES::DRIVE_METADATA_READONLY("https://www.googleapis.com/auth/drive.metadata.readonly");
+const string DriveService::SCOPES::DRIVE_METADATA_READONLY("https://www.googleapis.com/auth/drive.metadata.readonly");
 
-const StringPiece DriveService::SCOPES::DRIVE_PHOTOS_READONLY("https://www.googleapis.com/auth/drive.photos.readonly");
+const string DriveService::SCOPES::DRIVE_PHOTOS_READONLY("https://www.googleapis.com/auth/drive.photos.readonly");
 
-const StringPiece DriveService::SCOPES::DRIVE_READONLY("https://www.googleapis.com/auth/drive.readonly");
+const string DriveService::SCOPES::DRIVE_READONLY("https://www.googleapis.com/auth/drive.readonly");
 
-const StringPiece DriveService::SCOPES::DRIVE_SCRIPTS("https://www.googleapis.com/auth/drive.scripts");
+const string DriveService::SCOPES::DRIVE_SCRIPTS("https://www.googleapis.com/auth/drive.scripts");
 DriveServiceBaseRequest::DriveServiceBaseRequest(
       const client::ClientService* service,
       client::AuthorizationCredential* credential,

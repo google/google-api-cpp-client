@@ -57,16 +57,16 @@ using namespace googleapis;
  *      <tr><th>API
  *          <td><a href='https://developers.google.com/google-apps/calendar/firstapp'>Calendar API</a>
  *      <tr><th>API Version<td>v3
- *      <tr><th>API Rev<td>137
+ *      <tr><th>API Rev<td>157
  *      <tr><th>API Docs
  *          <td><a href='https://developers.google.com/google-apps/calendar/firstapp'>
  *              https://developers.google.com/google-apps/calendar/firstapp</a>
  *      <tr><th>Discovery Name<td>calendar
- *      <tr><th>Generated At<td>2015-08-25 13:53:54 UTC
+ *      <tr><th>Generated At<td>2015-12-11 12:18:04 UTC
  *      <tr><th>C++ Generator<td>google-apis-code-generator
  *      <tr><th>Generator Version
  *          <td>1.5.1 / c++=0.1.3
- *      <tr><th>Generator Build<td>2015-08-03 17:34:38 UTC
+ *      <tr><th>Generator Build<td>2015-11-16 19:10:01 UTC
  *    </table>
  *
  * \section ForMoreInfo For More Information
@@ -7322,12 +7322,12 @@ class CalendarService : public client::ClientService {
     /**
      * Manage your calendars.
      */
-    static const StringPiece CALENDAR;
+    static const string CALENDAR;
 
     /**
      * View your calendars.
      */
-    static const StringPiece CALENDAR_READONLY;
+    static const string CALENDAR_READONLY;
 
    private:
     SCOPES();  // Never instantiated.

@@ -41,6 +41,7 @@ add_library(google_youtube_api STATIC
             channel_id.cc
             channel_list_response.cc
             channel_localization.cc
+            channel_profile_details.cc
             channel_section.cc
             channel_section_content_details.cc
             channel_section_list_response.cc
@@ -60,6 +61,9 @@ add_library(google_youtube_api STATIC
             comment_thread_replies.cc
             comment_thread_snippet.cc
             content_rating.cc
+            fan_funding_event.cc
+            fan_funding_event_list_response.cc
+            fan_funding_event_snippet.cc
             geo_point.cc
             guide_category.cc
             guide_category_list_response.cc
@@ -86,6 +90,17 @@ add_library(google_youtube_api STATIC
             live_broadcast_topic.cc
             live_broadcast_topic_details.cc
             live_broadcast_topic_snippet.cc
+            live_chat_ban.cc
+            live_chat_ban_snippet.cc
+            live_chat_fan_funding_event_details.cc
+            live_chat_message.cc
+            live_chat_message_author_details.cc
+            live_chat_message_list_response.cc
+            live_chat_message_snippet.cc
+            live_chat_moderator.cc
+            live_chat_moderator_list_response.cc
+            live_chat_moderator_snippet.cc
+            live_chat_text_message_details.cc
             live_stream.cc
             live_stream_configuration_issue.cc
             live_stream_content_details.cc
@@ -116,6 +131,9 @@ add_library(google_youtube_api STATIC
             search_list_response.cc
             search_result.cc
             search_result_snippet.cc
+            sponsor.cc
+            sponsor_list_response.cc
+            sponsor_snippet.cc
             subscription.cc
             subscription_content_details.cc
             subscription_list_response.cc

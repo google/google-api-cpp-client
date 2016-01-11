@@ -4,7 +4,7 @@
   "description": "The API to interact with Drive.", 
   "title": "Drive API", 
   "discoveryRestUrl": "https://www.googleapis.com/discovery/v1/apis/drive/v2/rest", 
-  "preferred": true, 
+  "preferred": false, 
   "version": "v2", 
   "icons": {
     "x32": "https://ssl.gstatic.com/docs/doclist/images/drive_icon_32.png", 
@@ -17,19 +17,19 @@
   "canonicalName": null, 
   "files": [
     {
-      "downloadUrl": "/downloads/drive/v2/182/cpp/0.1.3/google-drive-v2-rev182-cpp-0.1.3-doc.zip", 
-      "path": "google-drive-v2-rev182-cpp-0.1.3-doc.zip", 
+      "downloadUrl": "/downloads/drive/v2/198/cpp/0.1.3/google-drive-v2-rev198-cpp-0.1.3-doc.zip", 
+      "path": "google-drive-v2-rev198-cpp-0.1.3-doc.zip", 
       "type": "documentation", 
-      "timestamp": "2015-08-20 00:39"
+      "timestamp": "2016-01-07 01:55"
     }, 
     {
-      "downloadUrl": "/downloads/drive/v2/182/cpp/0.1.3/google-drive-v2-rev182-cpp-0.1.3-src.zip", 
+      "downloadUrl": "/downloads/drive/v2/198/cpp/0.1.3/google-drive-v2-rev198-cpp-0.1.3-src.zip", 
       "path": "", 
       "type": "source", 
-      "timestamp": "2015-08-20 00:39"
+      "timestamp": "2016-01-07 01:55"
     }
   ], 
-  "revision": 182, 
+  "revision": 198, 
   "language": "cpp", 
   "language_version": "0.1.3"
 }

@@ -44,7 +44,7 @@ namespace google_drive_api {
 using namespace googleapis;
 
 /**
- * A JSON representation of a comment on a file in Google Drive.
+ * A comment on a file in Google Drive.
  *
  * @ingroup DataObject
  */

@@ -68,16 +68,16 @@ using namespace googleapis;
  *      <tr><th>API
  *          <td><a href='https://developers.google.com/drive/'>Drive API</a>
  *      <tr><th>API Version<td>v2
- *      <tr><th>API Rev<td>182
+ *      <tr><th>API Rev<td>198
  *      <tr><th>API Docs
  *          <td><a href='https://developers.google.com/drive/'>
  *              https://developers.google.com/drive/</a>
  *      <tr><th>Discovery Name<td>drive
- *      <tr><th>Generated At<td>2015-08-20 00:39:25 UTC
+ *      <tr><th>Generated At<td>2016-01-07 01:55:11 UTC
  *      <tr><th>C++ Generator<td>google-apis-code-generator
  *      <tr><th>Generator Version
  *          <td>1.5.1 / c++=0.1.3
- *      <tr><th>Generator Build<td>2015-08-03 17:34:38 UTC
+ *      <tr><th>Generator Build<td>2015-11-16 19:10:01 UTC
  *    </table>
  *
  * \section ForMoreInfo For More Information
@@ -3323,9 +3323,11 @@ class FilesResource_GetMethod : public DriveServiceBaseRequest {
 
     /**
      * Sets the '<code>updateViewedDate</code>' attribute.
+     * @deprecated
      *
-     * @param[in] value Whether to update the view date after successfully
-     * retrieving the file.
+     * @param[in] value Deprecated: Use files.update with
+     * modifiedDateBehavior=noChange, updateViewedDate=true and an empty request
+     * body.
      */
     void set_update_viewed_date(bool value) {
       _have_update_viewed_date_ = true;
@@ -4358,8 +4360,8 @@ class FilesResource_PatchMethod : public DriveServiceBaseRequest {
     /**
      * Sets the '<code>modifiedDateBehavior</code>' attribute.
      *
-     * @param[in] value How the modifiedDate field should be updated. This
-     * overrides setModifiedDate.
+     * @param[in] value Determines the behavior in which modifiedDate is
+     * updated. This overrides setModifiedDate.
      */
     void set_modified_date_behavior(const string& value) {
       _have_modified_date_behavior_ = true;
@@ -4510,8 +4512,7 @@ class FilesResource_PatchMethod : public DriveServiceBaseRequest {
     /**
      * Sets the '<code>convert</code>' attribute.
      *
-     * @param[in] value Whether to convert this file to the corresponding Google
-     * Docs format.
+     * @param[in] value This parameter is deprecated and has no function.
      */
     void set_convert(bool value) {
       _have_convert_ = true;
@@ -4610,7 +4611,8 @@ class FilesResource_PatchMethod : public DriveServiceBaseRequest {
      * not set, a new blob is created as head revision, and previous unpinned
      * revisions are preserved for a short period of time. Pinned revisions are
      * stored indefinitely, using additional storage quota, up to a maximum of
-     * 200 revisions.
+     * 200 revisions. For details on how revisions are retained, see the Drive
+     * Help Center.
      */
     void set_new_revision(bool value) {
       _have_new_revision_ = true;
@@ -5143,8 +5145,8 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
     /**
      * Sets the '<code>modifiedDateBehavior</code>' attribute.
      *
-     * @param[in] value How the modifiedDate field should be updated. This
-     * overrides setModifiedDate.
+     * @param[in] value Determines the behavior in which modifiedDate is
+     * updated. This overrides setModifiedDate.
      */
     void set_modified_date_behavior(const string& value) {
       _have_modified_date_behavior_ = true;
@@ -5295,8 +5297,7 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
     /**
      * Sets the '<code>convert</code>' attribute.
      *
-     * @param[in] value Whether to convert this file to the corresponding Google
-     * Docs format.
+     * @param[in] value This parameter is deprecated and has no function.
      */
     void set_convert(bool value) {
       _have_convert_ = true;
@@ -5395,7 +5396,8 @@ class FilesResource_UpdateMethod : public DriveServiceBaseRequest {
      * not set, a new blob is created as head revision, and previous unpinned
      * revisions are preserved for a short period of time. Pinned revisions are
      * stored indefinitely, using additional storage quota, up to a maximum of
-     * 200 revisions.
+     * 200 revisions. For details on how revisions are retained, see the Drive
+     * Help Center.
      */
     void set_new_revision(bool value) {
       _have_new_revision_ = true;
@@ -5680,9 +5682,11 @@ class FilesResource_WatchMethod : public DriveServiceBaseRequest {
 
     /**
      * Sets the '<code>updateViewedDate</code>' attribute.
+     * @deprecated
      *
-     * @param[in] value Whether to update the view date after successfully
-     * retrieving the file.
+     * @param[in] value Deprecated: Use files.update with
+     * modifiedDateBehavior=noChange, updateViewedDate=true and an empty request
+     * body.
      */
     void set_update_viewed_date(bool value) {
       _have_update_viewed_date_ = true;
@@ -10121,48 +10125,48 @@ class DriveService : public client::ClientService {
     /**
      * View and manage the files in your Google Drive.
      */
-    static const StringPiece DRIVE;
+    static const string DRIVE;
 
     /**
      * View and manage its own configuration data in your Google Drive.
      */
-    static const StringPiece DRIVE_APPDATA;
+    static const string DRIVE_APPDATA;
 
     /**
      * View your Google Drive apps.
      */
-    static const StringPiece DRIVE_APPS_READONLY;
+    static const string DRIVE_APPS_READONLY;
 
     /**
      * View and manage Google Drive files and folders that you have opened or
      * created with this app.
      */
-    static const StringPiece DRIVE_FILE;
+    static const string DRIVE_FILE;
 
     /**
      * View and manage metadata of files in your Google Drive.
      */
-    static const StringPiece DRIVE_METADATA;
+    static const string DRIVE_METADATA;
 
     /**
      * View metadata for files in your Google Drive.
      */
-    static const StringPiece DRIVE_METADATA_READONLY;
+    static const string DRIVE_METADATA_READONLY;
 
     /**
      * View the photos, videos and albums in your Google Photos.
      */
-    static const StringPiece DRIVE_PHOTOS_READONLY;
+    static const string DRIVE_PHOTOS_READONLY;
 
     /**
      * View the files in your Google Drive.
      */
-    static const StringPiece DRIVE_READONLY;
+    static const string DRIVE_READONLY;
 
     /**
      * Modify your Google Apps Script scripts' behavior.
      */
-    static const StringPiece DRIVE_SCRIPTS;
+    static const string DRIVE_SCRIPTS;
 
    private:
     SCOPES();  // Never instantiated.

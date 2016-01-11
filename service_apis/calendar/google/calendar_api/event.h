@@ -1223,8 +1223,8 @@ class Event : public client::JsonCppData {
   /**
    * Change the '<code>anyoneCanAddSelf</code>' attribute.
    *
-   * Whether anyone can invite themselves to the event. Optional. The default is
-   * False.
+   * Whether anyone can invite themselves to the event (currently works for
+   * Google+ events only). Optional. The default is False.
    *
    * @param[in] value The new value.
    */

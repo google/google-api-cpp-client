@@ -27,6 +27,7 @@
 //   https://developers.google.com/youtube/v3
 
 #include "google/youtube_api/video_live_streaming_details.h"
+#include <string>
 #include "googleapis/base/integral_types.h"
 #include "googleapis/client/data/jsoncpp_data.h"
 #include "googleapis/client/util/date_time.h"

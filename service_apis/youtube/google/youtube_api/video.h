@@ -124,7 +124,8 @@ class Video : public client::JsonCppData {
    * Gets a reference to a mutable value of the '<code>ageGating</code>'
    * property.
    *
-   * Age restriction details related to a video.
+   * Age restriction details related to a video. This data can only be retrieved
+   * by the video owner.
    *
    * @return The result can be modified to change the attribute value.
    */
