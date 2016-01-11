@@ -423,10 +423,10 @@ step_7:
 
 // Bounce from SDK namespace to global namespace.
 string SimpleFtoa(float value) {
-  return ::SimpleFtoa(value);
+  return googleapis::SimpleFtoa(value);
 }
 string SimpleDtoa(double value) {
-  return ::SimpleDtoa(value);
+  return googleapis::SimpleDtoa(value);
 }
 
 }  // namespace client
