@@ -30,12 +30,12 @@ using std::map;
 #include <string>
 using std::string;
 
+#include "googleapis/strings/case.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"
 #include "googleapis/base/thread_annotations.h"
-#include "googleapis/strings/case.h"
 namespace googleapis {
 
 namespace client {

@@ -43,7 +43,6 @@ using std::vector;
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
 #include "curl/curl.h"
-#include "googleapis/strings/case.h"
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/strip.h"
 

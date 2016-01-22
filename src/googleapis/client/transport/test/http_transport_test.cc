@@ -39,11 +39,11 @@ using std::vector;
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/client/transport/test/mock_http_transport.h"
 #include "googleapis/client/transport/versioninfo.h"
+#include "googleapis/strings/case.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
 #include "googleapis/strings/join.h"
-#include "googleapis/strings/case.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "googleapis/util/mock_executor.h"

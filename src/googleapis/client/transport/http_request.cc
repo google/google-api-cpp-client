@@ -39,9 +39,9 @@ using std::vector;
 #include "googleapis/client/transport/http_scribe.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/transport/http_types.h"
+#include "googleapis/strings/case.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_utils.h"
-#include "googleapis/strings/case.h"
 #include "googleapis/strings/strcat.h"
 
 namespace googleapis {

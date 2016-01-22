@@ -31,7 +31,6 @@ using std::vector;
 #include "googleapis/client/transport/http_scribe.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/util/status.h"
-#include "googleapis/strings/case.h"
 #include "googleapis/strings/strcat.h"
 
 namespace googleapis {
