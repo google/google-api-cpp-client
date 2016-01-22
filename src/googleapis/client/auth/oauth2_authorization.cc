@@ -38,6 +38,7 @@ using std::vector;
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/transport/http_types.h"
+#include "googleapis/strings/case.h"
 #include "googleapis/client/util/date_time.h"
 #ifndef NO_FILE_STORAGE
 #include "googleapis/client/util/file_utils.h"
@@ -55,7 +56,6 @@ using std::vector;
 #include <json/reader.h>
 #include <json/value.h>
 
-#include "googleapis/strings/case.h"
 #include "googleapis/strings/escaping.h"
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/numbers.h"
@@ -221,6 +221,7 @@ util::Status OAuth2Credential::Refresh() {
 void OAuth2Credential::RefreshAsync(Callback1<util::Status>* callback) {
   if (!flow_) {
     callback->Run(StatusFailedPrecondition("No flow bound."));
+    return;
   }
   flow_->PerformRefreshTokenAsync(OAuth2RequestOptions(), this, callback);
 }
