@@ -23,6 +23,7 @@
 //
 
 #include <errno.h>
+#include <limits.h>
 #include "googleapis/base/port.h"
 #include "googleapis/base/strtoint.h"
 

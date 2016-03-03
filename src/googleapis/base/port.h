@@ -52,7 +52,10 @@
 #endif  // defined(__APPLE__)
 
 #if defined(OS_MACOSX) || defined(OS_IOS)
-#include <unistd.h>         // for getpagesize() on mac
+// This was added for getpagesize(), which is no longer used here.
+// Clients incorrectly depend on this include.
+// TODO(user): Update clients and remove this.
+#include <unistd.h>
 #elif defined(OS_CYGWIN) || defined(__ANDROID__)
 #include <malloc.h>         // for memalign()
 #elif defined(COMPILER_MSVC)
@@ -61,10 +64,10 @@
 
 #include "googleapis/base/integral_types.h"
 
-// We support gcc 4.6 and later.
+// We support gcc 4.7 and later.
 #if defined(__GNUC__) && !defined(__clang__)
-#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 6)
-#error "This package requires gcc 4.6 or higher"
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 7)
+#error "This package requires gcc 4.7 or higher"
 #endif
 #endif
 
@@ -436,7 +439,7 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 // Prevent the compiler from complaining about or optimizing away variables
 // that appear unused
 #undef ATTRIBUTE_UNUSED
-#define ATTRIBUTE_UNUSED __attribute__ ((unused))
+#define ATTRIBUTE_UNUSED __attribute__ ((__unused__))
 
 //
 // For functions we want to force inline or not inline.
@@ -477,7 +480,7 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 //     void Method(void* arg_a, void* arg_b) ATTRIBUTE_NONNULL(2);
 //
 //     /* arg_a cannot be NULL, but arg_b can */
-//     static void StaticMethod(void* argc_a, void* arg_b) ATTRIBUTE_NONNULL(1);
+//     static void StaticMethod(void* arg_a, void* arg_b) ATTRIBUTE_NONNULL(1);
 //   };
 //
 // If no arguments are provided, then all pointer arguments should be non-null.
@@ -523,6 +526,13 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 #define ATTRIBUTE_NO_SANITIZE_THREAD __attribute__((no_sanitize_thread))
 #else
 #define ATTRIBUTE_NO_SANITIZE_THREAD
+#endif
+
+// Tell ControlFlowIntegrity sanitizer to not instrument a given function.
+#ifdef CONTROL_FLOW_INTEGRITY
+#define ATTRIBUTE_NO_SANITIZE_CFI __attribute__((no_sanitize("cfi")))
+#else
+#define ATTRIBUTE_NO_SANITIZE_CFI
 #endif
 
 #ifndef HAVE_ATTRIBUTE_SECTION  // may have been pre-set to 0, e.g. for Darwin
@@ -584,14 +594,15 @@ inline void* memrchr(const void* bytes, int find_char, size_t len) {
 #define ATTRIBUTE_STACK_ALIGN_FOR_OLD_LIBC
 #endif
 
-
-//
 // Tell the compiler to warn about unused return values for functions declared
-// with this macro.  The macro should be used on function declarations
-// following the argument list:
+// with this macro. The macro must appear as the very first part of a function
+// declaration or definition:
 //
-//   Sprocket* AllocateSprocket() MUST_USE_RESULT;
+//   MUST_USE_RESULT Sprocket* AllocateSprocket();
 //
+// This placement has the broadest compatibility with GCC, Clang, and MSVC, with
+// both defs and decls, and with GCC-style attributes, MSVC declspec, and C++11
+// attributes. Note: past advice was to place the macro after the argument list.
 #if defined(SWIG)
 #define MUST_USE_RESULT
 #elif __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
@@ -775,20 +786,9 @@ extern int posix_memalign(void **memptr, size_t alignment, size_t size);
 #endif
 
 inline void *aligned_malloc(size_t size, int minimum_alignment) {
-#if defined(OS_MACOSX)
-  // mac lacks memalign(), posix_memalign(), however, according to
-  // http://stackoverflow.com/questions/196329/osx-lacks-memalign
-  // mac allocs are already 16-byte aligned.
-  if (minimum_alignment <= 16)
-    return malloc(size);
-  // next, try to return page-aligned memory. perhaps overkill
-  if (minimum_alignment <= getpagesize())
-    return valloc(size);
-  // give up
-  return NULL;
-#elif defined(__ANDROID__) || defined(OS_ANDROID) || defined(OS_CYGWIN)
+#if defined(__ANDROID__) || defined(OS_ANDROID) || defined(OS_CYGWIN)
   return memalign(minimum_alignment, size);
-#else  // !__ANDROID__ && !OS_ANDROID && !OS_MACOSX && !OS_CYGWIN
+#else  // !__ANDROID__ && !OS_ANDROID && !OS_CYGWIN
   void *ptr = NULL;
   // posix_memalign requires that the requested alignment be at least
   // sizeof(void*). In this case, fall back on malloc which should return memory
@@ -927,6 +927,7 @@ struct AlignType { typedef char result[Size]; };
 #include <assert.h>
 #include <windows.h>
 #include "googleapis/base/windows_compatability.h"
+#include <process.h>  // _getpid()
 #undef ERROR
 
 #include <float.h>  // for nextafter functionality on windows
@@ -989,7 +990,11 @@ BASE_PORT_MSVC_DLL_MACRO
 #define chdir  _chdir
 #define getcwd _getcwd
 #define putenv  _putenv
-
+#if _MSC_VER >= 1900  // Only needed for VS2015+
+#define getpid _getpid
+#define timezone _timezone
+#define tzname _tzname
+#endif
 
 // You say tomato, I say toma
 inline int random() { return rand(); }
@@ -1444,11 +1449,13 @@ std::ostream& operator << (std::ostream& out, const pthread_t& thread_id);
 // GXX_EXPERIMENTAL_CXX0X is defined by gcc and clang up to at least
 // gcc-4.7 and clang-3.1 (2011-12-13).  __cplusplus was defined to 1
 // in gcc before 4.7 (Crosstool 16) and clang before 3.1, but is
-// defined according to the language version in effect thereafter.  I
-// believe MSVC will also define __cplusplus according to the language
-// version, but haven't checked that. Stlport is used by many Android projects
-// and does not have full C++11 STL support.
-#if (defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L) && \
+// defined according to the language version in effect thereafter.
+// Microsoft Visual Studio 14 (2015) sets __cplusplus==199711 despite
+// reasonably good C++11 support, so we set LANG_CXX for it and
+// newer versions (_MSC_VER >= 1900).  Stlport is used by many Android
+// projects and does not have full C++11 STL support.
+#if (defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L || \
+     (defined(_MSC_VER) && _MSC_VER >= 1900)) &&                      \
     !defined(STLPORT)
 // Define this to 1 if the code is compiled in C++11 mode; leave it
 // undefined otherwise.  Do NOT define it to 0 -- that causes
