@@ -32,9 +32,8 @@ class Executor {
   Executor();
   virtual ~Executor();
 
-  virtual int num_pending_closures() const = 0;
   virtual void Add(Closure* callback) = 0;
-  virtual bool TryAdd(Closure* closure) = 0;
+  virtual bool TryAdd(Closure* callback) = 0;
 
   // Caller retains ownership.
   static void SetDefaultExecutor(Executor* executor);

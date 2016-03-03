@@ -24,6 +24,7 @@
 #include "googleapis/base/mutex.h"
 
 #else
+
 #include "googleapis/base/callback.h"
 #include "googleapis/base/mutex.h"
 #endif
@@ -47,12 +48,10 @@ class InlineExecutor : public Executor {
   virtual void Add(Closure* closure) {
     closure->Run();
   }
+
   virtual bool TryAdd(Closure* closure) {
     closure->Run();
     return true;
-  }
-  virtual int num_pending_closures() const {
-    return 0;
   }
 };
 
