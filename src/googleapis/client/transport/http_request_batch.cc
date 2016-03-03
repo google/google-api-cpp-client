@@ -128,7 +128,7 @@ static StringPiece GetMultipartBlock(
   *next_offset = end_offset +
       (*processing_last ? kLastBoundaryMarker.size() : kBoundaryMarker.size());
 
-  return StringPiece(whole_response, offset, end_offset - offset);
+  return whole_response.substr(offset, end_offset - offset);
 }
 
 // Given an indivdiual response, verify that it makes sense and identify
@@ -148,11 +148,9 @@ static googleapis::util::Status ExtractPartResponse(
 
   // +kCRLF to keep last eoln.
   int64 end_metadata = double_eoln_offset + kCRLF.size();
-  *http_response_message =
-      StringPiece(multipart_block.data(),
-                  double_eoln_offset + kCRLFCRLF.size(),
-                  multipart_block.size()
-                  - double_eoln_offset - kCRLFCRLF.size());
+  *http_response_message = multipart_block.substr(
+      double_eoln_offset + kCRLFCRLF.size(),
+      multipart_block.size() - double_eoln_offset - kCRLFCRLF.size());
 
   string batch_metadata(multipart_block.data(), end_metadata);
   LowerString(&batch_metadata);

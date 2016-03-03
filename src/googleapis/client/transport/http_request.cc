@@ -311,7 +311,15 @@ void HttpRequestState::TransitionAndNotifyIfDone(
     if (callback) {
       if (callback_executor) {
         Closure* closure = NewCallback(&CallRequestCallback, callback, request);
-        callback_executor->TryAdd(closure);
+        // TODO(user): I am not sure if we should switch to Try, or if we
+        // should send back some sort of error if the TryAdd fails. It is not
+        // clear that we can ever work in situations where the callback_executor
+        // could block on Add. I am leaning towards switching to Add, but for
+        // now we will log and see.
+        if (!callback_executor->TryAdd(closure)) {
+          delete closure;
+          VLOG(1) << "Signal: callback_executor filled up" << this;
+        }
       } else {
         callback->Run(request);
       }
