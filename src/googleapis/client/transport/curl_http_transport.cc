@@ -550,6 +550,10 @@ void CurlHttpTransport::ReleaseProcessor(CurlProcessor* processor) {
 
 HttpRequest* CurlHttpTransport::NewHttpRequest(
     const HttpRequest::HttpMethod& method) {
+  if (InShutdown()) {
+    LOG(ERROR) << "shutdown";
+    return nullptr;
+  }
   return new CurlHttpRequest(method, this);
 }
 

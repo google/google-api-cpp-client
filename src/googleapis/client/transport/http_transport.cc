@@ -34,7 +34,6 @@ using std::map;
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/program_path.h"
 #include <glog/logging.h>
-#include "googleapis/util/file.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/strings/strip.h"
@@ -43,9 +42,6 @@ using std::map;
 #include "googleapis/util/stl_util.h"
 
 namespace googleapis {
-
-
-using googleapis::File;
 
 
 namespace {
@@ -128,20 +124,13 @@ void HttpTransportOptions::SetApplicationName(const string& name) {
 
 /* static */
 string HttpTransportOptions::DetermineDefaultCaCertsPath() {
+  // TODO(user): I do not believe this is a useful behavior for anyone
+  // using a custom transport. This should be factored out so the application
+  // can prevent linking in this unneeded cruft.
   const string program_path(GetCurrentProgramFilenamePath());
-  StringPiece dirname = File::StripBasename(program_path);
-  return StrCat(dirname, "roots.pem");  // dirname has ending slash.
-}
-
-/* static */
-string HttpTransportOptions::DetermineDefaultApplicationName() {
-  const string program_path(GetCurrentProgramFilenamePath());
-  StringPiece basename = File::Basename(program_path);
-  int dot = basename.rfind('.');
-  if (dot != StringPiece::npos) {
-    basename = basename.substr(0, dot);
-  }
-  return basename.as_string();
+  auto dirname(client::StripBasename(program_path));
+  dirname.append("roots.pem");  // dirname has ending slash.
+  return dirname;
 }
 
 HttpTransportErrorHandler::HttpTransportErrorHandler() {
@@ -357,12 +346,17 @@ const char HttpTransportOptions::kDisableSslVerification[] =
     "DisableSslVerification";
 
 HttpTransport::HttpTransport(const HttpTransportOptions& options)
-    : options_(options), scribe_(NULL) {
+    : options_(options), scribe_(nullptr), in_shutdown_(false) {
   set_id("Unidentified");
 }
 
 HttpTransport::~HttpTransport() {
 }
+
+void HttpTransport::Shutdown() {
+  in_shutdown_ = true;
+}
+
 
 HttpTransport* HttpTransportLayerConfig::NewDefaultTransport(
     googleapis::util::Status* status) const {

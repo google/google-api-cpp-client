@@ -470,6 +470,20 @@ class ClientService {
   virtual ~ClientService();
 
   /*
+   * Begins shutting down the service handle. After Shutdown, the ClientService
+   * and its transport are considered unavailable, and all attempts to make
+   * HTTP requests will fail.  Applications must still join any threads which
+   * may be asynchronously executing HTTP requests, so that callbacks can
+   * complete. At that time, may the ClientService may be safely destroyed.
+   */
+  void Shutdown();
+
+  /*
+   * Returns true if Shutdown() has been called.
+   */
+  bool in_shutdown() const { return in_shutdown_; }
+
+  /*
    * Returns the bound url_root attribute.
    */
   const StringPiece& url_root() const { return url_root_; }
@@ -514,6 +528,7 @@ class ClientService {
   StringPiece url_path_;  // Subset of service_url_
 
   std::unique_ptr<HttpTransport> transport_;
+  bool in_shutdown_;  // Has Shutdown() been called.
 
   DISALLOW_COPY_AND_ASSIGN(ClientService);
 };

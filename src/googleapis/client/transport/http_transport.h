@@ -263,7 +263,6 @@ class HttpTransportOptions {
    * It will use the default cacerts_path for SSL verification the default
    * application name in the user agent.
    *
-   * @see DetermineDefaultApplicationName
    * @see DetermineDefaultCaCertsPath
    */
   HttpTransportOptions();
@@ -349,8 +348,6 @@ class HttpTransportOptions {
    * Refines the user agent to use the given application name.
    *
    * @param[in] name The application name to use within the User-Agent header.
-   *
-   * @see DetermineDefaultApplicationName
    */
   void SetApplicationName(const string& name);
 
@@ -440,14 +437,6 @@ class HttpTransportOptions {
   static const char kDisableSslVerification[];
 
   /*
-   * Returns the default application name assumed for this process.
-   *
-   * The default name will be the filename of the program that is
-   * curently running (without other path elements).
-   */
-  static string DetermineDefaultApplicationName();
-
-  /*
    * Returns the default location of the SSL certificate validation data.
    *
    * The default location is assumed to be the same directory as the
@@ -519,7 +508,6 @@ class HttpTransportLayerConfig {
    * more details.
    *
    * @see DetermineDefaultCaCertsPath();
-   * @see DetermineDefaultApplicationName();
    */
   HttpTransportLayerConfig();
 
@@ -690,6 +678,19 @@ class HttpTransport {
   virtual ~HttpTransport();
 
   /*
+   * Tells the transport that it can shut down processing. Callbacks may still
+   * complete, but after calling Shutdown() the application promises to not
+   * call NewHttpRequest() any more.
+   */
+  virtual void Shutdown();
+
+  /*
+   * Returns true if Shutdown() has been called. Subclasses are free to fail
+   * or return nullptr for any NewHttpRequest() calls during shutdown.
+   */
+  bool InShutdown() const { return in_shutdown_; }
+
+  /*
    * Returns the value of the User-Agent header for this transport instance.
    *
    * To change the value, modify the options.
@@ -817,6 +818,7 @@ class HttpTransport {
   HttpTransportOptions options_;
   HttpRequestOptions default_request_options_;
   HttpScribe* scribe_;  // Reference is not owned
+  bool in_shutdown_;
 
   DISALLOW_COPY_AND_ASSIGN(HttpTransport);
 };

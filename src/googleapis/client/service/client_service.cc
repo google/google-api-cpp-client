@@ -49,11 +49,13 @@ ClientServiceRequest::ClientServiceRequest(
     AuthorizationCredential* credential,
     const HttpRequest::HttpMethod& method,
     const StringPiece& uri_template)
-    : http_request_(service->transport()->NewHttpRequest(method)),
-      destroy_when_done_(false), use_media_download_(false),
-      uri_template_(uri_template.as_string()) {
+    : http_request_(nullptr), destroy_when_done_(false),
+      use_media_download_(false), uri_template_(uri_template.as_string()) {
+  if (service->in_shutdown()) {
+    return;
+  }
+  http_request_.reset(service->transport()->NewHttpRequest(method));
   http_request_->set_credential(credential);  // can be NULL
-
   // We own the request so make sure it wont auto destroy
   http_request_->mutable_options()->set_destroy_when_done(false);
 }
@@ -61,7 +63,12 @@ ClientServiceRequest::ClientServiceRequest(
 ClientServiceRequest::~ClientServiceRequest() {
 }
 
+
 HttpRequest* ClientServiceRequest::ConvertToHttpRequestAndDestroy() {
+  if (http_request_ == nullptr) {
+    delete this;
+    return nullptr;
+  }
   googleapis::util::Status status = PrepareHttpRequest();
   if (!status.ok()) {
     LOG(WARNING) << "Error preparing request: " << status.error_message();
@@ -75,11 +82,12 @@ HttpRequest* ClientServiceRequest::ConvertToHttpRequestAndDestroy() {
 HttpRequest* ClientServiceRequest::ConvertIntoHttpRequestBatchAndDestroy(
     HttpRequestBatch* batch, HttpRequestCallback* callback) {
   HttpRequest* http_request = ConvertToHttpRequestAndDestroy();
+  if (http_request == nullptr) return nullptr;
   return batch->AddFromGenericRequestAndRetire(http_request, callback);
 }
 
 void ClientServiceRequest::DestroyWhenDone() {
-  if (http_request_->state().done()) {
+  if (http_request_ != nullptr && http_request_->state().done()) {
     // Avoid race condition if we're destroying this while the underlying
     // request isnt ready to be deleted.
     HttpRequest* request = http_request_.release();
@@ -93,6 +101,9 @@ void ClientServiceRequest::DestroyWhenDone() {
 }
 
 util::Status ClientServiceRequest::PrepareHttpRequest() {
+  if (http_request_ == nullptr) {
+    return StatusCanceled("shutdown");
+  }
   string url;
   googleapis::util::Status status = PrepareUrl(uri_template_, &url);
   http_request_->set_url(url);
@@ -114,6 +125,9 @@ util::Status ClientServiceRequest::PrepareUrl(
 }
 
 util::Status ClientServiceRequest::Execute() {
+  if (http_request_ == nullptr) {
+    return StatusCanceled("shutdown");
+  }
   if (uploader_.get()) {
     return this->ExecuteWithUploader();
   }
@@ -132,6 +146,9 @@ util::Status ClientServiceRequest::Execute() {
 }
 
 util::Status ClientServiceRequest::ExecuteWithUploader() {
+  if (http_request_ == nullptr) {
+    return StatusCanceled("shutdown");
+  }
   client::HttpRequest* request = mutable_http_request();
   googleapis::util::Status status =
     uploader_->BuildRequest(
@@ -161,18 +178,18 @@ void ClientServiceRequest::CallbackThenDestroy(
     HttpRequestCallback* callback, HttpRequest* request) {
   callback->Run(request);
   VLOG(1) << "Auto-deleting request because it is done.";
-
-  // TODO(user): 20130318
-  // This is called by HttpRequest::Execute via DoExecute which expects the
-  // request to still be valid so it can auto-destroy. Maybe I should cache
-  // that value before calling the callback to permit the callback to destroy
-  // the request, as it does here. In the meantime we'll detach the
-  // http request object so it can self destruct. Otherwise if we destroy it
-  // here, the caller will implode from having the object deleted when it goes
-  // to check whether it should destroy it or not.
-  http_request_->mutable_options()->set_destroy_when_done(true);
-  http_request_.release();
-
+  if (http_request_ != nullptr) {
+    // TODO(user): 20130318
+    // This is called by HttpRequest::Execute via DoExecute which expects the
+    // request to still be valid so it can auto-destroy. Maybe I should cache
+    // that value before calling the callback to permit the callback to destroy
+    // the request, as it does here. In the meantime we'll detach the
+    // http request object so it can self destruct. Otherwise if we destroy it
+    // here, the caller will implode from having the object deleted when it goes
+    // to check whether it should destroy it or not.
+    http_request_->mutable_options()->set_destroy_when_done(true);
+    http_request_.release();
+  }
   delete this;
 }
 
@@ -185,6 +202,12 @@ void ClientServiceRequest::ExecuteAsync(HttpRequestCallback* callback) {
         NewCallback(this, &ClientServiceRequest::CallbackThenDestroy,
                     callback);
     callback = destroy_request;
+  }
+  if (http_request_ == nullptr) {
+    if (callback) {
+      callback->Run(nullptr);
+    }
+    return;
   }
   if (callback) {
     // bind the callback here so if PrepareHttpRequest fails then we
@@ -291,11 +314,16 @@ ClientService::ClientService(
     const StringPiece& url_root,
     const StringPiece& url_path,
     HttpTransport* transport)
-    : transport_(transport) {
+    : transport_(transport), in_shutdown_(false) {
   ChangeServiceUrl(url_root, url_path);
 }
 
 ClientService::~ClientService() {
+}
+
+void ClientService::Shutdown() {
+  in_shutdown_ = true;
+  transport_->Shutdown();
 }
 
 void ClientService::ChangeServiceUrl(
@@ -308,10 +336,10 @@ void ClientService::ChangeServiceUrl(
   int url_path_trim = url_path.starts_with("/") ? 1 : 0;
 
   service_url_ = JoinPath(url_root.as_string(), url_path.as_string());
-  url_root_ = StringPiece(service_url_, 0, url_root.size() + url_root_extra);
-  url_path_ = StringPiece(service_url_,
-                          url_root_.size(),
-                          url_path.size() - url_path_trim);
+  url_root_ =
+      StringPiece(service_url_).substr(0, url_root.size() + url_root_extra);
+  url_path_ = StringPiece(service_url_)
+                  .substr(url_root_.size(), url_path.size() - url_path_trim);
 }
 
 }  // namespace client
