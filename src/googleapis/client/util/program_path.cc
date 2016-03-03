@@ -85,6 +85,32 @@ std::string GetCurrentProgramFilenamePath() {  // Linux (default) version
 
 #endif
 
+std::string DetermineDefaultApplicationName() {
+  auto program_path(GetCurrentProgramFilenamePath());
+  auto basename(Basename(program_path));
+  int dot = basename.rfind('.');
+  if (dot != std::string::npos) {
+    basename = basename.substr(0, dot);
+  }
+  return basename;
+}
+
+std::string Basename(const std::string& path) {
+  int slash = path.rfind("/");
+  if (slash == std::string::npos) return path;
+  return path.substr(slash + 1);
+}
+
+std::string StripBasename(const std::string& path) {
+  int slash = path.rfind("/");
+  if (slash == std::string::npos) return "";
+  if (slash == path.size() - 1) {
+    return path.substr(0, slash);  // remove trailing slash
+  } else {
+    return path.substr(0, slash + 1);  // keep trailing slash
+  }
+}
+
 }  // namespace client
 
 }  // namespace googleapis

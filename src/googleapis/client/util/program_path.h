@@ -18,7 +18,7 @@
  */
 
 //
-// Return the path to the program executable.
+// Utility methods for finding the path to the executable.
 
 #ifndef GOOGLEAPIS_UTIL_PROGRAM_PATH_H_
 #define GOOGLEAPIS_UTIL_PROGRAM_PATH_H_
@@ -30,6 +30,26 @@ using std::string;
 namespace client {
 
 std::string GetCurrentProgramFilenamePath();
+
+/*
+ * Returns the part of the path after the final "/".  If there is no
+ * "/" in the path, the result is the same as the input.
+ */
+std::string Basename(const std::string& path);
+
+/*
+ * Returns the part of the path up through the final "/".  If there is no
+ * "/" in the path, the result is an empty string.
+ */
+std::string StripBasename(const std::string& path);
+
+/*
+ * Returns the default application name assumed for this process.
+ *
+ * The default name will be the filename of the program that is curently
+ * running (without other path elements).
+ */
+std::string DetermineDefaultApplicationName();
 
 }  // namespace client
 
