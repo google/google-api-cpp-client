@@ -41,9 +41,9 @@ using std::vector;
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
+class StringPiece;
 
 namespace client {
 

@@ -36,8 +36,9 @@ using std::string;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
+
+class StringPiece;
 
 namespace client {
 

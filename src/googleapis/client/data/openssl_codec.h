@@ -28,10 +28,11 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
-#include "googleapis/strings/stringpiece.h"
 #include <openssl/ossl_typ.h>
 namespace googleapis {
 
+
+class StringPiece;
 
 namespace client {
 
@@ -155,7 +156,7 @@ class OpenSslCodecFactory : public CodecFactory {
    *
    * @param[in] data The salt value to use should be exactly 8 bytes.
    */
-  void set_salt(const StringPiece& data) { salt_ = data.as_string(); }
+  void set_salt(const string& data) { salt_ = data; }
 
   /*
    * Sets the chunk size to use when encoding/decoding.

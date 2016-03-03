@@ -35,6 +35,7 @@ using std::string;
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/strip.h"
+#include "googleapis/strings/stringpiece.h"
 #include <gtest/gtest.h>
 #include <json/value.h>
 #include <json/writer.h>
