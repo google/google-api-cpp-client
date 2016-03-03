@@ -11,7 +11,6 @@ add_library(googleapis_internal STATIC
 ./base/windows_compatability.cc
 ./strings/ascii_ctype.cc
 ./strings/case.cc
-./strings/escaping.cc
 ./strings/memutil.cc
 ./strings/numbers.cc
 ./strings/split.cc
@@ -46,7 +45,6 @@ DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/base)
 install(FILES 
 strings/ascii_ctype.h
 strings/case.h
-strings/escaping.h
 strings/join.h
 strings/memutil.h
 strings/numbers.h

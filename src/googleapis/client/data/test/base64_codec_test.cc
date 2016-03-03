@@ -21,12 +21,13 @@
 #include <memory>
 #include <string>
 using std::string;
+
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/base64_codec.h"
+#include "googleapis/client/util/escaping.h"
 #include <glog/logging.h>
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
-#include "googleapis/strings/escaping.h"
 #include <gtest/gtest.h>
 
 namespace googleapis {
@@ -80,7 +81,8 @@ TEST_F(Base64CodecTestFixture, TestEncodeDecode) {
 
   for (int chunk_size = 31; chunk_size < 35; ++chunk_size) {
     for (int data_size = 190; data_size < 200; ++data_size) {
-      const StringPiece kPlainText(plain_text, 0, data_size);
+      const StringPiece kPlainText =
+          StringPiece(plain_text).substr(0, data_size);
 
       googleapis::util::Status status;
       Base64CodecFactory factory;

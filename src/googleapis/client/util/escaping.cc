@@ -18,18 +18,16 @@
  */
 
 
+#include <cassert>
 #include <string>
 using std::string;
 
 #include "googleapis/strings/ascii_ctype.h"
-#include "googleapis/strings/escaping.h"
-
-#include <glog/logging.h>
-#include "googleapis/strings/stringpiece.h"
+#include "googleapis/client/util/escaping.h"
 
 namespace googleapis {
 
-namespace strings {
+namespace googleapis_util {
 
 
 namespace {
@@ -42,7 +40,7 @@ static const char kWebSafeBase64Chars[] =
 
 // Taken from stl_util.h
 inline char* string_as_array(string* str) {
-  return str->empty() ? NULL : &*str->begin();
+  return str->empty() ? nullptr : &*str->begin();
 }
 
 }  // namespace
@@ -110,7 +108,7 @@ static int Base64EscapeInternal(const unsigned char* src, int szsrc, char* dest,
     default:
       // Should not be reached: blocks of 3 bytes are handled
       // in the while loop before this switch statement.
-      LOG(FATAL) << "Logic problem? szsrc = " << szsrc;
+      assert(szsrc >= 0 && szsrc <= 2);
       break;
   }
   return (cur_dest - dest);
@@ -135,12 +133,12 @@ void Base64EscapeInternal(const unsigned char* src, int szsrc,
     CalculateBase64EscapedLen(szsrc, do_padding);
   dest->clear();
   dest->resize(calc_escaped_size, '\0');
-  const int escaped_len = Base64EscapeInternal(src, szsrc,
-                                               string_as_array(dest),
-                                               dest->size(),
-                                               base64_chars,
-                                               do_padding);
-  DCHECK_EQ(calc_escaped_size, escaped_len);
+#ifndef NDEBUG
+  const int escaped_len =
+#endif
+      Base64EscapeInternal(src, szsrc, string_as_array(dest), dest->size(),
+                           base64_chars, do_padding);
+  assert(calc_escaped_size == escaped_len);
 }
 
 void Base64Escape(const unsigned char *src, int szsrc,
@@ -187,7 +185,7 @@ int CalculateBase64EscapedLen(int input_len, bool do_padding) {
     }
   }
 
-  CHECK_GE(len, input_len);  // make sure we didn't overflow
+  assert(len >= input_len);  // make sure we didn't overflow
   return len;
 }
 
@@ -398,7 +396,7 @@ static int Base64UnescapeInternal(const char* src, int szsrc, char* dest,
 
     default:
       // state should have no other values at this point.
-      LOG(FATAL) << "This can't happen; base64 decoder state = " << state;
+      assert(state >= 0 && state <= 4);
   }
 
   // The remainder of the string should be all whitespace, mixed with
@@ -441,7 +439,7 @@ static bool Base64UnescapeInternal(const char* src, int szsrc,
   }
 
   // could be shorter if there was padding
-  DCHECK_LE(len, dest_len);
+  assert(len <= dest_len);
   dest->resize(len);
 
   return true;
@@ -518,20 +516,14 @@ static const signed char kUnWebSafeBase64[] = {
 };
 
 
-bool Base64Unescape(StringPiece src, string* dest) {
-  return Base64UnescapeInternal(src.data(), src.size(), dest, kUnBase64);
-}
 bool Base64Unescape(const char* src, int szsrc, string* dest) {
   return Base64UnescapeInternal(src, szsrc, dest, kUnBase64);
 }
 
-bool WebSafeBase64Unescape(StringPiece src, string* dest) {
-  return Base64UnescapeInternal(src.data(), src.size(), dest, kUnWebSafeBase64);
-}
 bool WebSafeBase64Unescape(const char* src, int szsrc, string* dest) {
   return Base64UnescapeInternal(src, szsrc, dest, kUnWebSafeBase64);
 }
 
-}  // namespace strings
+}  // namespace googleapis_util
 
 }  // namespace googleapis

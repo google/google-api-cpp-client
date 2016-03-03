@@ -23,10 +23,11 @@
 using std::string;
 #include "googleapis/client/data/base64_codec.h"
 #include "googleapis/client/data/codec.h"
+#include "googleapis/client/util/escaping.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/integral_types.h"
 #include <glog/logging.h>
-#include "googleapis/strings/escaping.h"
+#include "googleapis/strings/stringpiece.h"
 
 namespace googleapis {
 
@@ -45,12 +46,13 @@ int64 DetermineSourceChunkSize(bool encoding, int desired) {
   if (desired < 3) desired = kDefaultChunkSize;
   int divisible_by_3 = round_down_divisible_by_3(desired);
   if (encoding) return divisible_by_3;
-  return strings::CalculateBase64EscapedLen(divisible_by_3, true);
+  return googleapis_util::CalculateBase64EscapedLen(divisible_by_3, true);
 }
 
 int64 DetermineTargetBufferSize(bool encoding, int desired) {
   if (desired < 3) desired = kDefaultChunkSize;
-  if (encoding) return strings::CalculateBase64EscapedLen(desired, true);
+  if (encoding) return googleapis_util::CalculateBase64EscapedLen(desired,
+                                                                  true);
   return desired;  // ok if bigger than needed.
 }
 
@@ -90,10 +92,10 @@ class Base64Reader : public CodecReader {
     const unsigned char* source =
         reinterpret_cast<const unsigned char*>(chunk.data());
     if (websafe_) {
-      *to_length = strings::WebSafeBase64Escape(
+      *to_length = googleapis_util::WebSafeBase64Escape(
           source, len, to, szdest, is_final_chunk);
     } else {
-      *to_length = strings::Base64Escape(source, len, to, szdest);
+      *to_length = googleapis_util::Base64Escape(source, len, to, szdest);
     }
     return StatusOk();
   }
@@ -111,9 +113,11 @@ class Base64Reader : public CodecReader {
     string decoded;
     bool success;
     if (websafe_) {
-      success = strings::WebSafeBase64Unescape(chunk, &decoded);
+      success = googleapis_util::WebSafeBase64Unescape(
+          chunk.data(), chunk.size(), &decoded);
     } else {
-      success = strings::Base64Unescape(chunk, &decoded);
+      success = googleapis_util::Base64Unescape(
+          chunk.data(), chunk.size(), &decoded);
     }
     if (success && decoded.size() <= *to_length) {
       memcpy(to, decoded.data(), decoded.size());

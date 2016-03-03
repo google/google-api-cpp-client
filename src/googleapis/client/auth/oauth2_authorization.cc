@@ -28,9 +28,6 @@ using std::vector;
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
 #include "googleapis/base/mutex.h"
-#ifndef NO_FILE_STORAGE
-#include "googleapis/util/file.h"
-#endif
 #include "googleapis/client/auth/credential_store.h"
 #include "googleapis/client/auth/oauth2_authorization.h"
 #include "googleapis/client/data/data_reader.h"
@@ -40,9 +37,7 @@ using std::vector;
 #include "googleapis/client/transport/http_types.h"
 #include "googleapis/strings/case.h"
 #include "googleapis/client/util/date_time.h"
-#ifndef NO_FILE_STORAGE
-#include "googleapis/client/util/file_utils.h"
-#endif
+#include "googleapis/client/util/escaping.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_utils.h"
 
@@ -56,7 +51,6 @@ using std::vector;
 #include <json/reader.h>
 #include <json/value.h>
 
-#include "googleapis/strings/escaping.h"
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/split.h"
@@ -345,9 +339,9 @@ util::Status OAuth2Credential::UpdateFromString(const string& json) {
       return StatusUnknown("Invalid id_token attribute - not a JWT");
     }
     string claims;
-    if (!strings::Base64Unescape(
-        str_value.substr(dot_positions[0]+1,
-                         dot_positions[1]-dot_positions[0]-1), &claims)) {
+    const char *claims_start = str_value.data() + dot_positions[0] + 1;
+    size_t claims_len = dot_positions[1] - dot_positions[0] - 1;
+    if (!googleapis_util::Base64Unescape(claims_start, claims_len, &claims)) {
       return StatusUnknown("id_token claims not base-64 encoded");
     }
     return UpdateFromString(claims);
@@ -817,36 +811,6 @@ util::Status OAuth2WebApplicationFlow::InitFromJsonData(
 
   return status;
 }
-
-#ifndef NO_FILE_STORAGE
-// static
-OAuth2AuthorizationFlow*
-OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
-    const string& path,
-    HttpTransport* transport,
-    googleapis::util::Status* status) {
-  *status = SensitiveFileUtils::VerifyIsSecureFile(path, false);
-  if (!status->ok()) return NULL;
-
-  string json;
-  *status = File::ReadPath(path, &json);
-  if (!status->ok()) return NULL;
-
-  return MakeFlowFromClientSecretsJson(json, transport, status);
-}
-
-util::Status OAuth2AuthorizationFlow::InitFromClientSecretsPath(
-    const string& path) {
-  googleapis::util::Status status = SensitiveFileUtils::VerifyIsSecureFile(path, false);
-  if (!status.ok()) return status;
-
-  string json;
-  status = File::ReadPath(path, &json);
-  if (!status.ok()) return status;
-
-  return InitFromJson(json);
-}
-#endif  // NO_FILE_STORAGE
 
 void ThreadsafeString::set(const StringPiece& value) {
   MutexLock l(&mutex_);

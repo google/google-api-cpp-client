@@ -32,6 +32,7 @@ add_library(googleapis_utils STATIC
             data/inmemory_data_reader.cc
             data/istream_data_reader.cc
             util/date_time.cc
+            util/escaping.cc
             util/file_utils.cc
             util/program_path.cc
             util/status.cc
@@ -46,6 +47,7 @@ install(FILES data/codec.h
               data/data_writer.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/data)
 install(FILES util/date_time.h
+              util/escaping.h
               util/file_utils.h
               util/program_path.h
               util/status.h
@@ -238,6 +240,7 @@ endfunction()
 if (googleapis_build_tests)
 
 client_test(util date_time_test googleapis_utils)
+client_test(util escaping_test googleapis_utils)
 client_test(util file_utils_test googleapis_utils)
 client_test(util uri_template_test googleapis_utils)
 client_test(util uri_utils_test googleapis_utils)

@@ -39,8 +39,8 @@ using std::vector;
 #include "googleapis/client/transport/http_response.h"
 #include "googleapis/client/transport/test/mock_http_transport.h"
 #include "googleapis/client/util/date_time.h"
+#include "googleapis/client/util/escaping.h"
 #include "googleapis/client/util/status.h"
-#include "googleapis/strings/escaping.h"
 #include "googleapis/strings/join.h"
 #include "googleapis/strings/util.h"
 #include <gmock/gmock.h>
@@ -484,7 +484,7 @@ TEST_F(OAuth2TestFixture, TestJWT) {
 
   string claims("{\"hello\": \"world\"}");
   string enc_claims;
-  strings::WebSafeBase64Escape(
+  googleapis_util::WebSafeBase64Escape(
       reinterpret_cast<const unsigned char *>(claims.data()),
       claims.size(), &enc_claims, false);
   string good_token("part1.");
