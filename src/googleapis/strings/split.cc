@@ -59,7 +59,7 @@ std::vector<StringPiece> Split(const StringPiece& source,
   if (offset == source.size()) {
     // Source terminated exactly on a delim, so push an empty dude to end.
     // Keep the pointer monotonically increasing for kicks.
-    result.push_back(StringPiece(source, source.size() - 1, 0));
+    result.push_back(source.substr(source.size() - 1, 0));
   }
 
   return result;

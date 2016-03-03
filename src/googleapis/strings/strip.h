@@ -37,6 +37,7 @@
 #include <string>
 using std::string;
 
+#include "googleapis/base/macros.h"
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/stringpiece.h"
 namespace googleapis {
@@ -66,18 +67,37 @@ string StripSuffixString(StringPiece str, StringPiece suffix);
 bool TryStripSuffixString(StringPiece str, StringPiece suffix,
                           string* result);
 
-// Replaces any of the characters in 'remove' with the character 'replacewith'.
+// Replaces any of the characters in 'remove' with the character 'replace_with'.
 //
-// This is a very poorly named function. This function should be renamed to
-// something like ReplaceCharacters().
-void StripString(char* str, StringPiece remove, char replacewith);
-void StripString(char* str, int len, StringPiece remove, char replacewith);
-void StripString(string* s, StringPiece remove, char replacewith);
-inline void StripString(char* str, char remove, char replacewith) {
-  for (; *str; str++) {
-    if (*str == remove)
-      *str = replacewith;
+void ReplaceCharacters(char* str, size_t len, StringPiece remove,
+                       char replace_with);
+void ReplaceCharacters(string* s, StringPiece remove, char replace_with);
+
+// Replaces the character 'remove' with the character 'replace_with'.
+//
+inline void ReplaceCharacter(char* str, size_t len, char remove,
+                             char replace_with) {
+  for (char* end = str + len; str != end; ++str) {
+    if (*str == remove) *str = replace_with;
   }
+}
+
+GOOGLE_DEPRECATED("Use ReplaceCharacters()")
+inline void StripString(char* str, StringPiece remove, char replace_with) {
+  ReplaceCharacters(str, strlen(str), remove, replace_with);
+}
+GOOGLE_DEPRECATED("Use ReplaceCharacters()")
+inline void StripString(char* str, size_t len, StringPiece remove,
+                        char replace_with) {
+  ReplaceCharacters(str, len, remove, replace_with);
+}
+GOOGLE_DEPRECATED("Use ReplaceCharacters()")
+inline void StripString(string* s, StringPiece remove, char replace_with) {
+  ReplaceCharacters(s, remove, replace_with);
+}
+GOOGLE_DEPRECATED("Use ReplaceCharacter()")
+inline void StripString(char* str, char remove, char replace_with) {
+  ReplaceCharacter(str, strlen(str), remove, replace_with);
 }
 
 // Replaces runs of one or more 'dup_char' with a single occurrence, and returns
@@ -85,15 +105,15 @@ inline void StripString(char* str, char remove, char replacewith) {
 //
 // Example:
 //       StripDupCharacters("a//b/c//d", '/', 0) => "a/b/c/d"
-int StripDupCharacters(string* s, char dup_char, int start_pos);
+ptrdiff_t StripDupCharacters(string* s, char dup_char, ptrdiff_t start_pos);
 
 // Removes whitespace from both ends of the given string. This function has
 // various overloads for passing the input string as a C-string + length,
 // string, or StringPiece. If the caller is using NUL-terminated strings, it is
 // the caller's responsibility to insert the NUL character at the end of the
 // substring.
-void StripWhitespace(const char** str, int* len);
-inline void StripWhitespace(char** str, int* len) {
+void StripWhitespace(const char** str, ptrdiff_t* len);
+inline void StripWhitespace(char** str, ptrdiff_t* len) {
   // The "real" type for StripWhitespace is ForAll char types C, take
   // (C, int) as input and return (C, int) as output.  We're using the
   // cast here to assert that we can take a char*, even though the
@@ -103,7 +123,7 @@ inline void StripWhitespace(char** str, int* len) {
 void StripWhitespace(string* str);
 inline void StripWhitespace(StringPiece* str) {
   const char* data = str->data();
-  int len = str->size();
+  ptrdiff_t len = str->size();
   StripWhitespace(&data, &len);
   str->set(data, len);
 }
@@ -203,9 +223,9 @@ string OutputWithMarkupTagsStripped(const string& s);
 //   - both ends of the string
 //
 // Returns the number of chars removed.
-int TrimStringLeft(string* s, StringPiece remove);
-int TrimStringRight(string* s, StringPiece remove);
-inline int TrimString(string* s, StringPiece remove) {
+ptrdiff_t TrimStringLeft(string* s, StringPiece remove);
+ptrdiff_t TrimStringRight(string* s, StringPiece remove);
+inline ptrdiff_t TrimString(string* s, StringPiece remove) {
   return TrimStringRight(s, remove) + TrimStringLeft(s, remove);
 }
 
@@ -221,13 +241,30 @@ void RemoveNullsInString(string* s);
 
 // Removes all occurrences of the given character from the given string. Returns
 // the new length.
-int strrm(char* str, char c);
-int memrm(char* str, int strlen, char c);
+ptrdiff_t strrm(char* str, char c);
+ptrdiff_t memrm(char* str, ptrdiff_t strlen, char c);
 
 // Removes all occurrences of any character from 'chars' from the given string.
 // Returns the new length.
-int strrmm(char* str, const char* chars);
-int strrmm(string* str, const string& chars);
+ptrdiff_t strrmm(char* str, const char* chars);
+ptrdiff_t strrmm(string* str, const string& chars);
+
+template <typename T>
+GOOGLE_DEPRECATED("stop passing int*")
+inline typename std::enable_if<std::is_same<T, int>::value, void>::type
+StripWhitespace(const char** str, T* len) {
+  ptrdiff_t pdt = *len;
+  StripWhitespace(str, &pdt);
+  *len = static_cast<int>(pdt);
+}
+template <typename T>
+GOOGLE_DEPRECATED("stop passing int*")
+inline typename std::enable_if<std::is_same<T, int>::value, void>::type
+StripWhitespace(char** str, T* len) {
+  ptrdiff_t pdt = *len;
+  StripWhitespace(str, &pdt);
+  *len = static_cast<int>(pdt);
+}
 
 }  // namespace googleapis
 #endif  // STRINGS_STRIP_H_
