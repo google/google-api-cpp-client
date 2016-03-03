@@ -240,7 +240,6 @@ endfunction()
 if (googleapis_build_tests)
 
 client_test(util date_time_test googleapis_utils)
-client_test(util escaping_test googleapis_utils)
 client_test(util file_utils_test googleapis_utils)
 client_test(util uri_template_test googleapis_utils)
 client_test(util uri_utils_test googleapis_utils)

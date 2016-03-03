@@ -125,7 +125,7 @@ TEST_F(DataWriterTestFixture, TestStringDataWriter) {
   std::unique_ptr<DataWriter> writer(NewStringDataWriter(&s));
   writer->Begin();
   EXPECT_TRUE(writer->Write(3, kHelloWorld.data()).ok());
-  EXPECT_EQ(s, StringPiece(kHelloWorld, 0, 3));
+  EXPECT_EQ(s, kHelloWorld.substr(0, 3));
   EXPECT_TRUE(writer->Write(kHelloWorld.size() - 3,
                             kHelloWorld.data() + 3).ok());
   EXPECT_EQ(s, kHelloWorld);
@@ -206,12 +206,12 @@ TEST_F(DataWriterTestFixture, TestWriteReader) {
   EXPECT_TRUE(writer->Write(reader.get(), 90).ok());
   EXPECT_EQ(90, writer->size());
   EXPECT_EQ(90, target.size());
-  EXPECT_EQ(StringPiece(source, 0, 90), target);
+  EXPECT_EQ(StringPiece(source).substr(0, 90), target);
 
   EXPECT_TRUE(writer->Write(reader.get(), 10).ok());
   EXPECT_EQ(100, writer->size());
   EXPECT_EQ(100, target.size());
-  EXPECT_EQ(StringPiece(source, 0, 100), target);
+  EXPECT_EQ(StringPiece(source).substr(0, 100), target);
 
   EXPECT_TRUE(writer->Write(reader.get()).ok());
   EXPECT_EQ(source.size(), writer->size());
