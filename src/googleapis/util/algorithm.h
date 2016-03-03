@@ -35,12 +35,13 @@ using std::less;
 using std::back_insert_iterator;
 using std::iterator_traits;
 #include <utility>
-namespace googleapis {
 using std::make_pair;
 using std::pair;
 
-namespace util {
-namespace gtl {
+#include "util/gtl/gtl_namespace.h"
+namespace googleapis {
+
+GTL_NAMESPACE_BEGIN
 
 // Returns true if [first, last) contains an element equal to value.
 // Complexity: linear.
@@ -477,8 +478,7 @@ bool is_heap(RandomAccessIterator begin,
 #error No implementation of is_heap defined for this toolchain.
 #endif
 
-}  // namespace gtl
-}  // namespace util
+GTL_NAMESPACE_END
 
 }  // namespace googleapis
 #endif  // UTIL_GTL_ALGORITHM_H_
