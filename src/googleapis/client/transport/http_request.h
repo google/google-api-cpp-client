@@ -412,6 +412,21 @@ class HttpRequest {
    */
   HttpTransport* transport() const { return transport_; }
 
+  /*
+   * Swap these attributes into the given source then destroy this instance.
+   *
+   * The instance is destroyed on return.
+   *
+   * This is an obscure method needed to batch objects that construct requests
+   * after they may have constructed the HttpRequest instance to be batched.
+   * This is because the original request was created by a particular
+   * HttpTransport but the batched requests should be created by
+   * HttpBatchRequest to ensure correct usage.
+   *
+   * @param[in,out] source The request to update with this instance attributes.
+   *                       The caller retains ownership.
+   */
+  void SwapToRequestThenDestroy(HttpRequest* source);
 
  protected:
   friend class HttpRequestProcessor;
@@ -470,30 +485,6 @@ class HttpRequest {
   virtual void DoExecuteAsync(HttpResponse* response, Closure* callback);
 
  private:
-  friend class HttpRequestBatch;
-
-  /*
-   * Swap these attributes into the given source then destroy this instance.
-   *
-   * The instance is destroyed on return.
-   *
-   * This is an obscure method needed to batch objects that construct requests
-   * after they may have constructed the HttpRequest instance to be batched.
-   * This is because the original request was created by a particular
-   * HttpTransport but the batched requests should be created by
-   * HttpBatchRequest to ensure correct usage.
-   *
-   * The method is only called by HttpRequestBatch which seems reasonable to
-   * have coupled to this simple request. The coupling is only as a friend
-   * though so this class implements the behavior so that it can track
-   * evolution of the attributes.
-   *
-   * @param[in,out] source The request to update with this instance attributes.
-   *                       The caller retains ownership.
-   */
-  void SwapToRequestThenDestroy(HttpRequest* source);
-
- private:
   class HttpRequestProcessor;
   friend class HttpRequestProcessor;
 
@@ -507,14 +498,6 @@ class HttpRequest {
   string url_;                              // url to send request to
   int scribe_restrictions_;                 // HttpScribe::ScribeRestrictions
   bool busy_;                               // dont destroy it yet.
-
-  /*
-   * Adds the builtin headers implied by the framework.
-   *
-   * These are things like user-agent and content-length.
-   * See the implementation for the full list.
-   */
-  void AddBuiltinHeaders();
 
   DISALLOW_COPY_AND_ASSIGN(HttpRequest);
 };

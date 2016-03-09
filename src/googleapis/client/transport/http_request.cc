@@ -21,6 +21,9 @@
 #include <time.h>
 
 #include <cstdint>
+#include <functional>
+using std::binary_function;
+using std::less;
 #include <map>
 using std::map;
 #include <string>
@@ -564,6 +567,15 @@ class HttpRequest::HttpRequestProcessor {
    * We might retry to send the request, but wont do these steps again.
    */
   void Prepare() {
+    BeginPrepare();
+
+    if (request_->content_reader()) {
+      AddContentLength(request_->content_reader()->TotalLengthIfKnown());
+    }
+  }
+
+
+  void BeginPrepare() {
     AuthorizationCredential* credential = request_->credential_;
     if (credential) {
       googleapis::util::Status status = credential->AuthorizeRequest(request_);
@@ -574,9 +586,30 @@ class HttpRequest::HttpRequestProcessor {
         return;
       }
     }
-    request_->AddBuiltinHeaders();
     retry_ = true;
     request_->busy_ = true;
+
+    VLOG(1) << "Adding standard headers";
+    if (!request_->FindHeaderValue(HttpRequest::HttpHeader_USER_AGENT)) {
+      request_->AddHeader(HttpRequest::HttpHeader_USER_AGENT,
+                          request_->transport()->user_agent());
+    }
+    if (!request_->FindHeaderValue(HttpRequest::HttpHeader_HOST)) {
+      ParsedUrl parsed_url(request_->url());
+      request_->AddHeader(HttpRequest::HttpHeader_HOST, parsed_url.netloc());
+    }
+  }
+
+  void AddContentLength(int64 num_bytes) {
+    if (num_bytes >= 0) {
+      if (!request_->FindHeaderValue(HttpRequest::HttpHeader_CONTENT_LENGTH)) {
+        request_->AddHeader(HttpRequest::HttpHeader_CONTENT_LENGTH,
+                            SimpleItoa(num_bytes));
+      }
+    } else if (!request_->FindHeaderValue(
+                   HttpRequest::HttpHeader_TRANSFER_ENCODING)) {
+      request_->AddHeader(HttpRequest::HttpHeader_TRANSFER_ENCODING, "chunked");
+    }
   }
 
   /*
@@ -1054,31 +1087,6 @@ util::Status HttpRequest::PrepareToReuse() {
   }
 
   return StatusOk();
-}
-
-void HttpRequest::AddBuiltinHeaders() {
-  VLOG(1) << "Adding builtin headers";
-  if (!FindHeaderValue(HttpHeader_USER_AGENT)) {
-    AddHeader(HttpHeader_USER_AGENT, transport()->user_agent());
-  }
-
-  if (!FindHeaderValue(HttpHeader_HOST)) {
-    ParsedUrl parsed_url(url_);
-    AddHeader(HttpHeader_HOST, parsed_url.netloc());
-  }
-
-  if (content_reader_.get()) {
-    int64 num_bytes = content_reader_->TotalLengthIfKnown();
-    if (num_bytes >= 0) {
-      if (!FindHeaderValue(HttpHeader_CONTENT_LENGTH)) {
-        AddHeader(HttpHeader_CONTENT_LENGTH, SimpleItoa(num_bytes));
-      }
-    } else {
-      if (!FindHeaderValue(HttpHeader_TRANSFER_ENCODING)) {
-        AddHeader(HttpHeader_TRANSFER_ENCODING, "chunked");
-      }
-    }
-  }
 }
 
 // This function is used by batch requests to convert a request specialized
