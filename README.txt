@@ -48,20 +48,19 @@ If you have problems, questions or suggestions, contact:
 Or you may also ask questions on StackOverflow at:
    http://stackoverflow.com with the tag google-api-cpp-client
 
+Status
+
+  This SDK is in maintanance mode. The patches being made are mostly for
+  portability and/or to remove unneeded pieces.
+
+  We are not set up to accept pull requests at this time, nor will be in the
+  forseable future. Please submit suggestions as issues.
+
 About the branches
 
-  The master branch is were development is done and usually matches the
-  generated libraries available from from google.developers.com. For breaking
-  changes in this SDK (when it gets ahead of the library generator), we will
-  first make a tag matching the compatible version of the library generator.
-
-  For example, the current generated surface is at version '0.1.2'. If the
-  master branch gets incompatibly ahead of the generator, we will first leave
-  a '0.1.2' tag here to retrieve the compatible version.
-
-  We use tags rather than branches because the library generator should soon
-  catch up. All fixes will be done in the master branch, so a tag is
-  sufficient.
+  The master branch is where development is done. It usually is compatible with
+  the generated libraries available from from google.developers.com. On occasion
+  it gets aheaad of those. It usually catches up in a few days.
 
   The latest generated libraries for any Google API is available automatically
   from
