@@ -106,14 +106,14 @@ class File {
   static googleapis::util::Status ReadPath(const string& path, string* s);
   static googleapis::util::Status WritePath(const string& path, const StringPiece& s);
 
-  // Desroy the file using Close()
+  // Destroy the file using Close()
   static File* OpenWithOptions(
      const string& path, const char* mode, const FileOpenOptions& options);
   // Destroys the File instance as a side-effect.
   static File* Open(const string& path, const char* mode) {
     return OpenWithOptions(path, mode, FileOpenOptions());
   }
-  bool Close();
+  bool Close(const file::Options& options);
 
   googleapis::util::Status Flush();
   googleapis::util::Status Write(const char* buffer, int64 length) {

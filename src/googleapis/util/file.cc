@@ -259,7 +259,7 @@ util::Status File::RecursivelyCreateDirWithPermissions(
     if (File::Exists(parent)) {
       break;
     }
-    to_do.push(StringPiece(path, 0, last_slash));
+    to_do.push(StringPiece(path).substr(0, last_slash));
     last_slash = path.rfind("/", last_slash - 1);
     if (!last_slash || last_slash == string::npos) break;
   }
@@ -319,7 +319,7 @@ File::~File() {
   }
 }
 
-bool File::Close() {
+bool File::Close(const file::Options&) {
   bool ok = true;
   if (fd_ >= 0) {
     ok = (close(fd_) == 0);
@@ -399,7 +399,7 @@ util::Status File::WritePath(const string& path, const StringPiece& data) {
                         "Could not write to file");
   }
   googleapis::util::Status status = file->WriteString(data);
-  file->Close();
+  file->Close(file::Defaults());
   return status;
 }
 

@@ -53,7 +53,7 @@ class FileDataReader : public DataReader {
   }
 
   virtual ~FileDataReader() {
-    if (file_) file_->Close();
+    if (file_) file_->Close((file::Defaults()));
   }
 
   virtual bool seekable() const { return true; }
