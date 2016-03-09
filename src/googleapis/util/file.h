@@ -113,7 +113,7 @@ class File {
   static File* Open(const string& path, const char* mode) {
     return OpenWithOptions(path, mode, FileOpenOptions());
   }
-  bool Close(const file::Options& options);
+  googleapis::util::Status Close(const file::Options& options);
 
   googleapis::util::Status Flush();
   googleapis::util::Status Write(const char* buffer, int64 length) {

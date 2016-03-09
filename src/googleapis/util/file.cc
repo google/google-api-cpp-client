@@ -319,14 +319,15 @@ File::~File() {
   }
 }
 
-bool File::Close(const file::Options&) {
+util::Status File::Close(const file::Options&) {
   bool ok = true;
   if (fd_ >= 0) {
     ok = (close(fd_) == 0);
     fd_ = -1;
   }
   delete this;
-  return ok;
+  return ok ? googleapis::util::Status() : googleapis::util::Status(
+      util::error::DATA_LOSS, "Error closing file");
 }
 
 util::Status File::Flush() {
@@ -399,7 +400,7 @@ util::Status File::WritePath(const string& path, const StringPiece& data) {
                         "Could not write to file");
   }
   googleapis::util::Status status = file->WriteString(data);
-  file->Close(file::Defaults());
+  file->Close((file::Defaults()));
   return status;
 }
 
