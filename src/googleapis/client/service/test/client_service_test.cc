@@ -69,7 +69,7 @@ class TestServiceRequest : public ClientServiceRequest {
   TestServiceRequest(ClientService* service,
                      AuthorizationCredential* credential,
                      HttpRequest::HttpMethod method,
-                     const StringPiece& uri_template)
+                     const string& uri_template)
       : ClientServiceRequest(service, credential, method, uri_template) {
   }
 
@@ -193,7 +193,7 @@ TEST_F(ClientServiceTestFixture, TestPrepare) {
   EXPECT_EQ(kServiceRootUri, service_.url_root());
   EXPECT_EQ(kServicePath, service_.url_path());
 
-  string uri = StrCat(kServiceRootUri, kServicePath, "{var}/method{?list*}");
+  string uri = "{var}/method{?list*}";
 
   SetupMockedRequest(false, "");
   TestServiceRequest request(&service_, NULL, HttpRequest::GET, uri);
@@ -209,7 +209,7 @@ TEST_F(ClientServiceTestFixture, TestConvertToHttpRequest) {
   EXPECT_EQ(kServiceRootUri, service_.url_root());
   EXPECT_EQ(kServicePath, service_.url_path());
 
-  string uri = StrCat(kServiceRootUri, kServicePath, "{var}/method{?list*}");
+  string uri = "{var}/method{?list*}";
 
   SetupMockedRequest(false, "");
 
@@ -230,8 +230,7 @@ TEST_F(ClientServiceTestFixture, TestConvertToUnresolvedHttpRequest) {
   EXPECT_EQ(kServicePath, service_.url_path());
 
   // Use an unresolvable variable (unknown)
-  string uri = StrCat(kServiceRootUri,
-                      kServicePath, "{unknown}/method{?list*}");
+  string uri = "{unknown}/method{?list*}";
 
   SetupMockedRequest(false, "");
   ClientServiceRequest* request =
@@ -249,7 +248,7 @@ TEST_F(ClientServiceTestFixture, TestConvertToUnresolvedHttpRequest) {
 }
 
 TEST_F(ClientServiceTestFixture, TestPrepareWithMediaDownload) {
-  const string method_url = StrCat(service_.service_url(), "/method");
+  const string method_url = "/method";
 
   pair<string, string> tests[] = {
       std::make_pair("", StrCat(method_url, "?alt=media")),
@@ -262,19 +261,20 @@ TEST_F(ClientServiceTestFixture, TestPrepareWithMediaDownload) {
     TestServiceRequest request(&service_, NULL, HttpRequest::GET,
                                StrCat(method_url, tests[i].first));
     request.set_use_media_download(true);
-    EXPECT_EQ(tests[i].second, request.DetermineFinalUrl());
+    EXPECT_EQ(StrCat(service_.service_url(), tests[i].second),
+              request.DetermineFinalUrl());
   }
 }
 
 TEST_F(ClientServiceTestFixture, TestPrepareWithMediaDownloadAndAlt) {
-  string method_url = StrCat(service_.service_url(), "/method");
+  string method_url = "/method";
 
   SetupMockedRequest(false, "");
   TestServiceRequest request_with(
       &service_, NULL, HttpRequest::GET,
       StrCat(method_url, "?alt=media&foo=bar"));
   request_with.set_use_media_download(true);
-  EXPECT_EQ(StrCat(method_url, "?alt=media&foo=bar"),
+  EXPECT_EQ(StrCat(service_.service_url(), method_url, "?alt=media&foo=bar"),
             request_with.DetermineFinalUrl());
 
   SetupMockedRequest(false, "");
@@ -282,12 +282,13 @@ TEST_F(ClientServiceTestFixture, TestPrepareWithMediaDownloadAndAlt) {
       &service_, NULL, HttpRequest::GET,
       StrCat(method_url, "?alt=different&foo=bar"));
   request_with_different.set_use_media_download(true);
-  EXPECT_EQ(StrCat(method_url, "?alt=different&foo=bar"),
-            request_with_different.DetermineFinalUrl());
+  EXPECT_EQ(
+      StrCat(service_.service_url(), method_url, "?alt=different&foo=bar"),
+      request_with_different.DetermineFinalUrl());
 }
 
 TEST_F(ClientServiceTestFixture, TestDeleteWhenDone) {
-  string method_url = StrCat(service_.service_url(), "/method");
+  string method_url = "/method";
   SetupMockedRequest(true, "{}");
   TestServiceRequest* request(
       new TestServiceRequest(&service_, NULL, HttpRequest::GET, method_url));
@@ -297,7 +298,7 @@ TEST_F(ClientServiceTestFixture, TestDeleteWhenDone) {
 }
 
 TEST_F(ClientServiceTestFixture, TestParseAndDeleteWhenDone) {
-  string method_url = StrCat(service_.service_url(), "/method");
+  string method_url = "/method";
   SetupMockedRequest(true, "{}");
   TestServiceRequest* request(
       new TestServiceRequest(&service_, NULL, HttpRequest::GET, method_url));
@@ -308,7 +309,7 @@ TEST_F(ClientServiceTestFixture, TestParseAndDeleteWhenDone) {
 }
 
 TEST_F(ClientServiceTestFixture, TestParseResponse) {
-  string method_url = StrCat(service_.service_url(), "/method");
+  string method_url = "/method";
   SetupMockedRequest(true, "{}");
   TestServiceRequest* request(
       new TestServiceRequest(&service_, NULL, HttpRequest::GET, method_url));
@@ -323,7 +324,7 @@ static void IncCalled(int* call_count, HttpRequest* request) {
 }
 
 TEST_F(ClientServiceTestFixture, TestAsyncPrepareFailure) {
-  string method_url = StrCat(service_.service_url(), "/{invalid");
+  string method_url = "/{invalid";
   SetupMockedRequest(false, "");
   TestServiceRequest* request(
       new TestServiceRequest(&service_, NULL, HttpRequest::GET, method_url));

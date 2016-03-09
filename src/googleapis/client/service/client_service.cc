@@ -37,7 +37,6 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/client/util/uri_template.h"
 #include "googleapis/client/util/uri_utils.h"
-#include "googleapis/strings/strcat.h"
 #include "googleapis/strings/stringpiece.h"
 
 namespace googleapis {
@@ -50,10 +49,12 @@ ClientServiceRequest::ClientServiceRequest(
     const HttpRequest::HttpMethod& method,
     const StringPiece& uri_template)
     : http_request_(nullptr), destroy_when_done_(false),
-      use_media_download_(false), uri_template_(uri_template.as_string()) {
+      use_media_download_(false) {
   if (service->in_shutdown()) {
     return;
   }
+  uri_template_ = service->service_url();
+  uri_template_.append(uri_template.as_string());
   http_request_.reset(service->transport()->NewHttpRequest(method));
   http_request_->set_credential(credential);  // can be NULL
   // We own the request so make sure it wont auto destroy
@@ -287,7 +288,8 @@ util::Status ClientServiceRequest::AppendOptionalQueryParameters(
       }
     }
     if (!have_alt) {
-      StrAppend(target, sep, "alt=media");
+      target->append(sep);
+      target->append("alt=media");
       sep = "&";
     }
   }
