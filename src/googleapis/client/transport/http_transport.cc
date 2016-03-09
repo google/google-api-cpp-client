@@ -24,6 +24,7 @@ using std::map;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"
 #include "googleapis/util/executor.h"
+#include "googleapis/client/transport/ca_paths.h"
 #include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/transport/http_authorization.h"
 #include "googleapis/client/transport/http_request.h"
@@ -42,7 +43,6 @@ using std::map;
 #include "googleapis/util/stl_util.h"
 
 namespace googleapis {
-
 
 namespace {
 
@@ -120,17 +120,6 @@ void HttpTransportOptions::set_nonstandard_user_agent(const string& agent) {
 void HttpTransportOptions::SetApplicationName(const string& name) {
   user_agent_ = BuildStandardUserAgentString(name);
   VLOG(1) << "Setting ApplicationName = " << name;
-}
-
-/* static */
-string HttpTransportOptions::DetermineDefaultCaCertsPath() {
-  // TODO(user): I do not believe this is a useful behavior for anyone
-  // using a custom transport. This should be factored out so the application
-  // can prevent linking in this unneeded cruft.
-  const string program_path(GetCurrentProgramFilenamePath());
-  auto dirname(client::StripBasename(program_path));
-  dirname.append("roots.pem");  // dirname has ending slash.
-  return dirname;
 }
 
 HttpTransportErrorHandler::HttpTransportErrorHandler() {
@@ -311,15 +300,18 @@ bool HttpTransportErrorHandler::ShouldRetryRedirect_(
 
 HttpTransportOptions::HttpTransportOptions()
     : proxy_port_(0),
+      ssl_verification_disabled_(false),
       connect_timeout_ms_(0L),
-      executor_(NULL),
-      callback_executor_(NULL),
-      error_handler_(NULL) {
+      executor_(nullptr),
+      callback_executor_(nullptr),
+      error_handler_(nullptr) {
   string app_name = DetermineDefaultApplicationName();
   user_agent_ = BuildStandardUserAgentString(app_name);
 
-  cacerts_path_ = DetermineDefaultCaCertsPath();
-ssl_verification_disabled_ = false;
+  // TODO(user): Resolve if we should do this or not. The application should
+  // really decide where the certs are and do the call to
+  // options.set_cacerts_path(DetermineDefaultCaCertsPath()).
+  cacerts_path_ = client::DetermineDefaultCaCertsPath();
   VLOG(1) << "Setting default cacerts_path=" << cacerts_path_;
 }
 

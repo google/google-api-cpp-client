@@ -94,6 +94,7 @@ install(FILES data/jsoncpp_data.h
 add_library(googleapis_http STATIC
             auth/credential_store.cc
             auth/file_credential_store.cc
+            transport/ca_paths.cc
             transport/http_authorization.cc
             transport/http_request.cc
             transport/http_request_batch.cc
