@@ -56,13 +56,11 @@ strings/util.h
 DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/strings)
 
 install(FILES 
-util/algorithm.h
 util/case_insensitive_hash.h
 util/executor.h
 util/file.h
 util/hash.h
 util/mock_executor.h
 util/status.h
-util/stl_util.h
 DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/util)
 

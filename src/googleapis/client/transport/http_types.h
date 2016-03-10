@@ -495,6 +495,28 @@ class HttpStatusCode {
   };
 
   /*
+   * Returns true if the given HTTP status code indicates a server error
+   * response.
+   *
+   * @param[in] http_code Denotes an HTTP status code.
+   * @return true if the code is a 5xx series response code (500..599)
+   */
+  static bool IsServerError(int http_code) {
+    return http_code >= 500 && http_code < 600;
+  }
+
+  /*
+   * Returns true if the given HTTP status code indicates a client error
+   * response.
+   *
+   * @param[in] http_code Denotes an HTTP status code.
+   * @return true if the code is a 4xx series response code (400..499)
+   */
+  static bool IsClientError(int http_code) {
+    return http_code >= 400 && http_code < 500;
+  }
+
+  /*
    * Returns true if the given HTTP status code indicates an HTTP Redirect.
    *
    * @param[in] http_code Denotes an HTTP status code

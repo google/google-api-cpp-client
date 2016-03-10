@@ -40,7 +40,6 @@ using std::map;
 #include "googleapis/strings/strip.h"
 #include "googleapis/strings/numbers.h"
 #include "googleapis/strings/util.h"
-#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 
@@ -126,9 +125,13 @@ HttpTransportErrorHandler::HttpTransportErrorHandler() {
 }
 
 HttpTransportErrorHandler::~HttpTransportErrorHandler() {
-  STLDeleteContainerPairSecondPointers(
-      specialized_http_code_handlers_.begin(),
-      specialized_http_code_handlers_.end());
+  auto begin = specialized_http_code_handlers_.begin();
+  auto end = specialized_http_code_handlers_.end();
+  while (begin != end) {
+    auto temp = begin;
+    ++begin;
+    delete temp->second;
+  }
 }
 
 void HttpTransportErrorHandler::ResetHttpCodeHandler(
@@ -311,6 +314,10 @@ HttpTransportOptions::HttpTransportOptions()
   // TODO(user): Resolve if we should do this or not. The application should
   // really decide where the certs are and do the call to
   // options.set_cacerts_path(DetermineDefaultCaCertsPath()).
+  // But this is breaking, so we need to discuss the appropriate choice for
+  // desktop clients like DriveFS with security. Do we ship a certs.pem from
+  // drivefs or from boringssl? In any case, this is an application choice
+  // not the SDK's choice.
   cacerts_path_ = client::DetermineDefaultCaCertsPath();
   VLOG(1) << "Setting default cacerts_path=" << cacerts_path_;
 }

@@ -43,7 +43,6 @@ using std::vector;
 #include "googleapis/strings/stringpiece.h"
 #include <json/reader.h>
 #include <json/value.h>
-#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 
@@ -176,12 +175,19 @@ class JsonPlaybackTranscript {
   struct RequestRecordList {
     RequestRecordList() : index(0) {}
     ~RequestRecordList() {
-      STLDeleteElements(&records);
+      auto begin = records.begin();
+      auto end = records.end();
+      while (begin != end) {
+        auto temp = begin;
+        ++begin;
+        delete *temp;
+      }
+      records.clear();
     }
     int index;
     std::vector<RequestRecord*> records;
   };
-  typedef map<string, RequestRecordList*> RequestToListMap;
+  typedef std::map<string, RequestRecordList*> RequestToListMap;
 
   // Really just the individual lists need to be protected,
   // and they are each independent from one another (just need to protect

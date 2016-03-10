@@ -103,7 +103,6 @@ TEST_F(CompositeDataReaderTestFixture, Unmanaged) {
     EXPECT_TRUE(reader->ok());
   }
 
-  // NOE:strip_line I'm not yet exposing gtl/stl_utils.h.
   for (vector<DataReader*>::iterator it = list->begin();
        it != list->end();
        ++it) {

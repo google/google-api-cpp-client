@@ -32,7 +32,6 @@ using std::vector;
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"
 #include "googleapis/strings/strcat.h"
-#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 
@@ -63,7 +62,13 @@ AbstractWebServer::AbstractWebServer(int port) : port_(port) {
 }
 
 AbstractWebServer::~AbstractWebServer() {
-  STLDeleteContainerPairSecondPointers(hooks_.begin(), hooks_.end());
+  auto begin = hooks_.begin();
+  auto end = hooks_.end();
+  while (begin != end) {
+    auto temp = begin;
+    ++begin;
+    delete temp->second;
+  }
 }
 
 util::Status AbstractWebServer::Startup() {

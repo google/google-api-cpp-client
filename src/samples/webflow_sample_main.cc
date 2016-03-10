@@ -80,7 +80,6 @@ using std::string;
 #include "googleapis/strings/strip.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/strings/util.h"
-#include "googleapis/util/stl_util.h"
 
 namespace googleapis {
 
@@ -281,8 +280,13 @@ class UserRepository {
     //
     // We're deleting our user entries here, but leaving the access tokens
     // valid to expire.
-    STLDeleteContainerPairSecondPointers(
-        repository_.begin(), repository_.end());
+    auto begin = repository_.begin();
+    auto end = repository_.end();
+    while (begin != end) {
+      auto temp = begin;
+      ++begin;
+      delete temp->second;
+    }
   }
 
   /*
