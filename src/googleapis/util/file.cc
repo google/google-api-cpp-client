@@ -35,11 +35,9 @@
 
 #include <memory>
 #include <stack>
-using std::stack;
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>

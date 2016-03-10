@@ -25,8 +25,6 @@
 #include <string>
 using std::string;
 #include <utility>
-using std::make_pair;
-using std::pair;
 #include "googleapis/base/port.h"
 #ifdef _WIN32
 #include "googleapis/base/windows_compatability.h"

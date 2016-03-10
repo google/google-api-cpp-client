@@ -28,7 +28,6 @@ using std::ostream;
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>

@@ -19,11 +19,9 @@
 
 
 #include <map>
-using std::map;
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 
 #include "googleapis/client/util/mongoose_webserver.h"
 #include "googleapis/client/util/uri_utils.h"
@@ -62,10 +60,7 @@ class MongooseResponse : public WebServerResponse {
     StrAppend(&headers,
               "Content-Type: ", content_type, "\r\n",
               "Content-Length: ", payload.size(), "\r\n");
-    for (std::vector<pair<string, string> >::const_iterator it =
-             headers_.begin();
-         it != headers_.end();
-         ++it) {
+    for (auto it = headers_.begin(); it != headers_.end(); ++it) {
       StrAppend(&headers, it->first, ": ", it->second, "\r\n");
     }
 

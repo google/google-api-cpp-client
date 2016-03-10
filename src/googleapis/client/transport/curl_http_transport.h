@@ -33,7 +33,6 @@
 #define GOOGLEAPIS_TRANSPORT_CURL_HTTP_TRANSPORT_H_
 
 #include <vector>
-using std::vector;
 
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_transport.h"

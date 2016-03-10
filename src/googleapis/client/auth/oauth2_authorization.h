@@ -44,7 +44,6 @@
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/base/mutex.h"

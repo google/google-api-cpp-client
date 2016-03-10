@@ -22,13 +22,11 @@
 
 #include <deque>
 #include <map>
-using std::map;
 #include <memory>
 #include <set>
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 #include "googleapis/client/transport/http_request_batch.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/integral_types.h"

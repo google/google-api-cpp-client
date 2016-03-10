@@ -42,7 +42,6 @@ using std::ostream;  // NOLINT
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 
 #include "googleapis/client/auth/oauth2_authorization.h"
 #include "googleapis/client/auth/webserver_authorization_getter.h"

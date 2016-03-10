@@ -53,7 +53,6 @@
 #define GOOGLEAPIS_TRANSPORT_HTTP_TRANSPORT_H_
 
 #include <map>
-using std::map;
 #include <memory>
 #include <string>
 using std::string;

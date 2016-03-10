@@ -24,8 +24,6 @@
 #include <string>
 using std::string;
 #include <utility>
-using std::make_pair;
-using std::pair;
 
 #include "googleapis/client/util/status.h"
 

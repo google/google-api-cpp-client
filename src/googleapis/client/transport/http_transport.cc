@@ -19,7 +19,6 @@
 
 
 #include <map>
-using std::map;
 
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/data_writer.h"

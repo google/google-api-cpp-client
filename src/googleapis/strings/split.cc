@@ -21,7 +21,6 @@
 #include "googleapis/strings/split.h"
 
 #include <vector>
-using std::vector;
 
 #include "googleapis/strings/stringpiece.h"
 

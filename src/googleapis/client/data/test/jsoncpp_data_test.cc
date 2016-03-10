@@ -22,7 +22,6 @@
 #include <cmath>
 #include <set>
 #include <map>
-using std::map;
 #include <memory>
 #include <string>
 using std::string;

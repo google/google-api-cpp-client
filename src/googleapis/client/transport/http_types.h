@@ -26,7 +26,6 @@
 #define GOOGLEAPIS_TRANSPORT_HTTP_TYPES_H_
 
 #include <map>
-using std::map;
 #include <string>
 using std::string;
 

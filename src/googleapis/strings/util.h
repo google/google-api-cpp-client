@@ -72,7 +72,6 @@ using std::less;
 using std::string;
 using std::string;
 #include <vector>
-using std::vector;
 
 #include "googleapis/strings/stringpiece.h"
 #include "googleapis/base/integral_types.h"

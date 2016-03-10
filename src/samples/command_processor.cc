@@ -26,9 +26,7 @@ using std::ostream;  // NOLINT
 #include <string>
 using std::string;
 #include <map>
-using std::map;
 #include <vector>
-using std::vector;
 
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/transport/http_response.h"
@@ -144,7 +142,7 @@ void CommandProcessor::QuitHandler(const string&, const std::vector<string>&) {
 }
 
 void CommandProcessor::HelpHandler(const string&, const std::vector<string>&) {
-  std::vector<pair<string, const CommandEntry*> > all;
+  std::vector<std::pair<string, const CommandEntry*> > all;
   for (CommandEntryMap::const_iterator it = commands_.begin();
        it != commands_.end();
        ++it) {
@@ -154,10 +152,7 @@ void CommandProcessor::HelpHandler(const string&, const std::vector<string>&) {
   std::sort(all.begin(), all.end(), &CommandEntry::CompareEntry);
 
   string help = "Commands:\n";
-  for (vector<pair<string, const CommandEntry*> >::const_iterator it=
-           all.begin();
-       it != all.end();
-       ++it) {
+  for (auto it = all.begin(); it != all.end(); ++it) {
     help.append(it->first);
     if (!it->second->args.empty()) {
       help.append(" ");

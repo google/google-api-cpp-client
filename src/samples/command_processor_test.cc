@@ -21,7 +21,6 @@
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 #include "samples/command_processor.h"
 #include <gtest/gtest.h>
 

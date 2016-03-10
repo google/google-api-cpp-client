@@ -22,7 +22,6 @@
 using std::string;
 #include <sstream>
 #include <vector>
-using std::vector;
 
 #include "googleapis/base/macros.h"
 #include <glog/logging.h>

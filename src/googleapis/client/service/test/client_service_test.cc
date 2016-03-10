@@ -21,8 +21,6 @@
 #include <string>
 using std::string;
 #include <utility>
-using std::make_pair;
-using std::pair;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/data/serializable_json.h"
 #include "googleapis/client/service/client_service.h"

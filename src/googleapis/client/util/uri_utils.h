@@ -30,10 +30,7 @@
 #include <string>
 using std::string;
 #include <utility>
-using std::make_pair;
-using std::pair;
 #include <vector>
-using std::vector;
 
 #include "googleapis/client/util/date_time.h"
 namespace googleapis {

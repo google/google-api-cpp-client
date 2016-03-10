@@ -25,11 +25,9 @@
 using std::binary_function;
 using std::less;
 #include <map>
-using std::map;
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 
 #include <glog/logging.h>
 #include "googleapis/base/mutex.h"

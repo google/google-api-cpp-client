@@ -25,7 +25,6 @@
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 
 #include "googleapis/client/transport/http_request.h"
 #include "googleapis/client/transport/http_types.h"

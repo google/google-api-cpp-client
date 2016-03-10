@@ -36,7 +36,6 @@ using std::ostream;  // NOLINT
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 
 #include "samples/command_processor.h"
 #include "samples/installed_application.h"

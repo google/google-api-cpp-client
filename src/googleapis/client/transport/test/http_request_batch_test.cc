@@ -20,10 +20,7 @@
 
 #include <cstdio>
 #include <utility>
-using std::make_pair;
-using std::pair;
 #include <vector>
-using std::vector;
 
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/transport/http_request.h"

@@ -22,7 +22,6 @@
 #define GOOGLEAPIS_AUTH_OAUTH2_PENDING_AUTHORIZATIONS_H_
 
 #include <map>
-using std::map;
 #include <string>
 using std::string;
 

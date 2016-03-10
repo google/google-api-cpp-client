@@ -53,7 +53,6 @@
 using std::string;
 using std::string;
 #include <vector>
-using std::vector;
 
 #include "googleapis/strings/ascii_ctype.h"
 #include "googleapis/strings/numbers.h"

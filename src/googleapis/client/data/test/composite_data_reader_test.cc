@@ -22,7 +22,6 @@
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 #include "googleapis/client/data/data_reader.h"
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"

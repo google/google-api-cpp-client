@@ -22,7 +22,6 @@
 #define GOOGLEAPIS_UTIL_MONGOOSE_WEBSERVER_H_
 
 #include <map>
-using std::map;
 
 #include "googleapis/client/util/abstract_webserver.h"
 #include "googleapis/client/util/status.h"

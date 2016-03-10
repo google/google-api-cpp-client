@@ -21,7 +21,6 @@
 #include <string>
 using std::string;
 #include <vector>
-using std::vector;
 #include "googleapis/client/util/uri_utils.h"
 #include <glog/logging.h>
 #include "googleapis/base/macros.h"

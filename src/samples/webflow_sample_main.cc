@@ -54,10 +54,8 @@
 #include <stdlib.h>
 #include <cstdio>
 #include <map>
-using std::map;
 #include <memory>
 #include <vector>
-using std::vector;
 #include <string>
 using std::string;
 

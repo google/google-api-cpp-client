@@ -24,7 +24,6 @@
 #define GOOGLEAPIS_STRINGS_SPLIT_H_
 
 #include <vector>
-using std::vector;
 
 #include "googleapis/strings/stringpiece.h"
 namespace googleapis {

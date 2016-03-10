@@ -39,10 +39,7 @@
 #include <string>
 using std::string;
 #include <utility>
-using std::make_pair;
-using std::pair;
 #include <vector>
-using std::vector;
 
 #include "googleapis/client/data/serializable_json.h"
 #include "googleapis/client/data/jsoncpp_data_helpers.h"

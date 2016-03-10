@@ -25,15 +25,11 @@
 #define GOOGLEAPIS_SAMPLES_COMMAND_PROCESSOR_H_
 
 #include <map>
-using std::map;
 #include <memory>
 #include <string>
 using std::string;
 #include <utility>
-using std::make_pair;
-using std::pair;
 #include <vector>
-using std::vector;
 #include "googleapis/base/callback.h"
 #include "googleapis/base/macros.h"
 #include "googleapis/client/transport/http_response.h"
