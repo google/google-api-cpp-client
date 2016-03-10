@@ -511,7 +511,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
 using namespace googleapis;
 int main(int argc, char** argv) {
 
-  QCHECK(!FLAGS_client_secrets_path.empty())
+  DCHECK(!FLAGS_client_secrets_path.empty())
       << "--client_secrets_path not given";
   YouTubeBroadcastSampleApplication app;
   googleapis::util::Status status = app.Init(FLAGS_client_secrets_path);
