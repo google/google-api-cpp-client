@@ -574,7 +574,7 @@ TEST_F(JsonCppAdapterFixture, TestExportPrimitiveArray) {
   InitArray(&storage, kSize);
   const JsonCppArray<int> readable_array(storage);
 
-  vector<int> data_vector;
+  std::vector<int> data_vector;
   readable_array.Export(&data_vector);
   EXPECT_EQ(kSize, data_vector.size());
 
@@ -605,7 +605,7 @@ TEST_F(JsonCppAdapterFixture, TestImportArray) {
 
   // Initialize the vectors we'll import from using Export.
   // We'll assume this works since it is tested elsewhere.
-  vector<int> data_vector;
+  std::vector<int> data_vector;
   readable_array.Export(&data_vector);
   EXPECT_EQ(kSize, data_vector.size());
 
@@ -632,7 +632,7 @@ TEST_F(JsonCppAdapterFixture, TestExportStringArray) {
   JsonCppArray<string> writable_array(&storage);
   const JsonCppArray<string> readable_array(storage);
 
-  vector<string> data_vector;
+  std::vector<string> data_vector;
   readable_array.Export(&data_vector);
   EXPECT_EQ(kSize, data_vector.size());
 
@@ -661,7 +661,7 @@ TEST_F(JsonCppAdapterFixture, TestImportStringArray) {
   InitStringArray(&storage, kSize);
   const JsonCppArray<string> readable_array(storage);
 
-  vector<string> data_vector;
+  std::vector<string> data_vector;
   readable_array.Export(&data_vector);
   EXPECT_EQ(kSize, data_vector.size());
 

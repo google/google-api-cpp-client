@@ -132,7 +132,7 @@ class YouTubeBroadcastSampleApplication
  public:
   YouTubeBroadcastSampleApplication()
       : InstalledServiceApplication<YouTubeService>("YouTubeBroadcastSample") {
-    vector<string>* scopes = mutable_default_oauth2_scopes();
+    std::vector<string>* scopes = mutable_default_oauth2_scopes();
     scopes->push_back(YouTubeService::SCOPES::YOUTUBE);
     scopes->push_back(YouTubeService::SCOPES::YOUTUBE_READONLY);
   }
@@ -218,7 +218,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
   }
 
  private:
-  void AuthorizeHandler(const string& cmd, const vector<string>& args) {
+  void AuthorizeHandler(const string& cmd, const std::vector<string>& args) {
     if (args.size() == 0 || args.size() > 2) {
       cout << "no user_name provided." << endl;
       return;
@@ -244,7 +244,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
    * However it is convienent, especially here, to allow the app to revoke
    * its permissions.
    */
-  void RevokeHandler(const string&, const vector<string>&) {
+  void RevokeHandler(const string&, const std::vector<string>&) {
     app_->RevokeClient().IgnoreError();
   }
 
@@ -252,7 +252,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
    * Implements the "create" command.
    */
   void CreateBroadcastHandler(
-      const string& cmd, const vector<string>& args) {
+      const string& cmd, const std::vector<string>& args) {
     if (args.size() != 3) {
       cout << "Expected <start time> <minutes> <title>." << endl;
       return;
@@ -331,7 +331,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
    * Implements the "delete" command.
    */
   void DeleteLiveHandler(
-      const string& cmd, const vector<string>& args) {
+      const string& cmd, const std::vector<string>& args) {
     if (args.size() != 2) {
       cout << "Expected <broadcast|stream> <ID>." << endl;
       return;
@@ -350,7 +350,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
    *
    * @see NextBroadcastsHandler
    */
-  void ListBroadcastsHandler(const string&, const vector<string>&) {
+  void ListBroadcastsHandler(const string&, const std::vector<string>&) {
     streams_pager_.reset(NULL);
     const YouTubeService::LiveBroadcastsResource& rsrc
         = app_->service()->get_live_broadcasts();
@@ -382,7 +382,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
    *
    * @see NextStreamsHandler
    */
-  void ListStreamsHandler(const string&, const vector<string>&) {
+  void ListStreamsHandler(const string&, const std::vector<string>&) {
     broadcasts_pager_.reset(NULL);
     const YouTubeService::LiveStreamsResource& rsrc
         = app_->service()->get_live_streams();
@@ -412,7 +412,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
   /*
    * Implements the "next" command.
    */
-  void NextHandler(const string& cmd, const vector<string>& args) {
+  void NextHandler(const string& cmd, const std::vector<string>& args) {
     if (broadcasts_pager_.get()) {
       NextBroadcastsHandler(cmd, args);
     } else if (streams_pager_.get()) {
@@ -427,7 +427,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
    *
    * @see ListBroadcastsHandler
    */
-  void NextBroadcastsHandler(const string&, const vector<string>&) {
+  void NextBroadcastsHandler(const string&, const std::vector<string>&) {
     CHECK(broadcasts_pager_.get());
 
     cout << "Getting next page of broadcast list..." << endl;
@@ -449,7 +449,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
    *
    * @see ListStreamsHandler
    */
-  void NextStreamsHandler(const string&, const vector<string>&) {
+  void NextStreamsHandler(const string&, const std::vector<string>&) {
     CHECK(streams_pager_.get());
 
     cout << "Getting next page of streams list..." << endl;
@@ -467,7 +467,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
   }
 
   void DeleteLiveBroadcastHandler(
-      const string&, const vector<string>& args) {
+      const string&, const std::vector<string>& args) {
     string id(args[1]);
     std::unique_ptr<LiveBroadcastsResource_DeleteMethod> delete_broadcast(
         app_->service()->get_live_broadcasts().NewDeleteMethod(
@@ -481,7 +481,7 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
   }
 
   void DeleteLiveStreamHandler(
-      const string&, const vector<string>& args) {
+      const string&, const std::vector<string>& args) {
     string id(args[1]);
     std::unique_ptr<LiveStreamsResource_DeleteMethod> delete_broadcast(
         app_->service()->get_live_streams().NewDeleteMethod(
@@ -510,9 +510,6 @@ class YouTubeBroadcastCommandProcessor : public sample::CommandProcessor {
 
 using namespace googleapis;
 int main(int argc, char** argv) {
-
-  DCHECK(!FLAGS_client_secrets_path.empty())
-      << "--client_secrets_path not given";
   YouTubeBroadcastSampleApplication app;
   googleapis::util::Status status = app.Init(FLAGS_client_secrets_path);
   if (!status.ok()) {

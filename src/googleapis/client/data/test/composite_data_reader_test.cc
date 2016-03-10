@@ -71,9 +71,9 @@ class MockDataReader : public DataReader {
 
 class CompositeDataReaderTestFixture : public testing::Test {
  protected:
-  vector<DataReader*>* MakeReaderList() {
+  std::vector<DataReader*>* MakeReaderList() {
     // Segment what we expected into 3 parts
-    vector<DataReader*>* list = new vector<DataReader*>;
+    std::vector<DataReader*>* list = new std::vector<DataReader*>;
 
     list->push_back(
         NewUnmanagedInMemoryDataReader(kExpect.substr(0, 5)));
@@ -86,14 +86,14 @@ class CompositeDataReaderTestFixture : public testing::Test {
   }
 
   DataReader* MakeManagedTestReader() {
-    vector<DataReader*>* list = MakeReaderList();
+    std::vector<DataReader*>* list = MakeReaderList();
     return NewManagedCompositeDataReader(
         *list, NewCompositeReaderListAndContainerDeleter(list));
   }
 };
 
 TEST_F(CompositeDataReaderTestFixture, Unmanaged) {
-  vector<DataReader*>* list(MakeReaderList());
+  std::vector<DataReader*>* list(MakeReaderList());
   {
     std::unique_ptr<DataReader> reader(NewUnmanagedCompositeDataReader(*list));
 
@@ -147,7 +147,7 @@ TEST_F(CompositeDataReaderTestFixture, CompositeStringReset) {
 }
 
 TEST_F(CompositeDataReaderTestFixture, CompositeResetFailure) {
-  vector<DataReader*>* list = MakeReaderList();
+  std::vector<DataReader*>* list = MakeReaderList();
 
   // We're going to mock out the middle element keeping the same
   // data as normal, but it will fail to reset instead.
@@ -245,7 +245,7 @@ TEST_F(CompositeDataReaderTestFixture, CompositeFragmentedString) {
 
 TEST_F(CompositeDataReaderTestFixture, CompositeStringErrors) {
   MockDataReader* mock_reader = new MockDataReader;
-  vector<DataReader*>* list = MakeReaderList();
+  std::vector<DataReader*>* list = MakeReaderList();
   list->push_back(mock_reader);
   googleapis::util::Status status(StatusUnknown("Test Error"));
   std::unique_ptr<DataReader> reader(

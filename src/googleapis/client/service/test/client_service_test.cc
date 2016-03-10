@@ -171,7 +171,7 @@ class ClientServiceTestFixture : public testing::Test {
 };
 
 TEST_F(ClientServiceTestFixture, TestConstruct) {
-  pair<StringPiece, StringPiece> tests[] = {
+  std::pair<StringPiece, StringPiece> tests[] = {
       std::make_pair("root", "path"), std::make_pair("root/", "path"),
       std::make_pair("root/", "/path"), std::make_pair("root", "/path"),
   };
@@ -250,7 +250,7 @@ TEST_F(ClientServiceTestFixture, TestConvertToUnresolvedHttpRequest) {
 TEST_F(ClientServiceTestFixture, TestPrepareWithMediaDownload) {
   const string method_url = "/method";
 
-  pair<string, string> tests[] = {
+  std::pair<string, string> tests[] = {
       std::make_pair("", StrCat(method_url, "?alt=media")),
       std::make_pair("?param=value",
                      StrCat(method_url, "?param=value&alt=media")),

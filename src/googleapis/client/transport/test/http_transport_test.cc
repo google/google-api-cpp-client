@@ -704,8 +704,8 @@ TEST_F(HttpTransportFixture, TestRedirectFlow) {
   transport.mutable_options()->set_error_handler(&error_handler);
 
   // redirect code, initial method, final method
-  vector<pair<int, pair<HttpRequest::HttpMethod,
-                        HttpRequest::HttpMethod> > > tests;
+  std::vector<std::pair<int, std::pair<HttpRequest::HttpMethod,
+                                       HttpRequest::HttpMethod> > > tests;
   tests.push_back(
       std::make_pair(301, std::make_pair(HttpRequest::GET, HttpRequest::GET)));
   tests.push_back(std::make_pair(

@@ -302,7 +302,7 @@ class UserRepository {
 
     MutexLock l(&mutex_);
     if (!cookie_id.empty()) {
-      map<string, UserData*>::iterator it = repository_.find(cookie_id);
+      std::map<string, UserData*>::iterator it = repository_.find(cookie_id);
       if (it != repository_.end()) {
         VLOG(1) << "Already have UserData for cookie=" << cookie_id;
         return it->second;
@@ -420,7 +420,7 @@ class UserRepository {
 
   void RemoveUser(const string& cookie_id) {
     MutexLock l(&mutex_);
-    map<string, UserData*>::iterator found = repository_.find(cookie_id);
+    std::map<string, UserData*>::iterator found = repository_.find(cookie_id);
     if (found != repository_.end()) {
       delete found->second;
       repository_.erase(found);
@@ -431,7 +431,7 @@ class UserRepository {
   std::unique_ptr<HttpTransport> transport_;   //< For getting user info.
   bool verify_gid_;         //< Whether to verify gid
   Mutex mutex_;            //< Protects repository
-  map<string, UserData*> repository_ GUARDED_BY(mutex_);
+  std::map<string, UserData*> repository_ GUARDED_BY(mutex_);
   DISALLOW_COPY_AND_ASSIGN(UserRepository);
 };
 

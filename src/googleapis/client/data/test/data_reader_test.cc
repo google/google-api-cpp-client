@@ -287,7 +287,7 @@ TEST_F(DataReaderTestFixture, TestInvalidReader) {
 
 TEST_F(DataReaderTestFixture, TestReadUntilPattern) {
   const string input = "ababacXabac";
-  pair<const string, const string> tests[] = {
+  std::pair<const string, const string> tests[] = {
       std::make_pair("aba", "aba"), std::make_pair("abac", "ababac"),
       std::make_pair("cXa", "ababacXa"), std::make_pair("Z", input),
       std::make_pair("", "")};

@@ -292,8 +292,8 @@ class AbstractWebServer {
  private:
   int port_;
 
-  typedef pair<string, PathHandler*> Hook;
-  vector<Hook> hooks_;
+  typedef std::pair<string, PathHandler*> Hook;
+  std::vector<Hook> hooks_;
 
   DISALLOW_COPY_AND_ASSIGN(AbstractWebServer);
 };

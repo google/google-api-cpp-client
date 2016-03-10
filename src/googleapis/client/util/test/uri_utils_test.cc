@@ -107,7 +107,7 @@ TEST(Test, TestParseQueryParameters) {
   string url = StrCat("http://www.url.com/stuff?", query);
   ParsedUrl parsed(url);
   EXPECT_EQ(query, parsed.query());
-  const vector<ParsedUrl::QueryParameterAssignment>& values =
+  const std::vector<ParsedUrl::QueryParameterAssignment>& values =
       parsed.GetQueryParameterAssignments();
   EXPECT_TRUE(parsed.IsValid());
   EXPECT_EQ(values.size(), ARRAYSIZE(tests));
@@ -137,7 +137,7 @@ TEST(Test, TestJoinPath) {
 TEST(Test, TestEscapeForUrl) {
   const char kBinaryString[] = { 'B', 1, '1', 0 };
 
-  pair<const char*, const char*> tests[] = {
+  std::pair<const char*, const char*> tests[] = {
       std::make_pair("simple", "simple"),
       std::make_pair("a long phrase", "a%20long%20phrase"),
       std::make_pair("!#$&'()*+,/:;=?@[]",
@@ -192,7 +192,7 @@ TEST(Test, TestValueToEscapedUrlValue) {
 TEST(Test, TestArrayIteratorExpansion) {
   const string kParamName = "test";
   string expect;
-  vector<string> v;
+  std::vector<string> v;
   v.push_back("a=1");
   StrAppend(&expect, kParamName, "=", "a%3D1");
 
@@ -214,7 +214,7 @@ TEST(Test, TestResolveUrl) {
   // section 5.1 in http://www.ietf.org/rfc/rfc1808.txt
   string original_url = "http://a/b/c/d;p?q#f";
 
-  pair<string, string> tests[] = {
+  std::pair<string, string> tests[] = {
       std::make_pair("g:h", "g:h"),
       std::make_pair("g", "http://a/b/c/g"),
       std::make_pair("./g", "http://a/b/c/g"),

@@ -123,7 +123,7 @@ class DriveUtilApplication : public InstalledServiceApplication<DriveService> {
  public:
   DriveUtilApplication()
       : InstalledServiceApplication<DriveService>("GDriveUtil") {
-    vector<string>* scopes = mutable_default_oauth2_scopes();
+    std::vector<string>* scopes = mutable_default_oauth2_scopes();
     scopes->push_back(DriveService::SCOPES::DRIVE_READONLY);
     scopes->push_back(DriveService::SCOPES::DRIVE_FILE);
     scopes->push_back(DriveService::SCOPES::DRIVE);
@@ -241,7 +241,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
   }
 
  private:
-  void AboutHandler(const string&, const vector<string>&) {
+  void AboutHandler(const string&, const std::vector<string>&) {
     const DriveService::AboutResource& rsrc = app_->service()->get_about();
     std::unique_ptr<AboutResource_GetMethod> get(
        rsrc.NewGetMethod(app_->credential()));
@@ -255,7 +255,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     }
   }
 
-  void AuthorizeHandler(const string& cmd, const vector<string>& args) {
+  void AuthorizeHandler(const string& cmd, const std::vector<string>& args) {
     if (args.size() == 0 || args.size() > 2) {
       cout << "no user_name provided." << endl;
       return;
@@ -272,7 +272,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     }
   }
 
-  void RevokeHandler(const string&, const vector<string>&) {
+  void RevokeHandler(const string&, const std::vector<string>&) {
     app_->RevokeClient().IgnoreError();
   }
 
@@ -310,7 +310,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     }
   }
 
-  void ListFilesHandler(const string&, const vector<string>&) {
+  void ListFilesHandler(const string&, const std::vector<string>&) {
     const DriveService::FilesResource& rsrc = app_->service()->get_files();
 
     // We could use a FilesResource_ListMethod but we'll instead use
@@ -333,7 +333,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     }
   }
 
-  void NextFilesHandler(const string&, const vector<string>&) {
+  void NextFilesHandler(const string&, const std::vector<string>&) {
     if (!list_pager_.get()) {
       cout << "Cannot page through files util you 'list' them." << endl;
       return;
@@ -353,7 +353,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     }
   }
 
-  void UploadFileHandler(const string& cmd, const vector<string>& args) {
+  void UploadFileHandler(const string& cmd, const std::vector<string>& args) {
     if (args.size() < 1 || args.size() > 2) {
       cout << "Usage: " << cmd << " <path> [<mime-type>]" << endl;
       return;
@@ -380,7 +380,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     CheckAndLogResponse(insert->http_response());
   }
 
-  void UpdateFileHandler(const string& cmd, const vector<string>& args) {
+  void UpdateFileHandler(const string& cmd, const std::vector<string>& args) {
     if (args.size() < 2 || args.size() > 3) {
       cout << "Usage: " << cmd << " <fileid> <path> [<mime-type>]" << endl;
       return;
@@ -407,7 +407,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     CheckAndLogResponse(update->http_response());
   }
 
-  void DeleteFileHandler(const string& cmd, const vector<string>& args) {
+  void DeleteFileHandler(const string& cmd, const std::vector<string>& args) {
     if (args.size() < 1) {
       cout << "Usage: " << cmd << " <fileid>" << endl;
       return;
@@ -424,7 +424,7 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     CheckAndLogResponse(remove->http_response());
   }
 
-  void TrashFileHandler(const string& cmd, const vector<string>& args) {
+  void TrashFileHandler(const string& cmd, const std::vector<string>& args) {
     if (args.size() < 1) {
       cout << "Usage: " << cmd << " <fileid>" << endl;
       return;
@@ -441,7 +441,8 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     CheckAndLogResponse(trash->http_response());
   }
 
-  void FileRevisionsHandler(const string& cmd, const vector<string>& args) {
+  void FileRevisionsHandler(const string& cmd,
+                            const std::vector<string>& args) {
     if (args.size() < 1) {
       cout << "Usage: " << cmd << " <fileid>" << endl;
       return;
@@ -486,7 +487,8 @@ class DriveCommandProcessor : public sample::CommandProcessor {
     }
   }
 
-  void DownloadRevisionHandler(const string& cmd, const vector<string>& args) {
+  void DownloadRevisionHandler(const string& cmd,
+                               const std::vector<string>& args) {
     if ((args.size() < 2) || args.size() > 4) {
       cout << "Usage: " << cmd << " <fileid> <path|->"
            << "[<mime-type>] [<revisionid>]" << endl;

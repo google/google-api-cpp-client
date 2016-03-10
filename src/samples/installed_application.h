@@ -94,11 +94,11 @@ class InstalledApplication {
   // Returns the OAuth2 flow created during Init()
   OAuth2AuthorizationFlow* flow() { return flow_.get(); }
 
-  const vector<string>& default_oauth2_scopes() const {
+  const std::vector<string>& default_oauth2_scopes() const {
     return default_scopes_;
   }
 
-  vector<string>* mutable_default_oauth2_scopes() {
+  std::vector<string>* mutable_default_oauth2_scopes() {
     return &default_scopes_;
   }
 
@@ -149,7 +149,7 @@ class InstalledApplication {
   // Credentials for implied user.
   std::unique_ptr<OAuth2Credential> credential_;
   std::unique_ptr<OAuth2AuthorizationFlow> flow_;   // The OAuth2 flow
-  vector<string> default_scopes_;         // When creating credentials
+  std::vector<string> default_scopes_;         // When creating credentials
   std::unique_ptr<client::HttpTransportLayerConfig> config_;
 
   std::unique_ptr<AbstractWebServer> httpd_;        // Webserver for getter_

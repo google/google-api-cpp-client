@@ -400,7 +400,7 @@ util::Status File::WritePath(const string& path, const StringPiece& data) {
                         "Could not write to file");
   }
   googleapis::util::Status status = file->WriteString(data);
-  file->Close((file::Defaults()));
+  file->Close(file::Defaults()).IgnoreError();
   return status;
 }
 

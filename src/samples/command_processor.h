@@ -64,10 +64,10 @@ class CommandProcessor {
   // Returns true if args were ok. False if they ended prematurely.
   // Even if false is returned, the list will contain the best interpretation
   // of the args.
-  static bool SplitArgs(const string& phrase, vector<string>* list);
+  static bool SplitArgs(const string& phrase, std::vector<string>* list);
 
  protected:
-  typedef Callback2<const string&, const vector<string>&> CommandRunner;
+  typedef Callback2<const string&, const std::vector<string>&> CommandRunner;
   struct CommandEntry {
     CommandEntry(
         const string& usage_args,
@@ -78,8 +78,8 @@ class CommandProcessor {
     }
 
     static bool CompareEntry(
-        const pair<const string, const CommandEntry*>& a,
-        const pair<const string, const CommandEntry*>& b) {
+        const std::pair<const string, const CommandEntry*>& a,
+        const std::pair<const string, const CommandEntry*>& b) {
       return a.first < b.first;
     }
 
@@ -104,13 +104,14 @@ class CommandProcessor {
   bool CheckAndLogResponse(HttpResponse* response);
 
   // Handler for "quit" command.
-  virtual void QuitHandler(const string&, const vector<string>&);
+  virtual void QuitHandler(const string&, const std::vector<string>&);
 
   // Handler for "help" command.
-  virtual void HelpHandler(const string&, const vector<string>&);
+  virtual void HelpHandler(const string&, const std::vector<string>&);
 
   // Handler for "quiet" and "verbose" commands.
-  virtual void VerboseHandler(int level, const string&, const vector<string>&);
+  virtual void VerboseHandler(int level, const string&,
+                              const std::vector<string>&);
 
   // Adds builtin 'help' and 'quit' commands.
   // Called by InitCommands but offered separately so you dont need to
@@ -119,7 +120,7 @@ class CommandProcessor {
 
  private:
   // maps command name to entry map for exeuting it.
-  typedef map<string, CommandEntry*> CommandEntryMap;
+  typedef std::map<string, CommandEntry*> CommandEntryMap;
 
   CommandEntryMap commands_;
   string prompt_;

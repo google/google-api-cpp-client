@@ -30,7 +30,7 @@ namespace googleapis {
 using sample::CommandProcessor;
 
 TEST(Test, SplitArgs) {
-  vector<string> list;
+  std::vector<string> list;
   EXPECT_TRUE(CommandProcessor::SplitArgs("  a  b  ", &list));
   EXPECT_EQ(2, list.size());
   EXPECT_EQ("a", list[0]);

@@ -121,7 +121,7 @@ class BatchTestFixture : public testing::Test {
   }
 
   HttpRequestBatch* MakeBatchRequest(
-      const vector<BatchTestCase>& method_and_response,
+      const std::vector<BatchTestCase>& method_and_response,
       FakeCredential* credential,
       string** mock_response_ptr = NULL) {
     MockHttpRequest* mock_request =
@@ -216,8 +216,8 @@ class BatchTestFixture : public testing::Test {
   }
 
   void CheckResponse(
-      const vector<BatchTestCase>& tests,
-      const vector<HttpRequest*>& parts) {
+      const std::vector<BatchTestCase>& tests,
+      const std::vector<HttpRequest*>& parts) {
     for (int i = 0; i < tests.size(); ++i) {
       HttpResponse* response = parts[i]->response();
       EXPECT_EQ(tests[i].http_code, response->http_code());
@@ -245,7 +245,7 @@ class BatchTestFixture : public testing::Test {
 
 
 TEST_F(BatchTestFixture, TestAllOk) {
-  vector<BatchTestCase> tests;
+  std::vector<BatchTestCase> tests;
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
@@ -260,7 +260,7 @@ TEST_F(BatchTestFixture, TestAllOk) {
 }
 
 TEST_F(BatchTestFixture, TestPartialFailure) {
-  vector<BatchTestCase> tests;
+  std::vector<BatchTestCase> tests;
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
   tests.push_back(BatchTestCase(HttpRequest::GET, 400));
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
@@ -279,7 +279,7 @@ TEST_F(BatchTestFixture, TestWithCredentials) {
   FakeCredential outer_credential("OuterCredential");
   FakeCredential override_credential_a("CredentialA");
   FakeCredential override_credential_b("CredentialB");
-  vector<BatchTestCase> tests;
+  std::vector<BatchTestCase> tests;
   tests.push_back(
       BatchTestCase(HttpRequest::GET, 200, &override_credential_a));
   tests.push_back(BatchTestCase(HttpRequest::GET, 200,
@@ -308,7 +308,7 @@ static void DoCallback(
 }
 
 TEST_F(BatchTestFixture, TestWithCallback) {
-  vector<BatchTestCase> tests;
+  std::vector<BatchTestCase> tests;
   int call_count = 0;
   HttpRequestCallback* test_callback(
       NewCallback(&DoCallback, &call_count, util::error::OK));
@@ -326,7 +326,7 @@ TEST_F(BatchTestFixture, TestWithCallback) {
 
 TEST_F(BatchTestFixture, TestDeleteWithCallback) {
   int call_count = 0;
-  vector<BatchTestCase> tests;
+  std::vector<BatchTestCase> tests;
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
   std::unique_ptr<HttpRequestBatch> batch(MakeBatchRequest(tests, NULL));
@@ -348,7 +348,7 @@ TEST_F(BatchTestFixture, TestDeleteWithCallback) {
 }
 
 TEST_F(BatchTestFixture, TestBatchAfterCreation) {
-  vector<BatchTestCase> tests;
+  std::vector<BatchTestCase> tests;
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
@@ -365,7 +365,7 @@ TEST_F(BatchTestFixture, TestBatchAfterCreation) {
 }
 
 TEST_F(BatchTestFixture, TestMissingAndUnexpectedResponse) {
-  vector<BatchTestCase> tests;
+  std::vector<BatchTestCase> tests;
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
   tests.push_back(BatchTestCase(HttpRequest::GET, 400));
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
@@ -399,7 +399,7 @@ TEST_F(BatchTestFixture, TestMissingAndUnexpectedResponse) {
 
 // Make sure that responses get correlated to the proper request.
 TEST_F(BatchTestFixture, TestOutOfOrderResponse) {
-  vector<BatchTestCase> tests;
+  std::vector<BatchTestCase> tests;
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));
   tests.push_back(BatchTestCase(HttpRequest::GET, 200));

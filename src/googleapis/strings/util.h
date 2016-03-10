@@ -301,7 +301,7 @@ struct streq : public std::binary_function<const char*, const char*, bool> {
 
 // Compares two char* strings. (Works with NULL, which compares greater than any
 // non-NULL). Useful in maps:
-//    map<const char*, Value, strlt> m;
+//    std::map<const char*, Value, strlt> m;
 struct strlt : public std::binary_function<const char*, const char*, bool> {
   bool operator()(const char* s1, const char* s2) const {
     return (s1 != s2) && (s2 == 0 || (s1 != 0 && strcmp(s1, s2) < 0));

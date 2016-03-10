@@ -128,7 +128,7 @@ bool CommandProcessor::CheckAndLogResponse(HttpResponse* response) {
 }
 
 void CommandProcessor::VerboseHandler(
-    int level, const string&, const vector<string>&) {
+    int level, const string&, const std::vector<string>&) {
   if (level == 0) {
     cout << "Being quiet." << std::endl;
     log_success_bodies_ = false;
@@ -138,13 +138,13 @@ void CommandProcessor::VerboseHandler(
   }
 }
 
-void CommandProcessor::QuitHandler(const string&, const vector<string>&) {
+void CommandProcessor::QuitHandler(const string&, const std::vector<string>&) {
   VLOG(1) << "Got QUIT";
   done_ = true;
 }
 
-void CommandProcessor::HelpHandler(const string&, const vector<string>&) {
-  vector<pair<string, const CommandEntry*> > all;
+void CommandProcessor::HelpHandler(const string&, const std::vector<string>&) {
+  std::vector<pair<string, const CommandEntry*> > all;
   for (CommandEntryMap::const_iterator it = commands_.begin();
        it != commands_.end();
        ++it) {
@@ -182,7 +182,7 @@ void CommandProcessor::RunShell() {
     string input;
     std::getline(cin, input);
 
-    vector<string> args;
+    std::vector<string> args;
     SplitArgs(input, &args);
     if (args.size() == 0) continue;
 
@@ -197,7 +197,8 @@ void CommandProcessor::RunShell() {
 }
 
 // static
-bool CommandProcessor::SplitArgs(const string& args, vector<string>* list) {
+bool CommandProcessor::SplitArgs(const string& args,
+                                 std::vector<string>* list) {
   bool ok = true;
   string current;
   const char* end = args.data() + args.size();

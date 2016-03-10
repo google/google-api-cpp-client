@@ -129,7 +129,7 @@ util::Status SensitiveFileUtils::WriteSensitiveStringToFile(
     return StatusUnknown(StrCat("Could not write to ", path));
   }
   googleapis::util::Status status = file->WriteString(data);
-  if (file->Close((file::Defaults())).ok()) {
+  if (!file->Close(file::Defaults()).ok()) {
     return StatusUnknown(StrCat("Failed to close path=", path));
   }
   return status;
@@ -175,7 +175,7 @@ util::Status SensitiveFileUtils::DeleteSensitiveFile(const string& path) {
       wrote = this_write;
     }
     file->Flush();
-    file->Close((file::Defaults()));
+    file->Close(file::Defaults()).IgnoreError();
   }
 
   if (!File::Delete(path)) {

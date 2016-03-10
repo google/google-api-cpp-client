@@ -756,7 +756,7 @@ TEST_F(HttpTransportTestFixture, TestResponseHeaders) {
 }
 
 static void GatherAsyncResponse(
-    int i, Mutex* mutex, vector<HttpRequest*>* got, int* remaining,
+    int i, Mutex* mutex, std::vector<HttpRequest*>* got, int* remaining,
     HttpRequest* request) {
   HttpResponse* response = request->response();
   VLOG(1) << "*** Got Response for i=" << i << " status=" << response->status();
@@ -830,8 +830,8 @@ TEST_F(HttpTransportTestFixture, TestAsynchronous) {
   WaxService* service = &GetGlobalWaxService();
   const WaxService::ItemsResource& rsrc = service->get_items();
   remaining = kNumInserts + kNumBuiltins;  // delete the builtins
-  vector<ClientServiceRequest*> requests;
-  vector<HttpRequest*> got(kNumInserts + kNumBuiltins);
+  std::vector<ClientServiceRequest*> requests;
+  std::vector<HttpRequest*> got(kNumInserts + kNumBuiltins);
 
   for (int i = 0; i < kNumInserts; ++i) {
     JsonCppCapsule<WaxDataItem> wax;

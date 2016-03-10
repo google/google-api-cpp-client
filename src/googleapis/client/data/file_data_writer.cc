@@ -52,7 +52,7 @@ util::Status FileDataWriter::DoClear() {
 }
 
 util::Status FileDataWriter::DoBegin() {
-  if (file_) file_->Close((file::Defaults()));
+  if (file_) file_->Close(file::Defaults()).IgnoreError();
   file_ = File::OpenWithOptions(path_, "w", options_);
   if (!file_) {
     googleapis::util::Status status =
@@ -65,7 +65,7 @@ util::Status FileDataWriter::DoBegin() {
 
 util::Status FileDataWriter::DoEnd() {
   if (file_) {
-    bool ok = file_->Close((file::Defaults()));
+    bool ok = file_->Close(file::Defaults()).ok();
     file_ = NULL;
     if (!ok) {
       return StatusUnknown("Error closing file");
@@ -77,7 +77,7 @@ util::Status FileDataWriter::DoEnd() {
 FileDataWriter::~FileDataWriter() {
   if (file_) {
     file_->Flush();
-    file_->Close((file::Defaults()));
+    file_->Close(file::Defaults()).IgnoreError();
   }
 }
 
