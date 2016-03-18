@@ -26,10 +26,10 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include "googleapis/base/integral_types.h"
-#include "googleapis/strings/stringpiece.h"
 namespace googleapis {
 
 class FileOpenOptions;
+class StringPiece;
 
 namespace client {
 class DataReader;
@@ -113,9 +113,7 @@ class DataWriter {
    *
    * @see DoWrite
    */
-  googleapis::util::Status Write(const StringPiece& data) {
-    return Write(data.size(), data.data());
-  }
+  googleapis::util::Status Write(const StringPiece& data);
 
   /*
    * Synchronously stream a reader's content into a writer.

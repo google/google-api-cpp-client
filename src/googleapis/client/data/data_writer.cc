@@ -28,6 +28,7 @@ using std::string;
 #include "googleapis/client/util/status.h"
 #include "googleapis/base/callback.h"
 #include <glog/logging.h>
+#include "googleapis/strings/stringpiece.h"
 
 namespace googleapis {
 
@@ -68,6 +69,10 @@ util::Status DataWriter::Write(int64 bytes, const char* data) {
     size_ += bytes;
   }
   return status_;
+}
+
+util::Status DataWriter::Write(const StringPiece& data) {
+    return Write(data.size(), data.data());
 }
 
 util::Status DataWriter::Write(DataReader* reader, int64 max_bytes) {
