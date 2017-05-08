@@ -3,9 +3,9 @@ file(GLOB all_valid_subdirs RELATIVE
 
 foreach(dir ${all_valid_subdirs})
     message(STATUS "path = ${dir}")
-    if(${dir} MATCHES "^([^/]*)//CMakeLists.txt")
+    if(${dir} MATCHES "^([^/]*)/CMakeLists.txt")
         string(REGEX REPLACE
-               "^([^/]*)//CMakeLists.txt" "\\1" dir_trimmed ${dir})
+               "^([^/]*)/CMakeLists.txt" "\\1" dir_trimmed ${dir})
         add_subdirectory(${dir_trimmed})
     endif()
 endforeach(dir)
