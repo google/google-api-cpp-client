@@ -61,7 +61,7 @@ util::Status JsonCppData::LoadFromJsonReader(DataReader* data_reader) {
   Json::Reader json_reader;
   bool result = json_reader.parse(data, data + size, *MutableStorage(), false);
   if (!result) {
-    return StatusInvalidArgument(json_reader.getFormattedErrorMessages());
+    return StatusInvalidArgument(json_reader.getFormatedErrorMessages());
   }
   return StatusOk();
 }
