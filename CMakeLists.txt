@@ -35,7 +35,6 @@ set(GOOGLEAPIS_EXTERNAL_DEPENDENCIES_DIR ${CMAKE_SOURCE_DIR}/external_dependenci
 endif()
 
 find_package(Threads)
-find_package(curl)
 find_package(gflags)
 
 if (MSVC)

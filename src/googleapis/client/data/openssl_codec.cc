@@ -63,18 +63,18 @@ class OpenSslReader : public CodecReader {
         key_(key.as_string()),
         iv_(iv.as_string()) {
     CHECK_LT(0, chunk_size);
-    EVP_CIPHER_CTX_init(&ctx_);
+    EVP_CIPHER_CTX_init(ctx_);
   }
 
   ~OpenSslReader() {
-    EVP_CIPHER_CTX_cleanup(&ctx_);
+    EVP_CIPHER_CTX_cleanup(ctx_);
   }
 
   googleapis::util::Status Init() {
-    EVP_CipherInit_ex(&ctx_, cipher_type_, NULL, NULL, NULL, encoding());
-    EVP_CIPHER_CTX_set_key_length(&ctx_, key_.size());
+    EVP_CipherInit_ex(ctx_, cipher_type_, NULL, NULL, NULL, encoding());
+    EVP_CIPHER_CTX_set_key_length(ctx_, key_.size());
     EVP_CipherInit_ex(
-        &ctx_,
+        ctx_,
         NULL, NULL,
         reinterpret_cast<const unsigned char*>(key_.data()),
         reinterpret_cast<const unsigned char*>(iv_.c_str()),
@@ -97,7 +97,7 @@ class OpenSslReader : public CodecReader {
   }
 
  private:
-  EVP_CIPHER_CTX ctx_;
+  EVP_CIPHER_CTX* ctx_;
   const EVP_CIPHER* cipher_type_;
   string key_;
   string iv_;
@@ -112,14 +112,14 @@ class OpenSslReader : public CodecReader {
         reinterpret_cast<const unsigned char*>(chunk.data());
     unsigned char* base_address = reinterpret_cast<unsigned char*>(to);
     int read = chunk.size();
-    if (read && !EVP_CipherUpdate(&ctx_, base_address, &out_len,
+    if (read && !EVP_CipherUpdate(ctx_, base_address, &out_len,
                                   data, read)) {
       *to_length = 0;
       return OpenSslErrorToStatus("CipherUpdate failed");
     }
     if (is_final_chunk) {
       if (!EVP_CipherFinal_ex(
-              &ctx_, base_address + out_len, &extra_len)) {
+              ctx_, base_address + out_len, &extra_len)) {
         *to_length = 0;
         return OpenSslErrorToStatus("CipherFinal failed");
       }
