@@ -841,9 +841,10 @@ class OpenSslPackageInstaller(PackageInstaller):
 class GFlagsPackageInstaller(PackageInstaller):
   """Custom installer for the GFlags package."""
 
-  def __init__(self, config, url):
+  def __init__(self, config, url, package_name=None):
     """Standard PackageInstaller initializer."""
-    super(GFlagsPackageInstaller, self).__init__(config, url)
+    super(GFlagsPackageInstaller, self).__init__(config, url,
+                                                 package_name=package_name)
     self._archive_file = self._archive_file.replace('-no-svn-files', '')
     self._package_name = self._package_name.replace('-no-svn-files', '')
     self._package_path = self._package_path.replace('-no-svn-files', '')
@@ -882,14 +883,15 @@ class GFlagsPackageInstaller(PackageInstaller):
 class GMockPackageInstaller(PackageInstaller):
   """Custom installer for the GMock package."""
 
-  def __init__(self, config, url):
+  def __init__(self, config, url, package_name=None):
     """Standard PackageInstaller initializer.
 
     Args:
       config: (ConfigInfo) Configuration information.
       url: (string)  The URL to download from.
     """
-    super(GMockPackageInstaller, self).__init__(config, url)
+    super(GMockPackageInstaller, self).__init__(config, url,
+                                                package_name=package_name)
 
   def MaybeTweakAfterUnpackage(self):
     if self._config.compiler == VS_COMPILER:
@@ -907,19 +909,6 @@ class GMockPackageInstaller(PackageInstaller):
             insert_after, inject_flags))
         with open(cmake_utils_path, 'w') as f:
           f.write(text)
-
-    gtest_port_h = os.path.join(
-        self._package_path, 'gtest', 'include',
-        'gtest', 'internal', 'gtest-port.h')
-    with open(gtest_port_h, 'r') as f:
-      text = f.read()
-    text = text.replace(
-        '# define GTEST_HAS_PTHREAD ('
-        'GTEST_OS_LINUX || GTEST_OS_MAC || GTEST_OS_HPUX)',
-        '# define GTEST_HAS_PTHREAD ('
-        'GTEST_OS_LINUX || GTEST_OS_MAC || GTEST_OS_HPUX || GTEST_OS_CYGWIN)')
-    with open(gtest_port_h, 'w') as f:
-      f.write(text)
 
   def Configure(self):
     return
@@ -942,14 +931,15 @@ class GMockPackageInstaller(PackageInstaller):
 class GLogPackageInstaller(PackageInstaller):
   """Custom installer for the GLog package."""
 
-  def __init__(self, config, url):
+  def __init__(self, config, url, package_name=None):
     """Standard PackageInstaller initializer.
 
     Args:
       config: (ConfigInfo) Configuration information.
       url: (string)  The URL to download from.
     """
-    super(GLogPackageInstaller, self).__init__(config, url)
+    super(GLogPackageInstaller, self).__init__(config, url,
+                                               package_name=package_name)
     self._msbuild_args = '/p:Configuration=Release;Platform=x86'
     self._vc_upgrade_from_project_path = (
         '%s\\vsprojects\\libglog\\libglog.vcproj' % self._package_path)
@@ -1077,20 +1067,22 @@ class Installer(object):
         # GFlags is only used for some examples.
         # Only used for tests and samples.
         'gflags': (GFlagsPackageInstaller(
-            config,
-            'http://gflags.googlecode.com/files'
-            '/gflags-2.0-no-svn-files.tar.gz')),
+          config,
+          'https://github.com/gflags/gflags/archive/v2.2.0.tar.gz',
+          'gflags-2.2.0')),
 
         # GLog is the logging mechanism used through the client API
         'glog': (GLogPackageInstaller(
-            config,
-            'http://google-glog.googlecode.com/files/glog-0.3.3.tar.gz')),
+          config,
+          'https://github.com/google/glog/archive/v0.3.4.tar.gz',
+          'glog-0.3.4')),
 
         # GMock (and included GTest) are only used for tests, not runtime
         # Only used for tests.
         'gmock': (GMockPackageInstaller(
-            config,
-            'http://googlemock.googlecode.com/files/gmock-1.6.0.zip')),
+          config,
+          'https://github.com/google/googlemock/archive/release-1.7.0.tar.gz',
+          'googlemock-release-1.7.0')),
 
         # For now we use JsonCpp for JSON support in the Client Service Layer
         # and other places where we process JSON encoded data.
