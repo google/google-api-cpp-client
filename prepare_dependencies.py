@@ -1060,7 +1060,7 @@ class Installer(object):
           # The OpenSslCodec is not requird so if you get an https transport
           # from somewhere else then you do not need this dependency.
           'openssl': (OpenSslPackageInstaller(
-              config, 'http://www.openssl.org/source/openssl-1.0.1m.tar.gz')),
+              config, 'https://www.openssl.org/source/openssl-1.1.0e.tar.gz')),
           })
 
     self._url_map.update({
@@ -1099,7 +1099,7 @@ class Installer(object):
         #   'https://github.com/cesanta/mongoose/archive/master.zip')),
 
         'curl': (CurlPackageInstaller(
-            config, 'http://curl.haxx.se/download/curl-7.42.1.tar.gz')),
+            config, 'https://github.com/curl/curl/releases/download/curl-7_54_0/curl-7.54.0.tar.gz')),
         })
 
     # make sure cmake occurs first since others may depend on it

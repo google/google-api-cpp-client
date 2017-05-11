@@ -19,11 +19,14 @@ add_library(google_calendar_api STATIC
             channel.cc
             color_definition.cc
             colors.cc
+            deep_link_data.cc
+            display_info.cc
             error.cc
             event.cc
             event_attachment.cc
             event_attendee.cc
             event_date_time.cc
+            event_habit_instance.cc
             event_reminder.cc
             events.cc
             free_busy_calendar.cc
@@ -31,6 +34,9 @@ add_library(google_calendar_api STATIC
             free_busy_request.cc
             free_busy_request_item.cc
             free_busy_response.cc
+            habit_instance_data.cc
+            launch_info.cc
+            link.cc
             setting.cc
             settings.cc
             time_period.cc
