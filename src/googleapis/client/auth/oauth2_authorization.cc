@@ -18,6 +18,7 @@
  */
 
 
+#include <fstream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -670,6 +671,15 @@ string OAuth2AuthorizationFlow::GenerateAuthorizationCodeRequestUrlWithOptions(
 string OAuth2AuthorizationFlow::JoinScopes(
     const std::vector<string>& scopes) {
   return strings::Join(scopes, " ");
+}
+
+// static
+OAuth2AuthorizationFlow* OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
+    const string& path, HttpTransport* transport,
+    googleapis::util::Status* status) {
+  string json(std::istreambuf_iterator<char>(std::ifstream(path).rdbuf()),
+              std::istreambuf_iterator<char>());
+  return MakeFlowFromClientSecretsJson(json, transport, status);
 }
 
 // static
