@@ -64,7 +64,7 @@ const HabitInstanceData EventHabitInstance::get_data() const {
    return client::JsonValueToCppValueHelper<HabitInstanceData >(storage);
 }
 
-HabitInstanceData EventHabitInstance::mutable_data(){
+HabitInstanceData EventHabitInstance::mutable_data() {
   Json::Value* storage = MutableStorage("data");
   return client::JsonValueToMutableCppValueHelper<HabitInstanceData >(storage);
 }

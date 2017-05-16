@@ -64,7 +64,7 @@ const client::JsonCppArray<AclRule > Acl::get_items() const {
    return client::JsonValueToCppValueHelper<client::JsonCppArray<AclRule > >(storage);
 }
 
-client::JsonCppArray<AclRule > Acl::mutable_items(){
+client::JsonCppArray<AclRule > Acl::mutable_items() {
   Json::Value* storage = MutableStorage("items");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<AclRule > >(storage);
 }

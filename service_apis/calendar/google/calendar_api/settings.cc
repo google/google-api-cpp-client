@@ -64,7 +64,7 @@ const client::JsonCppArray<Setting > Settings::get_items() const {
    return client::JsonValueToCppValueHelper<client::JsonCppArray<Setting > >(storage);
 }
 
-client::JsonCppArray<Setting > Settings::mutable_items(){
+client::JsonCppArray<Setting > Settings::mutable_items() {
   Json::Value* storage = MutableStorage("items");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<Setting > >(storage);
 }

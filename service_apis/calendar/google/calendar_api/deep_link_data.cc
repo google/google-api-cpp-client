@@ -64,7 +64,7 @@ const client::JsonCppArray<Link > DeepLinkData::get_links() const {
    return client::JsonValueToCppValueHelper<client::JsonCppArray<Link > >(storage);
 }
 
-client::JsonCppArray<Link > DeepLinkData::mutable_links(){
+client::JsonCppArray<Link > DeepLinkData::mutable_links() {
   Json::Value* storage = MutableStorage("links");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<Link > >(storage);
 }

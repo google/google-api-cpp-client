@@ -154,7 +154,7 @@ const client::JsonCppArray<EventReminder > Event::EventReminders::get_overrides(
    return client::JsonValueToCppValueHelper<client::JsonCppArray<EventReminder > >(storage);
 }
 
-client::JsonCppArray<EventReminder > Event::EventReminders::mutable_overrides(){
+client::JsonCppArray<EventReminder > Event::EventReminders::mutable_overrides() {
   Json::Value* storage = MutableStorage("overrides");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<EventReminder > >(storage);
 }
@@ -205,7 +205,7 @@ const client::JsonCppArray<EventAttachment > Event::get_attachments() const {
    return client::JsonValueToCppValueHelper<client::JsonCppArray<EventAttachment > >(storage);
 }
 
-client::JsonCppArray<EventAttachment > Event::mutable_attachments(){
+client::JsonCppArray<EventAttachment > Event::mutable_attachments() {
   Json::Value* storage = MutableStorage("attachments");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<EventAttachment > >(storage);
 }
@@ -215,7 +215,7 @@ const client::JsonCppArray<EventAttendee > Event::get_attendees() const {
    return client::JsonValueToCppValueHelper<client::JsonCppArray<EventAttendee > >(storage);
 }
 
-client::JsonCppArray<EventAttendee > Event::mutable_attendees(){
+client::JsonCppArray<EventAttendee > Event::mutable_attendees() {
   Json::Value* storage = MutableStorage("attendees");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<EventAttendee > >(storage);
 }
@@ -225,7 +225,7 @@ const EventDateTime Event::get_end() const {
    return client::JsonValueToCppValueHelper<EventDateTime >(storage);
 }
 
-EventDateTime Event::mutable_end(){
+EventDateTime Event::mutable_end() {
   Json::Value* storage = MutableStorage("end");
   return client::JsonValueToMutableCppValueHelper<EventDateTime >(storage);
 }
@@ -235,7 +235,7 @@ const EventDateTime Event::get_original_start_time() const {
    return client::JsonValueToCppValueHelper<EventDateTime >(storage);
 }
 
-EventDateTime Event::mutable_originalStartTime(){
+EventDateTime Event::mutable_originalStartTime() {
   Json::Value* storage = MutableStorage("originalStartTime");
   return client::JsonValueToMutableCppValueHelper<EventDateTime >(storage);
 }
@@ -245,7 +245,7 @@ const EventDateTime Event::get_start() const {
    return client::JsonValueToCppValueHelper<EventDateTime >(storage);
 }
 
-EventDateTime Event::mutable_start(){
+EventDateTime Event::mutable_start() {
   Json::Value* storage = MutableStorage("start");
   return client::JsonValueToMutableCppValueHelper<EventDateTime >(storage);
 }

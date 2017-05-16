@@ -66,7 +66,7 @@ const client::JsonCppArray<FreeBusyRequestItem > FreeBusyRequest::get_items() co
    return client::JsonValueToCppValueHelper<client::JsonCppArray<FreeBusyRequestItem > >(storage);
 }
 
-client::JsonCppArray<FreeBusyRequestItem > FreeBusyRequest::mutable_items(){
+client::JsonCppArray<FreeBusyRequestItem > FreeBusyRequest::mutable_items() {
   Json::Value* storage = MutableStorage("items");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<FreeBusyRequestItem > >(storage);
 }

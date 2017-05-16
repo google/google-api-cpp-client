@@ -66,7 +66,7 @@ const client::JsonCppArray<EventReminder > Events::get_default_reminders() const
    return client::JsonValueToCppValueHelper<client::JsonCppArray<EventReminder > >(storage);
 }
 
-client::JsonCppArray<EventReminder > Events::mutable_defaultReminders(){
+client::JsonCppArray<EventReminder > Events::mutable_defaultReminders() {
   Json::Value* storage = MutableStorage("defaultReminders");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<EventReminder > >(storage);
 }
@@ -76,7 +76,7 @@ const client::JsonCppArray<Event > Events::get_items() const {
    return client::JsonValueToCppValueHelper<client::JsonCppArray<Event > >(storage);
 }
 
-client::JsonCppArray<Event > Events::mutable_items(){
+client::JsonCppArray<Event > Events::mutable_items() {
   Json::Value* storage = MutableStorage("items");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<Event > >(storage);
 }

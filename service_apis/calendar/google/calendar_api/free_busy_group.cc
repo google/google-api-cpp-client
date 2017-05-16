@@ -64,7 +64,7 @@ const client::JsonCppArray<Error > FreeBusyGroup::get_errors() const {
    return client::JsonValueToCppValueHelper<client::JsonCppArray<Error > >(storage);
 }
 
-client::JsonCppArray<Error > FreeBusyGroup::mutable_errors(){
+client::JsonCppArray<Error > FreeBusyGroup::mutable_errors() {
   Json::Value* storage = MutableStorage("errors");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<Error > >(storage);
 }

@@ -65,7 +65,7 @@ const client::JsonCppAssociativeArray<ColorDefinition > Colors::get_calendar() c
    return client::JsonValueToCppValueHelper<client::JsonCppAssociativeArray<ColorDefinition > >(storage);
 }
 
-client::JsonCppAssociativeArray<ColorDefinition > Colors::mutable_calendar(){
+client::JsonCppAssociativeArray<ColorDefinition > Colors::mutable_calendar() {
   Json::Value* storage = MutableStorage("calendar");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppAssociativeArray<ColorDefinition > >(storage);
 }
@@ -75,7 +75,7 @@ const client::JsonCppAssociativeArray<ColorDefinition > Colors::get_event() cons
    return client::JsonValueToCppValueHelper<client::JsonCppAssociativeArray<ColorDefinition > >(storage);
 }
 
-client::JsonCppAssociativeArray<ColorDefinition > Colors::mutable_event(){
+client::JsonCppAssociativeArray<ColorDefinition > Colors::mutable_event() {
   Json::Value* storage = MutableStorage("event");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppAssociativeArray<ColorDefinition > >(storage);
 }

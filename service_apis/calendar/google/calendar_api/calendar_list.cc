@@ -64,7 +64,7 @@ const client::JsonCppArray<CalendarListEntry > CalendarList::get_items() const {
    return client::JsonValueToCppValueHelper<client::JsonCppArray<CalendarListEntry > >(storage);
 }
 
-client::JsonCppArray<CalendarListEntry > CalendarList::mutable_items(){
+client::JsonCppArray<CalendarListEntry > CalendarList::mutable_items() {
   Json::Value* storage = MutableStorage("items");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<CalendarListEntry > >(storage);
 }

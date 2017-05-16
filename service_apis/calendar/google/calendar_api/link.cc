@@ -65,7 +65,7 @@ const DisplayInfo Link::get_display_info() const {
    return client::JsonValueToCppValueHelper<DisplayInfo >(storage);
 }
 
-DisplayInfo Link::mutable_displayInfo(){
+DisplayInfo Link::mutable_displayInfo() {
   Json::Value* storage = MutableStorage("displayInfo");
   return client::JsonValueToMutableCppValueHelper<DisplayInfo >(storage);
 }
@@ -75,7 +75,7 @@ const LaunchInfo Link::get_launch_info() const {
    return client::JsonValueToCppValueHelper<LaunchInfo >(storage);
 }
 
-LaunchInfo Link::mutable_launchInfo(){
+LaunchInfo Link::mutable_launchInfo() {
   Json::Value* storage = MutableStorage("launchInfo");
   return client::JsonValueToMutableCppValueHelper<LaunchInfo >(storage);
 }

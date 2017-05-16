@@ -64,7 +64,7 @@ const client::JsonCppArray<TimePeriod > FreeBusyCalendar::get_busy() const {
    return client::JsonValueToCppValueHelper<client::JsonCppArray<TimePeriod > >(storage);
 }
 
-client::JsonCppArray<TimePeriod > FreeBusyCalendar::mutable_busy(){
+client::JsonCppArray<TimePeriod > FreeBusyCalendar::mutable_busy() {
   Json::Value* storage = MutableStorage("busy");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<TimePeriod > >(storage);
 }
@@ -74,7 +74,7 @@ const client::JsonCppArray<Error > FreeBusyCalendar::get_errors() const {
    return client::JsonValueToCppValueHelper<client::JsonCppArray<Error > >(storage);
 }
 
-client::JsonCppArray<Error > FreeBusyCalendar::mutable_errors(){
+client::JsonCppArray<Error > FreeBusyCalendar::mutable_errors() {
   Json::Value* storage = MutableStorage("errors");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<Error > >(storage);
 }

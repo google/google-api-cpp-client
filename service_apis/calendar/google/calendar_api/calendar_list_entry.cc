@@ -66,7 +66,7 @@ const client::JsonCppArray<CalendarNotification > CalendarListEntry::CalendarLis
    return client::JsonValueToCppValueHelper<client::JsonCppArray<CalendarNotification > >(storage);
 }
 
-client::JsonCppArray<CalendarNotification > CalendarListEntry::CalendarListEntryNotificationSettings::mutable_notifications(){
+client::JsonCppArray<CalendarNotification > CalendarListEntry::CalendarListEntryNotificationSettings::mutable_notifications() {
   Json::Value* storage = MutableStorage("notifications");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<CalendarNotification > >(storage);
 }
@@ -96,7 +96,7 @@ const client::JsonCppArray<EventReminder > CalendarListEntry::get_default_remind
    return client::JsonValueToCppValueHelper<client::JsonCppArray<EventReminder > >(storage);
 }
 
-client::JsonCppArray<EventReminder > CalendarListEntry::mutable_defaultReminders(){
+client::JsonCppArray<EventReminder > CalendarListEntry::mutable_defaultReminders() {
   Json::Value* storage = MutableStorage("defaultReminders");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppArray<EventReminder > >(storage);
 }

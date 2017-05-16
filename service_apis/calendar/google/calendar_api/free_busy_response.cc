@@ -66,7 +66,7 @@ const client::JsonCppAssociativeArray<FreeBusyCalendar > FreeBusyResponse::get_c
    return client::JsonValueToCppValueHelper<client::JsonCppAssociativeArray<FreeBusyCalendar > >(storage);
 }
 
-client::JsonCppAssociativeArray<FreeBusyCalendar > FreeBusyResponse::mutable_calendars(){
+client::JsonCppAssociativeArray<FreeBusyCalendar > FreeBusyResponse::mutable_calendars() {
   Json::Value* storage = MutableStorage("calendars");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppAssociativeArray<FreeBusyCalendar > >(storage);
 }
@@ -76,7 +76,7 @@ const client::JsonCppAssociativeArray<FreeBusyGroup > FreeBusyResponse::get_grou
    return client::JsonValueToCppValueHelper<client::JsonCppAssociativeArray<FreeBusyGroup > >(storage);
 }
 
-client::JsonCppAssociativeArray<FreeBusyGroup > FreeBusyResponse::mutable_groups(){
+client::JsonCppAssociativeArray<FreeBusyGroup > FreeBusyResponse::mutable_groups() {
   Json::Value* storage = MutableStorage("groups");
   return client::JsonValueToMutableCppValueHelper<client::JsonCppAssociativeArray<FreeBusyGroup > >(storage);
 }
