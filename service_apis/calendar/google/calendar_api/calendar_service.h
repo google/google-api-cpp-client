@@ -107,7 +107,7 @@ class CalendarServiceBaseRequest
       const client::ClientService* service,
       client::AuthorizationCredential* credential,
       client::HttpRequest::HttpMethod method,
-      const string& uri_template);
+      const StringPiece& uri_template);
 
   /**
    * Standard destructor.
@@ -392,7 +392,7 @@ class CalendarServiceBaseRequest
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-      const string& variable_name,
+      const StringPiece& variable_name,
       const client::UriTemplateConfig& config,
       string* target);
 
@@ -480,7 +480,7 @@ class AclResource_DeleteMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -539,7 +539,7 @@ class AclResource_GetMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -612,7 +612,7 @@ class AclResource_InsertMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -825,7 +825,7 @@ class AclResource_ListMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -919,7 +919,7 @@ class AclResource_PatchMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -994,7 +994,7 @@ class AclResource_UpdateMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1210,7 +1210,7 @@ class AclResource_WatchMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1297,7 +1297,7 @@ class CalendarListResource_DeleteMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1353,7 +1353,7 @@ class CalendarListResource_GetMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1451,7 +1451,7 @@ class CalendarListResource_InsertMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1740,7 +1740,7 @@ class CalendarListResource_ListMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1865,7 +1865,7 @@ class CalendarListResource_PatchMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1976,7 +1976,7 @@ class CalendarListResource_UpdateMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2268,7 +2268,7 @@ class CalendarListResource_WatchMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2358,7 +2358,7 @@ class CalendarsResource_ClearMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2413,7 +2413,7 @@ class CalendarsResource_DeleteMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2469,7 +2469,7 @@ class CalendarsResource_GetMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2593,7 +2593,7 @@ class CalendarsResource_PatchMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2665,7 +2665,7 @@ class CalendarsResource_UpdateMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2859,7 +2859,7 @@ class EventsResource_DeleteMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3026,7 +3026,7 @@ class EventsResource_GetMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3140,7 +3140,7 @@ class EventsResource_ImportMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3305,7 +3305,7 @@ class EventsResource_InsertMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3684,7 +3684,7 @@ class EventsResource_InstancesMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4374,7 +4374,7 @@ class EventsResource_ListMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4522,7 +4522,7 @@ class EventsResource_MoveMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4724,7 +4724,7 @@ class EventsResource_PatchMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4840,7 +4840,7 @@ class EventsResource_QuickAddMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -5041,7 +5041,7 @@ class EventsResource_UpdateMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -5718,7 +5718,7 @@ class EventsResource_WatchMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -5885,7 +5885,7 @@ class SettingsResource_GetMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -6066,7 +6066,7 @@ class SettingsResource_ListMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -6266,7 +6266,7 @@ class SettingsResource_WatchMethod : public CalendarServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 

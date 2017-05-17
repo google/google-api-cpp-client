@@ -53,7 +53,7 @@ const char CalendarService::googleapis_API_NAME[] = {"calendar"};
 const char CalendarService::googleapis_API_VERSION[] = {"v3"};
 
 const char CalendarService::googleapis_API_GENERATOR[] = {
-  "google-apis-code-generator 1.5.1 / 0.1.5"};
+  "google-apis-code-generator 1.5.1 / 0.1.4"};
 
 
 const char CalendarService::SCOPES::CALENDAR[] = {"https://www.googleapis.com/auth/calendar"};
@@ -63,7 +63,7 @@ CalendarServiceBaseRequest::CalendarServiceBaseRequest(
       const client::ClientService* service,
       client::AuthorizationCredential* credential,
       client::HttpRequest::HttpMethod method,
-      const string& uri_template)
+      const StringPiece& uri_template)
     : client::ClientServiceRequest(
           service, credential, method, uri_template),
       alt_("json"),
@@ -81,7 +81,7 @@ CalendarServiceBaseRequest::~CalendarServiceBaseRequest() {
 }
 
 util::Status CalendarServiceBaseRequest::AppendVariable(
-    const string& variable_name,
+    const StringPiece& variable_name,
     const client::UriTemplateConfig& config,
     string* target) {
   return client::StatusInvalidArgument(
@@ -165,7 +165,7 @@ AclResource_DeleteMethod::~AclResource_DeleteMethod() {
 
 
 util::Status AclResource_DeleteMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -200,7 +200,7 @@ AclResource_GetMethod::~AclResource_GetMethod() {
 
 
 util::Status AclResource_GetMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -235,7 +235,7 @@ AclResource_InsertMethod::~AclResource_InsertMethod() {
 
 
 util::Status AclResource_InsertMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -295,7 +295,7 @@ util::Status AclResource_ListMethod::AppendOptionalQueryParameters(string* targe
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status AclResource_ListMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -326,7 +326,7 @@ AclResource_PatchMethod::~AclResource_PatchMethod() {
 
 
 util::Status AclResource_PatchMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -362,7 +362,7 @@ AclResource_UpdateMethod::~AclResource_UpdateMethod() {
 
 
 util::Status AclResource_UpdateMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -428,7 +428,7 @@ util::Status AclResource_WatchMethod::AppendOptionalQueryParameters(string* targ
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status AclResource_WatchMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -457,7 +457,7 @@ CalendarListResource_DeleteMethod::~CalendarListResource_DeleteMethod() {
 
 
 util::Status CalendarListResource_DeleteMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -486,7 +486,7 @@ CalendarListResource_GetMethod::~CalendarListResource_GetMethod() {
 
 
 util::Status CalendarListResource_GetMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -525,7 +525,7 @@ util::Status CalendarListResource_InsertMethod::AppendOptionalQueryParameters(st
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status CalendarListResource_InsertMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   return CalendarServiceBaseRequest::AppendVariable(
@@ -593,7 +593,7 @@ util::Status CalendarListResource_ListMethod::AppendOptionalQueryParameters(stri
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status CalendarListResource_ListMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   return CalendarServiceBaseRequest::AppendVariable(
@@ -628,7 +628,7 @@ util::Status CalendarListResource_PatchMethod::AppendOptionalQueryParameters(str
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status CalendarListResource_PatchMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -668,7 +668,7 @@ util::Status CalendarListResource_UpdateMethod::AppendOptionalQueryParameters(st
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status CalendarListResource_UpdateMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -742,7 +742,7 @@ util::Status CalendarListResource_WatchMethod::AppendOptionalQueryParameters(str
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status CalendarListResource_WatchMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   return CalendarServiceBaseRequest::AppendVariable(
@@ -766,7 +766,7 @@ CalendarsResource_ClearMethod::~CalendarsResource_ClearMethod() {
 
 
 util::Status CalendarsResource_ClearMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -795,7 +795,7 @@ CalendarsResource_DeleteMethod::~CalendarsResource_DeleteMethod() {
 
 
 util::Status CalendarsResource_DeleteMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -824,7 +824,7 @@ CalendarsResource_GetMethod::~CalendarsResource_GetMethod() {
 
 
 util::Status CalendarsResource_GetMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -869,7 +869,7 @@ CalendarsResource_PatchMethod::~CalendarsResource_PatchMethod() {
 
 
 util::Status CalendarsResource_PatchMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -899,7 +899,7 @@ CalendarsResource_UpdateMethod::~CalendarsResource_UpdateMethod() {
 
 
 util::Status CalendarsResource_UpdateMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -968,7 +968,7 @@ util::Status EventsResource_DeleteMethod::AppendOptionalQueryParameters(string* 
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_DeleteMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1027,7 +1027,7 @@ util::Status EventsResource_GetMethod::AppendOptionalQueryParameters(string* tar
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_GetMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1072,7 +1072,7 @@ util::Status EventsResource_ImportMethod::AppendOptionalQueryParameters(string* 
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_ImportMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1126,7 +1126,7 @@ util::Status EventsResource_InsertMethod::AppendOptionalQueryParameters(string* 
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_InsertMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1222,7 +1222,7 @@ util::Status EventsResource_InstancesMethod::AppendOptionalQueryParameters(strin
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_InstancesMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1385,7 +1385,7 @@ util::Status EventsResource_ListMethod::AppendOptionalQueryParameters(string* ta
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_ListMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1430,7 +1430,7 @@ util::Status EventsResource_MoveMethod::AppendOptionalQueryParameters(string* ta
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_MoveMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1497,7 +1497,7 @@ util::Status EventsResource_PatchMethod::AppendOptionalQueryParameters(string* t
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_PatchMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1546,7 +1546,7 @@ util::Status EventsResource_QuickAddMethod::AppendOptionalQueryParameters(string
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_QuickAddMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1608,7 +1608,7 @@ util::Status EventsResource_UpdateMethod::AppendOptionalQueryParameters(string* 
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_UpdateMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1772,7 +1772,7 @@ util::Status EventsResource_WatchMethod::AppendOptionalQueryParameters(string* t
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status EventsResource_WatchMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "calendarId") {
@@ -1816,7 +1816,7 @@ SettingsResource_GetMethod::~SettingsResource_GetMethod() {
 
 
 util::Status SettingsResource_GetMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "setting") {
@@ -1868,7 +1868,7 @@ util::Status SettingsResource_ListMethod::AppendOptionalQueryParameters(string* 
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status SettingsResource_ListMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   return CalendarServiceBaseRequest::AppendVariable(
@@ -1916,7 +1916,7 @@ util::Status SettingsResource_WatchMethod::AppendOptionalQueryParameters(string*
   return CalendarServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status SettingsResource_WatchMethod::AppendVariable(
-        const string& variable_name,
+        const StringPiece& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   return CalendarServiceBaseRequest::AppendVariable(

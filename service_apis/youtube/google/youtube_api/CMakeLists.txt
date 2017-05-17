@@ -38,7 +38,6 @@ add_library(google_youtube_api STATIC
             channel_content_owner_details.cc
             channel_conversion_ping.cc
             channel_conversion_pings.cc
-            channel_id.cc
             channel_list_response.cc
             channel_localization.cc
             channel_profile_details.cc
@@ -95,12 +94,21 @@ add_library(google_youtube_api STATIC
             live_chat_fan_funding_event_details.cc
             live_chat_message.cc
             live_chat_message_author_details.cc
+            live_chat_message_deleted_details.cc
             live_chat_message_list_response.cc
+            live_chat_message_retracted_details.cc
             live_chat_message_snippet.cc
             live_chat_moderator.cc
             live_chat_moderator_list_response.cc
             live_chat_moderator_snippet.cc
+            live_chat_poll_closed_details.cc
+            live_chat_poll_edited_details.cc
+            live_chat_poll_item.cc
+            live_chat_poll_opened_details.cc
+            live_chat_poll_voted_details.cc
+            live_chat_super_chat_details.cc
             live_chat_text_message_details.cc
+            live_chat_user_banned_message_details.cc
             live_stream.cc
             live_stream_configuration_issue.cc
             live_stream_content_details.cc
@@ -139,6 +147,9 @@ add_library(google_youtube_api STATIC
             subscription_list_response.cc
             subscription_snippet.cc
             subscription_subscriber_snippet.cc
+            super_chat_event.cc
+            super_chat_event_list_response.cc
+            super_chat_event_snippet.cc
             thumbnail.cc
             thumbnail_details.cc
             thumbnail_set_response.cc
@@ -155,8 +166,6 @@ add_library(google_youtube_api STATIC
             video_category_snippet.cc
             video_content_details.cc
             video_content_details_region_restriction.cc
-            video_conversion_ping.cc
-            video_conversion_pings.cc
             video_file_details.cc
             video_file_details_audio_stream.cc
             video_file_details_video_stream.cc
