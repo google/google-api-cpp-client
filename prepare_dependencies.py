@@ -664,11 +664,11 @@ class PackageInstaller(object):
 class MongoosePackageInstaller(PackageInstaller):
   """Custom installer for the Mongoose package."""
 
-  def __init__(self, config, url):
+  def __init__(self, config, url, package_path='mongoose'):
     """Standard PackageInstaller initializer."""
     super(MongoosePackageInstaller, self).__init__(config, url)
     self._config_type = CMAKE_CONFIG
-    self._package_path = os.path.join(self._config.download_dir, 'mongoose')
+    self._package_path = os.path.join(self._config.download_dir, package_path)
 
   def MaybeTweakAfterUnpackage(self):
     """Creates a CMakeLists.txt file for building the package."""
@@ -1094,9 +1094,10 @@ class Installer(object):
         # Mongoose is used as webserver for samples.
         # The ownership and license style seems to keep changing, so we do not
         # download it by default.
-        #'mongoose': (MongoosePackageInstaller(
-        #    config,
-        #   'https://github.com/cesanta/mongoose/archive/master.zip')),
+        'mongoose': (MongoosePackageInstaller(
+          config,
+          'https://github.com/cesanta/mongoose/archive/6.7.zip',
+          'mongoose-6.7')),
 
         'curl': (CurlPackageInstaller(
             config, 'https://github.com/curl/curl/releases/download/curl-7_54_0/curl-7.54.0.tar.gz')),

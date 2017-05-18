@@ -34,6 +34,9 @@ add_library(google_drive_api STATIC
             property_list.cc
             revision.cc
             revision_list.cc
+            start_page_token.cc
+            team_drive.cc
+            team_drive_list.cc
             user.cc
             drive_service.cc)
 target_link_libraries(google_drive_api googleapis_http)

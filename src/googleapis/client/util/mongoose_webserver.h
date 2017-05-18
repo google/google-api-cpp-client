@@ -163,7 +163,7 @@ class MongooseWebServer : public AbstractWebServer {
  private:
   const string kSslCertificateOption;
   std::map<string, string> options_;
-  struct mg_callbacks callbacks_;
+  struct mg_callbacks* callbacks_;
   struct mg_context* mg_context_;
 
   static int BeginRequestHandler(struct mg_connection* conn);
