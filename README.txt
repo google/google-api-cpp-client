@@ -29,12 +29,14 @@ the source code given only:
     ./prepare_dependencies.py
     mkdir build && cd build
     ../external_dependencies/install/bin/cmake ..
-    make all
-    make test
-    make install
+    make calendar_sample
 
 To download additional APIs specialized for individual Google Services see:
-http://google.github.io/google-api-cpp-client/latest/available_service_apis.html
+http://google.github.io/google-api-cpp-client/latest/available_service_apis.htlm
+and use this precise version of the apis client generator:
+https://github.com/google/apis-client-generator/tree/6b13208a5d2c3e00161636a86a19cb5cc9b2519b
+Here's an example invocation:
+$ python apis-client-generator/src/googleapis/codegen/generate_library.py --api_name=drive --api_version=v2 --language=cpp --output_dir=/tmp/generated
 
 It should be possible to build this from existing installed libraries.
 However, the build scripts are not yet written to find them. For initial
