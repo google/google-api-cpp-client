@@ -19,11 +19,13 @@
 #ifndef GOOGLEAPIS_AUTH_JWT_BUILDER_H_
 #define GOOGLEAPIS_AUTH_JWT_BUILDER_H_
 
+#include <openssl/evp.h>
 #include <string>
 using std::string;
 
+#include "googleapis/strings/stringpiece.h"
 #include "googleapis/util/status.h"
-#include <openssl/base.h>
+
 namespace googleapis {
 
 namespace client {

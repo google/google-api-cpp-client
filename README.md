@@ -12,12 +12,14 @@ The Doxygen-generated API reference is available online at:
 For the current Google APIs Client Library for C++ see:
   http://github.com/google/google-api-cpp-client/
 
-The current installation has only been tested on Unix/Linux systems and OS/X.
+The current installation has only been tested on Unix/Linux systems.
 This release does not support Windows yet. The following sequence of
 actions should result in a turnkey build of the client libraries from
 the source code given only:
 
-## Prerequisites:
+## Building
+
+### Prerequisites:
 * python   (Available from http://www.python.org/getit/)
   - verified with versions 2.6.4 and 2.7.3
 * C++ compiler and Make
@@ -28,11 +30,19 @@ the source code given only:
   - or run ./prepare_dependencies.py cmake
     and restart your shell to get the updated path.
 
-## Bootstrap Steps:
+### Build Steps:
+
     ./prepare_dependencies.py
     mkdir build && cd build
     ../external_dependencies/install/bin/cmake ..
-    make calendar_sample
+    make
+
+## Running the Samples
+
+See [src/samples/README.md](src/samples/README.md)
+
+
+## Building Clients for Other APIs
 
 To download additional APIs specialized for individual Google Services see:
 http://google.github.io/google-api-cpp-client/latest/available_service_apis.html

@@ -89,6 +89,7 @@ class ConfigInfo(object):
     self._build_packages = False
     self._install_packages = False
     self._force = False
+    self._debug = False
     self._download_dir = os.path.join(abs_root_dir, 'external_dependencies')
     self._abs_install_dir = '%s' % os.path.join(
         os.getcwd(), os.path.join('external_dependencies', 'install'))
@@ -135,6 +136,8 @@ class ConfigInfo(object):
           self._abs_install_dir = '%s' % arg
         else:
           self._abs_install_dir = os.path.join('%s' % os.getcwd(), arg)
+      elif opt == '--debug':
+        self._debug = True
 
     if do_all:
       self._build_packages = True
@@ -209,7 +212,8 @@ class ConfigInfo(object):
     else:
       program = os.path.join(self._abs_install_dir, 'bin', 'cmake')
       args = ''
-
+    if self._debug:
+      args += ' -DCMAKE_BUILD_TYPE=Debug'
     return (program, args)
 
   @property
@@ -1143,7 +1147,8 @@ if __name__ == '__main__':
   restricted_packages = []
   try:
     opts, restricted_packages = getopt.getopt(
-        sys.argv[1:], 'bdi', ['download_dir=', 'install_dir=', 'force'])
+        sys.argv[1:], 'bdi', ['download_dir=', 'install_dir=', 'force',
+                              'debug'])
     config_info.SetOptions(opts)
   except getopt.GetoptError:
     print ('%s: [-b] [-d] [-i]' % sys.argv[0]
