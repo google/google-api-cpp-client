@@ -655,7 +655,7 @@ class SampleWebApplication {
     CHECK(config_.get()) << "Must InitTransportLayer first";
 
     googleapis::util::Status status;
-    flow_.reset(OAuth2AuthorizationFlow::MakeFlowFromClientSecretsPath(
+    flow_.reset(OAuth2AuthorizationFlow::MakeFlowFromClientSecretsJson(
         FLAGS_client_secrets_path,
         config_->NewDefaultTransportOrDie(),
         &status));
