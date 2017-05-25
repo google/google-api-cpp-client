@@ -1,17 +1,5 @@
 # Google API C++ Client
 
-For more information regarding installation, consult the following document:
-  http://google.github.io/google-api-cpp-client/latest/start/installation.html
-
-To get started using the Google APIs Client Library for C++ see:
-  http://google.github.io/google-api-cpp-client/latest/start/get_started.html
-
-The Doxygen-generated API reference is available online at:
-  http://google.github.io/google-api-cpp-client/latest/doxygen/index.html
-
-For the current Google APIs Client Library for C++ see:
-  http://github.com/google/google-api-cpp-client/
-
 The current installation has only been tested on Unix/Linux systems.
 This release does not support Windows yet. The following sequence of
 actions should result in a turnkey build of the client libraries from
