@@ -55,25 +55,6 @@ install(FILES util/date_time.h
               util/uri_utils.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/util)
 
-if (HAVE_MONGOOSE)
-add_library(googleapis_mongoose STATIC
-            util/abstract_webserver.cc
-            util/mongoose_webserver.cc
-            auth/webserver_authorization_getter.cc)
-target_link_libraries(googleapis_mongoose googleapis_oauth2)
-target_link_libraries(googleapis_mongoose googleapis_utils)
-target_link_libraries(googleapis_mongoose ${GLOG_LIBRARY})
-target_link_libraries(googleapis_mongoose mongoose)
-if (MSVC)
-else()
-target_link_libraries(googleapis_mongoose dl)  # for mongoose
-endif()
-install(TARGETS googleapis_mongoose DESTINATION
-                ${GOOGLEAPIS_INSTALL_LIB_DIR})
-install(FILES util/mongoose_webserver.h
-        DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/util)
-endif (HAVE_MONGOOSE)
-
 install(FILES auth/oauth2_pending_authorizations.h
         DESTINATION ${GOOGLEAPIS_INSTALL_INCLUDE_DIR}/client/auth)
 
