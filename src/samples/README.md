@@ -16,8 +16,6 @@ billing.
     deployment, access control, billing, and services.
     1.  Open the [Cloud Platform Console](https://console.cloud.google.com/).
     2.  In the drop-down menu at the top, select **Create a project**.
-    3.  Click **Show advanced options**. Under App Engine location, select a
-        United States location.
     4.  Give your project a name.
     5.  Make a note of the project ID, which might be different from the project
         name. The project ID is used in commands and in configurations.
@@ -43,8 +41,10 @@ credentials to authenticate with the Cloud Storage API.
 2.  **Download credentials**.
 
     1.  [Visit the API Manager Dashboard](https://console.cloud.google.com/apis/dashboard)
-        and click **Credentials**.  
+        and click **Credentials** in the left navigation.  
+
     2.  Click **Create credentials** and choose **Service Account key**.
+
     3.  Under Service account, choose **Compute Engine default service
         account**, and leave **JSON** selected under Key Type.  Click
         **Create**.  A .json file will be downloaded to your computer.
@@ -66,9 +66,13 @@ you (your Google Cloud Project), and the user.
 
 1.  **Enable APIs.**
 
-    Visit the [Google Cloud Console API Manager](
-        https://console.cloud.google.com/apis/api/calendar-json.googleapis.com/overview)
-    and click **Enable** to enable the Google Calendar API.
+    1. Visit the [Google Cloud Console API Manager](
+        https://console.cloud.google.com/apis).
+
+    2. Under **G Suite APIs**, click **Calendar API**.
+
+    3. Click **Enable** to enable the Google Calendar API.
+
 
 2.  **Download credentials**.
 
@@ -108,7 +112,7 @@ you (your Google Cloud Project), and the user.
     (or restore from an earlier run) then enter a Google Email Address.
     Otherwise just press return.
 
-    Address: 
+    Address: [PRESS ENTER]
     Enter the following URL into a browser:
     https://accounts.google.com/o/oauth2/auth?client_id=19279605555-2gdkn11eoiq3m1st0p4ilv6mqqm3rir1.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&response_type=code
 
@@ -120,12 +124,12 @@ you (your Google Cloud Project), and the user.
     SAMPLE:  Showing Initial Calendars
     ====  CalendarList  ====
     CalendarListEntry
-        ID: XXX@google.com
-        Summary:XXX@google.com
+        ID: XXX@gmail.com
+        Summary:XXX@gmail.com
 
     CalendarListEntry
-        ID: YYY@google.com
-        Summary: YYY@google.com
+        ID: YYY@gmail.com
+        Summary: YYY@gmail.com
 
 
     SAMPLE:  Adding Calendar

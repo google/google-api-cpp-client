@@ -65,7 +65,7 @@ using google_storage_api::StorageService;
 using client::HttpTransport;
 using client::HttpTransportLayerConfig;
 using client::OAuth2Credential;
-using client::OAuth2AuthorizationFlow;
+using client::OAuth2ServiceAccountFlow;
 #if HAVE_OPENSSL
 using client::OpenSslCodecFactory;
 #endif
@@ -80,7 +80,7 @@ class StorageSample {
 
   OAuth2Credential credential_;
   std::unique_ptr<StorageService> storage_;
-  std::unique_ptr<OAuth2AuthorizationFlow> flow_;
+  std::unique_ptr<OAuth2ServiceAccountFlow> flow_;
   std::unique_ptr<HttpTransportLayerConfig> config_;
 };
 
@@ -116,7 +116,7 @@ util::Status StorageSample::Startup(int argc, char* argv[]) {
 void StorageSample::Run() {
   credential_.set_flow(flow_.get());
   google_storage_api::BucketsResource_ListMethod request(
-      storage_.get(), &credential_, "bookshelf-dotnet");
+      storage_.get(), &credential_, flow_->project_id());
   Json::Value value;
   google_storage_api::Buckets buckets(&value);
   auto status = request.ExecuteAndParseResponse(&buckets);

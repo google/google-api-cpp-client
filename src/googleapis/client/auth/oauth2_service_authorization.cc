@@ -85,6 +85,9 @@ util::Status OAuth2ServiceAccountFlow::InitFromJsonData(
   GetStringAttribute(data, "private_key", &private_key_);
   VLOG(4) << "private_key: " << private_key_.substr(0, 40) << "...";
 
+  GetStringAttribute(data, "project_id", &project_id_);
+  VLOG(4) << "project_id: " << project_id_;
+
   return StatusOk();
 }
 

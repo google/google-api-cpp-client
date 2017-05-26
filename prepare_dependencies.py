@@ -1098,10 +1098,10 @@ class Installer(object):
         # Mongoose is used as webserver for samples.
         # The ownership and license style seems to keep changing, so we do not
         # download it by default.
-        'mongoose': (MongoosePackageInstaller(
-          config,
-          'https://github.com/cesanta/mongoose/archive/6.7.zip',
-          'mongoose-6.7')),
+        # 'mongoose': (MongoosePackageInstaller(
+        #   config,
+        #   'https://github.com/cesanta/mongoose/archive/6.7.zip',
+        #   'mongoose-6.7')),
 
         'curl': (CurlPackageInstaller(
             config, 'https://github.com/curl/curl/releases/download/curl-7_54_0/curl-7.54.0.tar.gz')),

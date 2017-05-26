@@ -61,6 +61,11 @@ class OAuth2ServiceAccountFlow : public OAuth2AuthorizationFlow {
   const string& client_email() const         { return client_email_; }
 
   /*
+   * Returns the project_id contained in the service account json file.
+   */
+  const string& project_id() const           { return project_id_; }
+
+  /*
    * Sets the path of a Pkcs12 private key (typically from the API console).
    *
    * The actual key will be loaded later as needed but kept on disk.
@@ -94,6 +99,7 @@ class OAuth2ServiceAccountFlow : public OAuth2AuthorizationFlow {
   string client_email_;
   string private_key_;  // typically disjoint with p12_path_
   string p12_path_;     // typically disjoint with private_key_
+  string project_id_;
 
   googleapis::util::Status MakeJwt(const string& claims, string* jwt) const;
   DISALLOW_COPY_AND_ASSIGN(OAuth2ServiceAccountFlow);

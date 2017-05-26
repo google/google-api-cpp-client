@@ -1,7 +1,7 @@
 # Google API C++ Client
 
-The current installation has only been tested on Unix/Linux systems.
-This release does not support Windows yet. The following sequence of
+The current installation has only been tested on Unix/Linux systems;
+this release does not support Windows yet. The following sequence of
 actions should result in a turnkey build of the client libraries from
 the source code given only:
 
@@ -13,10 +13,6 @@ the source code given only:
 * C++ compiler and Make
   - Mac OSX https://developer.apple.com/xcode/
   - Linux   http://gcc.gnu.org/
-* CMake
-  - Either http://www.cmake.org/cmake/resources/software.html
-  - or run ./prepare_dependencies.py cmake
-    and restart your shell to get the updated path.
 
 ### Build Steps:
 
