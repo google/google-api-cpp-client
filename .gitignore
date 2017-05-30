@@ -13,3 +13,6 @@ bin
 lib
 export
 local.cmake
+build/
+.vscode/
+.idea/

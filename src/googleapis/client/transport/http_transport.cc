@@ -176,6 +176,11 @@ bool HttpTransportErrorHandler::HandleHttpError(
         googleapis::util::Status status = credential->Refresh();
         if (status.ok()) {
           VLOG(2) << "Refreshed credential";
+          status = request->PrepareToReuse();
+          if (!status.ok()) {
+            LOG(ERROR) << "Failed to reuse HTTP request.";
+            return false;
+          }
           status = credential->AuthorizeRequest(request);
           if (status.ok()) {
             VLOG(1) << "Re-authorized credential";

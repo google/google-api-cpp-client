@@ -33,7 +33,6 @@
 #include "googleapis/client/util/uri_utils.h"
 #include "googleapis/client/util/status.h"
 #include <glog/logging.h>
-#include "googleapis/strings/escaping.h"
 #include "googleapis/strings/strcat.h"
 #include "googleapis/util/file.h"
 #include <openssl/ossl_typ.h>
@@ -81,6 +80,13 @@ util::Status OAuth2ServiceAccountFlow::InitFromJsonData(
   if (!GetStringAttribute(data, "client_email", &client_email_)) {
     return StatusInvalidArgument(StrCat("Missing client_email attribute"));
   }
+  VLOG(4) << "client_email: " << client_email_;
+
+  GetStringAttribute(data, "private_key", &private_key_);
+  VLOG(4) << "private_key: " << private_key_.substr(0, 40) << "...";
+
+  GetStringAttribute(data, "project_id", &project_id_);
+  VLOG(4) << "project_id: " << project_id_;
 
   return StatusOk();
 }
@@ -88,9 +94,11 @@ util::Status OAuth2ServiceAccountFlow::InitFromJsonData(
 util::Status OAuth2ServiceAccountFlow::PerformRefreshToken(
     const OAuth2RequestOptions& options, OAuth2Credential* credential) {
   string claims = MakeJwtClaims(options);
+  VLOG(4) << "JWT claims: " << claims;
   string jwt;
 
   googleapis::util::Status status = MakeJwt(claims, &jwt);
+  VLOG(4) << "JWT: " << jwt;
   if (!status.ok()) return status;
 
   string grant_type = "urn:ietf:params:oauth:grant-type:jwt-bearer";
