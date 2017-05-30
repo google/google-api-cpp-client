@@ -1,5 +1,5 @@
 /*
- * \copyright Copyright 2013 Google Inc. All Rights Reserved.
+ * \copyright Copyright 2017 Google Inc. All Rights Reserved.
  * \license @{
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,6 +38,8 @@
 namespace googleapis {
 
 static const char usage[] =
+    "List bucket links.\n"
+    "\n"
     "This is a sample application illustrating the use of the GoogleApis C++\n"
     "Client. The application makes calls into the Google Cloud Storage API.\n"
     "The application itself is not particularly useful, rather it just\n"
@@ -103,9 +105,12 @@ util::Status StorageSample::Startup(int argc, char* argv[]) {
   // Set up OAuth 2.0 flow for a service account.
   flow_.reset(new client::OAuth2ServiceAccountFlow(
       config_->NewDefaultTransportOrDie()));
+  // Load the the contents of the service_account.json into a string.
   string json(std::istreambuf_iterator<char>(std::ifstream(argv[1]).rdbuf()),
               std::istreambuf_iterator<char>());
+  // Initialize the flow with the contents of service_account.json.
   flow_->InitFromJson(json);
+  // Tell the flow exactly which scopes (priveleges) we need.
   flow_->set_default_scopes(StorageService::SCOPES::DEVSTORAGE_READ_ONLY);
 
   storage_.reset(new StorageService(config_->NewDefaultTransportOrDie()));
@@ -114,11 +119,15 @@ util::Status StorageSample::Startup(int argc, char* argv[]) {
 
 
 void StorageSample::Run() {
+  // Connect the credential passed to ListBuckets() with the AuthFlow
+  // constructed in Startup().
   credential_.set_flow(flow_.get());
+  // Construct the request.
   google_storage_api::BucketsResource_ListMethod request(
       storage_.get(), &credential_, flow_->project_id());
   Json::Value value;
   google_storage_api::Buckets buckets(&value);
+  // Execute the request.
   auto status = request.ExecuteAndParseResponse(&buckets);
   if (!status.ok()) {
     std::cout << "Could not list buckets: " << status.error_message()
@@ -135,6 +144,7 @@ using namespace googleapis;
 int main(int argc, char* argv[]) {
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, true);
+
   StorageSample sample;
   googleapis::util::Status status = sample.Startup(argc, argv);
   if (!status.ok()) {

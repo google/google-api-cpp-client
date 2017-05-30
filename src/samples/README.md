@@ -53,7 +53,7 @@ credentials to authenticate with the Cloud Storage API.
 
     Pass the path of the .json file you downloaded to the storage_sample:
 
-        $ bin/storage_sample ~/Downloads/your-project-id-1cf578086929.json
+        $ bin/storage_sample path/to/service_account.json
         https://www.googleapis.com/storage/v1/b/1gallon
         https://www.googleapis.com/storage/v1/b/2gallon
         https://www.googleapis.com/storage/v1/b/5gallon
@@ -103,7 +103,7 @@ you (your Google Cloud Project), and the user.
     Pass the client secret file path to `calendar_sample`.
 
     ```
-    $ bin/calendar_sample ~/Downloads/client_secret_19279605555-2gdkn11eoiq3m1st0p4ilv6mqqm3rir1.apps.googleusercontent.com.json 
+    $ bin/calendar_sample path/to/client_secret.json
     SAMPLE:  Getting User Authorization
 
     Welcome to the Google APIs for C++ CalendarSample.
@@ -114,11 +114,9 @@ you (your Google Cloud Project), and the user.
 
     Address: [PRESS ENTER]
     Enter the following URL into a browser:
-    https://accounts.google.com/o/oauth2/auth?client_id=19279605555-2gdkn11eoiq3m1st0p4ilv6mqqm3rir1.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&response_type=code
+    https://accounts.google.com/o/oauth2/auth?client_id=xyz.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar&response_type=code
 
-    Enter the browser's response to confirm authorization: 4/5Yyb8nGWRLTeTnkiCOUmNlYIbWHTXTtwCZVEAkgGk5o
-    WARNING: Logging before InitGoogleLogging() is written to STDERR
-    I0525 11:08:27.601979 31586 curl_http_transport.cc:238] Using cacerts from /usr/local/google/home/rennie/gitrepos/google-api-cpp-client/build/bin/roots.pem
+    Enter the browser's response to confirm authorization: 4/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     Authorized 
 
     SAMPLE:  Showing Initial Calendars
