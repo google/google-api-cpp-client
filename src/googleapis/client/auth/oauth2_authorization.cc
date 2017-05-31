@@ -301,8 +301,7 @@ util::Status OAuth2Credential::UpdateFromString(const string& json) {
     access_token_.set(str_value);
     VLOG(1) << "Updating access token";
   }
-  if (data.GetString("expires_at", &str_value)
-      || data.GetString("exp", &str_value)) {
+  if (data.GetString("expires_at", &str_value)) {
     int64 timestamp;
     if (!safe_strto64(str_value.c_str(), &timestamp)) {
       LOG(ERROR) << "Invalid timestamp=[" << str_value << "]";
@@ -310,6 +309,9 @@ util::Status OAuth2Credential::UpdateFromString(const string& json) {
       expiration_timestamp_secs_.set(timestamp);
       VLOG(1) << "Updating access token expiration";
     }
+  } else if (data.GetScalar("exp", &int_value)) {
+    expiration_timestamp_secs_.set(int_value);
+    VLOG(1) << "Updating access token expiration";
   } else if (data.GetScalar("expires_in", &int_value)) {
     int64 now = DateTime().ToEpochTime();
     int64 expiration = now + int_value;
