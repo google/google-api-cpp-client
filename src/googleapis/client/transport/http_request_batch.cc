@@ -301,9 +301,14 @@ const char DEFAULT_BATCH_REQUEST_URL[] = "https://www.googleapis.com/batch";
 }  // anonymous namespace
 
 HttpRequestBatch::HttpRequestBatch(HttpTransport* transport)
+: HttpRequestBatch(transport, DEFAULT_BATCH_REQUEST_URL) {
+}
+
+HttpRequestBatch::HttpRequestBatch(HttpTransport* transport,
+                                   const std::string& batch_url)
     : http_request_(transport->NewHttpRequest(HttpRequest::POST)),
       boundary_("bAtch bOundAry") {
-  http_request_->set_url(DEFAULT_BATCH_REQUEST_URL);
+  http_request_->set_url(batch_url);
 
   // If we are scribing a transcript then dont show the details of this
   // low level message because we'll already be showing the high level batch

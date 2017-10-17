@@ -554,7 +554,7 @@ void CalendarSample::Run() {
 
   std::cout << std::endl
             << "Adding bulk events using a batch request" << std::endl;
-  HttpRequestBatch batch(service_->transport());
+  HttpRequestBatch batch(service_->transport(), service_->batch_url());
   batch.mutable_http_request()->set_credential(&credential_);
 
   for (int i = 0; i < 10; ++i) {

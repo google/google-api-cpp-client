@@ -89,6 +89,16 @@ class HttpRequestBatch {
   explicit HttpRequestBatch(HttpTransport* transport);
 
   /*
+   * Constructs a new HttpRequest that is a collection of requests to batch.
+   *
+   * @param[in] transport The caller retains ownership of the transport.
+   *                      This transport will be used to create the underlying
+   *                      HTTP messaging that contains the batch messages.
+   * @param[in] batch_url The specific endpoint to send requests to.
+   */
+  
+  HttpRequestBatch(HttpTransport* transport, const std::string& batch_url);
+  /*
    * Standard destructor.
    */
   virtual ~HttpRequestBatch();

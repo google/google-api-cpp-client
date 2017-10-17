@@ -344,6 +344,10 @@ void ClientService::ChangeServiceUrl(
                   .substr(url_root_.size(), url_path.size() - url_path_trim);
 }
 
+std::string ClientService::batch_url() const {
+  return JoinPath(url_root_, string(batch_path_));
+}
+
 }  // namespace client
 
 }  // namespace googleapis

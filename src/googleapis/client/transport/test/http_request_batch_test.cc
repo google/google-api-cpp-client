@@ -413,4 +413,14 @@ TEST_F(BatchTestFixture, TestOutOfOrderResponse) {
   CheckResponse(tests, batch->requests());
 }
 
+TEST_F(BatchTestFixture, TestPerApiEndpointCtor) {
+  MockHttpRequest* mock_request =
+      new MockHttpRequest(HttpRequest::POST, &transport_);
+  EXPECT_CALL(transport_, NewHttpRequest(HttpRequest::POST))
+      .WillOnce(Return(mock_request));
+  std::unique_ptr<HttpRequestBatch> batch(
+      new HttpRequestBatch(&transport_, "https://google.com/myapi/batch"));
+  EXPECT_EQ("https://google.com/myapi/batch", batch->http_request().url());
+}
+
 }  // namespace googleapis
