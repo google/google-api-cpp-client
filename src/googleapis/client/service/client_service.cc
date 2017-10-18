@@ -252,7 +252,7 @@ util::Status ClientServiceRequest::ParseResponse(
 }
 
 util::Status ClientServiceRequest::AppendVariable(
-    const StringPiece& variable_name, const UriTemplateConfig& config,
+    const string& variable_name, const UriTemplateConfig& config,
     string* target) {
   LOG(FATAL) << "Either override AppendVariable or PrepareHttpRequest";
   return StatusUnimplemented("Internal error");
