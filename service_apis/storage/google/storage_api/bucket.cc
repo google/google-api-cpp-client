@@ -84,6 +84,27 @@ Bucket::BucketCors::~BucketCors() {
 
 // Properties.
 
+// Object factory method (static).
+Bucket::BucketEncryption* Bucket::BucketEncryption::New() {
+  return new client::JsonCppCapsule<BucketEncryption>;
+}
+
+// Standard immutable constructor.
+Bucket::BucketEncryption::BucketEncryption(const Json::Value& storage)
+  : client::JsonCppData(storage) {
+}
+
+// Standard mutable constructor.
+Bucket::BucketEncryption::BucketEncryption(Json::Value* storage)
+  : client::JsonCppData(storage) {
+}
+
+// Standard destructor.
+Bucket::BucketEncryption::~BucketEncryption() {
+}
+
+// Properties.
+
 
 
 // Object factory method (static).

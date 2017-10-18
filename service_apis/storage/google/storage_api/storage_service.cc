@@ -51,12 +51,12 @@
 
 namespace google_storage_api {
 using namespace googleapis;
-const char StorageService::googleapis_API_NAME[] = {"storage"};
+const char StorageService::googleapis_API_NAME[] = { "storage" };
 
-const char StorageService::googleapis_API_VERSION[] = {"v1"};
+const char StorageService::googleapis_API_VERSION[] = { "v1" };
 
 const char StorageService::googleapis_API_GENERATOR[] = {
-  "google-apis-code-generator 1.5.1 / 0.1.4"};
+  "google-apis-code-generator 1.5.1 / 0.1.5"};
 
 
 const char StorageService::SCOPES::CLOUD_PLATFORM[] = {"https://www.googleapis.com/auth/cloud-platform"};
@@ -72,7 +72,7 @@ StorageServiceBaseRequest::StorageServiceBaseRequest(
       const client::ClientService* service,
       client::AuthorizationCredential* credential,
       client::HttpRequest::HttpMethod method,
-      const StringPiece& uri_template)
+      const string& uri_template)
     : client::ClientServiceRequest(
           service, credential, method, uri_template),
       alt_("json"),
@@ -90,7 +90,7 @@ StorageServiceBaseRequest::~StorageServiceBaseRequest() {
 }
 
 util::Status StorageServiceBaseRequest::AppendVariable(
-    const StringPiece& variable_name,
+    const string& variable_name,
     const client::UriTemplateConfig& config,
     string* target) {
   return client::StatusInvalidArgument(
@@ -184,7 +184,7 @@ util::Status BucketAccessControlsResource_DeleteMethod::AppendOptionalQueryParam
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketAccessControlsResource_DeleteMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -229,7 +229,7 @@ util::Status BucketAccessControlsResource_GetMethod::AppendOptionalQueryParamete
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketAccessControlsResource_GetMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -274,7 +274,7 @@ util::Status BucketAccessControlsResource_InsertMethod::AppendOptionalQueryParam
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketAccessControlsResource_InsertMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -313,7 +313,7 @@ util::Status BucketAccessControlsResource_ListMethod::AppendOptionalQueryParamet
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketAccessControlsResource_ListMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -354,7 +354,7 @@ util::Status BucketAccessControlsResource_PatchMethod::AppendOptionalQueryParame
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketAccessControlsResource_PatchMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -400,7 +400,7 @@ util::Status BucketAccessControlsResource_UpdateMethod::AppendOptionalQueryParam
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketAccessControlsResource_UpdateMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -458,7 +458,7 @@ util::Status BucketsResource_DeleteMethod::AppendOptionalQueryParameters(string*
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketsResource_DeleteMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -518,7 +518,7 @@ util::Status BucketsResource_GetMethod::AppendOptionalQueryParameters(string* ta
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketsResource_GetMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -557,7 +557,7 @@ util::Status BucketsResource_GetIamPolicyMethod::AppendOptionalQueryParameters(s
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketsResource_GetIamPolicyMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -580,7 +580,8 @@ BucketsResource_InsertMethod::BucketsResource_InsertMethod(
       project_(project.as_string()),
       _have_predefined_acl_(false),
       _have_predefined_default_object_acl_(false),
-      _have_projection_(false) {
+      _have_projection_(false),
+      _have_user_project_(false) {
   AddJsonContentToRequest(&__request_content__);
 }
 
@@ -612,10 +613,16 @@ util::Status BucketsResource_InsertMethod::AppendOptionalQueryParameters(string*
                 projection_));
     sep = "&";
   }
+  if (_have_user_project_) {
+    StrAppend(target, sep, "userProject=",
+              client::CppValueToEscapedUrlValue(
+                user_project_));
+    sep = "&";
+  }
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketsResource_InsertMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   return StorageServiceBaseRequest::AppendVariable(
@@ -635,7 +642,8 @@ BucketsResource_ListMethod::BucketsResource_ListMethod(
       _have_max_results_(false),
       _have_page_token_(false),
       _have_prefix_(false),
-      _have_projection_(false) {
+      _have_projection_(false),
+      _have_user_project_(false) {
 }
 
 // Standard destructor.
@@ -672,10 +680,16 @@ util::Status BucketsResource_ListMethod::AppendOptionalQueryParameters(string* t
                 projection_));
     sep = "&";
   }
+  if (_have_user_project_) {
+    StrAppend(target, sep, "userProject=",
+              client::CppValueToEscapedUrlValue(
+                user_project_));
+    sep = "&";
+  }
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketsResource_ListMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   return StorageServiceBaseRequest::AppendVariable(
@@ -745,7 +759,7 @@ util::Status BucketsResource_PatchMethod::AppendOptionalQueryParameters(string* 
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketsResource_PatchMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -785,7 +799,7 @@ util::Status BucketsResource_SetIamPolicyMethod::AppendOptionalQueryParameters(s
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketsResource_SetIamPolicyMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -832,7 +846,7 @@ util::Status BucketsResource_TestIamPermissionsMethod::AppendOptionalQueryParame
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketsResource_TestIamPermissionsMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -907,7 +921,7 @@ util::Status BucketsResource_UpdateMethod::AppendOptionalQueryParameters(string*
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status BucketsResource_UpdateMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -962,7 +976,7 @@ util::Status DefaultObjectAccessControlsResource_DeleteMethod::AppendOptionalQue
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status DefaultObjectAccessControlsResource_DeleteMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1007,7 +1021,7 @@ util::Status DefaultObjectAccessControlsResource_GetMethod::AppendOptionalQueryP
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status DefaultObjectAccessControlsResource_GetMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1052,7 +1066,7 @@ util::Status DefaultObjectAccessControlsResource_InsertMethod::AppendOptionalQue
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status DefaultObjectAccessControlsResource_InsertMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1105,7 +1119,7 @@ util::Status DefaultObjectAccessControlsResource_ListMethod::AppendOptionalQuery
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status DefaultObjectAccessControlsResource_ListMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1146,7 +1160,7 @@ util::Status DefaultObjectAccessControlsResource_PatchMethod::AppendOptionalQuer
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status DefaultObjectAccessControlsResource_PatchMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1192,7 +1206,7 @@ util::Status DefaultObjectAccessControlsResource_UpdateMethod::AppendOptionalQue
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status DefaultObjectAccessControlsResource_UpdateMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1237,7 +1251,7 @@ util::Status NotificationsResource_DeleteMethod::AppendOptionalQueryParameters(s
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status NotificationsResource_DeleteMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1282,7 +1296,7 @@ util::Status NotificationsResource_GetMethod::AppendOptionalQueryParameters(stri
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status NotificationsResource_GetMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1327,7 +1341,7 @@ util::Status NotificationsResource_InsertMethod::AppendOptionalQueryParameters(s
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status NotificationsResource_InsertMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1366,7 +1380,7 @@ util::Status NotificationsResource_ListMethod::AppendOptionalQueryParameters(str
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status NotificationsResource_ListMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1414,7 +1428,7 @@ util::Status ObjectAccessControlsResource_DeleteMethod::AppendOptionalQueryParam
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectAccessControlsResource_DeleteMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1472,7 +1486,7 @@ util::Status ObjectAccessControlsResource_GetMethod::AppendOptionalQueryParamete
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectAccessControlsResource_GetMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1530,7 +1544,7 @@ util::Status ObjectAccessControlsResource_InsertMethod::AppendOptionalQueryParam
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectAccessControlsResource_InsertMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1582,7 +1596,7 @@ util::Status ObjectAccessControlsResource_ListMethod::AppendOptionalQueryParamet
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectAccessControlsResource_ListMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1636,7 +1650,7 @@ util::Status ObjectAccessControlsResource_PatchMethod::AppendOptionalQueryParame
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectAccessControlsResource_PatchMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1695,7 +1709,7 @@ util::Status ObjectAccessControlsResource_UpdateMethod::AppendOptionalQueryParam
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectAccessControlsResource_UpdateMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -1730,6 +1744,7 @@ ObjectsResource_ComposeMethod::ObjectsResource_ComposeMethod(
       _have_destination_predefined_acl_(false),
       _have_if_generation_match_(false),
       _have_if_metageneration_match_(false),
+      _have_kms_key_name_(false),
       _have_user_project_(false) {
   AddJsonContentToRequest(&__request_content__);
 }
@@ -1758,6 +1773,12 @@ util::Status ObjectsResource_ComposeMethod::AppendOptionalQueryParameters(string
                 if_metageneration_match_));
     sep = "&";
   }
+  if (_have_kms_key_name_) {
+    StrAppend(target, sep, "kmsKeyName=",
+              client::CppValueToEscapedUrlValue(
+                kms_key_name_));
+    sep = "&";
+  }
   if (_have_user_project_) {
     StrAppend(target, sep, "userProject=",
               client::CppValueToEscapedUrlValue(
@@ -1767,7 +1788,7 @@ util::Status ObjectsResource_ComposeMethod::AppendOptionalQueryParameters(string
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_ComposeMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "destinationBucket") {
@@ -1892,7 +1913,7 @@ util::Status ObjectsResource_CopyMethod::AppendOptionalQueryParameters(string* t
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_CopyMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "sourceBucket") {
@@ -1982,7 +2003,7 @@ util::Status ObjectsResource_DeleteMethod::AppendOptionalQueryParameters(string*
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_DeleteMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -2069,7 +2090,7 @@ util::Status ObjectsResource_GetMethod::AppendOptionalQueryParameters(string* ta
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_GetMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -2121,7 +2142,7 @@ util::Status ObjectsResource_GetIamPolicyMethod::AppendOptionalQueryParameters(s
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_GetIamPolicyMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -2165,6 +2186,7 @@ ObjectsResource_InsertMethod::ObjectsResource_InsertMethod(
       _have_if_generation_not_match_(false),
       _have_if_metageneration_match_(false),
       _have_if_metageneration_not_match_(false),
+      _have_kms_key_name_(false),
       _have_name_(false),
       _have_predefined_acl_(false),
       _have_projection_(false),
@@ -2177,7 +2199,7 @@ ObjectsResource_InsertMethod::ObjectsResource_InsertMethod(
 }
 // Standard constructor.
 ObjectsResource_InsertMethod::ObjectsResource_InsertMethod(
-    const StorageService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& bucket, const Object* _metadata_, const StringPiece& _media_content_type_, client::DataReader* _media_content_reader_)
+    const StorageService* _service_, client::AuthorizationCredential* _credential_, const StringPiece& bucket, const Object* _metadata_, const char* _media_content_type_, client::DataReader* _media_content_reader_)
     : StorageServiceBaseRequest(
         _service_, _credential_,
         client::HttpRequest::POST,
@@ -2188,6 +2210,7 @@ ObjectsResource_InsertMethod::ObjectsResource_InsertMethod(
       _have_if_generation_not_match_(false),
       _have_if_metageneration_match_(false),
       _have_if_metageneration_not_match_(false),
+      _have_kms_key_name_(false),
       _have_name_(false),
       _have_predefined_acl_(false),
       _have_projection_(false),
@@ -2203,7 +2226,7 @@ ObjectsResource_InsertMethod::ObjectsResource_InsertMethod(
       uploader->set_metadata(*_metadata_);
     }
     uploader->set_media_content_reader(
-        _media_content_type_.as_string(), _media_content_reader_);
+        _media_content_type_, _media_content_reader_);
     ResetMediaUploader(uploader);
   } else {
     AddJsonContentToRequest(_metadata_);
@@ -2246,6 +2269,12 @@ util::Status ObjectsResource_InsertMethod::AppendOptionalQueryParameters(string*
                 if_metageneration_not_match_));
     sep = "&";
   }
+  if (_have_kms_key_name_) {
+    StrAppend(target, sep, "kmsKeyName=",
+              client::CppValueToEscapedUrlValue(
+                kms_key_name_));
+    sep = "&";
+  }
   if (_have_name_) {
     StrAppend(target, sep, "name=",
               client::CppValueToEscapedUrlValue(
@@ -2273,7 +2302,7 @@ util::Status ObjectsResource_InsertMethod::AppendOptionalQueryParameters(string*
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_InsertMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -2355,7 +2384,7 @@ util::Status ObjectsResource_ListMethod::AppendOptionalQueryParameters(string* t
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_ListMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -2445,7 +2474,7 @@ util::Status ObjectsResource_PatchMethod::AppendOptionalQueryParameters(string* 
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_PatchMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -2474,6 +2503,7 @@ ObjectsResource_RewriteMethod::ObjectsResource_RewriteMethod(
       source_object_(source_object.as_string()),
       destination_bucket_(destination_bucket.as_string()),
       destination_object_(destination_object.as_string()),
+      _have_destination_kms_key_name_(false),
       _have_destination_predefined_acl_(false),
       _have_if_generation_match_(false),
       _have_if_generation_not_match_(false),
@@ -2497,6 +2527,12 @@ ObjectsResource_RewriteMethod::~ObjectsResource_RewriteMethod() {
 
 util::Status ObjectsResource_RewriteMethod::AppendOptionalQueryParameters(string* target) {
   const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+  if (_have_destination_kms_key_name_) {
+    StrAppend(target, sep, "destinationKmsKeyName=",
+              client::CppValueToEscapedUrlValue(
+                destination_kms_key_name_));
+    sep = "&";
+  }
   if (_have_destination_predefined_acl_) {
     StrAppend(target, sep, "destinationPredefinedAcl=",
               client::CppValueToEscapedUrlValue(
@@ -2584,7 +2620,7 @@ util::Status ObjectsResource_RewriteMethod::AppendOptionalQueryParameters(string
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_RewriteMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "sourceBucket") {
@@ -2647,7 +2683,7 @@ util::Status ObjectsResource_SetIamPolicyMethod::AppendOptionalQueryParameters(s
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_SetIamPolicyMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -2707,7 +2743,7 @@ util::Status ObjectsResource_TestIamPermissionsMethod::AppendOptionalQueryParame
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_TestIamPermissionsMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -2802,7 +2838,7 @@ util::Status ObjectsResource_UpdateMethod::AppendOptionalQueryParameters(string*
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_UpdateMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -2890,7 +2926,7 @@ util::Status ObjectsResource_WatchAllMethod::AppendOptionalQueryParameters(strin
   return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
 }
 util::Status ObjectsResource_WatchAllMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "bucket") {
@@ -2913,16 +2949,26 @@ ProjectsResource_ServiceAccountResource_GetMethod::ProjectsResource_ServiceAccou
         _service_, _credential_,
         client::HttpRequest::GET,
         "projects/{projectId}/serviceAccount"),
-      project_id_(project_id.as_string()) {
+      project_id_(project_id.as_string()),
+      _have_user_project_(false) {
 }
 
 // Standard destructor.
 ProjectsResource_ServiceAccountResource_GetMethod::~ProjectsResource_ServiceAccountResource_GetMethod() {
 }
 
-
+util::Status ProjectsResource_ServiceAccountResource_GetMethod::AppendOptionalQueryParameters(string* target) {
+  const char* sep = (target->find('?') == string::npos) ? "?" : "&";
+  if (_have_user_project_) {
+    StrAppend(target, sep, "userProject=",
+              client::CppValueToEscapedUrlValue(
+                user_project_));
+    sep = "&";
+  }
+  return StorageServiceBaseRequest::AppendOptionalQueryParameters(target);
+}
 util::Status ProjectsResource_ServiceAccountResource_GetMethod::AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target) {
   if (variable_name == "projectId") {
@@ -2938,6 +2984,7 @@ util::Status ProjectsResource_ServiceAccountResource_GetMethod::AppendVariable(
 
 StorageService::StorageService(client::HttpTransport* transport)
   : ClientService("https://www.googleapis.com/", "storage/v1/", transport), bucket_access_controls_(this), buckets_(this), channels_(this), default_object_access_controls_(this), notifications_(this), object_access_controls_(this), objects_(this), projects_(this) {
+  this->SetBatchPath("batch");
 }
 
 StorageService::~StorageService() {
@@ -3177,7 +3224,7 @@ ObjectsResource_InsertMethod* StorageService::ObjectsResource::NewInsertMethod(c
   return new ObjectsResource_InsertMethod(service_, _credential_, bucket);
 }
 
-ObjectsResource_InsertMethod* StorageService::ObjectsResource::NewInsertMethod(client::AuthorizationCredential* _credential_, const StringPiece& bucket, const Object* _metadata_, const StringPiece& _media_content_type_, client::DataReader* _media_content_reader_) const {
+ObjectsResource_InsertMethod* StorageService::ObjectsResource::NewInsertMethod(client::AuthorizationCredential* _credential_, const StringPiece& bucket, const Object* _metadata_, const char* _media_content_type_, client::DataReader* _media_content_reader_) const {
   return new ObjectsResource_InsertMethod(service_, _credential_, bucket, _metadata_, _media_content_type_, _media_content_reader_);
 }
 
