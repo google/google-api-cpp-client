@@ -252,7 +252,7 @@ util::Status ClientServiceRequest::ParseResponse(
 }
 
 util::Status ClientServiceRequest::AppendVariable(
-    const StringPiece& variable_name, const UriTemplateConfig& config,
+    const string& variable_name, const UriTemplateConfig& config,
     string* target) {
   LOG(FATAL) << "Either override AppendVariable or PrepareHttpRequest";
   return StatusUnimplemented("Internal error");
@@ -342,6 +342,10 @@ void ClientService::ChangeServiceUrl(
       StringPiece(service_url_).substr(0, url_root.size() + url_root_extra);
   url_path_ = StringPiece(service_url_)
                   .substr(url_root_.size(), url_path.size() - url_path_trim);
+}
+
+std::string ClientService::batch_url() const {
+  return JoinPath(url_root_, string(batch_path_));
 }
 
 }  // namespace client

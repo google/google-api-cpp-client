@@ -57,7 +57,7 @@ using namespace googleapis;
  *      <tr><th>API
  *          <td><a href='https://developers.google.com/storage/docs/json_api/'>Cloud Storage JSON API</a>
  *      <tr><th>API Version<td>v1
- *      <tr><th>API Rev<td>20170504
+ *      <tr><th>API Rev<td>20171004
  *      <tr><th>API Docs
  *          <td><a href='https://developers.google.com/storage/docs/json_api/'>
  *              https://developers.google.com/storage/docs/json_api/</a>
@@ -110,7 +110,7 @@ class StorageServiceBaseRequest
       const client::ClientService* service,
       client::AuthorizationCredential* credential,
       client::HttpRequest::HttpMethod method,
-      const StringPiece& uri_template);
+      const string& uri_template);
 
   /**
    * Standard destructor.
@@ -395,7 +395,7 @@ class StorageServiceBaseRequest
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-      const StringPiece& variable_name,
+      const string& variable_name,
       const client::UriTemplateConfig& config,
       string* target);
 
@@ -505,7 +505,7 @@ class BucketAccessControlsResource_DeleteMethod : public StorageServiceBaseReque
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -523,7 +523,7 @@ class BucketAccessControlsResource_DeleteMethod : public StorageServiceBaseReque
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -612,7 +612,7 @@ class BucketAccessControlsResource_GetMethod : public StorageServiceBaseRequest 
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -630,7 +630,7 @@ class BucketAccessControlsResource_GetMethod : public StorageServiceBaseRequest 
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -732,7 +732,7 @@ class BucketAccessControlsResource_InsertMethod : public StorageServiceBaseReque
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -750,7 +750,7 @@ class BucketAccessControlsResource_InsertMethod : public StorageServiceBaseReque
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -849,7 +849,7 @@ class BucketAccessControlsResource_ListMethod : public StorageServiceBaseRequest
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -867,7 +867,7 @@ class BucketAccessControlsResource_ListMethod : public StorageServiceBaseRequest
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -972,7 +972,7 @@ class BucketAccessControlsResource_PatchMethod : public StorageServiceBaseReques
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -990,7 +990,7 @@ class BucketAccessControlsResource_PatchMethod : public StorageServiceBaseReques
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1096,7 +1096,7 @@ class BucketAccessControlsResource_UpdateMethod : public StorageServiceBaseReque
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -1114,7 +1114,7 @@ class BucketAccessControlsResource_UpdateMethod : public StorageServiceBaseReque
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1273,7 +1273,7 @@ class BucketsResource_DeleteMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -1291,7 +1291,7 @@ class BucketsResource_DeleteMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1479,7 +1479,7 @@ class BucketsResource_GetMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -1497,7 +1497,7 @@ class BucketsResource_GetMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1605,7 +1605,7 @@ class BucketsResource_GetIamPolicyMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -1623,7 +1623,7 @@ class BucketsResource_GetIamPolicyMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1817,6 +1817,46 @@ class BucketsResource_InsertMethod : public StorageServiceBaseRequest {
       projection_ = value;
     }
 
+
+
+    /**
+     * Clears the '<code>userProject</code>' attribute so it is no longer set.
+     */
+    void clear_user_project() {
+      _have_user_project_ = false;
+      client::ClearCppValueHelper(&user_project_);
+    }
+
+
+    /**
+     * Gets the optional '<code>userProject</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_user_project() const { return user_project_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>userProject</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_userProject() {
+      _have_user_project_ = true;
+      return &user_project_;
+    }
+
+
+    /**
+     * Sets the '<code>userProject</code>' attribute.
+     *
+     * @param[in] value The project to be billed for this request.
+     */
+    void set_user_project(const string& value) {
+      _have_user_project_ = true;
+      user_project_ = value;
+    }
+
   /**
    * Appends variable value to the target string.
    *
@@ -1827,7 +1867,7 @@ class BucketsResource_InsertMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -1859,9 +1899,11 @@ class BucketsResource_InsertMethod : public StorageServiceBaseRequest {
   string predefined_acl_;
   string predefined_default_object_acl_;
   string projection_;
+  string user_project_;
   bool _have_predefined_acl_ : 1;
   bool _have_predefined_default_object_acl_ : 1;
-  bool _have_projection_ : 1;  string _content_;
+  bool _have_projection_ : 1;
+  bool _have_user_project_ : 1;  string _content_;
   DISALLOW_COPY_AND_ASSIGN(BucketsResource_InsertMethod);
 };
 
@@ -2049,6 +2091,46 @@ class BucketsResource_ListMethod : public StorageServiceBaseRequest {
       projection_ = value;
     }
 
+
+
+    /**
+     * Clears the '<code>userProject</code>' attribute so it is no longer set.
+     */
+    void clear_user_project() {
+      _have_user_project_ = false;
+      client::ClearCppValueHelper(&user_project_);
+    }
+
+
+    /**
+     * Gets the optional '<code>userProject</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_user_project() const { return user_project_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>userProject</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_userProject() {
+      _have_user_project_ = true;
+      return &user_project_;
+    }
+
+
+    /**
+     * Sets the '<code>userProject</code>' attribute.
+     *
+     * @param[in] value The project to be billed for this request.
+     */
+    void set_user_project(const string& value) {
+      _have_user_project_ = true;
+      user_project_ = value;
+    }
+
   /**
    * Appends variable value to the target string.
    *
@@ -2059,7 +2141,7 @@ class BucketsResource_ListMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2092,10 +2174,12 @@ class BucketsResource_ListMethod : public StorageServiceBaseRequest {
   string page_token_;
   string prefix_;
   string projection_;
+  string user_project_;
   bool _have_max_results_ : 1;
   bool _have_page_token_ : 1;
   bool _have_prefix_ : 1;
   bool _have_projection_ : 1;
+  bool _have_user_project_ : 1;
   DISALLOW_COPY_AND_ASSIGN(BucketsResource_ListMethod);
 };
 
@@ -2351,7 +2435,7 @@ class BucketsResource_PatchMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -2369,7 +2453,7 @@ class BucketsResource_PatchMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2481,7 +2565,7 @@ class BucketsResource_SetIamPolicyMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -2499,7 +2583,7 @@ class BucketsResource_SetIamPolicyMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2603,7 +2687,7 @@ class BucketsResource_TestIamPermissionsMethod : public StorageServiceBaseReques
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -2621,7 +2705,7 @@ class BucketsResource_TestIamPermissionsMethod : public StorageServiceBaseReques
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -2903,7 +2987,7 @@ class BucketsResource_UpdateMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -2921,7 +3005,7 @@ class BucketsResource_UpdateMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3079,7 +3163,7 @@ class DefaultObjectAccessControlsResource_DeleteMethod : public StorageServiceBa
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -3097,7 +3181,7 @@ class DefaultObjectAccessControlsResource_DeleteMethod : public StorageServiceBa
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3186,7 +3270,7 @@ class DefaultObjectAccessControlsResource_GetMethod : public StorageServiceBaseR
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -3204,7 +3288,7 @@ class DefaultObjectAccessControlsResource_GetMethod : public StorageServiceBaseR
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3306,7 +3390,7 @@ class DefaultObjectAccessControlsResource_InsertMethod : public StorageServiceBa
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -3324,7 +3408,7 @@ class DefaultObjectAccessControlsResource_InsertMethod : public StorageServiceBa
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3479,7 +3563,7 @@ class DefaultObjectAccessControlsResource_ListMethod : public StorageServiceBase
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -3497,7 +3581,7 @@ class DefaultObjectAccessControlsResource_ListMethod : public StorageServiceBase
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3606,7 +3690,7 @@ class DefaultObjectAccessControlsResource_PatchMethod : public StorageServiceBas
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -3624,7 +3708,7 @@ class DefaultObjectAccessControlsResource_PatchMethod : public StorageServiceBas
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3730,7 +3814,7 @@ class DefaultObjectAccessControlsResource_UpdateMethod : public StorageServiceBa
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -3748,7 +3832,7 @@ class DefaultObjectAccessControlsResource_UpdateMethod : public StorageServiceBa
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3853,7 +3937,7 @@ class NotificationsResource_DeleteMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -3871,7 +3955,7 @@ class NotificationsResource_DeleteMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -3961,7 +4045,7 @@ class NotificationsResource_GetMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -3979,7 +4063,7 @@ class NotificationsResource_GetMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4082,7 +4166,7 @@ class NotificationsResource_InsertMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -4100,7 +4184,7 @@ class NotificationsResource_InsertMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4158,7 +4242,7 @@ class NotificationsResource_ListMethod : public StorageServiceBaseRequest {
    * @param[in] _credential_  If not NULL, the credential to authorize with.
    *            In practice this is supplied by the user code that is
    *            creating the method instance.
-   * @param[in] bucket Name of a GCS bucket.
+   * @param[in] bucket Name of a Google Cloud Storage bucket.
    */
   NotificationsResource_ListMethod(
       const StorageService* _service_,
@@ -4202,7 +4286,7 @@ class NotificationsResource_ListMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -4220,7 +4304,7 @@ class NotificationsResource_ListMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4355,7 +4439,7 @@ class ObjectAccessControlsResource_DeleteMethod : public StorageServiceBaseReque
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -4373,7 +4457,7 @@ class ObjectAccessControlsResource_DeleteMethod : public StorageServiceBaseReque
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4495,7 +4579,7 @@ class ObjectAccessControlsResource_GetMethod : public StorageServiceBaseRequest 
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -4513,7 +4597,7 @@ class ObjectAccessControlsResource_GetMethod : public StorageServiceBaseRequest 
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4648,7 +4732,7 @@ class ObjectAccessControlsResource_InsertMethod : public StorageServiceBaseReque
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -4666,7 +4750,7 @@ class ObjectAccessControlsResource_InsertMethod : public StorageServiceBaseReque
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4798,7 +4882,7 @@ class ObjectAccessControlsResource_ListMethod : public StorageServiceBaseRequest
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -4816,7 +4900,7 @@ class ObjectAccessControlsResource_ListMethod : public StorageServiceBaseRequest
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -4954,7 +5038,7 @@ class ObjectAccessControlsResource_PatchMethod : public StorageServiceBaseReques
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -4972,7 +5056,7 @@ class ObjectAccessControlsResource_PatchMethod : public StorageServiceBaseReques
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -5111,7 +5195,7 @@ class ObjectAccessControlsResource_UpdateMethod : public StorageServiceBaseReque
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -5129,7 +5213,7 @@ class ObjectAccessControlsResource_UpdateMethod : public StorageServiceBaseReque
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -5274,7 +5358,8 @@ class ObjectsResource_ComposeMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * current generation matches the given value.
+     * current generation matches the given value. Setting to 0 makes the
+     * operation succeed only if there are no live versions of the object.
      */
     void set_if_generation_match(int64 value) {
       _have_if_generation_match_ = true;
@@ -5310,6 +5395,49 @@ class ObjectsResource_ComposeMethod : public StorageServiceBaseRequest {
     }
 
     /**
+     * Clears the '<code>kmsKeyName</code>' attribute so it is no longer set.
+     */
+    void clear_kms_key_name() {
+      _have_kms_key_name_ = false;
+      client::ClearCppValueHelper(&kms_key_name_);
+    }
+
+
+    /**
+     * Gets the optional '<code>kmsKeyName</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_kms_key_name() const { return kms_key_name_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>kmsKeyName</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_kmsKeyName() {
+      _have_kms_key_name_ = true;
+      return &kms_key_name_;
+    }
+
+
+    /**
+     * Sets the '<code>kmsKeyName</code>' attribute.
+     *
+     * @param[in] value Resource name of the Cloud KMS key, of the form projects
+     * /my-project/locations/global/keyRings/my-kr/cryptoKeys/my-key, that will
+     * be used to encrypt the object. Overrides the object metadata's
+     * kms_key_name value, if any.
+     */
+    void set_kms_key_name(const string& value) {
+      _have_kms_key_name_ = true;
+      kms_key_name_ = value;
+    }
+
+
+
+    /**
      * Clears the '<code>userProject</code>' attribute so it is no longer set.
      */
     void clear_user_project() {
@@ -5340,7 +5468,7 @@ class ObjectsResource_ComposeMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -5358,7 +5486,7 @@ class ObjectsResource_ComposeMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -5409,10 +5537,12 @@ class ObjectsResource_ComposeMethod : public StorageServiceBaseRequest {
   string destination_predefined_acl_;
   int64 if_generation_match_;
   int64 if_metageneration_match_;
+  string kms_key_name_;
   string user_project_;
   bool _have_destination_predefined_acl_ : 1;
   bool _have_if_generation_match_ : 1;
   bool _have_if_metageneration_match_ : 1;
+  bool _have_kms_key_name_ : 1;
   bool _have_user_project_ : 1;  string _content_;
   DISALLOW_COPY_AND_ASSIGN(ObjectsResource_ComposeMethod);
 };
@@ -5531,7 +5661,9 @@ class ObjectsResource_CopyMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the
-     * destination object's current generation matches the given value.
+     * destination object's current generation matches the given value. Setting
+     * to 0 makes the operation succeed only if there are no live versions of
+     * the object.
      */
     void set_if_generation_match(int64 value) {
       _have_if_generation_match_ = true;
@@ -5560,6 +5692,8 @@ class ObjectsResource_CopyMethod : public StorageServiceBaseRequest {
      *
      * @param[in] value Makes the operation conditional on whether the
      * destination object's current generation does not match the given value.
+     * If no live object exists, the precondition fails. Setting to 0 makes the
+     * operation succeed only if there is a live version of the object.
      */
     void set_if_generation_not_match(int64 value) {
       _have_if_generation_not_match_ = true;
@@ -5644,7 +5778,7 @@ class ObjectsResource_CopyMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifSourceGenerationMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the source
-     * object's generation matches the given value.
+     * object's current generation matches the given value.
      */
     void set_if_source_generation_match(int64 value) {
       _have_if_source_generation_match_ = true;
@@ -5672,7 +5806,7 @@ class ObjectsResource_CopyMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifSourceGenerationNotMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the source
-     * object's generation does not match the given value.
+     * object's current generation does not match the given value.
      */
     void set_if_source_generation_not_match(int64 value) {
       _have_if_source_generation_not_match_ = true;
@@ -5836,7 +5970,7 @@ class ObjectsResource_CopyMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -5854,7 +5988,7 @@ class ObjectsResource_CopyMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -6017,7 +6151,8 @@ class ObjectsResource_DeleteMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * current generation matches the given value.
+     * current generation matches the given value. Setting to 0 makes the
+     * operation succeed only if there are no live versions of the object.
      */
     void set_if_generation_match(int64 value) {
       _have_if_generation_match_ = true;
@@ -6045,7 +6180,9 @@ class ObjectsResource_DeleteMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationNotMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * current generation does not match the given value.
+     * current generation does not match the given value. If no live object
+     * exists, the precondition fails. Setting to 0 makes the operation succeed
+     * only if there is a live version of the object.
      */
     void set_if_generation_not_match(int64 value) {
       _have_if_generation_not_match_ = true;
@@ -6139,7 +6276,7 @@ class ObjectsResource_DeleteMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -6157,7 +6294,7 @@ class ObjectsResource_DeleteMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -6275,7 +6412,8 @@ class ObjectsResource_GetMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * generation matches the given value.
+     * current generation matches the given value. Setting to 0 makes the
+     * operation succeed only if there are no live versions of the object.
      */
     void set_if_generation_match(int64 value) {
       _have_if_generation_match_ = true;
@@ -6303,7 +6441,9 @@ class ObjectsResource_GetMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationNotMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * generation does not match the given value.
+     * current generation does not match the given value. If no live object
+     * exists, the precondition fails. Setting to 0 makes the operation succeed
+     * only if there is a live version of the object.
      */
     void set_if_generation_not_match(int64 value) {
       _have_if_generation_not_match_ = true;
@@ -6437,7 +6577,7 @@ class ObjectsResource_GetMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -6455,7 +6595,7 @@ class ObjectsResource_GetMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -6618,7 +6758,7 @@ class ObjectsResource_GetIamPolicyMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -6636,7 +6776,7 @@ class ObjectsResource_GetIamPolicyMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -6728,7 +6868,7 @@ class ObjectsResource_InsertMethod : public StorageServiceBaseRequest {
       client::AuthorizationCredential* _credential_,
       const StringPiece& bucket,
       const Object* _metadata_,
-      const StringPiece& _media_content_type_,
+      const char* _media_content_type_,
       client::DataReader* _media_content_reader_);
 
   /**
@@ -6803,7 +6943,8 @@ class ObjectsResource_InsertMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * current generation matches the given value.
+     * current generation matches the given value. Setting to 0 makes the
+     * operation succeed only if there are no live versions of the object.
      */
     void set_if_generation_match(int64 value) {
       _have_if_generation_match_ = true;
@@ -6831,7 +6972,9 @@ class ObjectsResource_InsertMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationNotMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * current generation does not match the given value.
+     * current generation does not match the given value. If no live object
+     * exists, the precondition fails. Setting to 0 makes the operation succeed
+     * only if there is a live version of the object.
      */
     void set_if_generation_not_match(int64 value) {
       _have_if_generation_not_match_ = true;
@@ -6893,6 +7036,49 @@ class ObjectsResource_InsertMethod : public StorageServiceBaseRequest {
       _have_if_metageneration_not_match_ = true;
       if_metageneration_not_match_ = value;
     }
+
+    /**
+     * Clears the '<code>kmsKeyName</code>' attribute so it is no longer set.
+     */
+    void clear_kms_key_name() {
+      _have_kms_key_name_ = false;
+      client::ClearCppValueHelper(&kms_key_name_);
+    }
+
+
+    /**
+     * Gets the optional '<code>kmsKeyName</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_kms_key_name() const { return kms_key_name_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>kmsKeyName</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_kmsKeyName() {
+      _have_kms_key_name_ = true;
+      return &kms_key_name_;
+    }
+
+
+    /**
+     * Sets the '<code>kmsKeyName</code>' attribute.
+     *
+     * @param[in] value Resource name of the Cloud KMS key, of the form projects
+     * /my-project/locations/global/keyRings/my-kr/cryptoKeys/my-key, that will
+     * be used to encrypt the object. Overrides the object metadata's
+     * kms_key_name value, if any.
+     */
+    void set_kms_key_name(const string& value) {
+      _have_kms_key_name_ = true;
+      kms_key_name_ = value;
+    }
+
+
 
     /**
      * Clears the '<code>name</code>' attribute so it is no longer set.
@@ -7049,7 +7235,7 @@ class ObjectsResource_InsertMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -7067,7 +7253,7 @@ class ObjectsResource_InsertMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -7133,6 +7319,7 @@ class ObjectsResource_InsertMethod : public StorageServiceBaseRequest {
   int64 if_generation_not_match_;
   int64 if_metageneration_match_;
   int64 if_metageneration_not_match_;
+  string kms_key_name_;
   string name_;
   string predefined_acl_;
   string projection_;
@@ -7142,6 +7329,7 @@ class ObjectsResource_InsertMethod : public StorageServiceBaseRequest {
   bool _have_if_generation_not_match_ : 1;
   bool _have_if_metageneration_match_ : 1;
   bool _have_if_metageneration_not_match_ : 1;
+  bool _have_kms_key_name_ : 1;
   bool _have_name_ : 1;
   bool _have_predefined_acl_ : 1;
   bool _have_projection_ : 1;
@@ -7411,7 +7599,7 @@ class ObjectsResource_ListMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -7459,7 +7647,7 @@ class ObjectsResource_ListMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -7597,7 +7785,8 @@ class ObjectsResource_PatchMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * current generation matches the given value.
+     * current generation matches the given value. Setting to 0 makes the
+     * operation succeed only if there are no live versions of the object.
      */
     void set_if_generation_match(int64 value) {
       _have_if_generation_match_ = true;
@@ -7625,7 +7814,9 @@ class ObjectsResource_PatchMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationNotMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * current generation does not match the given value.
+     * current generation does not match the given value. If no live object
+     * exists, the precondition fails. Setting to 0 makes the operation succeed
+     * only if there is a live version of the object.
      */
     void set_if_generation_not_match(int64 value) {
       _have_if_generation_not_match_ = true;
@@ -7800,7 +7991,7 @@ class ObjectsResource_PatchMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -7818,7 +8009,7 @@ class ObjectsResource_PatchMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -7918,6 +8109,50 @@ class ObjectsResource_RewriteMethod : public StorageServiceBaseRequest {
 
 
     /**
+     * Clears the '<code>destinationKmsKeyName</code>' attribute so it is no
+     * longer set.
+     */
+    void clear_destination_kms_key_name() {
+      _have_destination_kms_key_name_ = false;
+      client::ClearCppValueHelper(&destination_kms_key_name_);
+    }
+
+
+    /**
+     * Gets the optional '<code>destinationKmsKeyName</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_destination_kms_key_name() const { return destination_kms_key_name_; }
+
+    /**
+     * Gets a modifiable pointer to the optional
+     * <code>destinationKmsKeyName</code>' attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_destinationKmsKeyName() {
+      _have_destination_kms_key_name_ = true;
+      return &destination_kms_key_name_;
+    }
+
+
+    /**
+     * Sets the '<code>destinationKmsKeyName</code>' attribute.
+     *
+     * @param[in] value Resource name of the Cloud KMS key, of the form projects
+     * /my-project/locations/global/keyRings/my-kr/cryptoKeys/my-key, that will
+     * be used to encrypt the object. Overrides the object metadata's
+     * kms_key_name value, if any.
+     */
+    void set_destination_kms_key_name(const string& value) {
+      _have_destination_kms_key_name_ = true;
+      destination_kms_key_name_ = value;
+    }
+
+
+
+    /**
      * Clears the '<code>destinationPredefinedAcl</code>' attribute so it is no
      * longer set.
      */
@@ -7979,8 +8214,9 @@ class ObjectsResource_RewriteMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>ifGenerationMatch</code>' attribute.
      *
-     * @param[in] value Makes the operation conditional on whether the
-     * destination object's current generation matches the given value.
+     * @param[in] value Makes the operation conditional on whether the object's
+     * current generation matches the given value. Setting to 0 makes the
+     * operation succeed only if there are no live versions of the object.
      */
     void set_if_generation_match(int64 value) {
       _have_if_generation_match_ = true;
@@ -8007,8 +8243,10 @@ class ObjectsResource_RewriteMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>ifGenerationNotMatch</code>' attribute.
      *
-     * @param[in] value Makes the operation conditional on whether the
-     * destination object's current generation does not match the given value.
+     * @param[in] value Makes the operation conditional on whether the object's
+     * current generation does not match the given value. If no live object
+     * exists, the precondition fails. Setting to 0 makes the operation succeed
+     * only if there is a live version of the object.
      */
     void set_if_generation_not_match(int64 value) {
       _have_if_generation_not_match_ = true;
@@ -8093,7 +8331,7 @@ class ObjectsResource_RewriteMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifSourceGenerationMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the source
-     * object's generation matches the given value.
+     * object's current generation matches the given value.
      */
     void set_if_source_generation_match(int64 value) {
       _have_if_source_generation_match_ = true;
@@ -8121,7 +8359,7 @@ class ObjectsResource_RewriteMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifSourceGenerationNotMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the source
-     * object's generation does not match the given value.
+     * object's current generation does not match the given value.
      */
     void set_if_source_generation_not_match(int64 value) {
       _have_if_source_generation_not_match_ = true;
@@ -8362,7 +8600,7 @@ class ObjectsResource_RewriteMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -8380,7 +8618,7 @@ class ObjectsResource_RewriteMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -8412,6 +8650,7 @@ class ObjectsResource_RewriteMethod : public StorageServiceBaseRequest {
   string source_object_;
   string destination_bucket_;
   string destination_object_;
+  string destination_kms_key_name_;
   string destination_predefined_acl_;
   int64 if_generation_match_;
   int64 if_generation_not_match_;
@@ -8426,6 +8665,7 @@ class ObjectsResource_RewriteMethod : public StorageServiceBaseRequest {
   string rewrite_token_;
   int64 source_generation_;
   string user_project_;
+  bool _have_destination_kms_key_name_ : 1;
   bool _have_destination_predefined_acl_ : 1;
   bool _have_if_generation_match_ : 1;
   bool _have_if_generation_not_match_ : 1;
@@ -8541,7 +8781,7 @@ class ObjectsResource_SetIamPolicyMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -8559,7 +8799,7 @@ class ObjectsResource_SetIamPolicyMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -8696,7 +8936,7 @@ class ObjectsResource_TestIamPermissionsMethod : public StorageServiceBaseReques
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -8714,7 +8954,7 @@ class ObjectsResource_TestIamPermissionsMethod : public StorageServiceBaseReques
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -8839,7 +9079,8 @@ class ObjectsResource_UpdateMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * current generation matches the given value.
+     * current generation matches the given value. Setting to 0 makes the
+     * operation succeed only if there are no live versions of the object.
      */
     void set_if_generation_match(int64 value) {
       _have_if_generation_match_ = true;
@@ -8867,7 +9108,9 @@ class ObjectsResource_UpdateMethod : public StorageServiceBaseRequest {
      * Sets the '<code>ifGenerationNotMatch</code>' attribute.
      *
      * @param[in] value Makes the operation conditional on whether the object's
-     * current generation does not match the given value.
+     * current generation does not match the given value. If no live object
+     * exists, the precondition fails. Setting to 0 makes the operation succeed
+     * only if there is a live version of the object.
      */
     void set_if_generation_not_match(int64 value) {
       _have_if_generation_not_match_ = true;
@@ -9042,7 +9285,7 @@ class ObjectsResource_UpdateMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -9060,7 +9303,7 @@ class ObjectsResource_UpdateMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -9391,7 +9634,7 @@ class ObjectsResource_WatchAllMethod : public StorageServiceBaseRequest {
     /**
      * Sets the '<code>userProject</code>' attribute.
      *
-     * @param[in] value The project number to be billed for this request, for
+     * @param[in] value The project to be billed for this request. Required for
      * Requester Pays buckets.
      */
     void set_user_project(const string& value) {
@@ -9439,7 +9682,7 @@ class ObjectsResource_WatchAllMethod : public StorageServiceBaseRequest {
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
 
@@ -9527,6 +9770,44 @@ class ProjectsResource_ServiceAccountResource_GetMethod : public StorageServiceB
   virtual ~ProjectsResource_ServiceAccountResource_GetMethod();
 
 
+    /**
+     * Clears the '<code>userProject</code>' attribute so it is no longer set.
+     */
+    void clear_user_project() {
+      _have_user_project_ = false;
+      client::ClearCppValueHelper(&user_project_);
+    }
+
+
+    /**
+     * Gets the optional '<code>userProject</code>' attribute.
+     *
+     * If the value is not set then the default value will be returned.
+     */
+    const string& get_user_project() const { return user_project_; }
+
+    /**
+     * Gets a modifiable pointer to the optional <code>userProject</code>'
+     * attribute.
+     *
+     * @return  The value can be set by dereferencing the pointer.
+     */
+    string* mutable_userProject() {
+      _have_user_project_ = true;
+      return &user_project_;
+    }
+
+
+    /**
+     * Sets the '<code>userProject</code>' attribute.
+     *
+     * @param[in] value The project to be billed for this request.
+     */
+    void set_user_project(const string& value) {
+      _have_user_project_ = true;
+      user_project_ = value;
+    }
+
   /**
    * Appends variable value to the target string.
    *
@@ -9537,9 +9818,16 @@ class ProjectsResource_ServiceAccountResource_GetMethod : public StorageServiceB
    * @param[in, out] target The string to append the value to.
    */
   virtual util::Status AppendVariable(
-        const StringPiece& variable_name,
+        const string& variable_name,
         const client::UriTemplateConfig& config,
         string* target);
+
+  /**
+   * Appends the optional query parameters to the target URL.
+   *
+   * @param[in, out] target  The URL string to append to.
+   */
+  virtual util::Status AppendOptionalQueryParameters(string* target);
 
 
   /**
@@ -9559,6 +9847,8 @@ class ProjectsResource_ServiceAccountResource_GetMethod : public StorageServiceB
 
  private:
   string project_id_;
+  string user_project_;
+  bool _have_user_project_ : 1;
   DISALLOW_COPY_AND_ASSIGN(ProjectsResource_ServiceAccountResource_GetMethod);
 };
 
@@ -10126,7 +10416,7 @@ class StorageService : public client::ClientService {
      *
      * @param[in] _credential_  Can be NULL.
      *            NULL credentials will not authorize the request.
-     * @param[in] bucket Name of a GCS bucket.
+     * @param[in] bucket Name of a Google Cloud Storage bucket.
      * @returns  The caller should <code>Execute</code> the method instance,
      *           then destroy it when they are finished.
      */
@@ -10443,7 +10733,7 @@ class StorageService : public client::ClientService {
         client::AuthorizationCredential* _credential_,
         const StringPiece& bucket,
         const Object* _metadata_,
-        const StringPiece& _media_content_type_,
+        const char* _media_content_type_,
         client::DataReader* _media_content_reader_) const;
 
     /**

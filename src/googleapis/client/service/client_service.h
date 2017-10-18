@@ -302,7 +302,7 @@ class ClientServiceRequest {
    * @param[out] target The string to append to.
    */
   virtual googleapis::util::Status AppendVariable(
-      const StringPiece& variable_name,
+      const string& variable_name,
       const UriTemplateConfig& config,
       string* target);
 
@@ -500,6 +500,12 @@ class ClientService {
   const string& service_url() const { return service_url_; }
 
   /*
+   * Returns the complete url for batch requests.
+   * @return url_root + batch_path
+   */
+  std::string batch_url() const;
+  
+  /*
    * Allows you to change the service_url.
    *
    * This method is intended as a hook to change the service_url location
@@ -518,6 +524,19 @@ class ClientService {
       const StringPiece& url_root, const StringPiece& url_path);
 
   /*
+   * Allows you to change the URL used for batch operations.
+   *
+   * If you are going to change the URL, you should do so before you start
+   * creating requests to send to it.
+   *
+   * @param[in] batch_path A path to append to url_root to form the URL for the
+   * service's batch endpoint.
+   */
+  void SetBatchPath(StringPiece batch_path) {
+    batch_path_.assign(batch_path.begin(), batch_path.end());
+  }
+  
+  /*
    * Returns the transport instance bound in the constructor.
    */
   HttpTransport* transport() const { return transport_.get(); }
@@ -526,6 +545,7 @@ class ClientService {
   string service_url_;
   StringPiece url_root_;  // Subset of service_url_
   StringPiece url_path_;  // Subset of service_url_
+  std::string batch_path_;
 
   std::unique_ptr<HttpTransport> transport_;
   bool in_shutdown_;  // Has Shutdown() been called.

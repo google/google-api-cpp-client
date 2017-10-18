@@ -31,7 +31,7 @@ See [src/samples/README.md](src/samples/README.md)
 To download additional APIs specialized for individual Google Services see:
 http://google.github.io/google-api-cpp-client/latest/available_service_apis.html
 and use this precise version of the apis client generator:
-https://github.com/google/apis-client-generator/tree/6b13208a5d2c3e00161636a86a19cb5cc9b2519b
+https://github.com/google/apis-client-generator/tree/dcad06f5ff0fecfcf7a029efefe62a6b6287b025
 
 Here's an example invocation:
 
