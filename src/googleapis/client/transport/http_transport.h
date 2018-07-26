@@ -36,7 +36,7 @@
  * physical messaging. To be useful, it provides a reasonable implementation
  * suitable for most purposes. However some clients or situations may wish
  * to use some other mechanism, especially pre-existing ones in their
- * runtime environments. This is accomodated by the HttpTransport class.
+ * runtime environments. This is accommodated by the HttpTransport class.
  *
  * In addiition to the HttpTransport class, the core HTTP transport layer
  * also includes the HttpRequest, HttpRequestState and HttpResponse and

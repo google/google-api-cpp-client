@@ -319,7 +319,7 @@ class HttpScribe {
   /*
    * Requests can use these flags to indicate restrictions on their transcript.
    *
-   * This is a bit of a hack to accomodate batched requests where we have
+   * This is a bit of a hack to accommodate batched requests where we have
    * a logical HttpRequestBatch and a physical HttpRequest where we want to
    * put the logical request in the transcript but not the physical one. It
    * might be applicable to other sensitive messagss that cannot be properly

@@ -194,7 +194,7 @@ class WebServerRequest {
  * with an embedded web server without explicitly depending on any particular
  * implementation.
  *
- * Note that this interface does not accomodate POST requests at this time,
+ * Note that this interface does not accommodate POST requests at this time,
  * but the library does not need it as a client -- this abstractionis not
  * intended to be used for implementing cloud services.
  */
