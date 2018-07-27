@@ -60,7 +60,7 @@ class CurlProcessor;
  * in library code. Use the generic HttpTransport and HttpTransportFactory
  * unless you specifically want to use curl for some reason.
  *
- * The Google APIs for C++ Client Library is designed to accomodate
+ * The Google APIs for C++ Client Library is designed to accommodate
  * external transport implementations and eliminating a dependency on
  * curl entirely. If you use this class directly then you will be interfering
  * with that property.

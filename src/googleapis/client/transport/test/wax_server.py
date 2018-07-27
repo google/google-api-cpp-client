@@ -4,7 +4,7 @@
 
 This is a basic implementation of the Wax Service in a form that lends
 itself to testing in an open source release since the Wax Service is not
-yet publically accessible. It is implemented as a plain web server rather
+yet publicly accessible. It is implemented as a plain web server rather
 than Google Cloud Service, but the HTTP interface is the same. Therefore,
 this is suitable for testing basic HTTP interactions and end-to-end testing
 for many client features.

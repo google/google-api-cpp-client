@@ -65,7 +65,7 @@ class DataReader;
  * client secret to turn into an access token.
  *
  * Although no encryption mechanism is provided at this time, the
- * CredentialStore will accomodate one injected using a Codec that you can
+ * CredentialStore will accommodate one injected using a Codec that you can
  * write.
  *
  * @see Codec

@@ -77,7 +77,7 @@ class HttpRequest {
    * Methods are just a free-form strings typedefed to clarify the API.
    *
    * Some HTTP servers may use extensions or define non-standard methods.
-   * This type is a free-form strings to accomodate those values.
+   * This type is a free-form strings to accommodate those values.
    * It is suggested, but not required, you use the standard value constants
    * if you can.
    */
