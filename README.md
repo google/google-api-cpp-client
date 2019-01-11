@@ -63,7 +63,7 @@ Or you may also ask questions on StackOverflow at:
 
   The master branch is where development is done. It usually is compatible with
   the generated libraries available from from google.developers.com. On occasion
-  it gets aheaad of those. It usually catches up in a few days.
+  it gets ahead of those. It usually catches up in a few days.
 
   The latest generated libraries for any Google API is available automatically
   from
