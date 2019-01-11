@@ -18,6 +18,7 @@
  */
 
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include "gflags/gflags.h"
 #include "googleapis/client/auth/oauth2_authorization.h"
