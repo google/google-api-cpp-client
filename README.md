@@ -67,7 +67,7 @@ Or you may also ask questions on StackOverflow at:
 
   The latest generated libraries for any Google API is available automatically
   from
-  https://developers.google.com/resources/api-libraries/download/\<API\>/\<VERSION\>/cpp
+  https://developers.google.com/resources/api-libraries/download/<API\>/\<VERSION>/cpp
 
   For example, for Drive/v2, you would use
   https://developers.google.com/resources/api-libraries/download/drive/v2/cpp
