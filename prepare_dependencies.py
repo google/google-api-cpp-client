@@ -1064,7 +1064,7 @@ class Installer(object):
           # The OpenSslCodec is not requird so if you get an https transport
           # from somewhere else then you do not need this dependency.
           'openssl': (OpenSslPackageInstaller(
-              config, 'https://www.openssl.org/source/openssl-1.1.0e.tar.gz')),
+              config, 'https://www.openssl.org/source/openssl-1.1.0j.tar.gz')),
           })
 
     self._url_map.update({
