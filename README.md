@@ -1,9 +1,11 @@
 # Google API C++ Client
 
+**This repository is deprecated as of May 30th 2019. Please do not use this for any new projects.**
+
+**PLEASE READ**: If you have a support contract with Google, and need help with this library - please create an issue in the [support console](https://cloud.google.com/support/).
+
 The current installation has only been tested on Unix/Linux systems;
-this release does not support Windows yet. The following sequence of
-actions should result in a turnkey build of the client libraries from
-the source code given only:
+this release does not support Windows.
 
 ## Building
 
@@ -51,13 +53,11 @@ If you have problems, questions or suggestions, contact:
 Or you may also ask questions on StackOverflow at:
    http://stackoverflow.com with the tag google-api-cpp-client
 
+**PLEASE READ**: If you have a support contract with Google, and need help with this library - please create an issue in the [support console](https://cloud.google.com/support/).
+
 ## Status
 
-  This SDK is in maintanance mode. The patches being made are mostly for
-  portability and/or to remove unneeded pieces.
-
-  We are not set up to accept pull requests at this time, nor will be in the
-  forseable future. Please submit suggestions as issues.
+  This SDK is deprecated and archived. We don't accept patches any more.
 
 ### About the branches
 
